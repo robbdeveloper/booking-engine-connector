@@ -1,0 +1,69 @@
+<?php
+
+declare(strict_types=1);
+
+namespace BookingEngineConnector\Core;
+
+use BookingEngineConnector\Admin\AdminMenu;
+use BookingEngineConnector\Admin\Settings\ConnectionPage;
+use BookingEngineConnector\Admin\Settings\FallbackPage;
+use BookingEngineConnector\Admin\Settings\UnitPermalinkPage;
+use BookingEngineConnector\Admin\SyncAdmin;
+use BookingEngineConnector\Front\PublicAssets;
+use BookingEngineConnector\Front\PublicContentBlocks;
+use BookingEngineConnector\PostTypes\UnitPostType;
+use BookingEngineConnector\Search\SearchTemplateHooks;
+use BookingEngineConnector\Shortcodes\ShortcodeRegistry;
+use BookingEngineConnector\Sync\CoreUnitFieldRegistry;
+use BookingEngineConnector\Sync\SyncCron;
+use BookingEngineConnector\Sync\UnitSyncFieldRegistry;
+
+/**
+ * Main plugin bootstrap.
+ */
+final class Plugin
+{
+	private static ?self $instance = null;
+
+	public static function instance(): self
+	{
+		if (self::$instance === null) {
+			self::$instance = new self();
+		}
+
+		return self::$instance;
+	}
+
+	public function init(): void
+	{
+		register_activation_hook(\BEC_PLUGIN_FILE, [Activator::class, 'activate']);
+		register_deactivation_hook(\BEC_PLUGIN_FILE, [Deactivator::class, 'deactivate']);
+
+		add_action('plugins_loaded', [$this, 'onPluginsLoaded']);
+	}
+
+	public function onPluginsLoaded(): void
+	{
+		require_once \BEC_PLUGIN_DIR . 'includes/Search/template-functions.php';
+
+		load_plugin_textdomain(
+			'booking-engine-connector',
+			false,
+			dirname(\BEC_PLUGIN_BASENAME) . '/languages'
+		);
+
+		SearchTemplateHooks::register();
+		PublicAssets::register();
+		PublicContentBlocks::register();
+		AdminMenu::register();
+		ConnectionPage::register();
+		UnitPermalinkPage::register();
+		FallbackPage::register();
+		SyncCron::register();
+		SyncAdmin::register();
+		UnitPostType::register();
+		CoreUnitFieldRegistry::register();
+		UnitSyncFieldRegistry::register();
+		ShortcodeRegistry::register();
+	}
+}

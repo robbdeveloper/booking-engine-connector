@@ -1,0 +1,113 @@
+/**
+ * Booking Engine Connector — public (prefixed bec-)
+ * TASK-UI-001: minimal reset-safe layout for search, CTA, fallback.
+ */
+
+.bec-search-form-wrap,
+.bec-booking-block,
+.bec-fallback {
+	box-sizing: border-box;
+	max-width: 100%;
+	margin: 1.25rem 0;
+}
+
+.bec-search-form {
+	display: flex;
+	flex-wrap: wrap;
+	gap: 0.75rem 1rem;
+	align-items: flex-end;
+}
+
+.bec-search-form__field {
+	margin: 0;
+}
+
+.bec-search-form__field label {
+	display: block;
+	font-weight: 600;
+	margin-bottom: 0.25rem;
+}
+
+.bec-search-form__error {
+	color: #b32d2e;
+	margin: 0 0 0.5rem;
+}
+
+.bec-search-form__button {
+	cursor: pointer;
+}
+
+.bec-booking-block__status {
+	margin: 0 0 0.5rem;
+}
+
+.bec-booking-block__status--ok {
+	color: #1e4620;
+}
+
+.bec-booking-block__status--none {
+	color: #666;
+}
+
+.bec-checkout-form {
+	display: inline-block;
+	margin: 0;
+	vertical-align: baseline;
+}
+
+.bec-checkout-form .bec-checkout-cta {
+	cursor: pointer;
+	font: inherit;
+	line-height: inherit;
+	background: transparent;
+	color: inherit;
+}
+
+.bec-checkout-cta {
+	display: inline-block;
+	padding: 0.5rem 1rem;
+	text-decoration: none;
+	border-radius: 2px;
+	border: 1px solid currentColor;
+}
+
+.bec-fallback {
+	padding: 1rem;
+	border: 1px solid #ddd;
+	border-radius: 2px;
+	background: #fafafa;
+}
+
+.bec-fallback__inner > *:first-child {
+	margin-top: 0;
+}
+
+.bec-fallback__inner > *:last-child {
+	margin-bottom: 0;
+}
+
+.bec-fallback__hint {
+	margin: 0;
+	font-style: italic;
+	color: #666;
+}
+
+.bec-shortcode-checkout,
+.bec-shortcode-dates,
+.bec-shortcode-quote {
+	margin: 0.5rem 0;
+}
+
+.bec-shortcode-quote__rates {
+	margin: 0.35rem 0 0;
+	padding-left: 1.25rem;
+	list-style: disc;
+}
+
+.bec-shortcode-quote__rate--selected {
+	font-weight: 600;
+}
+
+.bec-shortcode-quote__rate-price {
+	white-space: nowrap;
+}

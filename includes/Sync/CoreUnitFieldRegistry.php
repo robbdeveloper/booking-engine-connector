@@ -1,0 +1,491 @@
+<?php
+
+declare(strict_types=1);
+
+namespace BookingEngineConnector\Sync;
+
+use BookingEngineConnector\Media\RemoteGalleryImporter;
+use BookingEngineConnector\PostTypes\UnitPostType;
+use BookingEngineConnector\Providers\ProviderRegistry;
+use BookingEngineConnector\Units\AmenityItem;
+use BookingEngineConnector\Units\CoreUnitMetaKeys;
+use BookingEngineConnector\Units\CoreUnitSemantic;
+
+/**
+ * Canonical unit fields (`bec_core_*`): registration, sync application, admin UI.
+ *
+ * Filters: {@see bec_sync_apply_core_unit_fields}, {@see bec_core_unit_fields}, {@see bec_core_unit_locale},
+ * {@see bec_provider_amenities_from_row}, {@see bec_sync_import_gallery_images}, {@see bec_core_unit_gallery_before_save},
+ * {@see bec_core_unit_gallery_remote_urls}, {@see bec_sync_gallery_ignore_hash}, {@see bec_gallery_download_concurrency}.
+ */
+final class CoreUnitFieldRegistry
+{
+	private static bool $postMetaRegistered = false;
+
+	public static function register(): void
+	{
+		add_action('init', [self::class, 'onInit'], 10);
+		add_action('add_meta_boxes', [self::class, 'addMetaBox']);
+		add_action('save_post', [self::class, 'onSavePost'], 10, 2);
+	}
+
+	public static function onInit(): void
+	{
+		self::registerPostMeta();
+	}
+
+	/**
+	 * @param array<string, mixed> $row
+	 */
+	public static function applyFromProviderRow(int $postId, string $providerSlug, array $row): void
+	{
+		if (! \apply_filters('bec_sync_apply_core_unit_fields', true, $postId, $providerSlug, $row)) {
+			return;
+		}
+
+		$provider = ProviderRegistry::getProvider($providerSlug);
+		$data     = $provider->extractCoreUnitFields($row);
+		$data     = \apply_filters('bec_core_unit_fields', $data, $providerSlug, $row);
+
+		if (! is_array($data)) {
+			return;
+		}
+
+		foreach (CoreUnitSemantic::all() as $sem) {
+			if (! array_key_exists($sem, $data)) {
+				continue;
+			}
+
+			$defs = CoreUnitMetaKeys::definitions();
+			if (! isset($defs[ $sem ])) {
+				continue;
+			}
+
+			$conf    = $defs[ $sem ];
+			$metaKey = $conf['meta_key'];
+			$type    = $conf['type'];
+			$value   = $data[ $sem ];
+			if ($sem === CoreUnitSemantic::GALLERY) {
+				$value = self::resolveGalleryForStorage($postId, $value);
+			}
+			$san = self::sanitizeValue($type, $value);
+			update_post_meta($postId, $metaKey, $san);
+		}
+	}
+
+	private static function registerPostMeta(): void
+	{
+		if (self::$postMetaRegistered) {
+			return;
+		}
+
+		$auth = static function ($allowed, $meta_key, $post_id) {
+			return current_user_can('edit_post', (int) $post_id);
+		};
+
+		$cpt = UnitPostType::getSlug();
+
+		foreach (CoreUnitMetaKeys::definitions() as $semantic => $conf) {
+			$type    = $conf['type'];
+			$metaKey = $conf['meta_key'];
+			$wpType  = self::wpMetaType($type);
+
+			register_post_meta(
+				$cpt,
+				$metaKey,
+				[
+					'type'              => $wpType,
+					'single'            => true,
+					'show_in_rest'      => true,
+					'sanitize_callback' => static function ($value) use ($type) {
+						return CoreUnitFieldRegistry::sanitizeValue($type, $value);
+					},
+					'auth_callback'     => $auth,
+					'default'         => self::defaultForType($type),
+				]
+			);
+		}
+
+		self::$postMetaRegistered = true;
+	}
+
+	private static function wpMetaType(string $type): string
+	{
+		return 'string';
+	}
+
+	/**
+	 * @return string|bool
+	 */
+	private static function defaultForType(string $type)
+	{
+		return '';
+	}
+
+	/**
+	 * @param mixed $value Remote payload (`urls` + optional `featured_url`), list of URL strings, or attachment IDs.
+	 * @return list<int>|string|mixed
+	 */
+	private static function resolveGalleryForStorage(int $postId, $value)
+	{
+		/** @var mixed $value */
+		$value = \apply_filters('bec_core_unit_gallery_before_save', $value, $postId);
+
+		if ($value === null || $value === '') {
+			return '';
+		}
+
+		if (! is_array($value)) {
+			return $value;
+		}
+
+		if (isset($value['urls']) && is_array($value['urls'])) {
+			$flat = [];
+			foreach ($value['urls'] as $u) {
+				if (is_string($u) && self::looksLikeHttpUrl($u)) {
+					$flat[] = $u;
+					continue;
+				}
+				if (is_array($u) && isset($u['url']) && is_string($u['url'])) {
+					$flat[] = $u['url'];
+				}
+			}
+			$flat = \apply_filters('bec_core_unit_gallery_remote_urls', $flat, $postId, $value);
+
+			$ids = RemoteGalleryImporter::importUrls($postId, $flat);
+
+			$feat = isset($value['featured_url']) ? (string) $value['featured_url'] : '';
+			if ($feat !== '' && self::looksLikeHttpUrl($feat)) {
+				$aid = RemoteGalleryImporter::findAttachmentIdBySourceUrl($feat);
+				if ($aid !== null) {
+					\set_post_thumbnail($postId, $aid);
+				}
+			}
+
+			return $ids;
+		}
+
+		if ($value === []) {
+			return [];
+		}
+
+		$allUrls = true;
+		foreach ($value as $x) {
+			if (! is_string($x) || ! self::looksLikeHttpUrl($x)) {
+				$allUrls = false;
+				break;
+			}
+		}
+		if ($allUrls) {
+			return RemoteGalleryImporter::importUrls($postId, array_values($value));
+		}
+
+		$allIds = true;
+		foreach ($value as $x) {
+			if (is_int($x)) {
+				continue;
+			}
+			if (is_string($x) && $x !== '' && is_numeric($x)) {
+				continue;
+			}
+			$allIds = false;
+			break;
+		}
+		if ($allIds) {
+			$out = [];
+			foreach ($value as $x) {
+				$out[] = (int) $x;
+			}
+
+			return $out;
+		}
+
+		return $value;
+	}
+
+	private static function looksLikeHttpUrl(string $s): bool
+	{
+		$s = \trim($s);
+
+		return $s !== '' && ( \str_starts_with($s, 'http://') || \str_starts_with($s, 'https://') );
+	}
+
+	/**
+	 * @param 'string'|'textarea'|'number'|'bathrooms'|'amenities_json'|'gallery_json' $type
+	 *
+	 * @return mixed
+	 */
+	public static function sanitizeValue(string $type, $value)
+	{
+		switch ($type) {
+			case 'string':
+				if ($value === null) {
+					return '';
+				}
+				if (is_bool($value)) {
+					return $value ? '1' : '';
+				}
+
+				return sanitize_text_field((string) $value);
+
+			case 'textarea':
+				if ($value === null) {
+					return '';
+				}
+
+				return sanitize_textarea_field((string) $value);
+
+			case 'number':
+				if ($value === null || $value === '') {
+					return '';
+				}
+				if (is_numeric($value)) {
+					$n = $value + 0;
+
+					return is_float($n) ? (string) $n : (string) (int) $n;
+				}
+
+				return '';
+
+			case 'bathrooms':
+				if ($value === null || $value === '') {
+					return '';
+				}
+				if (is_numeric($value)) {
+					$n = $value + 0;
+
+					return is_float($n) ? (string) $n : (string) (int) $n;
+				}
+
+				return sanitize_text_field((string) $value);
+
+			case 'amenities_json':
+				if ($value === null || $value === '') {
+					return '';
+				}
+				if (is_array($value)) {
+					$norm = AmenityItem::normalizeList($value);
+					$enc  = wp_json_encode($norm, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES);
+
+					return $enc !== false ? $enc : '';
+				}
+				if (! is_string($value)) {
+					return '';
+				}
+				$trim = trim($value);
+				if ($trim === '') {
+					return '';
+				}
+				$decoded = json_decode($trim, true);
+				if (json_last_error() !== JSON_ERROR_NONE || ! is_array($decoded)) {
+					return '';
+				}
+				$norm = AmenityItem::normalizeList($decoded);
+				$enc  = wp_json_encode($norm, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES);
+
+				return $enc !== false ? $enc : '';
+
+			case 'gallery_json':
+				if ($value === null || $value === '') {
+					return '';
+				}
+				if (is_array($value)) {
+					$ids = [];
+					foreach ($value as $v) {
+						if (is_numeric($v)) {
+							$n = (int) $v;
+							if ($n > 0) {
+								$ids[] = $n;
+							}
+						}
+					}
+					$enc = wp_json_encode(array_values(array_unique($ids)), JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES);
+
+					return $enc !== false ? $enc : '';
+				}
+				if (! is_string($value)) {
+					return '';
+				}
+				$trim = trim($value);
+				if ($trim === '') {
+					return '';
+				}
+				$decoded = json_decode($trim, true);
+				if (json_last_error() !== JSON_ERROR_NONE || ! is_array($decoded)) {
+					return '';
+				}
+				$ids = [];
+				foreach ($decoded as $v) {
+					if (is_numeric($v)) {
+						$n = (int) $v;
+						if ($n > 0) {
+							$ids[] = $n;
+						}
+					}
+				}
+				$enc = wp_json_encode(array_values(array_unique($ids)), JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES);
+
+				return $enc !== false ? $enc : '';
+
+			default:
+				return '';
+		}
+	}
+
+	public static function addMetaBox(): void
+	{
+		add_meta_box(
+			'bec_unit_core_fields',
+			__('Unit — core fields (canonical)', 'booking-engine-connector'),
+			[self::class, 'renderMetaBox'],
+			UnitPostType::getSlug(),
+			'normal',
+			'high'
+		);
+	}
+
+	public static function renderMetaBox(\WP_Post $post): void
+	{
+		if (! current_user_can('edit_post', $post->ID)) {
+			return;
+		}
+
+		wp_nonce_field('bec_unit_core_fields_save', 'bec_unit_core_fields_nonce');
+
+		echo '<p class="description">' . esc_html__(
+			'Provider-independent fields used in themes and shortcodes. Sync overwrites these on each run unless disabled via filter.',
+			'booking-engine-connector'
+		) . '</p>';
+
+		echo '<table class="form-table" role="presentation"><tbody>';
+
+		foreach (CoreUnitMetaKeys::definitions() as $semantic => $conf) {
+			$metaKey = $conf['meta_key'];
+			$label   = $conf['label'];
+			$type    = $conf['type'];
+			$val     = get_post_meta($post->ID, $metaKey, true);
+
+			echo '<tr><th scope="row"><label for="bec_core_' . esc_attr($metaKey) . '">' . esc_html($label) . '</label></th><td>';
+
+			$name = 'bec_core_fields[' . $metaKey . ']';
+
+			switch ($type) {
+				case 'textarea':
+					echo '<textarea class="large-text" rows="4" id="bec_core_' . esc_attr($metaKey) . '" name="' . esc_attr($name) . '">';
+					echo esc_textarea(is_string($val) ? $val : '');
+					echo '</textarea>';
+					break;
+				case 'amenities_json':
+					$display = '';
+					if (is_string($val) && $val !== '') {
+						$display = $val;
+					} elseif (is_array($val)) {
+						$enc = wp_json_encode($val, JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES);
+						$display = $enc !== false ? $enc : '';
+					} else {
+						$dec = json_decode((string) $val, true);
+						if (is_array($dec)) {
+							$enc = wp_json_encode($dec, JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES);
+							$display = $enc !== false ? $enc : '';
+						}
+					}
+					echo '<textarea class="large-text code" rows="8" id="bec_core_' . esc_attr($metaKey) . '" name="' . esc_attr($name) . '" spellcheck="false">';
+					echo esc_textarea($display);
+					echo '</textarea>';
+					echo '<p class="description">' . esc_html__(
+						'Array of items: key, labels per locale, optional icon. Override via bec_provider_amenities_from_row / bec_kross_amenities_from_raw.',
+						'booking-engine-connector'
+					) . '</p>';
+					break;
+				case 'gallery_json':
+					$display = '';
+					if (is_string($val) && $val !== '') {
+						$display = $val;
+					} elseif (is_array($val)) {
+						$enc = wp_json_encode($val, JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES);
+						$display = $enc !== false ? $enc : '';
+					}
+					echo '<textarea class="large-text code" rows="4" id="bec_core_' . esc_attr($metaKey) . '" name="' . esc_attr($name) . '" spellcheck="false">';
+					echo esc_textarea($display);
+					echo '</textarea>';
+					echo '<p class="description">' . esc_html__(
+						'JSON array of Media Library attachment IDs, e.g. [12,34]. On sync, providers may import remote URLs into attachments automatically.',
+						'booking-engine-connector'
+					) . '</p>';
+					break;
+				case 'number':
+				case 'bathrooms':
+					echo '<input type="text" class="regular-text" id="bec_core_' . esc_attr($metaKey) . '" name="' . esc_attr($name) . '" value="' . esc_attr(is_scalar($val) ? (string) $val : '') . '" inputmode="decimal" />';
+					if ($type === 'bathrooms') {
+						echo '<p class="description">' . esc_html__(
+							'Use decimals if needed (e.g. 1.5).',
+							'booking-engine-connector'
+						) . '</p>';
+					}
+					break;
+				default:
+					echo '<input type="text" class="large-text" id="bec_core_' . esc_attr($metaKey) . '" name="' . esc_attr($name) . '" value="' . esc_attr(is_scalar($val) ? (string) $val : '') . '" />';
+			}
+
+			echo '<p class="description"><code>' . esc_html($metaKey) . '</code> · <code>' . esc_html($semantic) . '</code></p>';
+			echo '</td></tr>';
+		}
+
+		echo '</tbody></table>';
+
+		echo '<hr style="margin:2em 0 1em;border:0;border-top:1px solid #c3c4c7;" />';
+		echo '<p class="description">' . esc_html__(
+			'Debug: last synced remote row (post meta bec_sync_payload). Duplicated from the Booking engine — synced data box for quick inspection.',
+			'booking-engine-connector'
+		) . '</p>';
+		UnitPostType::renderRemoteRowJsonPanel($post);
+	}
+
+	/**
+	 * @param int|\WP_Post $postId
+	 */
+	public static function onSavePost($postId, $post): void
+	{
+		if (! is_int($postId) || $postId <= 0) {
+			return;
+		}
+
+		if (! $post instanceof \WP_Post) {
+			return;
+		}
+
+		if ($post->post_type !== UnitPostType::getSlug()) {
+			return;
+		}
+
+		if (defined('DOING_AUTOSAVE') && DOING_AUTOSAVE) {
+			return;
+		}
+
+		if (wp_is_post_revision($postId)) {
+			return;
+		}
+
+		if (! isset($_POST['bec_unit_core_fields_nonce']) || ! wp_verify_nonce(sanitize_text_field(wp_unslash((string) $_POST['bec_unit_core_fields_nonce'])), 'bec_unit_core_fields_save')) {
+			return;
+		}
+
+		if (! current_user_can('edit_post', $postId)) {
+			return;
+		}
+
+		$posted = isset($_POST['bec_core_fields']) && is_array($_POST['bec_core_fields']) ? wp_unslash($_POST['bec_core_fields']) : [];
+
+		foreach (CoreUnitMetaKeys::definitions() as $semantic => $conf) {
+			$metaKey = $conf['meta_key'];
+			$type    = $conf['type'];
+
+			if (! array_key_exists($metaKey, $posted)) {
+				continue;
+			}
+
+			$raw = $posted[ $metaKey ];
+			update_post_meta($postId, $metaKey, self::sanitizeValue($type, $raw));
+		}
+	}
+}

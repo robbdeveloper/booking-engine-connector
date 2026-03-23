@@ -1,0 +1,75 @@
+<?php
+
+declare(strict_types=1);
+
+namespace BookingEngineConnector\Providers\Contracts;
+
+use BookingEngineConnector\Providers\Auth\CredentialField;
+
+/**
+ * Booking provider abstraction (Kross, future engines).
+ */
+interface ProviderInterface
+{
+	public function getSlug(): string;
+
+	/**
+	 * Declarative credential field definitions for admin UI and validation.
+	 *
+	 * @return list<CredentialField>|array<int, array<string, mixed>>
+	 */
+	public function getCredentialSchema(): array;
+
+	public function validateCredentials(): bool;
+
+	/**
+	 * Fetch remote inventory metadata for mapping/sync (not implemented in stub providers).
+	 *
+	 * @return array<int, array<string, mixed>>
+	 */
+	public function fetchRemoteUnits(): array;
+
+	/**
+	 * Canonical unit fields (name, address, geo, occupancy, check-in/out, rooms, bathrooms, description, m², amenities, gallery).
+	 * Keys must be {@see \BookingEngineConnector\Units\CoreUnitSemantic} constants.
+	 *
+	 * @param array<string, mixed> $row Normalised remote row (after {@see bec_sync_remote_unit}).
+	 *
+	 * @return array<string, mixed>
+	 */
+	public function extractCoreUnitFields(array $row): array;
+
+	/**
+	 * Declarative mapping from a normalised remote unit row to post meta keys (per provider).
+	 * Used during sync and to render editable fields in the unit editor.
+	 *
+	 * @return list<\BookingEngineConnector\Sync\UnitSyncFieldDefinition>
+	 */
+	public function getUnitSyncFieldDefinitions(): array;
+
+	/**
+	 * When true, the search layer collects one age per child (`bec_child_age[]`) and passes
+	 * `children_ages` in the provider search context (used e.g. for Kross checkout `guests_rooms`).
+	 */
+	public function requiresChildrenAges(): bool;
+
+	/**
+	 * Price/availability quote for one remote unit and a search context.
+	 *
+	 * @param array<string, mixed> $searchContext Dates, guests, and provider-specific params.
+	 */
+	public function getQuoteForUnit(string $remoteUnitId, array $searchContext): mixed;
+
+	/**
+	 * External checkout for this unit and stay, or null if not supported.
+	 *
+	 * Return GET navigation: `['url' => fullUrl, 'label' => optional]` (default).
+	 * Return POST submission: `['url' => actionUrl, 'method' => 'post', 'post_fields' => [...], 'label' => optional]`.
+	 * The active theme/shortcode renders a link or a form accordingly.
+	 *
+	 * @param array<string, mixed> $searchContext Same shape as for quotes (checkin, checkout, adults, children, optional children_ages).
+	 *
+	 * @return array<string, mixed>|null
+	 */
+	public function buildCheckoutUrl(string $remoteUnitId, array $searchContext): ?array;
+}

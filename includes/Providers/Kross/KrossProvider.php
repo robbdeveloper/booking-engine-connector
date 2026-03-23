@@ -1,0 +1,431 @@
+<?php
+
+declare(strict_types=1);
+
+namespace BookingEngineConnector\Providers\Kross;
+
+use BookingEngineConnector\Api\HttpClient;
+use BookingEngineConnector\Api\HttpResponse;
+use BookingEngineConnector\Fallback\FallbackSettings;
+use BookingEngineConnector\Providers\Contracts\ProviderErrorCategory;
+use BookingEngineConnector\Providers\Contracts\ProviderException;
+use BookingEngineConnector\Providers\Contracts\ProviderInterface;
+
+/**
+ * Kross API v4: room types + calendar availability (see docs/KROSS-API.md).
+ */
+final class KrossProvider implements ProviderInterface
+{
+	private KrossAuthenticator $authenticator;
+
+	private KrossApiClient $api;
+
+	public function __construct(
+		?HttpClient $http = null,
+		?KrossAuthenticator $authenticator = null,
+		?KrossApiClient $apiClient = null
+	) {
+		$http                = $http ?? new HttpClient();
+		$this->authenticator = $authenticator ?? new KrossAuthenticator($http);
+		$this->api           = $apiClient ?? new KrossApiClient($http, $this->authenticator);
+	}
+
+	public function getSlug(): string
+	{
+		return 'kross';
+	}
+
+	public function getCredentialSchema(): array
+	{
+		return $this->authenticator->getCredentialFields();
+	}
+
+	public function validateCredentials(): bool
+	{
+		$h = (string) \get_option(KrossAuthenticator::OPTION_HOTEL_ID, '');
+		$k = (string) \get_option(KrossAuthenticator::OPTION_API_KEY, '');
+		$u = (string) \get_option(KrossAuthenticator::OPTION_USERNAME, '');
+		$p = (string) \get_option(KrossAuthenticator::OPTION_PASSWORD, '');
+
+		return $h !== '' && $k !== '' && $u !== '' && $p !== '';
+	}
+
+	/**
+	 * @return list<\BookingEngineConnector\Sync\UnitSyncFieldDefinition>
+	 */
+	public function getUnitSyncFieldDefinitions(): array
+	{
+		return KrossUnitSyncFieldDefinitions::get();
+	}
+
+	/**
+	 * @param array<string, mixed> $row
+	 *
+	 * @return array<string, mixed>
+	 */
+	public function extractCoreUnitFields(array $row): array
+	{
+		return KrossCoreUnitFields::extract($row);
+	}
+
+	public function requiresChildrenAges(): bool
+	{
+		return true;
+	}
+
+	public function fetchRemoteUnits(): array
+	{
+		$payload = (array) \apply_filters(
+			'bec_kross_room_types_payload',
+			[
+				'with_be_info'            => true,
+				'with_custom_fields'      => true,
+				'with_images_full'        => true,
+				'with_mandatory_services' => true,
+				'with_additional_info'    => true,
+				'with_long_term'          => true,
+				'with_amenities'          => true,
+				'with_bed_bath_details'   => true,
+				'with_damage_deposit'     => true,
+			]
+		);
+
+		$response = $this->api->request('GET', '/v4/rooms/get-room-types', $payload);
+
+		$this->assertHttpOk($response);
+
+		$decoded = KrossResponseParser::decodeBody($response->getBody());
+		if (! KrossResponseParser::isSuccess($decoded)) {
+			throw new ProviderException(
+				\__('Kross get-room-types returned result = false.', 'booking-engine-connector'),
+				ProviderErrorCategory::VALIDATION
+			);
+		}
+
+		$data = KrossResponseParser::getDataPayload($decoded);
+		$rows = $this->normalizeRoomTypesList($data);
+
+		/**
+		 * @param array<int, array<string, mixed>> $rows
+		 * @param array<string, mixed> $decoded
+		 * @return array<int, array<string, mixed>>
+		 */
+		return \apply_filters('bec_provider_remote_units', $rows, 'kross', $decoded);
+	}
+
+	/**
+	 * @param array<string, mixed> $searchContext Expected keys: checkin, checkout, adults, children (or date_from, date_to, guests).
+	 */
+	public function getQuoteForUnit(string $remoteUnitId, array $searchContext): mixed
+	{
+		$checkin  = (string) ($searchContext['checkin'] ?? $searchContext['date_from'] ?? '');
+		$checkout = (string) ($searchContext['checkout'] ?? $searchContext['date_to'] ?? '');
+		if ($checkin === '' || $checkout === '') {
+			throw new ProviderException(
+				\__('Search context must include check-in and check-out dates.', 'booking-engine-connector'),
+				ProviderErrorCategory::VALIDATION
+			);
+		}
+
+		$adults   = (int) ($searchContext['adults'] ?? 0);
+		$children = (int) ($searchContext['children'] ?? 0);
+		$guests   = (int) ($searchContext['guests'] ?? 0);
+		if ($guests < 1) {
+			$guests = $adults + $children;
+		}
+		if ($guests < 1) {
+			$guests = 1;
+		}
+		if ($adults < 1) {
+			$adults = $guests;
+		}
+
+		$payload = (array) \apply_filters(
+			'bec_kross_calendar_book_payload',
+			[
+				'date_from'    => $checkin,
+				'date_to'      => $checkout,
+				'guests'       => $guests,
+				'adults'       => $adults,
+				'children'     => (string) $children,
+				'with_be_info' => true,
+				'cod_channel'  => 'BE',
+			],
+			$searchContext,
+			$remoteUnitId
+		);
+
+		$response = $this->api->request('GET', '/v4/calendar/book', $payload);
+
+		$this->assertHttpOk($response);
+
+		$decoded = KrossResponseParser::decodeBody($response->getBody());
+		if (! KrossResponseParser::isSuccess($decoded)) {
+			throw new ProviderException(
+				\__('Kross calendar/book returned result = false.', 'booking-engine-connector'),
+				ProviderErrorCategory::VALIDATION
+			);
+		}
+
+		$data = KrossResponseParser::getDataPayload($decoded);
+		$quote = $this->buildQuoteForRoomType($data, $remoteUnitId);
+
+		/**
+		 * @param array<string, mixed> $quote
+		 * @param array<string, mixed> $searchContext
+		 */
+		return \apply_filters('bec_kross_quote_result', $quote, $remoteUnitId, $searchContext, $decoded);
+	}
+
+	/**
+	 * Composes a booking-engine URL or POST form payload when a base is configured (option or filter).
+	 *
+	 * @param array<string, mixed> $searchContext
+	 *
+	 * @return array<string, mixed>|null
+	 */
+	public function buildCheckoutUrl(string $remoteUnitId, array $searchContext): ?array
+	{
+		$defaultBase = (string) \get_option('bec_kross_checkout_base_url', '');
+		$base        = \trim((string) \apply_filters('bec_kross_checkout_base_url', $defaultBase, $remoteUnitId, $searchContext));
+		if ($base === '') {
+			return null;
+		}
+
+		$checkin  = (string) ($searchContext['checkin'] ?? $searchContext['date_from'] ?? '');
+		$checkout = (string) ($searchContext['checkout'] ?? $searchContext['date_to'] ?? '');
+		$adults   = (int) ($searchContext['adults'] ?? 0);
+		$children = (int) ($searchContext['children'] ?? 0);
+		$guests   = $adults + $children;
+		if ($guests < 1) {
+			$guests = 1;
+		}
+
+		$hotelId = (string) \get_option(KrossAuthenticator::OPTION_HOTEL_ID, '');
+		$rateId  = (string) ($searchContext['rate_id'] ?? '');
+
+		$defaultMethod = (string) \get_option(FallbackSettings::OPTION_CHECKOUT_HTTP_METHOD, 'get');
+		$method        = \strtolower(
+			(string) \apply_filters('bec_kross_checkout_http_method', $defaultMethod, $remoteUnitId, $searchContext)
+		);
+		if ($method !== 'post') {
+			$method = 'get';
+		}
+
+		// Kross booking engine expects `id_rate` on POST; resolve via quote / bec_rate_id upstream.
+		if ($method === 'post' && $rateId === '') {
+			return null;
+		}
+
+		$args = [
+			'hotel_id'     => $hotelId,
+			'id_room_type' => $remoteUnitId,
+			'from'    => $checkin,
+			'to'      => $checkout,
+			'guests'       => $guests,
+			'adults'       => $adults,
+			'children'     => $children,
+			'uid'          => \uniqid(),
+		];
+		if ($rateId !== '') {
+			$args['id_rate'] = $rateId;
+		}
+
+		$args['lang'] = self::resolveCheckoutLangCode($searchContext);
+
+		$args['guests_rooms'] = self::buildGuestsRoomsJson($searchContext);
+
+		$args = \array_filter(
+			$args,
+			static function ($v): bool {
+				return $v !== '' && $v !== null;
+			}
+		);
+
+		if ($method === 'post') {
+			$out = [
+				'url'          => $base,
+				'method'       => 'post',
+				'post_fields'  => $args,
+				'label'        => \__('Book now', 'booking-engine-connector'),
+			];
+		} else {
+			$out = [
+				'url'   => \add_query_arg($args, $base),
+				'label' => \__('Book now', 'booking-engine-connector'),
+			];
+		}
+
+		/** @var mixed $filtered */
+		$filtered = \apply_filters('bec_kross_checkout_url_result', $out, $remoteUnitId, $searchContext);
+		if ($filtered === null) {
+			return null;
+		}
+		if (! \is_array($filtered) || ! isset($filtered['url']) || (string) $filtered['url'] === '') {
+			return null;
+		}
+
+		return $filtered;
+	}
+
+	/**
+	 * Two-letter ISO 639-1 code for the Kross booking engine (`lang` query/post field).
+	 *
+	 * Uses optional `lang` on `$searchContext` (e.g. from `bec_quote_search_context`), otherwise
+	 * the active WordPress locale (`determine_locale()` / `get_locale()`).
+	 *
+	 * @param array<string, mixed> $searchContext
+	 */
+	private static function resolveCheckoutLangCode(array $searchContext): string
+	{
+		$explicit = isset($searchContext['lang']) ? \trim((string) $searchContext['lang']) : '';
+		if ($explicit !== '') {
+			$explicit = \strtolower($explicit);
+			if (\preg_match('/^[a-z]{2}$/', $explicit)) {
+				return $explicit;
+			}
+		}
+
+		$locale = \function_exists('determine_locale') ? \determine_locale() : \get_locale();
+		$locale = \str_replace('-', '_', $locale);
+		$primary = \explode('_', $locale, 2)[0];
+		$code = \strtolower(\substr($primary, 0, 2));
+		if ($code === '' || ! \preg_match('/^[a-z]{2}$/', $code)) {
+			return 'en';
+		}
+
+		return $code;
+	}
+
+	/**
+	 * Kross booking engine expects `guests_rooms` as a JSON array string (one room object with stringified adults/children counts).
+	 *
+	 * @param array<string, mixed> $searchContext
+	 */
+	private static function buildGuestsRoomsJson(array $searchContext): string
+	{
+		$adults   = (string) (int) ($searchContext['adults'] ?? 0);
+		$children = (int) ($searchContext['children'] ?? 0);
+		$agesRaw  = $searchContext['children_ages'] ?? [];
+		$ages     = \is_array($agesRaw) ? \array_map('intval', $agesRaw) : [];
+		while (\count($ages) < $children) {
+			$ages[] = 0;
+		}
+		$ages = \array_slice($ages, 0, $children);
+
+		$room = [
+			'adults'         => $adults,
+			'children'       => (string) $children,
+			'infant'         => 0,
+			'children_age'   => $ages,
+		];
+
+		$payload = [ $room ];
+
+		/** @var array<int, array<string, mixed>> $filtered */
+		$filtered = \apply_filters('bec_kross_guests_rooms_payload', $payload, $searchContext);
+
+		return (string) \wp_json_encode($filtered, \JSON_UNESCAPED_UNICODE);
+	}
+
+	private function assertHttpOk(HttpResponse $response): void
+	{
+		$code = $response->getStatusCode();
+		if ($code < 400) {
+			return;
+		}
+
+		throw new ProviderException(
+			\sprintf(
+				/* translators: %d HTTP status */
+				\__('Kross API request failed (%d).', 'booking-engine-connector'),
+				$code
+			),
+			self::statusToCategory($code)
+		);
+	}
+
+	private static function statusToCategory(int $status): string
+	{
+		if ($status === 429) {
+			return ProviderErrorCategory::RATE_LIMIT;
+		}
+		if ($status >= 500) {
+			return ProviderErrorCategory::SERVER_ERROR;
+		}
+		if ($status === 401 || $status === 403) {
+			return ProviderErrorCategory::AUTH;
+		}
+
+		return ProviderErrorCategory::UNKNOWN;
+	}
+
+	/**
+	 * @param array<int|string, mixed> $data
+	 * @return array<int, array<string, mixed>>
+	 */
+	private function normalizeRoomTypesList(array $data): array
+	{
+		$list = self::isSequentialList($data) ? $data : ( $data !== [] ? [ $data ] : [] );
+		$out  = [];
+
+		foreach ($list as $row) {
+			if (! \is_array($row)) {
+				continue;
+			}
+			$id = (string) ($row['id_room_type'] ?? $row['id'] ?? '');
+			if ($id === '') {
+				continue;
+			}
+			$out[] = [
+				'external_id' => $id,
+				'name'        => (string) ($row['name'] ?? $row['name_room_type'] ?? $row['des_room_type'] ?? $row['room_type_name'] ?? ''),
+				'raw'         => $row,
+			];
+		}
+
+		return $out;
+	}
+
+	/**
+	 * @param array<int|string, mixed> $data
+	 * @return array<string, mixed>
+	 */
+	private function buildQuoteForRoomType(array $data, string $remoteUnitId): array
+	{
+		$list = self::isSequentialList($data) ? $data : ( $data !== [] ? [ $data ] : [] );
+		$rows = [];
+
+		foreach ($list as $row) {
+			if (! \is_array($row)) {
+				continue;
+			}
+			$rid = (string) ($row['id_room_type'] ?? '');
+			if ($rid === $remoteUnitId) {
+				$rows[] = $row;
+			}
+		}
+
+		return [
+			'id_room_type' => $remoteUnitId,
+			'rows'         => $rows,
+			'available'    => $rows !== [],
+		];
+	}
+
+	/**
+	 * @param array<int|string, mixed> $a
+	 */
+	private static function isSequentialList(array $a): bool
+	{
+		$expected = 0;
+		foreach (\array_keys($a) as $k) {
+			if ($k !== $expected) {
+				return false;
+			}
+			++$expected;
+		}
+
+		return true;
+	}
+}
