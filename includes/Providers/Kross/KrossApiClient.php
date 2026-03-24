@@ -8,7 +8,8 @@ use BookingEngineConnector\Api\HttpClient;
 use BookingEngineConnector\Api\HttpResponse;
 
 /**
- * Kross v4 JSON envelope: every call sends {@see auth_token} + {@see data} in the body (not Bearer).
+ * Kross API v5: authenticated calls send {@see Authorization: Bearer <token>} and a raw JSON body
+ * (no {@code auth_token}/{@code data} wrapper). See https://api.krossbooking.com/apiv5/
  */
 final class KrossApiClient
 {
@@ -28,37 +29,56 @@ final class KrossApiClient
 	}
 
 	/**
-	 * @param array<string, mixed> $data Business payload for the `data` key.
+	 * @param array<string, mixed> $data JSON object or list sent as the request body (v5 business payload).
 	 */
 	public function request(string $method, string $path, array $data = []): HttpResponse
 	{
-		$token = $this->authenticator->getValidToken();
-		$url   = $this->getBaseUrl() . $path;
-
-		$body = \wp_json_encode([
-			'auth_token' => $token,
-			'data'       => $data,
-		]);
+		$url = $this->getBaseUrl() . $path;
 
 		$httpMethod = \strtoupper($method);
 		/**
-		 * Kross reference uses GET with a JSON body for some paths; `wp_remote_request` cannot
-		 * attach JSON to GET (Requests passes the body through http_build_query). POST with the
-		 * same envelope is accepted (same as {@see KrossAuthenticator::exchangeToken}).
+		 * v5 uses POST with JSON for most endpoints; WordPress HTTP cannot attach a JSON body to GET.
 		 */
 		if ($httpMethod === 'GET') {
 			$httpMethod = 'POST';
 		}
 
-		return $this->http->request($httpMethod, $url, [
-			'headers' => [
-				'Accept'       => 'application/json',
-				'Content-Type' => 'application/json',
-			],
-			'body'                => $body,
-			'bec_skip_auth'       => true,
-			'bec_provider_slug'   => 'kross',
-			'bec_log_profile'     => 'business',
-		]);
+		$body = \wp_json_encode($data, \JSON_UNESCAPED_UNICODE);
+		if ($body === false) {
+			$body = '{}';
+		}
+
+		$max401Attempts = (int) \apply_filters('bec_kross_api_401_retries', 1);
+		if ($max401Attempts < 0) {
+			$max401Attempts = 0;
+		}
+
+		$authRetries = 0;
+		while (true) {
+			$token = $this->authenticator->getValidToken();
+
+			$response = $this->http->request($httpMethod, $url, [
+				'headers' => [
+					'Accept'        => 'application/json',
+					'Content-Type'  => 'application/json',
+					'Authorization' => 'Bearer ' . $token,
+				],
+				'body'              => $body,
+				'bec_skip_auth'     => true,
+				'bec_provider_slug' => 'kross',
+				'bec_log_profile'   => 'business',
+			]);
+
+			if ($response->getStatusCode() !== 401) {
+				return $response;
+			}
+
+			if ($authRetries >= $max401Attempts) {
+				return $response;
+			}
+
+			$this->authenticator->invalidate();
+			++$authRetries;
+		}
 	}
 }

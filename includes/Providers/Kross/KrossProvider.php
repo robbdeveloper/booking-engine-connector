@@ -12,7 +12,7 @@ use BookingEngineConnector\Providers\Contracts\ProviderException;
 use BookingEngineConnector\Providers\Contracts\ProviderInterface;
 
 /**
- * Kross API v4: room types + calendar availability (see docs/KROSS-API.md).
+ * Kross API v5: room types + calendar availability (see docs/KROSS-API.md).
  */
 final class KrossProvider implements ProviderInterface
 {
@@ -90,15 +90,18 @@ final class KrossProvider implements ProviderInterface
 			]
 		);
 
-		$response = $this->api->request('GET', '/v4/rooms/get-room-types', $payload);
+		$response = $this->api->request('GET', '/v5/rooms/get-room-types', $payload);
 
 		$this->assertHttpOk($response);
 
 		$decoded = KrossResponseParser::decodeBody($response->getBody());
 		if (! KrossResponseParser::isSuccess($decoded)) {
 			throw new ProviderException(
-				\__('Kross get-room-types returned result = false.', 'booking-engine-connector'),
-				ProviderErrorCategory::VALIDATION
+				self::formatEnvelopeFailure(
+					\__('Kross get-room-types request was not successful.', 'booking-engine-connector'),
+					$decoded
+				),
+				self::decodedErrorCategory($decoded)
 			);
 		}
 
@@ -140,30 +143,41 @@ final class KrossProvider implements ProviderInterface
 			$adults = $guests;
 		}
 
+		$childrenAges = self::resolveChildrenAges($searchContext, $children);
+
+		$bookPayload = [
+			'date_from'     => $checkin,
+			'date_to'       => $checkout,
+			'adults'        => $adults,
+			'children_ages' => $childrenAges,
+			'with_be_info'  => true,
+			'cod_channel'   => 'BE',
+		];
+
+		$roomTypeId = (int) $remoteUnitId;
+		if ($roomTypeId > 0) {
+			$bookPayload['id_room_types'] = [ $roomTypeId ];
+		}
+
 		$payload = (array) \apply_filters(
 			'bec_kross_calendar_book_payload',
-			[
-				'date_from'    => $checkin,
-				'date_to'      => $checkout,
-				'guests'       => $guests,
-				'adults'       => $adults,
-				'children'     => (string) $children,
-				'with_be_info' => true,
-				'cod_channel'  => 'BE',
-			],
+			$bookPayload,
 			$searchContext,
 			$remoteUnitId
 		);
 
-		$response = $this->api->request('GET', '/v4/calendar/book', $payload);
+		$response = $this->api->request('GET', '/v5/calendar/book', $payload);
 
 		$this->assertHttpOk($response);
 
 		$decoded = KrossResponseParser::decodeBody($response->getBody());
 		if (! KrossResponseParser::isSuccess($decoded)) {
 			throw new ProviderException(
-				\__('Kross calendar/book returned result = false.', 'booking-engine-connector'),
-				ProviderErrorCategory::VALIDATION
+				self::formatEnvelopeFailure(
+					\__('Kross calendar/book request was not successful.', 'booking-engine-connector'),
+					$decoded
+				),
+				self::decodedErrorCategory($decoded)
 			);
 		}
 
@@ -335,17 +349,74 @@ final class KrossProvider implements ProviderInterface
 			return;
 		}
 
+		$decoded = KrossResponseParser::decodeBody($response->getBody());
+		$detail  = KrossResponseParser::getApiErrorMessage($decoded);
+		$base    = \sprintf(
+			/* translators: %d HTTP status */
+			\__('Kross API request failed (%d).', 'booking-engine-connector'),
+			$code
+		);
+		$message = $detail !== '' ? $base . ' ' . $detail : $base;
+
 		throw new ProviderException(
-			\sprintf(
-				/* translators: %d HTTP status */
-				\__('Kross API request failed (%d).', 'booking-engine-connector'),
-				$code
-			),
-			self::statusToCategory($code)
+			$message,
+			self::statusToCategory($code, $decoded)
 		);
 	}
 
-	private static function statusToCategory(int $status): string
+	/**
+	 * @param array<string, mixed> $decoded
+	 */
+	private static function formatEnvelopeFailure(string $fallback, array $decoded): string
+	{
+		$detail = KrossResponseParser::getApiErrorMessage($decoded);
+		if ($detail !== '') {
+			return $detail;
+		}
+
+		$ec = KrossResponseParser::getErrorCode($decoded);
+		if ($ec !== null) {
+			return $fallback . ' ' . \sprintf(
+				/* translators: %d Kross API error_code */
+				\__('(error_code %d)', 'booking-engine-connector'),
+				$ec
+			);
+		}
+
+		return $fallback;
+	}
+
+	/**
+	 * @param array<string, mixed> $decoded
+	 */
+	private static function decodedErrorCategory(array $decoded): string
+	{
+		$ec = KrossResponseParser::getErrorCode($decoded);
+
+		return self::krossErrorCodeToCategory($ec);
+	}
+
+	private static function krossErrorCodeToCategory(?int $errorCode): string
+	{
+		if ($errorCode === null) {
+			return ProviderErrorCategory::VALIDATION;
+		}
+
+		if (\in_array($errorCode, [ 2, 5, 10, 11, 12, 14, 17, 21 ], true)) {
+			return ProviderErrorCategory::AUTH;
+		}
+
+		if (\in_array($errorCode, [ 13, 16 ], true)) {
+			return ProviderErrorCategory::RATE_LIMIT;
+		}
+
+		return ProviderErrorCategory::UNKNOWN;
+	}
+
+	/**
+	 * @param array<string, mixed> $decoded
+	 */
+	private static function statusToCategory(int $status, array $decoded = []): string
 	{
 		if ($status === 429) {
 			return ProviderErrorCategory::RATE_LIMIT;
@@ -357,7 +428,42 @@ final class KrossProvider implements ProviderInterface
 			return ProviderErrorCategory::AUTH;
 		}
 
+		$ec = KrossResponseParser::getErrorCode($decoded);
+		if ($ec !== null) {
+			return self::krossErrorCodeToCategory($ec);
+		}
+
 		return ProviderErrorCategory::UNKNOWN;
+	}
+
+	/**
+	 * v5 {@see /v5/calendar/book} prefers {@see children_ages} over deprecated {@see guests}.
+	 *
+	 * @param array<string, mixed> $searchContext
+	 *
+	 * @return list<int>
+	 */
+	private static function resolveChildrenAges(array $searchContext, int $children): array
+	{
+		$raw = $searchContext['children_ages'] ?? null;
+		if (\is_array($raw)) {
+			$ages = [];
+			foreach ($raw as $age) {
+				$ages[] = (int) $age;
+			}
+			while (\count($ages) < $children) {
+				$ages[] = 0;
+			}
+
+			return \array_slice($ages, 0, $children);
+		}
+
+		$ages = [];
+		for ($i = 0; $i < $children; ++$i) {
+			$ages[] = 0;
+		}
+
+		return $ages;
 	}
 
 	/**

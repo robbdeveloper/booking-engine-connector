@@ -11,7 +11,7 @@ use BookingEngineConnector\Providers\Contracts\ProviderErrorCategory;
 use BookingEngineConnector\Providers\Contracts\ProviderException;
 
 /**
- * Kross API v4: {@see /v4/auth/get-token} with JSON credentials; token at {@see data.auth_token}.
+ * Kross API v5: {@see /v5/auth/get-token} with JSON credentials; token at {@see data.auth_token}.
  * Uses POST for the request body: WordPress HTTP cannot send a JSON body on GET (it runs bodies through http_build_query).
  */
 final class KrossAuthenticator implements AuthenticatorInterface
@@ -64,7 +64,7 @@ final class KrossAuthenticator implements AuthenticatorInterface
 				'text',
 				'sanitize_text_field',
 				true,
-				\__('e.g. apiv4 (see Kross v4 documentation).', 'booking-engine-connector')
+				\__('e.g. apiv5 (see Kross v5 documentation).', 'booking-engine-connector')
 			),
 			new CredentialField(
 				'password',
@@ -162,7 +162,7 @@ final class KrossAuthenticator implements AuthenticatorInterface
 	{
 		$data = $decoded['data'] ?? null;
 		if (! \is_array($data)) {
-			return 3600;
+			return self::defaultTokenTtlSeconds();
 		}
 
 		$expireRaw = $data['auth_token_expire'] ?? null;
@@ -173,7 +173,15 @@ final class KrossAuthenticator implements AuthenticatorInterface
 			}
 		}
 
-		return 3600;
+		return self::defaultTokenTtlSeconds();
+	}
+
+	/**
+	 * v5 tokens are valid 24h and extend on use; cache slightly under 24h if no expiry is returned.
+	 */
+	private static function defaultTokenTtlSeconds(): int
+	{
+		return 82800;
 	}
 
 	/**
@@ -184,11 +192,11 @@ final class KrossAuthenticator implements AuthenticatorInterface
 		$this->lastExchangeRawBody = '';
 
 		/**
-		 * Default Kross v4 token URL (override per environment if needed).
+		 * Default Kross v5 token URL (override per environment if needed).
 		 *
 		 * @param string $default
 		 */
-		$url = (string) \apply_filters('bec_kross_auth_endpoint', 'https://api.krossbooking.com/v4/auth/get-token');
+		$url = (string) \apply_filters('bec_kross_auth_endpoint', 'https://api.krossbooking.com/v5/auth/get-token');
 
 		if ($url === '') {
 			throw new ProviderException(

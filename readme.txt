@@ -42,7 +42,7 @@ Search context uses **GET query parameters** prefixed with `bec_` (e.g. check-in
 * Unit sync service, WP-Cron schedule, admin Sync page, row/bulk sync actions, developer hooks.
 
 = 0.1.3 =
-* Kross API v4: token exchange, room types sync payload, calendar quote; JSON envelope client.
+* Kross API v5: token exchange, room types sync payload, calendar quote; JSON envelope client.
 
 = 0.1.2 =
 * Connection settings page (dynamic credentials per provider), save + verify token exchange.

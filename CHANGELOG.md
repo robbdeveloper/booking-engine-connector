@@ -10,7 +10,7 @@
 - **Units (content)**: Sync sets `post_content` from the canonical description (`bec_core_description` pipeline + `bec_sync_unit_content`, then `wp_kses_post`).
 - **Units (mapped fields)**: `ProviderInterface::getUnitSyncFieldDefinitions()` + `UnitSyncFieldRegistry` — optional extra meta per provider/client; Kross default list empty. Filters `bec_unit_sync_provider_slugs`, `bec_unit_sync_field_definitions`, `bec_sync_apply_mapped_unit_fields`. Admin meta box **Booking engine — unit fields**.
 - **Units (admin)**: Each unit edit screen shows a **Booking engine — synced data** meta box (Classic Editor and block editor) with core `bec_*` meta and a pretty-printed JSON snapshot of the last remote row (`bec_sync_payload`), populated on each successful sync.
-- **Kross auth**: `exchangeToken` uses **POST** for `/v4/auth/get-token` with the same JSON body. WordPress’s HTTP stack cannot attach a JSON string body to GET (it expects an array for query encoding), which caused `TypeError: http_build_query(): Argument #1 ($data) must be of type array, string given` when verifying the connection.
+- **Kross auth**: `exchangeToken` uses **POST** for `/v5/auth/get-token` with the same JSON body. WordPress’s HTTP stack cannot attach a JSON string body to GET (it expects an array for query encoding), which caused `TypeError: http_build_query(): Argument #1 ($data) must be of type array, string given` when verifying the connection.
 - **Kross API client**: Logical `GET` calls that use the JSON envelope (`auth_token` + `data`) are sent as **POST** for the same reason; fixes the same `http_build_query` fatal on sync (`get-room-types`, `calendar/book`, etc.).
 
 ## 0.1.6 — 2026-03-20
@@ -27,7 +27,7 @@
 
 ## 0.1.3 — 2026-03-20
 
-- **PROV-003 (Kross v4)**: `KrossAuthenticator` aligned to GET `…/auth/get-token` + JSON body (`data.auth_token`); username/password credentials; `KrossApiClient` envelope (`auth_token` + `data`); `KrossProvider::fetchRemoteUnits()` → `get-room-types`; `getQuoteForUnit()` → `calendar/book`; `KrossResponseParser` for nested/JSON-in-string values.
+- **PROV-003 (Kross v5)**: `KrossAuthenticator` aligned to GET `…/auth/get-token` + JSON body (`data.auth_token`); username/password credentials; `KrossApiClient` envelope (`auth_token` + `data`); `KrossProvider::fetchRemoteUnits()` → `get-room-types`; `getQuoteForUnit()` → `calendar/book`; `KrossResponseParser` for nested/JSON-in-string values.
 - Docs: `docs/KROSS-API.md` mapping table updated.
 
 ## 0.1.2 — 2026-03-20
