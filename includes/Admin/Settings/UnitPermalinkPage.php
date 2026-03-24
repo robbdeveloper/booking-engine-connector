@@ -28,6 +28,7 @@ final class UnitPermalinkPage
 		}
 
 		$stored = (string) \get_option(UnitPostType::OPTION_PERMALINK_SLUG, '');
+		$hasArchive = (bool) \get_option(UnitPostType::OPTION_HAS_ARCHIVE, false);
 		$exampleSlug = UnitPostType::getPermalinkSlug();
 
 		echo '<div class="wrap">';
@@ -58,6 +59,14 @@ final class UnitPermalinkPage
 			'<code>' . \esc_html($sample) . '</code>'
 		) . '</p>';
 		echo '</td></tr>';
+		echo '<tr><th scope="row">' . \esc_html__('Unit archive', 'booking-engine-connector') . '</th><td>';
+		echo '<label for="bec_unit_has_archive"><input type="checkbox" name="bec_unit_has_archive" id="bec_unit_has_archive" value="1" ' . \checked($hasArchive, true, false) . ' /> ';
+		echo \esc_html__('Enable the public archive page for units (listing URL at the slug above).', 'booking-engine-connector') . '</label>';
+		echo '<p class="description">' . \esc_html__(
+			'When disabled, only single unit URLs are registered. Changing this updates rewrite rules.',
+			'booking-engine-connector'
+		) . '</p>';
+		echo '</td></tr>';
 		echo '</table>';
 
 		echo '<p class="submit"><button type="submit" class="button button-primary">' . \esc_html__('Save changes', 'booking-engine-connector') . '</button></p>';
@@ -83,6 +92,8 @@ final class UnitPermalinkPage
 		} else {
 			\update_option(UnitPostType::OPTION_PERMALINK_SLUG, \sanitize_title($raw), false);
 		}
+
+		\update_option(UnitPostType::OPTION_HAS_ARCHIVE, isset($_POST['bec_unit_has_archive']), false);
 
 		\flush_rewrite_rules(false);
 

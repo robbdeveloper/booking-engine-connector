@@ -20,6 +20,11 @@ final class UnitPostType
 
 	public const OPTION_PERMALINK_SLUG = 'bec_unit_permalink_slug';
 
+	/**
+	 * Whether the public units post type registers an archive URL; value is the default for the `bec_unit_has_archive` filter.
+	 */
+	public const OPTION_HAS_ARCHIVE = 'bec_unit_has_archive';
+
 	public const OPTION_NEEDS_REWRITE_FLUSH = 'bec_needs_rewrite_flush';
 
 	private static string $permalinkSlug = 'bec_unit';
@@ -49,6 +54,8 @@ final class UnitPostType
 	{
 		self::$permalinkSlug = self::resolvePermalinkSlug();
 
+		$hasArchiveDefault = (bool) get_option(self::OPTION_HAS_ARCHIVE, false);
+
 		register_post_type(
 			self::POST_TYPE,
 			[
@@ -60,7 +67,7 @@ final class UnitPostType
 				'menu_icon'           => 'dashicons-building',
 				'menu_position'       => 6,
 				'supports'            => ['title', 'editor', 'thumbnail'],
-				'has_archive'         => (bool) apply_filters('bec_unit_has_archive', false),
+				'has_archive'         => (bool) apply_filters('bec_unit_has_archive', $hasArchiveDefault),
 				'rewrite'             => ['slug' => self::$permalinkSlug],
 				'capability_type'     => 'post',
 				'map_meta_cap'        => true,
