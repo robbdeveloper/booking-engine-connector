@@ -25,6 +25,7 @@ final class ShortcodeRegistry
 		\add_shortcode('bec_checkout', [self::class, 'renderCheckout']);
 		\add_shortcode('bec_quote', [self::class, 'renderQuote']);
 		\add_shortcode('bec_fallback', [self::class, 'renderFallback']);
+		\add_shortcode('bec_unit_url', [self::class, 'renderUnitUrl']);
 	}
 
 	public static function renderVersion(): string
@@ -271,5 +272,38 @@ final class ShortcodeRegistry
 	public static function renderFallback(): string
 	{
 		return FallbackRenderer::render();
+	}
+
+	/**
+	 * Unit permalink with current request search query args (dates, occupancy, rate, child ages).
+	 *
+	 * Use in archive/card templates: href="[bec_unit_url]" or [bec_unit_url unit_id="123"] outside the loop.
+	 */
+	public static function renderUnitUrl($atts = []): string
+	{
+		$a = \shortcode_atts(
+			['unit_id' => '0'],
+			\is_array($atts) ? $atts : [],
+			'bec_unit_url'
+		);
+
+		$postId = (int) $a['unit_id'];
+		if ($postId < 1) {
+			$postId = (int) \get_the_ID();
+		}
+		if ($postId < 1 || \get_post_type($postId) !== UnitPostType::getSlug()) {
+			return '';
+		}
+
+		$permalink = \get_permalink($postId);
+		if ($permalink === false) {
+			return '';
+		}
+
+		$ctx = SearchContext::fromRequest();
+		$url = $ctx->appendToUrl((string) $permalink);
+		$url = (string) \apply_filters('bec_shortcode_unit_url', $url, $postId, $ctx);
+
+		return \esc_url($url);
 	}
 }

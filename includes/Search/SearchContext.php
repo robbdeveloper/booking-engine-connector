@@ -130,6 +130,19 @@ final class SearchContext
 	}
 
 	/**
+	 * Appends {@see toQueryArgs()} to a URL (e.g. unit permalink) so navigation keeps search context.
+	 */
+	public function appendToUrl(string $url): string
+	{
+		$args = $this->toQueryArgs();
+		if ($args === []) {
+			return $url;
+		}
+
+		return (string) \add_query_arg($args, $url);
+	}
+
+	/**
 	 * Whether the minimum fields needed to request a quote are present.
 	 *
 	 * Requires non-empty check-in and check-out and at least one adult.
