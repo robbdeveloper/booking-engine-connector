@@ -4,11 +4,15 @@ declare(strict_types=1);
 
 namespace BookingEngineConnector\Search;
 
+use BookingEngineConnector\Providers\Contracts\BulkQuoteProviderInterface;
 use BookingEngineConnector\Providers\Contracts\ProviderException;
 use BookingEngineConnector\Providers\ProviderRegistry;
 
 /**
  * Fetches quotes via the active provider with transient caching (NFR-PERF).
+ *
+ * Providers implementing {@see BulkQuoteProviderInterface} (e.g. Kross) cache one batch
+ * response per search context and derive per-unit quotes locally (archive loops).
  */
 final class QuoteService
 {
@@ -49,8 +53,40 @@ final class QuoteService
 		 */
 		$searchContext = (array) \apply_filters('bec_quote_search_context', $searchContext, $postId, $ctx);
 
-		$key = self::cacheKey($postId, $slug, $externalId, $searchContext);
 		$ttl = (int) \apply_filters('bec_quote_cache_ttl', 5 * \MINUTE_IN_SECONDS, $postId, $ctx);
+
+		if ($provider instanceof BulkQuoteProviderInterface) {
+			$bulkKey = $provider->getBulkQuoteCacheKey($searchContext);
+			$cachedBulk = \get_transient($bulkKey);
+
+			try {
+				if ($cachedBulk !== false) {
+					$result = $provider->quoteFromBulk($cachedBulk, $externalId, $searchContext);
+					$result = \apply_filters('bec_quote_cached_result', $result, $postId, $ctx);
+				} else {
+					$bulk = $provider->fetchBulkQuotes($searchContext);
+					if ($ttl > 0) {
+						\set_transient($bulkKey, $bulk, $ttl);
+					}
+					$result = $provider->quoteFromBulk($bulk, $externalId, $searchContext);
+				}
+			} catch (ProviderException $e) {
+				$err = new \WP_Error(
+					'bec_provider_error',
+					$e->getMessage(),
+					['category' => $e->getCategory()]
+				);
+
+				return \apply_filters('bec_quote_provider_error', $err, $e, $postId, $ctx);
+			}
+
+			$result = \apply_filters('bec_quote_result', $result, $postId, $ctx, $provider);
+			$result = CanonicalQuote::enrich($result, $slug, $ctx);
+
+			return $result;
+		}
+
+		$key = self::cacheKey($postId, $slug, $externalId, $searchContext);
 
 		$cached = \get_transient($key);
 		if ($cached !== false) {

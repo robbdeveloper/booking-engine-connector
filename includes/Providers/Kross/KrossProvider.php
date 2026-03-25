@@ -7,6 +7,7 @@ namespace BookingEngineConnector\Providers\Kross;
 use BookingEngineConnector\Api\HttpClient;
 use BookingEngineConnector\Api\HttpResponse;
 use BookingEngineConnector\Fallback\FallbackSettings;
+use BookingEngineConnector\Providers\Contracts\BulkQuoteProviderInterface;
 use BookingEngineConnector\Providers\Contracts\ProviderErrorCategory;
 use BookingEngineConnector\Providers\Contracts\ProviderException;
 use BookingEngineConnector\Providers\Contracts\ProviderInterface;
@@ -14,7 +15,7 @@ use BookingEngineConnector\Providers\Contracts\ProviderInterface;
 /**
  * Kross API v5: room types + calendar availability (see docs/KROSS-API.md).
  */
-final class KrossProvider implements ProviderInterface
+final class KrossProvider implements ProviderInterface, BulkQuoteProviderInterface
 {
 	private KrossAuthenticator $authenticator;
 
@@ -121,6 +122,59 @@ final class KrossProvider implements ProviderInterface
 	 */
 	public function getQuoteForUnit(string $remoteUnitId, array $searchContext): mixed
 	{
+		$decoded = $this->requestCalendarBookEnvelope(
+			$searchContext,
+			(int) $remoteUnitId,
+			$remoteUnitId
+		);
+		$data  = KrossResponseParser::getDataPayload($decoded);
+		$quote = $this->buildQuoteForRoomType($data, $remoteUnitId);
+
+		/**
+		 * @param array<string, mixed> $quote
+		 * @param array<string, mixed> $searchContext
+		 */
+		return \apply_filters('bec_kross_quote_result', $quote, $remoteUnitId, $searchContext, $decoded);
+	}
+
+	public function getBulkQuoteCacheKey(array $searchContext): string
+	{
+		$hotelId = (string) \get_option(KrossAuthenticator::OPTION_HOTEL_ID, '');
+		$payload = [
+			'provider' => 'kross',
+			'hotel'    => $hotelId,
+			'context'  => $searchContext,
+		];
+
+		return 'bec_kross_quote_bulk_' . \md5((string) \wp_json_encode($payload));
+	}
+
+	public function fetchBulkQuotes(array $searchContext): mixed
+	{
+		return $this->requestCalendarBookEnvelope($searchContext, 0, '');
+	}
+
+	public function quoteFromBulk(mixed $bulk, string $remoteUnitId, array $searchContext): mixed
+	{
+		if (! \is_array($bulk)) {
+			return [
+				'id_room_type' => $remoteUnitId,
+				'rows'         => [],
+				'available'    => false,
+			];
+		}
+
+		$data  = KrossResponseParser::getDataPayload($bulk);
+		$quote = $this->buildQuoteForRoomType($data, $remoteUnitId);
+
+		return \apply_filters('bec_kross_quote_result', $quote, $remoteUnitId, $searchContext, $bulk);
+	}
+
+	/**
+	 * @return array<string, mixed> Decoded JSON envelope (includes `data`).
+	 */
+	private function requestCalendarBookEnvelope(array $searchContext, int $restrictRoomTypeId, string $remoteUnitIdForFilter): array
+	{
 		$checkin  = (string) ($searchContext['checkin'] ?? $searchContext['date_from'] ?? '');
 		$checkout = (string) ($searchContext['checkout'] ?? $searchContext['date_to'] ?? '');
 		if ($checkin === '' || $checkout === '') {
@@ -154,16 +208,15 @@ final class KrossProvider implements ProviderInterface
 			'cod_channel'   => 'BE',
 		];
 
-		$roomTypeId = (int) $remoteUnitId;
-		if ($roomTypeId > 0) {
-			$bookPayload['id_room_types'] = [ $roomTypeId ];
+		if ($restrictRoomTypeId > 0) {
+			$bookPayload['id_room_types'] = [ $restrictRoomTypeId ];
 		}
 
 		$payload = (array) \apply_filters(
 			'bec_kross_calendar_book_payload',
 			$bookPayload,
 			$searchContext,
-			$remoteUnitId
+			$remoteUnitIdForFilter
 		);
 
 		$response = $this->api->request('GET', '/v5/calendar/book', $payload);
@@ -181,14 +234,7 @@ final class KrossProvider implements ProviderInterface
 			);
 		}
 
-		$data = KrossResponseParser::getDataPayload($decoded);
-		$quote = $this->buildQuoteForRoomType($data, $remoteUnitId);
-
-		/**
-		 * @param array<string, mixed> $quote
-		 * @param array<string, mixed> $searchContext
-		 */
-		return \apply_filters('bec_kross_quote_result', $quote, $remoteUnitId, $searchContext, $decoded);
+		return $decoded;
 	}
 
 	/**
