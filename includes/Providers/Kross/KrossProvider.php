@@ -59,6 +59,11 @@ final class KrossProvider implements ProviderInterface, BulkQuoteProviderInterfa
 		return KrossUnitSyncFieldDefinitions::get();
 	}
 
+	public function getUnitInfoRenderers(): array
+	{
+		return KrossUnitInfoRenderers::get();
+	}
+
 	/**
 	 * @param array<string, mixed> $row
 	 *

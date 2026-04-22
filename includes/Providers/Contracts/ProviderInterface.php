@@ -72,4 +72,17 @@ interface ProviderInterface
 	 * @return array<string, mixed>|null
 	 */
 	public function buildCheckoutUrl(string $remoteUnitId, array $searchContext): ?array;
+
+	/**
+	 * Map of provider-specific shortcode keys to renderer callables used by `[bec_unit_info]`.
+	 *
+	 * Each renderer receives:
+	 *   array $syncPayload  Decoded `bec_sync_payload` (normalised remote row, with `raw`)
+	 *   int   $postId       bec_unit post ID
+	 *   array $atts         Pass-through shortcode attributes (minus key, unit_id, default)
+	 *   array $context      ['provider' => slug, 'locale' => 'en', ...]
+	 *
+	 * @return array<string, callable>
+	 */
+	public function getUnitInfoRenderers(): array;
 }
