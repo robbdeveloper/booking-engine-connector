@@ -7,7 +7,8 @@ namespace BookingEngineConnector\Front;
 use BookingEngineConnector\PostTypes\UnitPostType;
 
 /**
- * Registers and enqueues icon-font packs and Kross-specific amenities grid styles.
+ * Registers and enqueues icon-font packs and Kross-specific public styles
+ * (amenities grid, bedroom arrangements).
  */
 final class AmenitiesAssets
 {
@@ -22,7 +23,7 @@ final class AmenitiesAssets
 			return;
 		}
 		$krossPack = (string) \apply_filters('bec_kross_amenities_default_font_pack', 'font-1', 0, []);
-		self::enqueueKrossStack($krossPack);
+		self::enqueueKrossAmenitiesGridStack($krossPack);
 	}
 
 	/**
@@ -36,7 +37,20 @@ final class AmenitiesAssets
 	{
 		$default = (string) \apply_filters('bec_kross_amenities_default_font_pack', 'font-1', $postId, $passThrough);
 		$pack    = self::fontPackFromAttributes($passThrough, $default);
-		self::enqueueKrossStack($pack);
+		self::enqueueKrossAmenitiesGridStack($pack);
+	}
+
+	/**
+	 * Font pack + {@see assets/public-bedrooms-kross.css} for the `bedroom_arrangements` key.
+	 *
+	 * @param int $postId `bec_unit` post ID
+	 * @param array<string, string> $passThrough [bec_unit_info] atts; may include `font_pack`, `columns`, `title`, `show_title`
+	 */
+	public static function enqueueForKrossBedroomArrangements(int $postId, array $passThrough = []): void
+	{
+		$default = (string) \apply_filters('bec_kross_amenities_default_font_pack', 'font-1', $postId, $passThrough);
+		$pack    = self::fontPackFromAttributes($passThrough, $default);
+		self::enqueueKrossBedroomArrangementsStack($pack);
 	}
 
 	/**
@@ -93,7 +107,7 @@ final class AmenitiesAssets
 			return (bool) \apply_filters('bec_enqueue_kross_amenities_assets', false, null);
 		}
 		$content = (string) $post->post_content;
-		if (self::contentHasBecUnitInfoKey($content, 'amenities_grid')) {
+		if (self::contentHasBecUnitInfoKey($content, 'amenities_grid') || self::contentHasBecUnitInfoKey($content, 'bedroom_arrangements')) {
 			return true;
 		}
 
@@ -123,24 +137,24 @@ final class AmenitiesAssets
 		return false;
 	}
 
-	private static function enqueueKrossStack(string $packSlug): void
+	/**
+	 * Registers and enqueues the selected amenities font pack. Returns the style handle, or
+	 * empty string when the pack or font file is missing.
+	 */
+	private static function registerAndEnqueueKrossFont(string $packSlug): string
 	{
 		$defMap  = self::getFontPackDefinitions();
 		$def     = $defMap[ $packSlug ] ?? $defMap['font-1'] ?? null;
 		if (! \is_array($def)) {
-			return;
+			return '';
 		}
 		$fontHandle = (string) $def['handle'];
 		$path       = (string) $def['rel_path'];
 		$abs        = \BEC_PLUGIN_DIR . $path;
-		$gridRel    = 'assets/public-amenities-kross.css';
-		$gridAbs    = \BEC_PLUGIN_DIR . $gridRel;
-		if (! \is_readable($abs) || ! \is_readable($gridAbs)) {
-			return;
+		if (! \is_readable($abs)) {
+			return '';
 		}
 		$fontVer = (string) \filemtime($abs);
-		$gridVer = (string) \filemtime($gridAbs);
-
 		\wp_register_style(
 			$fontHandle,
 			\BEC_PLUGIN_URL . $path,
@@ -149,6 +163,24 @@ final class AmenitiesAssets
 		);
 		\wp_enqueue_style($fontHandle);
 
+		return $fontHandle;
+	}
+
+	/**
+	 * Amenity grid: font + {@see assets/public-amenities-kross.css}
+	 */
+	private static function enqueueKrossAmenitiesGridStack(string $packSlug): void
+	{
+		$fontHandle = self::registerAndEnqueueKrossFont($packSlug);
+		if ($fontHandle === '') {
+			return;
+		}
+		$gridRel = 'assets/public-amenities-kross.css';
+		$gridAbs = \BEC_PLUGIN_DIR . $gridRel;
+		if (! \is_readable($gridAbs)) {
+			return;
+		}
+		$gridVer = (string) \filemtime($gridAbs);
 		\wp_register_style(
 			'bec-amenities-kross-grid',
 			\BEC_PLUGIN_URL . $gridRel,
@@ -156,5 +188,29 @@ final class AmenitiesAssets
 			$gridVer
 		);
 		\wp_enqueue_style('bec-amenities-kross-grid');
+	}
+
+	/**
+	 * Bedroom arrangements: font + {@see assets/public-bedrooms-kross.css} (no amenities list grid).
+	 */
+	private static function enqueueKrossBedroomArrangementsStack(string $packSlug): void
+	{
+		$fontHandle = self::registerAndEnqueueKrossFont($packSlug);
+		if ($fontHandle === '') {
+			return;
+		}
+		$rel = 'assets/public-bedrooms-kross.css';
+		$abs = \BEC_PLUGIN_DIR . $rel;
+		if (! \is_readable($abs)) {
+			return;
+		}
+		$ver = (string) \filemtime($abs);
+		\wp_register_style(
+			'bec-bedrooms-kross',
+			\BEC_PLUGIN_URL . $rel,
+			[$fontHandle],
+			$ver
+		);
+		\wp_enqueue_style('bec-bedrooms-kross');
 	}
 }
