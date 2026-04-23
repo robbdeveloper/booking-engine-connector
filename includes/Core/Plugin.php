@@ -9,6 +9,7 @@ use BookingEngineConnector\Admin\Settings\ConnectionPage;
 use BookingEngineConnector\Admin\Settings\FallbackPage;
 use BookingEngineConnector\Admin\Settings\UnitPermalinkPage;
 use BookingEngineConnector\Admin\SyncAdmin;
+use BookingEngineConnector\Front\AmenitiesAssets;
 use BookingEngineConnector\Front\PublicAssets;
 use BookingEngineConnector\Front\PublicContentBlocks;
 use BookingEngineConnector\PostTypes\UnitPostType;
@@ -54,6 +55,7 @@ final class Plugin
 
 		SearchTemplateHooks::register();
 		PublicAssets::register();
+		AmenitiesAssets::register();
 		PublicContentBlocks::register();
 		AdminMenu::register();
 		ConnectionPage::register();

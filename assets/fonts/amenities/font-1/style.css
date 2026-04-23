@@ -1,0 +1,2005 @@
+@font-face {
+    font-family: 'amenities_font';
+    src:  url('amenities_font.eot?alxhpe');
+    src:  url('amenities_font.eot?alxhpe#iefix') format('embedded-opentype'),
+      url('amenities_font.ttf?alxhpe') format('truetype'),
+      url('amenities_font.woff?alxhpe') format('woff'),
+      url('amenities_font.svg?alxhpe#amenities_font') format('svg');
+    font-weight: normal;
+    font-style: normal;
+    font-display: block;
+  }
+  
+  [class^="icon-"], [class*=" icon-"] {
+    /* use !important to prevent issues with browser extensions that change fonts */
+    font-family: 'amenities_font' !important;
+    speak: never;
+    font-style: normal;
+    font-weight: normal;
+    font-variant: normal;
+    text-transform: none;
+    line-height: 1;
+  
+    /* Better Font Rendering =========== */
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
+  
+  .icon-smart_lock:before {
+    content: "\eb92";
+  }
+  .icon-kettle:before {
+    content: "\eb91";
+  }
+  .icon-self_ckeck-in:before {
+    content: "\eb90";
+  }
+  .icon-toddler_bed:before {
+    content: "\eb8e";
+  }
+  .icon-floor_mattress:before {
+    content: "\eb8f";
+  }
+  .icon-charge_car:before {
+    content: "\eb8a";
+  }
+  .icon-jetted_tub:before {
+    content: "\eb8b";
+  }
+  .icon-mosquito_nets:before {
+    content: "\eb8c";
+  }
+  .icon-animals_on_request:before {
+    content: "\eb8d";
+  }
+  .icon-luaus:before {
+    content: "\e900";
+  }
+  .icon-marina:before {
+    content: "\e901";
+  }
+  .icon-massage_therapist:before {
+    content: "\e902";
+  }
+  .icon-media_center:before {
+    content: "\e903";
+  }
+  .icon-mini_refrigerator:before {
+    content: "\e904";
+  }
+  .icon-miniature_golf:before {
+    content: "\e905";
+  }
+  .icon-minibar:before {
+    content: "\e906";
+  }
+  .icon-minibar_mini_refrigerator:before {
+    content: "\e907";
+  }
+  .icon-modem:before {
+    content: "\e908";
+  }
+  .icon-modem_jack:before {
+    content: "\e909";
+  }
+  .icon-mountain:before {
+    content: "\e90a";
+  }
+  .icon-murphy_bed:before {
+    content: "\e90b";
+  }
+  .icon-museums:before {
+    content: "\e90c";
+  }
+  .icon-prayer_mats:before {
+    content: "\e90d";
+  }
+  .icon-shoe_polisher:before {
+    content: "\e90e";
+  }
+  .icon-snowmobiling:before {
+    content: "\e90f";
+  }
+  .icon-spare_electrical_outlet_available_at_desk:before {
+    content: "\e910";
+  }
+  .icon-waterfront:before {
+    content: "\e911";
+  }
+  .icon-away_from_it_all:before {
+    content: "\e912";
+  }
+  .icon-bluray_player:before {
+    content: "\e913";
+  }
+  .icon-books:before {
+    content: "\e914";
+  }
+  .icon-bunk_bed:before {
+    content: "\e915";
+  }
+  .icon-children_bed:before {
+    content: "\e916";
+  }
+  .icon-childrens_books_and_toys:before {
+    content: "\e917";
+  }
+  .icon-coin_laundry:before {
+    content: "\e918";
+  }
+  .icon-dish_cleaning_supplies:before {
+    content: "\e919";
+  }
+  .icon-dishwasher:before {
+    content: "\e91a";
+  }
+  .icon-double_beds:before {
+    content: "\e91b";
+  }
+  .icon-electric_profiling_bed:before {
+    content: "\e91c";
+  }
+  .icon-feather_bed:before {
+    content: "\e91d";
+  }
+  .icon-first_aid_kit:before {
+    content: "\e91e";
+  }
+  .icon-first_nighters_kit:before {
+    content: "\e91f";
+  }
+  .icon-hypoallergenic_bed:before {
+    content: "\e920";
+  }
+  .icon-jet_skis:before {
+    content: "\e921";
+  }
+  .icon-kayaking:before {
+    content: "\e922";
+  }
+  .icon-kids_amenities:before {
+    content: "\e923";
+  }
+  .icon-king_bed:before {
+    content: "\e924";
+  }
+  .icon-king_bed2:before {
+    content: "\e925";
+  }
+  .icon-knock_light:before {
+    content: "\e926";
+  }
+  .icon-lake:before {
+    content: "\e927";
+  }
+  .icon-lamp:before {
+    content: "\e928";
+  }
+  .icon-laptop_friendly:before {
+    content: "\e929";
+  }
+  .icon-laundromat:before {
+    content: "\e92a";
+  }
+  .icon-laundry_available:before {
+    content: "\e92b";
+  }
+  .icon-laundry_onrequest:before {
+    content: "\e92c";
+  }
+  .icon-list_of_movie_channels_available:before {
+    content: "\e92d";
+  }
+  .icon-loft:before {
+    content: "\e92e";
+  }
+  .icon-music_library:before {
+    content: "\e92f";
+  }
+  .icon-queen_bed:before {
+    content: "\e930";
+  }
+  .icon-round_bed:before {
+    content: "\e931";
+  }
+  .icon-separate_modem_line_available:before {
+    content: "\e932";
+  }
+  .icon-single_bed:before {
+    content: "\e933";
+  }
+  .icon-sink_in_room:before {
+    content: "\e934";
+  }
+  .icon-video_library:before {
+    content: "\e935";
+  }
+  .icon-wall_bed:before {
+    content: "\e936";
+  }
+  .icon-washer:before {
+    content: "\e937";
+  }
+  .icon-washerdryer:before {
+    content: "\e938";
+  }
+  .icon-water_bed:before {
+    content: "\e939";
+  }
+  .icon-bath_tub_with_spray_jets:before {
+    content: "\e93a";
+  }
+  .icon-botanical_garden:before {
+    content: "\e93b";
+  }
+  .icon-cave:before {
+    content: "\e93c";
+  }
+  .icon-complimentary_high_speed_internet_in_room:before {
+    content: "\e93d";
+  }
+  .icon-dining_guide:before {
+    content: "\e93e";
+  }
+  .icon-fireplace_guards:before {
+    content: "\e93f";
+  }
+  .icon-free_newspaper:before {
+    content: "\e940";
+  }
+  .icon-full_bed:before {
+    content: "\e941";
+  }
+  .icon-futon:before {
+    content: "\e942";
+  }
+  .icon-gambling:before {
+    content: "\e943";
+  }
+  .icon-games:before {
+    content: "\e944";
+  }
+  .icon-garden:before {
+    content: "\e945";
+  }
+  .icon-golf:before {
+    content: "\e946";
+  }
+  .icon-golf_optional:before {
+    content: "\e947";
+  }
+  .icon-grecian_tub:before {
+    content: "\e948";
+  }
+  .icon-grill_gas:before {
+    content: "\e949";
+  }
+  .icon-grocery_fee:before {
+    content: "\e94a";
+  }
+  .icon-grocery_onrequest:before {
+    content: "\e94b";
+  }
+  .icon-ground_floor:before {
+    content: "\e94c";
+  }
+  .icon-hbo_available:before {
+    content: "\e94d";
+  }
+  .icon-health_beauty_spa:before {
+    content: "\e94e";
+  }
+  .icon-high_chair:before {
+    content: "\e94f";
+  }
+  .icon-high_speed_internet_connection:before {
+    content: "\e950";
+  }
+  .icon-home_step_free_access:before {
+    content: "\e951";
+  }
+  .icon-indoor_parking:before {
+    content: "\e952";
+  }
+  .icon-inperson_checkin:before {
+    content: "\e953";
+  }
+  .icon-international_direct_dialing:before {
+    content: "\e954";
+  }
+  .icon-ipod_docking_station:before {
+    content: "\e955";
+  }
+  .icon-lanai_gazebo_covered:before {
+    content: "\e956";
+  }
+  .icon-newspaper:before {
+    content: "\e957";
+  }
+  .icon-outdoor_grill:before {
+    content: "\e958";
+  }
+  .icon-path_to_entrance_lit_at_night:before {
+    content: "\e959";
+  }
+  .icon-private_entrance:before {
+    content: "\e95a";
+  }
+  .icon-scuba_or_snorkeling:before {
+    content: "\e95b";
+  }
+  .icon-table_corner_guards:before {
+    content: "\e95c";
+  }
+  .icon-toilet:before {
+    content: "\e95d";
+  }
+  .icon-town:before {
+    content: "\e95e";
+  }
+  .icon-toys:before {
+    content: "\e95f";
+  }
+  .icon-window_guards:before {
+    content: "\e960";
+  }
+  .icon-wireless_internet_connection:before {
+    content: "\e961";
+  }
+  .icon-air_filtration:before {
+    content: "\e962";
+  }
+  .icon-autumn_foliage:before {
+    content: "\e963";
+  }
+  .icon-changing_table:before {
+    content: "\e964";
+  }
+  .icon-copier:before {
+    content: "\e965";
+  }
+  .icon-dvd_movies:before {
+    content: "\e966";
+  }
+  .icon-equestrian_events:before {
+    content: "\e967";
+  }
+  .icon-espn_available:before {
+    content: "\e968";
+  }
+  .icon-family:before {
+    content: "\e969";
+  }
+  .icon-fax_machine:before {
+    content: "\e96a";
+  }
+  .icon-festivals:before {
+    content: "\e96b";
+  }
+  .icon-fire_extinguisher:before {
+    content: "\e96c";
+  }
+  .icon-fitness_private:before {
+    content: "\e96d";
+  }
+  .icon-foosball:before {
+    content: "\e96e";
+  }
+  .icon-forests:before {
+    content: "\e96f";
+  }
+  .icon-free_credit_card_access_calls:before {
+    content: "\e970";
+  }
+  .icon-free_moviesvideo:before {
+    content: "\e971";
+  }
+  .icon-free_parking_off_site:before {
+    content: "\e972";
+  }
+  .icon-free_parking_on_site:before {
+    content: "\e973";
+  }
+  .icon-golf_course_front:before {
+    content: "\e974";
+  }
+  .icon-hiking:before {
+    content: "\e975";
+  }
+  .icon-horseback_riding:before {
+    content: "\e976";
+  }
+  .icon-horseshoes:before {
+    content: "\e977";
+  }
+  .icon-iron:before {
+    content: "\e978";
+  }
+  .icon-lake_front:before {
+    content: "\e979";
+  }
+  .icon-microwave:before {
+    content: "\e97a";
+  }
+  .icon-microwave_toaster_oven:before {
+    content: "\e97b";
+  }
+  .icon-movies:before {
+    content: "\e97c";
+  }
+  .icon-ocean_front:before {
+    content: "\e97d";
+  }
+  .icon-oven:before {
+    content: "\e97e";
+  }
+  .icon-pay_per_view_movies_on_tv:before {
+    content: "\e97f";
+  }
+  .icon-photography:before {
+    content: "\e980";
+  }
+  .icon-rain_forests:before {
+    content: "\e981";
+  }
+  .icon-refrigerator:before {
+    content: "\e982";
+  }
+  .icon-refrigerator_with_ice_maker:before {
+    content: "\e983";
+  }
+  .icon-river:before {
+    content: "\e984";
+  }
+  .icon-room_windows_open:before {
+    content: "\e985";
+  }
+  .icon-sea_front:before {
+    content: "\e986";
+  }
+  .icon-stove:before {
+    content: "\e987";
+  }
+  .icon-toaster_oven:before {
+    content: "\e988";
+  }
+  .icon-vcr_movies:before {
+    content: "\e989";
+  }
+  .icon-annex_room:before {
+    content: "\e98a";
+  }
+  .icon-baby_cot:before {
+    content: "\e98b";
+  }
+  .icon-baby_cot_cribs:before {
+    content: "\e98c";
+  }
+  .icon-cribs:before {
+    content: "\e98d";
+  }
+  .icon-dailyhousekeep_fee:before {
+    content: "\e98e";
+  }
+  .icon-device_with_mp3:before {
+    content: "\e98f";
+  }
+  .icon-disco:before {
+    content: "\e990";
+  }
+  .icon-disinfectant_used:before {
+    content: "\e991";
+  }
+  .icon-double_vanity:before {
+    content: "\e992";
+  }
+  .icon-downfeather_pillows:before {
+    content: "\e993";
+  }
+  .icon-dryclean_available:before {
+    content: "\e994";
+  }
+  .icon-dryclean_fee:before {
+    content: "\e995";
+  }
+  .icon-dryclean_in_home:before {
+    content: "\e996";
+  }
+  .icon-dryclean_on_property:before {
+    content: "\e997";
+  }
+  .icon-dryclean_onrequest:before {
+    content: "\e998";
+  }
+  .icon-dual_voltage_outlet:before {
+    content: "\e999";
+  }
+  .icon-duty_free:before {
+    content: "\e99a";
+  }
+  .icon-dvd_player:before {
+    content: "\e99b";
+  }
+  .icon-dvd_player_available_at_front_desk:before {
+    content: "\e99c";
+  }
+  .icon-dvr_player:before {
+    content: "\e99d";
+  }
+  .icon-eco_tourism:before {
+    content: "\e99e";
+  }
+  .icon-electrical_current_voltage:before {
+    content: "\e99f";
+  }
+  .icon-entrance_type_to_guest_room:before {
+    content: "\e9a0";
+  }
+  .icon-extra_pillows_and_blankets:before {
+    content: "\e9a1";
+  }
+  .icon-foam_pillows:before {
+    content: "\e9a2";
+  }
+  .icon-full_kitchen:before {
+    content: "\e9a3";
+  }
+  .icon-groceries:before {
+    content: "\e9a4";
+  }
+  .icon-hypoallergenic_pillows:before {
+    content: "\e9a5";
+  }
+  .icon-instant_hot_water:before {
+    content: "\e9a6";
+  }
+  .icon-kitchen:before {
+    content: "\e9a7";
+  }
+  .icon-kitchenette:before {
+    content: "\e9a8";
+  }
+  .icon-luggage_dropoff_allowed:before {
+    content: "\e9a9";
+  }
+  .icon-maid_service:before {
+    content: "\e9aa";
+  }
+  .icon-outdoor_shower:before {
+    content: "\e9ab";
+  }
+  .icon-refundable_deposit_for_pets:before {
+    content: "\e9ac";
+  }
+  .icon-rollin_shower:before {
+    content: "\e9ad";
+  }
+  .icon-shower:before {
+    content: "\e9ae";
+  }
+  .icon-sofa_bed:before {
+    content: "\e9af";
+  }
+  .icon-sofa_bed2:before {
+    content: "\e9b0";
+  }
+  .icon-storage_space:before {
+    content: "\e9b1";
+  }
+  .icon-babysitter_recommendations:before {
+    content: "\e9b2";
+  }
+  .icon-breakfast_booking_possible:before {
+    content: "\e9b3";
+  }
+  .icon-breakfast_included_in_price:before {
+    content: "\e9b4";
+  }
+  .icon-breakfast_not_availble:before {
+    content: "\e9b5";
+  }
+  .icon-buffet_breakfast:before {
+    content: "\e9b6";
+  }
+  .icon-chef_fee:before {
+    content: "\e9b7";
+  }
+  .icon-chef_onrequest:before {
+    content: "\e9b8";
+  }
+  .icon-chld_bsk_toys:before {
+    content: "\e9b9";
+  }
+  .icon-chld_play_are:before {
+    content: "\e9ba";
+  }
+  .icon-churches:before {
+    content: "\e9bb";
+  }
+  .icon-cinemas:before {
+    content: "\e9bc";
+  }
+  .icon-cnn_available:before {
+    content: "\e9bd";
+  }
+  .icon-collect_calls:before {
+    content: "\e9be";
+  }
+  .icon-complimentary_local_calls_time_limit:before {
+    content: "\e9bf";
+  }
+  .icon-computer:before {
+    content: "\e9c0";
+  }
+  .icon-countryard_community:before {
+    content: "\e9c1";
+  }
+  .icon-countryard_private:before {
+    content: "\e9c2";
+  }
+  .icon-credit_card_access_calls:before {
+    content: "\e9c3";
+  }
+  .icon-cycling:before {
+    content: "\e9c4";
+  }
+  .icon-ethernet_connection:before {
+    content: "\e9c5";
+  }
+  .icon-exterior_corridors:before {
+    content: "\e9c6";
+  }
+  .icon-extra_person_charge_for_rollaway_use:before {
+    content: "\e9c7";
+  }
+  .icon-free_calls:before {
+    content: "\e9c8";
+  }
+  .icon-free_local_calls:before {
+    content: "\e9c9";
+  }
+  .icon-free_toll_free_calls:before {
+    content: "\e9ca";
+  }
+  .icon-holiday_complex:before {
+    content: "\e9cb";
+  }
+  .icon-interior_corridors:before {
+    content: "\e9cc";
+  }
+  .icon-international_calls:before {
+    content: "\e9cd";
+  }
+  .icon-interstate_calls:before {
+    content: "\e9ce";
+  }
+  .icon-intrastate_calls:before {
+    content: "\e9cf";
+  }
+  .icon-local_calls:before {
+    content: "\e9d0";
+  }
+  .icon-long_distance_calls:before {
+    content: "\e9d1";
+  }
+  .icon-meal_included_breakfast:before {
+    content: "\e9d2";
+  }
+  .icon-meal_included_continental_breakfast:before {
+    content: "\e9d3";
+  }
+  .icon-meal_included_full_american_breakfast:before {
+    content: "\e9d4";
+  }
+  .icon-operator_assisted_calls:before {
+    content: "\e9d5";
+  }
+  .icon-outlet_covers:before {
+    content: "\e9d6";
+  }
+  .icon-wake_up_calls:before {
+    content: "\e9d7";
+  }
+  .icon-all_news_channel:before {
+    content: "\e9d8";
+  }
+  .icon-basketball_court:before {
+    content: "\e9d9";
+  }
+  .icon-budget:before {
+    content: "\e9da";
+  }
+  .icon-butler_available:before {
+    content: "\e9db";
+  }
+  .icon-butler_free:before {
+    content: "\e9dc";
+  }
+  .icon-butler_onrequest:before {
+    content: "\e9dd";
+  }
+  .icon-cable:before {
+    content: "\e9de";
+  }
+  .icon-calling_card_calls:before {
+    content: "\e9df";
+  }
+  .icon-canopyposter_bed:before {
+    content: "\e9e0";
+  }
+  .icon-carrier_access:before {
+    content: "\e9e1";
+  }
+  .icon-catering_available:before {
+    content: "\e9e2";
+  }
+  .icon-cd_player:before {
+    content: "\e9e3";
+  }
+  .icon-ceiling_hoist:before {
+    content: "\e9e4";
+  }
+  .icon-cell_phone_recharger:before {
+    content: "\e9e5";
+  }
+  .icon-child_rollaway:before {
+    content: "\e9e6";
+  }
+  .icon-contactless_check_in:before {
+    content: "\e9e7";
+  }
+  .icon-dinner_booking_possible:before {
+    content: "\e9e8";
+  }
+  .icon-dinner_included_in_price:before {
+    content: "\e9e9";
+  }
+  .icon-dinner_not_available:before {
+    content: "\e9ea";
+  }
+  .icon-downtown:before {
+    content: "\e9eb";
+  }
+  .icon-entertainment_center:before {
+    content: "\e9ec";
+  }
+  .icon-ev_charger:before {
+    content: "\e9ed";
+  }
+  .icon-extended_phone_cord:before {
+    content: "\e9ee";
+  }
+  .icon-fireplace:before {
+    content: "\e9ef";
+  }
+  .icon-fitness_center:before {
+    content: "\e9f0";
+  }
+  .icon-international_channels:before {
+    content: "\e9f1";
+  }
+  .icon-kayak_canoe:before {
+    content: "\e9f2";
+  }
+  .icon-laundry_basketclothes_hamper:before {
+    content: "\e9f3";
+  }
+  .icon-lock_on_bedroom_door:before {
+    content: "\e9f4";
+  }
+  .icon-mobile_hoist:before {
+    content: "\e9f5";
+  }
+  .icon-no_adult_channels_or_adult_channel_lock:before {
+    content: "\e9f6";
+  }
+  .icon-pack_n_play_travel_crib:before {
+    content: "\e9f7";
+  }
+  .icon-pool_hoist:before {
+    content: "\e9f8";
+  }
+  .icon-premium_movie_channels:before {
+    content: "\e9f9";
+  }
+  .icon-rollaway_bed:before {
+    content: "\e9fa";
+  }
+  .icon-safe:before {
+    content: "\e9fb";
+  }
+  .icon-safe_large_enough_to_accommodate_a_laptop:before {
+    content: "\e9fc";
+  }
+  .icon-single_level_home:before {
+    content: "\e9fd";
+  }
+  .icon-stair_gates:before {
+    content: "\e9fe";
+  }
+  .icon-vip_rooms:before {
+    content: "\e9ff";
+  }
+  .icon-walk_in_closet:before {
+    content: "\ea00";
+  }
+  .icon-waterfalls:before {
+    content: "\ea01";
+  }
+  .icon-adventure:before {
+    content: "\ea02";
+  }
+  .icon-atm_bank:before {
+    content: "\ea03";
+  }
+  .icon-baby_bath:before {
+    content: "\ea04";
+  }
+  .icon-baby_listening_device:before {
+    content: "\ea05";
+  }
+  .icon-baby_monitor:before {
+    content: "\ea06";
+  }
+  .icon-babysit_available:before {
+    content: "\ea07";
+  }
+  .icon-babysit_fee:before {
+    content: "\ea08";
+  }
+  .icon-babysitting:before {
+    content: "\ea09";
+  }
+  .icon-balcony:before {
+    content: "\ea0a";
+  }
+  .icon-balconylanaiterrace:before {
+    content: "\ea0b";
+  }
+  .icon-barbeque_grills:before {
+    content: "\ea0c";
+  }
+  .icon-bartender:before {
+    content: "\ea0d";
+  }
+  .icon-bartender_fee:before {
+    content: "\ea0e";
+  }
+  .icon-bartender_onrequest:before {
+    content: "\ea0f";
+  }
+  .icon-basketbl_private:before {
+    content: "\ea10";
+  }
+  .icon-bathroom_step_free_access:before {
+    content: "\ea11";
+  }
+  .icon-bay:before {
+    content: "\ea12";
+  }
+  .icon-beachcombing:before {
+    content: "\ea13";
+  }
+  .icon-beachfront:before {
+    content: "\ea14";
+  }
+  .icon-bed_linen_thread_count:before {
+    content: "\ea15";
+  }
+  .icon-bicycle:before {
+    content: "\ea16";
+  }
+  .icon-bidet:before {
+    content: "\ea17";
+  }
+  .icon-billiards:before {
+    content: "\ea18";
+  }
+  .icon-boat:before {
+    content: "\ea19";
+  }
+  .icon-bowling:before {
+    content: "\ea1a";
+  }
+  .icon-car_necessary:before {
+    content: "\ea1b";
+  }
+  .icon-car_not_necessary:before {
+    content: "\ea1c";
+  }
+  .icon-car_recommended:before {
+    content: "\ea1d";
+  }
+  .icon-childrens_playpen:before {
+    content: "\ea1e";
+  }
+  .icon-cupsglassware:before {
+    content: "\ea1f";
+  }
+  .icon-garage:before {
+    content: "\ea20";
+  }
+  .icon-library:before {
+    content: "\ea21";
+  }
+  .icon-linens:before {
+    content: "\ea22";
+  }
+  .icon-luxury_linen_type:before {
+    content: "\ea23";
+  }
+  .icon-marble_bathroom:before {
+    content: "\ea24";
+  }
+  .icon-notepads:before {
+    content: "\ea25";
+  }
+  .icon-private_bathroom:before {
+    content: "\ea26";
+  }
+  .icon-shared_bathroom:before {
+    content: "\ea27";
+  }
+  .icon-snow_sports_gear:before {
+    content: "\ea28";
+  }
+  .icon-sports_activities:before {
+    content: "\ea29";
+  }
+  .icon-tourist_attractions:before {
+    content: "\ea2a";
+  }
+  .icon-water_sports_gear:before {
+    content: "\ea2b";
+  }
+  .icon-weight_scale:before {
+    content: "\ea2c";
+  }
+  .icon-accessible_height_bed:before {
+    content: "\ea2d";
+  }
+  .icon-accessible_height_toilet:before {
+    content: "\ea2e";
+  }
+  .icon-air_conditioning:before {
+    content: "\ea2f";
+  }
+  .icon-air_conditioning_individually_controlled_in_room:before {
+    content: "\ea30";
+  }
+  .icon-amfm_radio:before {
+    content: "\ea31";
+  }
+  .icon-antiquing:before {
+    content: "\ea32";
+  }
+  .icon-arboretum:before {
+    content: "\ea33";
+  }
+  .icon-bathroom_wide_doorway:before {
+    content: "\ea34";
+  }
+  .icon-bbq_area:before {
+    content: "\ea35";
+  }
+  .icon-bedroom_wide_doorway:before {
+    content: "\ea36";
+  }
+  .icon-closets_in_room:before {
+    content: "\ea37";
+  }
+  .icon-common_space_wide_doorway:before {
+    content: "\ea38";
+  }
+  .icon-dryer:before {
+    content: "\ea39";
+  }
+  .icon-elevator:before {
+    content: "\ea3a";
+  }
+  .icon-fire_alarm:before {
+    content: "\ea3b";
+  }
+  .icon-fire_alarm_with_light:before {
+    content: "\ea3c";
+  }
+  .icon-fishing_bay:before {
+    content: "\ea3d";
+  }
+  .icon-hangers:before {
+    content: "\ea3e";
+  }
+  .icon-home_wide_doorway:before {
+    content: "\ea3f";
+  }
+  .icon-ironing_board:before {
+    content: "\ea40";
+  }
+  .icon-large_work_area:before {
+    content: "\ea41";
+  }
+  .icon-mountain_climbing:before {
+    content: "\ea42";
+  }
+  .icon-mountaineering:before {
+    content: "\ea43";
+  }
+  .icon-multiple_closets:before {
+    content: "\ea44";
+  }
+  .icon-other_data_connection:before {
+    content: "\ea45";
+  }
+  .icon-pets_allowed:before {
+    content: "\ea46";
+  }
+  .icon-rock_climbing:before {
+    content: "\ea47";
+  }
+  .icon-sailing:before {
+    content: "\ea48";
+  }
+  .icon-seating_area_with_sofachair:before {
+    content: "\ea49";
+  }
+  .icon-separate_closet:before {
+    content: "\ea4a";
+  }
+  .icon-separate_toilet_area:before {
+    content: "\ea4b";
+  }
+  .icon-silverwareutensils:before {
+    content: "\ea4c";
+  }
+  .icon-sitting_area:before {
+    content: "\ea4d";
+  }
+  .icon-smoking:before {
+    content: "\ea4e";
+  }
+  .icon-towels:before {
+    content: "\ea4f";
+  }
+  .icon-walking:before {
+    content: "\ea50";
+  }
+  .icon-wide_clearance_to_bed:before {
+    content: "\ea51";
+  }
+  .icon-wide_clearance_to_shower_and_toilet:before {
+    content: "\ea52";
+  }
+  .icon-wide_hallway_clearance:before {
+    content: "\ea53";
+  }
+  .icon-accessible_room:before {
+    content: "\ea54";
+  }
+  .icon-adaptor_available_for_telephone_pc_use:before {
+    content: "\ea55";
+  }
+  .icon-air_condition_window:before {
+    content: "\ea56";
+  }
+  .icon-alarm:before {
+    content: "\ea57";
+  }
+  .icon-bathrobe:before {
+    content: "\ea58";
+  }
+  .icon-bathroom_amenities:before {
+    content: "\ea59";
+  }
+  .icon-bedroom_step_free_access:before {
+    content: "\ea5a";
+  }
+  .icon-bottled_water:before {
+    content: "\ea5b";
+  }
+  .icon-converters_voltage_adaptors:before {
+    content: "\ea5c";
+  }
+  .icon-electrical_adaptors_available:before {
+    content: "\ea5d";
+  }
+  .icon-extra_adult_charge:before {
+    content: "\ea5e";
+  }
+  .icon-extra_child_charge:before {
+    content: "\ea5f";
+  }
+  .icon-extra_child_charge_for_rollaway_use:before {
+    content: "\ea60";
+  }
+  .icon-high_speed_internet_access_fee:before {
+    content: "\ea61";
+  }
+  .icon-hot_water:before {
+    content: "\ea62";
+  }
+  .icon-hunting:before {
+    content: "\ea63";
+  }
+  .icon-internet_access:before {
+    content: "\ea64";
+  }
+  .icon-kitchen_supplies:before {
+    content: "\ea65";
+  }
+  .icon-limited_accessibility:before {
+    content: "\ea66";
+  }
+  .icon-non_refundable_charge_for_pets:before {
+    content: "\ea67";
+  }
+  .icon-office_supplies:before {
+    content: "\ea68";
+  }
+  .icon-universal_acdc_adaptors:before {
+    content: "\ea69";
+  }
+  .icon-upgraded_bathroom_amenities:before {
+    content: "\ea6a";
+  }
+  .icon-web_enabled:before {
+    content: "\ea6b";
+  }
+  .icon-wheelchair_accessible:before {
+    content: "\ea6c";
+  }
+  .icon-beach_view:before {
+    content: "\ea6d";
+  }
+  .icon-golf_course_view:before {
+    content: "\ea6e";
+  }
+  .icon-gulf_view:before {
+    content: "\ea6f";
+  }
+  .icon-high_ceilings:before {
+    content: "\ea70";
+  }
+  .icon-high_speed_wireless:before {
+    content: "\ea71";
+  }
+  .icon-interactive_web_tv:before {
+    content: "\ea72";
+  }
+  .icon-lake_view:before {
+    content: "\ea73";
+  }
+  .icon-mountain_view:before {
+    content: "\ea74";
+  }
+  .icon-ocean_view:before {
+    content: "\ea75";
+  }
+  .icon-outdoor_dining_area:before {
+    content: "\ea76";
+  }
+  .icon-pool_view:before {
+    content: "\ea77";
+  }
+  .icon-sea_view:before {
+    content: "\ea78";
+  }
+  .icon-speaker_phone:before {
+    content: "\ea79";
+  }
+  .icon-volcano:before {
+    content: "\ea7a";
+  }
+  .icon-washer_in_home:before {
+    content: "\ea7b";
+  }
+  .icon-washer_on_property:before {
+    content: "\ea7c";
+  }
+  .icon-water_closet:before {
+    content: "\ea7d";
+  }
+  .icon-water_sports_onrequest:before {
+    content: "\ea7e";
+  }
+  .icon-water_view:before {
+    content: "\ea7f";
+  }
+  .icon-wet_bar:before {
+    content: "\ea80";
+  }
+  .icon-whirpool:before {
+    content: "\ea81";
+  }
+  .icon-wind_surfing:before {
+    content: "\ea82";
+  }
+  .icon-zoo:before {
+    content: "\ea83";
+  }
+  .icon-hours_turnover:before {
+    content: "\ea84";
+  }
+  .icon-bathtub:before {
+    content: "\ea85";
+  }
+  .icon-bathtub_whirlpool_separate:before {
+    content: "\ea86";
+  }
+  .icon-bathtubshower_combination:before {
+    content: "\ea87";
+  }
+  .icon-ceiling_fan:before {
+    content: "\ea88";
+  }
+  .icon-desert_view:before {
+    content: "\ea89";
+  }
+  .icon-farm_holidays:before {
+    content: "\ea8a";
+  }
+  .icon-garden_view:before {
+    content: "\ea8b";
+  }
+  .icon-high_definition_32_inches_or_greater:before {
+    content: "\ea8c";
+  }
+  .icon-hinoki_tub:before {
+    content: "\ea8d";
+  }
+  .icon-hot_tub:before {
+    content: "\ea8e";
+  }
+  .icon-monument_view:before {
+    content: "\ea8f";
+  }
+  .icon-near_ocean:before {
+    content: "\ea90";
+  }
+  .icon-outdoor_jacuzzi:before {
+    content: "\ea91";
+  }
+  .icon-outdoor_veranda:before {
+    content: "\ea92";
+  }
+  .icon-oversized_bathtub:before {
+    content: "\ea93";
+  }
+  .icon-plunge_pool:before {
+    content: "\ea94";
+  }
+  .icon-remote_control_television:before {
+    content: "\ea95";
+  }
+  .icon-roof_ventilator:before {
+    content: "\ea96";
+  }
+  .icon-satellite_television:before {
+    content: "\ea97";
+  }
+  .icon-separate_tub_and_shower:before {
+    content: "\ea98";
+  }
+  .icon-separate_tub_or_shower:before {
+    content: "\ea99";
+  }
+  .icon-sight_seeing:before {
+    content: "\ea9a";
+  }
+  .icon-tub:before {
+    content: "\ea9b";
+  }
+  .icon-tub_with_shower_bench:before {
+    content: "\ea9c";
+  }
+  .icon-tv:before {
+    content: "\ea9d";
+  }
+  .icon-twin_bed:before {
+    content: "\ea9e";
+  }
+  .icon-valet_parking:before {
+    content: "\ea9f";
+  }
+  .icon-valet_parking_fee:before {
+    content: "\eaa0";
+  }
+  .icon-valet_parking_onrequest:before {
+    content: "\eaa1";
+  }
+  .icon-vcr_player:before {
+    content: "\eaa2";
+  }
+  .icon-vcr_player_available_at_front_desk:before {
+    content: "\eaa3";
+  }
+  .icon-video_game_player:before {
+    content: "\eaa4";
+  }
+  .icon-video_game_player_at_front_desk:before {
+    content: "\eaa5";
+  }
+  .icon-video_games:before {
+    content: "\eaa6";
+  }
+  .icon-video_on_demand:before {
+    content: "\eaa7";
+  }
+  .icon-village:before {
+    content: "\eaa8";
+  }
+  .icon-widescreen_tv:before {
+    content: "\eaa9";
+  }
+  .icon-winery_tours:before {
+    content: "\eaaa";
+  }
+  .icon-hours_turnover1:before {
+    content: "\eaab";
+  }
+  .icon-hours_turnover2:before {
+    content: "\eaac";
+  }
+  .icon-blackout_curtain:before {
+    content: "\eaad";
+  }
+  .icon-cable_television:before {
+    content: "\eaae";
+  }
+  .icon-color_television:before {
+    content: "\eaaf";
+  }
+  .icon-multi_line_phone:before {
+    content: "\eab0";
+  }
+  .icon-pillow_type:before {
+    content: "\eab1";
+  }
+  .icon-playground:before {
+    content: "\eab2";
+  }
+  .icon-telephone_for_hearing_impaired:before {
+    content: "\eab3";
+  }
+  .icon-telephone_tddtextphone:before {
+    content: "\eab4";
+  }
+  .icon-tennis:before {
+    content: "\eab5";
+  }
+  .icon-tennis_private:before {
+    content: "\eab6";
+  }
+  .icon-thermalisme:before {
+    content: "\eab7";
+  }
+  .icon-toaster:before {
+    content: "\eab8";
+  }
+  .icon-toll_free_calls:before {
+    content: "\eab9";
+  }
+  .icon-trouserpant_press:before {
+    content: "\eaba";
+  }
+  .icon-tubing_water:before {
+    content: "\eabb";
+  }
+  .icon-turn_down_service:before {
+    content: "\eabc";
+  }
+  .icon-alarm_clock:before {
+    content: "\eabd";
+  }
+  .icon-bathroom_telephone:before {
+    content: "\eabe";
+  }
+  .icon-childrens_dinnerware:before {
+    content: "\eabf";
+  }
+  .icon-cordless_phone:before {
+    content: "\eac0";
+  }
+  .icon-fishing_surf:before {
+    content: "\eac1";
+  }
+  .icon-honeymoon_suites:before {
+    content: "\eac2";
+  }
+  .icon-live_theater:before {
+    content: "\eac3";
+  }
+  .icon-mobilecellular_phones:before {
+    content: "\eac4";
+  }
+  .icon-phone_in_bathroom:before {
+    content: "\eac5";
+  }
+  .icon-phoneline_billed_separately:before {
+    content: "\eac6";
+  }
+  .icon-ping_pong_table:before {
+    content: "\eac7";
+  }
+  .icon-scenic_drives:before {
+    content: "\eac8";
+  }
+  .icon-surfing:before {
+    content: "\eac9";
+  }
+  .icon-tables_and_chairs:before {
+    content: "\eaca";
+  }
+  .icon-tatami_mats:before {
+    content: "\eacb";
+  }
+  .icon-telephone:before {
+    content: "\eacc";
+  }
+  .icon-telephone_with_data_ports:before {
+    content: "\eacd";
+  }
+  .icon-telephones_with_message_light:before {
+    content: "\eace";
+  }
+  .icon-thalassotherapy:before {
+    content: "\eacf";
+  }
+  .icon-two_line_phone:before {
+    content: "\ead0";
+  }
+  .icon-wireless_keyboard:before {
+    content: "\ead1";
+  }
+  .icon-wood_stove:before {
+    content: "\ead2";
+  }
+  .icon-adjoining_rooms:before {
+    content: "\ead3";
+  }
+  .icon-bathtub_only:before {
+    content: "\ead4";
+  }
+  .icon-beach:before {
+    content: "\ead5";
+  }
+  .icon-common_space_step_free_access:before {
+    content: "\ead6";
+  }
+  .icon-connecting_rooms:before {
+    content: "\ead7";
+  }
+  .icon-dining_spices:before {
+    content: "\ead8";
+  }
+  .icon-familyoversized_room:before {
+    content: "\ead9";
+  }
+  .icon-full_size_mirror:before {
+    content: "\eada";
+  }
+  .icon-handheld_shower_head:before {
+    content: "\eadb";
+  }
+  .icon-historic:before {
+    content: "\eadc";
+  }
+  .icon-lighted_makeup_mirror:before {
+    content: "\eadd";
+  }
+  .icon-living_room:before {
+    content: "\eade";
+  }
+  .icon-long_term_stays_allowed:before {
+    content: "\eadf";
+  }
+  .icon-non_allergenic_room:before {
+    content: "\eae0";
+  }
+  .icon-nude_beach:before {
+    content: "\eae1";
+  }
+  .icon-outdoor_space:before {
+    content: "\eae2";
+  }
+  .icon-pond:before {
+    content: "\eae3";
+  }
+  .icon-printer:before {
+    content: "\eae4";
+  }
+  .icon-services_staff:before {
+    content: "\eae5";
+  }
+  .icon-shower_only:before {
+    content: "\eae6";
+  }
+  .icon-soundproofed_room:before {
+    content: "\eae7";
+  }
+  .icon-spa:before {
+    content: "\eae8";
+  }
+  .icon-spelunking:before {
+    content: "\eae9";
+  }
+  .icon-step_free_access:before {
+    content: "\eaea";
+  }
+  .icon-stereo:before {
+    content: "\eaeb";
+  }
+  .icon-vaulted_ceilings:before {
+    content: "\eaec";
+  }
+  .icon-water_sports:before {
+    content: "\eaed";
+  }
+  .icon-bathtub_seat:before {
+    content: "\eaee";
+  }
+  .icon-chair_provided_with_desk:before {
+    content: "\eaef";
+  }
+  .icon-desk:before {
+    content: "\eaf0";
+  }
+  .icon-desk_with_electrical_outlet:before {
+    content: "\eaf1";
+  }
+  .icon-desk_with_lamp:before {
+    content: "\eaf2";
+  }
+  .icon-dining_highchair:before {
+    content: "\eaf3";
+  }
+  .icon-dining_room_seats:before {
+    content: "\eaf4";
+  }
+  .icon-ergonomic_chair:before {
+    content: "\eaf5";
+  }
+  .icon-large_desk:before {
+    content: "\eaf6";
+  }
+  .icon-medical_services:before {
+    content: "\eaf7";
+  }
+  .icon-outlet_shopping:before {
+    content: "\eaf8";
+  }
+  .icon-room_darkening_shades:before {
+    content: "\eaf9";
+  }
+  .icon-security_system:before {
+    content: "\eafa";
+  }
+  .icon-separate_line_billing_for_multi_line_phone:before {
+    content: "\eafb";
+  }
+  .icon-services_car_available:before {
+    content: "\eafc";
+  }
+  .icon-services_chauffeur:before {
+    content: "\eafd";
+  }
+  .icon-services_concierge:before {
+    content: "\eafe";
+  }
+  .icon-services_massage:before {
+    content: "\eaff";
+  }
+  .icon-services_private_chef:before {
+    content: "\eb00";
+  }
+  .icon-shampoo:before {
+    content: "\eb01";
+  }
+  .icon-shelling:before {
+    content: "\eb02";
+  }
+  .icon-shopping:before {
+    content: "\eb03";
+  }
+  .icon-shower_chair:before {
+    content: "\eb04";
+  }
+  .icon-shuffleboard:before {
+    content: "\eb05";
+  }
+  .icon-sitestaff_available:before {
+    content: "\eb06";
+  }
+  .icon-sitestaff_fee:before {
+    content: "\eb07";
+  }
+  .icon-sitestaff_onrequest:before {
+    content: "\eb08";
+  }
+  .icon-ski_in:before {
+    content: "\eb09";
+  }
+  .icon-ski_out:before {
+    content: "\eb0a";
+  }
+  .icon-ski_storage:before {
+    content: "\eb0b";
+  }
+  .icon-sledding:before {
+    content: "\eb0c";
+  }
+  .icon-snorkeling:before {
+    content: "\eb0d";
+  }
+  .icon-snowboarding:before {
+    content: "\eb0e";
+  }
+  .icon-synagogues:before {
+    content: "\eb0f";
+  }
+  .icon-voice_mail:before {
+    content: "\eb10";
+  }
+  .icon-water_purification_system:before {
+    content: "\eb11";
+  }
+  .icon-carbon_monoxide_detector:before {
+    content: "\eb12";
+  }
+  .icon-cross_country_skiing:before {
+    content: "\eb13";
+  }
+  .icon-dining_area:before {
+    content: "\eb14";
+  }
+  .icon-dining_room:before {
+    content: "\eb15";
+  }
+  .icon-fitness_room:before {
+    content: "\eb16";
+  }
+  .icon-game_room:before {
+    content: "\eb17";
+  }
+  .icon-pantry:before {
+    content: "\eb18";
+  }
+  .icon-private_living_room:before {
+    content: "\eb19";
+  }
+  .icon-rec_center:before {
+    content: "\eb1a";
+  }
+  .icon-reef:before {
+    content: "\eb1b";
+  }
+  .icon-resort:before {
+    content: "\eb1c";
+  }
+  .icon-restaurants:before {
+    content: "\eb1d";
+  }
+  .icon-romantic:before {
+    content: "\eb1e";
+  }
+  .icon-ruins:before {
+    content: "\eb1f";
+  }
+  .icon-rural:before {
+    content: "\eb20";
+  }
+  .icon-sauna:before {
+    content: "\eb21";
+  }
+  .icon-sauna_community:before {
+    content: "\eb22";
+  }
+  .icon-sauna_private:before {
+    content: "\eb23";
+  }
+  .icon-scanner:before {
+    content: "\eb24";
+  }
+  .icon-seating_area:before {
+    content: "\eb25";
+  }
+  .icon-self_controlled_heatingcooling_system:before {
+    content: "\eb26";
+  }
+  .icon-skiing:before {
+    content: "\eb27";
+  }
+  .icon-skiing_water:before {
+    content: "\eb28";
+  }
+  .icon-smoke_detector:before {
+    content: "\eb29";
+  }
+  .icon-smoke_detectors:before {
+    content: "\eb2a";
+  }
+  .icon-tape_recorder:before {
+    content: "\eb2b";
+  }
+  .icon-welcome_gift:before {
+    content: "\eb2c";
+  }
+  .icon-whitewater_rafting:before {
+    content: "\eb2d";
+  }
+  .icon-analog_data_port:before {
+    content: "\eb2e";
+  }
+  .icon-cleaning_before_checkout:before {
+    content: "\eb2f";
+  }
+  .icon-communal_pool:before {
+    content: "\eb30";
+  }
+  .icon-data_port:before {
+    content: "\eb31";
+  }
+  .icon-dining_raclette:before {
+    content: "\eb32";
+  }
+  .icon-duvet:before {
+    content: "\eb33";
+  }
+  .icon-enhanced_cleaning:before {
+    content: "\eb34";
+  }
+  .icon-heated_pool:before {
+    content: "\eb35";
+  }
+  .icon-house_cleaning_included:before {
+    content: "\eb36";
+  }
+  .icon-house_cleaning_optional:before {
+    content: "\eb37";
+  }
+  .icon-laptop:before {
+    content: "\eb38";
+  }
+  .icon-lunch_booking_possible:before {
+    content: "\eb39";
+  }
+  .icon-lunch_included_in_price:before {
+    content: "\eb3a";
+  }
+  .icon-lunch_not_available:before {
+    content: "\eb3b";
+  }
+  .icon-meal_included_lunch:before {
+    content: "\eb3c";
+  }
+  .icon-pocket_wifi:before {
+    content: "\eb3d";
+  }
+  .icon-private_dock:before {
+    content: "\eb3e";
+  }
+  .icon-private_parking:before {
+    content: "\eb3f";
+  }
+  .icon-private_pool:before {
+    content: "\eb40";
+  }
+  .icon-racquetball:before {
+    content: "\eb41";
+  }
+  .icon-rafting:before {
+    content: "\eb42";
+  }
+  .icon-recliner:before {
+    content: "\eb43";
+  }
+  .icon-satellite_radio:before {
+    content: "\eb44";
+  }
+  .icon-ski_lift_privileges:before {
+    content: "\eb45";
+  }
+  .icon-ski_lift_privileges_optional:before {
+    content: "\eb46";
+  }
+  .icon-deck_patio_uncovered:before {
+    content: "\eb47";
+  }
+  .icon-deepsea_fishing:before {
+    content: "\eb48";
+  }
+  .icon-disabled_parking_spot:before {
+    content: "\eb49";
+  }
+  .icon-dishes_and_silverware:before {
+    content: "\eb4a";
+  }
+  .icon-fishing:before {
+    content: "\eb4b";
+  }
+  .icon-fishing_fly:before {
+    content: "\eb4c";
+  }
+  .icon-fishing_freshwater:before {
+    content: "\eb4d";
+  }
+  .icon-flat_smooth_pathway_to_front_door:before {
+    content: "\eb4e";
+  }
+  .icon-free_parking:before {
+    content: "\eb4f";
+  }
+  .icon-guests_furnish_own:before {
+    content: "\eb50";
+  }
+  .icon-hairdryer:before {
+    content: "\eb51";
+  }
+  .icon-ice_skating:before {
+    content: "\eb52";
+  }
+  .icon-indoor_pool:before {
+    content: "\eb53";
+  }
+  .icon-paid_parking:before {
+    content: "\eb54";
+  }
+  .icon-paid_parking_on_premises:before {
+    content: "\eb55";
+  }
+  .icon-parasailing:before {
+    content: "\eb56";
+  }
+  .icon-parking:before {
+    content: "\eb57";
+  }
+  .icon-parking_off_site_fee:before {
+    content: "\eb58";
+  }
+  .icon-parking_on_site_fee:before {
+    content: "\eb59";
+  }
+  .icon-pc_hook_up_in_room:before {
+    content: "\eb5a";
+  }
+  .icon-pens:before {
+    content: "\eb5b";
+  }
+  .icon-petanque:before {
+    content: "\eb5c";
+  }
+  .icon-pier_fishing:before {
+    content: "\eb5d";
+  }
+  .icon-pillow_top_mattress:before {
+    content: "\eb5e";
+  }
+  .icon-plates_and_bowls:before {
+    content: "\eb5f";
+  }
+  .icon-platesglassware:before {
+    content: "\eb60";
+  }
+  .icon-pool:before {
+    content: "\eb61";
+  }
+  .icon-pots_and_pans:before {
+    content: "\eb62";
+  }
+  .icon-roller_blading:before {
+    content: "\eb63";
+  }
+  .icon-street_parking:before {
+    content: "\eb64";
+  }
+  .icon-theme_parks:before {
+    content: "\eb65";
+  }
+  .icon-water_parks:before {
+    content: "\eb66";
+  }
+  .icon-beach_essentials:before {
+    content: "\eb67";
+  }
+  .icon-bird_watching:before {
+    content: "\eb68";
+  }
+  .icon-cooking_basics:before {
+    content: "\eb69";
+  }
+  .icon-direct_dial_phone_number:before {
+    content: "\eb6a";
+  }
+  .icon-essentials:before {
+    content: "\eb6b";
+  }
+  .icon-gym:before {
+    content: "\eb6c";
+  }
+  .icon-hospital:before {
+    content: "\eb6d";
+  }
+  .icon-leisure_boating:before {
+    content: "\eb6e";
+  }
+  .icon-naturisme:before {
+    content: "\eb6f";
+  }
+  .icon-no_pets_allowed:before {
+    content: "\eb70";
+  }
+  .icon-non_smoking:before {
+    content: "\eb71";
+  }
+  .icon-outdoor_firepit:before {
+    content: "\eb72";
+  }
+  .icon-outdoor_furniture:before {
+    content: "\eb73";
+  }
+  .icon-outdoor_sunloungers:before {
+    content: "\eb74";
+  }
+  .icon-paddle_boating:before {
+    content: "\eb75";
+  }
+  .icon-paragliding:before {
+    content: "\eb76";
+  }
+  .icon-plug_play_panel:before {
+    content: "\eb77";
+  }
+  .icon-slippers:before {
+    content: "\eb78";
+  }
+  .icon-swimming:before {
+    content: "\eb79";
+  }
+  .icon-whale_watching:before {
+    content: "\eb7a";
+  }
+  .icon-wheelchair_inaccessible:before {
+    content: "\eb7b";
+  }
+  .icon-wildlife_viewing:before {
+    content: "\eb7c";
+  }
+  .icon-combo_tub_shower:before {
+    content: "\eb7d";
+  }
+  .icon-jetted-tub:before {
+    content: "\eb7e";
+  }
+  .icon-king_and_twin_bed:before {
+    content: "\eb7f";
+  }
+  .icon-meal_included_dinner:before {
+    content: "\eb80";
+  }
+  .icon-queen_and_large_bed:before {
+    content: "\eb81";
+  }
+  .icon-single-large-bed:before {
+    content: "\eb82";
+  }
+  .icon-zip_bed:before {
+    content: "\eb83";
+  }
+  .icon-bedding_type_unknown_or_unspecified:before {
+    content: "\eb84";
+  }
+  .icon-coffeetea_maker:before {
+    content: "\eb85";
+  }
+  .icon-grab_bars_in_bathroom:before {
+    content: "\eb86";
+  }
+  .icon-grab_rails_in_shower:before {
+    content: "\eb87";
+  }
+  .icon-grab_rails_in_toilet:before {
+    content: "\eb88";
+  }
+  .icon-hot_air_ballooning:before {
+    content: "\eb89";
+  }
+  
