@@ -2,6 +2,8 @@
 
 ## Unreleased
 
+- **Kross unit info: bedroom arrangements**: `[bec_unit_info key="bedroom_arrangements"]` — grid of per-room bed counts and labels from `raw.bedroom_details` in `bec_sync_payload` (Kross `with_bed_bath_details`); bed icons use the amenities font (`icon-{key}`) with a default map for Kross bed codes (e.g. `double_bed` → `queen_bed`). Label resolution: `raw.amenities` `name_amenity_translations` when `cod_amenity` matches, then gettext fallbacks, then `bec_kross_bedroom_label` / `bec_kross_bedroom_bed_map`. Pass-through: `font_pack`, `columns`, `title`, `show_title`. **`AmenitiesAssets::enqueueForKrossBedroomArrangements()`** + `assets/public-bedrooms-kross.css` (preloads when post content includes the shortcode, alongside the amenities flow). Dev doc: `docs/dev/UNIT-INFO-SHORTCODES.md`.
+
 ## 0.1.7 — 2026-04-23
 
 - **Sync payload (`bec_sync_payload`)**: `SyncPayloadEncoder` normalises non-finite floats / edge cases so `wp_json_encode` never fails silently; payload is always written after sync. `sanitizeSyncPayload` no longer clears meta when `json_decode` fails (e.g. depth); invalid UTF-8 handled with `JSON_INVALID_UTF8_SUBSTITUTE` where supported.
