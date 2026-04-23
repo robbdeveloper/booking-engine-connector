@@ -5,3 +5,5 @@ includes/Admin/.DS_Store
 .cursor
 booking-engine-connector.zip
 *.zip
+includes/.DS_Store
+includes/Providers/.DS_Store
