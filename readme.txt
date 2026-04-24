@@ -4,7 +4,7 @@ Tags: booking, kross, hospitality, availability
 Requires at least: 6.4
 Tested up to: 6.7
 Requires PHP: 8.0
-Stable tag: 0.1.7
+Stable tag: 0.1.8
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
@@ -31,6 +31,9 @@ PHP 8.0+ and WordPress 6.4+ are required (see header above).
 Search context uses **GET query parameters** prefixed with `bec_` (e.g. check-in/out). See `docs/SEARCH-CONTEXT.md` when available.
 
 == Changelog ==
+
+= 0.1.8 =
+* Booking summary shortcode `[bec_booking_summary]`, Kross service-line mapping in the view model, bedroom arrangements `[bec_unit_info key="bedroom_arrangements"]`, search guest-field modes (`SearchGuestFieldMode`, `bec_total_guests`), Connection admin overrides for guest input and child ages, and related public JS/CSS. See `CHANGELOG.md` for detail.
 
 = 0.1.7 =
 * Core unit fields, gallery import, sync payload hardening, Kross POST auth + API client, bulk quotes (`BulkQuoteProviderInterface`), shortcodes `[bec_unit_info]`, `[bec_unit_url]`, `[bec_version]`, Kross amenities grid (`amenities_grid`) with `AmenitiesAssets` and icon font packs. See `CHANGELOG.md` for the full list.
