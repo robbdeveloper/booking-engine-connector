@@ -56,6 +56,23 @@ final class SearchContext
 	{
 	}
 
+	/**
+	 * Same state as this context but with a different `bec_rate_id` (e.g. for per-rate view models
+	 * without mutating the global request).
+	 */
+	public function withRateId( string $rateId ): self {
+		$c                           = new self();
+		$c->checkin                  = $this->checkin;
+		$c->checkout                 = $this->checkout;
+		$c->adults                   = $this->adults;
+		$c->children                 = $this->children;
+		$c->childrenAges             = $this->childrenAges;
+		$c->storedAsTotalGuestQuery  = $this->storedAsTotalGuestQuery;
+		$c->rateId                   = $rateId !== '' ? \sanitize_text_field( $rateId ) : '';
+
+		return $c;
+	}
+
 	public static function fromRequest(): self
 	{
 		$ctx       = new self();

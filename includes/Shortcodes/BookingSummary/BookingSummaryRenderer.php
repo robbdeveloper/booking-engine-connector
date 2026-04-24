@@ -92,6 +92,21 @@ final class BookingSummaryRenderer
 				if ( $st === 'unavailable' || $st === 'error' ) {
 					self::renderErrorOrUnavailable( $vm, $postId, $ctx, $instanceId, $ctxArg, $showEnquiry, $enquiryLabel, $syncPayload, \is_array( $quote ) ? $quote : null );
 				} else {
+					$rateStateMap = [];
+					if ( \is_array( $quote )
+						&& ! empty( $vm['show_rate_list'] )
+						&& \is_array( $vm['rates'] ?? null )
+						&& \count( (array) ( $vm['rates'] ?? [] ) ) > 1
+					) {
+						$rateStateMap = BookingSummaryRateStateBuilder::buildMap(
+							$postId,
+							$ctx,
+							$slug,
+							$quote,
+							$syncPayload,
+							$taxNote
+						);
+					}
 					self::renderAvailable(
 						$vm,
 						$postId,
@@ -100,7 +115,8 @@ final class BookingSummaryRenderer
 						$ctxArg,
 						$showEnquiry,
 						$enquiryLabel,
-						$quote
+						$quote,
+						$rateStateMap
 					);
 				}
 			}
@@ -231,8 +247,9 @@ final class BookingSummaryRenderer
 	}
 
 	/**
-	 * @param array<string, mixed> $vm
-	 * @param array<string, mixed> $quote
+	 * @param array<string, mixed>         $vm
+	 * @param array<string, mixed>         $quote
+	 * @param array<string, array<string, mixed>> $rateStateMap
 	 */
 	private static function renderAvailable(
 		array $vm,
@@ -242,7 +259,8 @@ final class BookingSummaryRenderer
 		string $ctxArg,
 		bool $showEnquiry,
 		string $enquiryLabel,
-		array $quote
+		array $quote,
+		array $rateStateMap = []
 	): void {
 		$urlData = CheckoutUrlService::buildForPost( $postId, $ctx );
 		if ( \is_array( $urlData ) && isset( $urlData['url'] ) ) {
@@ -260,28 +278,23 @@ final class BookingSummaryRenderer
 
 		echo '<div class="bec-booking-summary__desktop">';
 
-		$cur    = (string) ( $vm['currency'] ?? '' );
-		$pn     = isset( $vm['per_night'] ) && is_numeric( $vm['per_night'] ) ? (float) $vm['per_night'] : null;
-		$tot    = isset( $vm['total'] ) && is_numeric( $vm['total'] ) ? (float) $vm['total'] : null;
-		$nights = (int) ( $vm['nights'] ?? 0 );
+		$cur = (string) ( $vm['currency'] ?? '' );
 
 		echo '<header class="bec-booking-summary__head">';
 		echo '<span class="bec-booking-summary__title">' . \esc_html__( 'Summary', 'booking-engine-connector' ) . '</span>';
-		if ( $pn !== null && $cur !== '' ) {
-			echo '<div class="bec-booking-summary__head-price">';
-			echo '<span class="bec-booking-summary__head-amount">' . \esc_html( BookingSummaryViewModelBuilder::formatMoney( $pn, $cur ) ) . '</span>';
-			echo '<span class="bec-booking-summary__head-sub">' . \esc_html__( 'Per night', 'booking-engine-connector' ) . '</span>';
-		} elseif ( $tot !== null && $cur !== '' ) {
-			echo '<div class="bec-booking-summary__head-price">';
-			echo '<span class="bec-booking-summary__head-amount">' . \esc_html( BookingSummaryViewModelBuilder::formatMoney( $tot, $cur ) ) . '</span>';
+		$headInner = self::getHeadPriceBlockInnerHtml( $vm );
+		if ( $headInner !== '' ) {
+			echo '<div class="bec-booking-summary__head-price" data-bec-bsummary-head>';
+			// phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
+			echo $headInner;
+			echo '</div>';
 		}
-		echo '</div>';
 		echo '</header>';
 
 		self::printDatesGuestsBlock( $vm );
 		self::printRateList( $vm, $postId, $ctx );
-		self::printAccordions( $vm, $nights );
-		self::printPriceBreakdown( $vm, $nights, $cur );
+		self::printAccordions( $vm );
+		self::printPriceBreakdown( $vm, $cur );
 		self::renderActions( $postId, $ctx, $showEnquiry, $enquiryLabel, false, $urlData, true );
 
 		echo '</div>'; // desktop
@@ -289,6 +302,22 @@ final class BookingSummaryRenderer
 		echo '</div>'; // inner
 
 		self::printMobileShell( $vm, $postId, $ctx, $ctxArg, $instanceId, $showEnquiry, $enquiryLabel, $urlData, 'available' );
+
+		if ( $rateStateMap !== [] ) {
+			$defRate = (string) ( $vm['selected_rate_id'] ?? $ctx->getRateId() );
+			$payload = [
+				'paramRate'   => SearchContext::PARAM_RATE_ID,
+				'defaultRate' => $defRate,
+				'states'      => $rateStateMap,
+			];
+			$json    = (string) \wp_json_encode(
+				$payload,
+				\JSON_HEX_TAG | \JSON_HEX_AMP | \JSON_HEX_APOS | \JSON_UNESCAPED_SLASHES
+			);
+			if ( $json !== 'null' && $json !== 'false' ) {
+				echo '<script type="application/json" class="bec-booking-summary__state" data-bec-bsummary-state>' . $json . '</script>';
+			}
+		}
 	}
 
 	/**
@@ -317,105 +346,21 @@ final class BookingSummaryRenderer
 	/**
 	 * @param array<string, mixed> $vm
 	 */
-	private static function printAccordions( array $vm, int $nights ): void {
-		$incl   = (string) ( $vm['inclusions'] ?? '' );
-		$cond   = (string) ( $vm['conditions'] ?? '' );
-		$tIncl  = (string) ( $vm['inclusions_title'] ?? \__( 'This rate includes', 'booking-engine-connector' ) );
-		$tCond  = (string) ( $vm['conditions_title'] ?? \__( 'Cancellation and payments', 'booking-engine-connector' ) );
-
-		if ( $incl === '' && $cond === '' ) {
-			return;
-		}
-
-		echo '<div class="bec-booking-summary__accordions" role="list">';
-		if ( $incl !== '' ) {
-			echo '<details class="bec-booking-summary__accordion" role="listitem">';
-			echo '<summary class="bec-booking-summary__accordion-title">' . \esc_html( $tIncl ) . '</summary>';
-			echo '<div class="bec-booking-summary__accordion-body">' . self::formatMultiline( $incl ) . '</div>';
-			echo '</details>';
-		}
-		if ( $cond !== '' ) {
-			echo '<details class="bec-booking-summary__accordion" role="listitem">';
-			echo '<summary class="bec-booking-summary__accordion-title">' . \esc_html( $tCond ) . '</summary>';
-			echo '<div class="bec-booking-summary__accordion-body">' . self::formatMultiline( $cond ) . '</div>';
-			echo '</details>';
-		}
+	private static function printAccordions( array $vm ): void {
+		$inner = self::getAccordionsInnerHtml( $vm );
+		echo '<div class="bec-booking-summary__accordions" role="list" data-bec-bsummary-accordions' . ( $inner === '' ? ' hidden' : '' ) . '>';
+		// phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
+		echo $inner;
 		echo '</div>';
 	}
 
 	/**
 	 * @param array<string, mixed> $vm
 	 */
-	private static function printPriceBreakdown( array $vm, int $nights, string $cur ): void {
-		$tt = (string) ( $vm['tax_note'] ?? '' );
-
-		echo '<div class="bec-booking-summary__breakdown">';
-		$l = (string) ( $vm['subtotal_line_left'] ?? '' );
-		$r = (string) ( $vm['subtotal_line_right'] ?? '' );
-		if ( $l !== '' || $r !== '' ) {
-			echo '<div class="bec-booking-summary__row bec-booking-summary__row--accommodation">';
-			echo '<span class="bec-booking-summary__row-left">' . \esc_html( $l ) . '</span>';
-			echo '<span class="bec-booking-summary__row-right">' . \esc_html( $r ) . '</span>';
-			echo '</div>';
-		}
-
-		$extras = $vm['extra_lines'] ?? null;
-		if ( \is_array( $extras ) && $extras !== [] ) {
-			foreach ( $extras as $ex ) {
-				if ( ! \is_array( $ex ) ) {
-					continue;
-				}
-				$el = (string) ( $ex['label'] ?? '' );
-				$am = $ex['amount'] ?? null;
-				$ec = (string) ( $ex['currency'] ?? $cur );
-				if ( $el === '' ) {
-					continue;
-				}
-				echo '<div class="bec-booking-summary__row bec-booking-summary__row--service">';
-				echo '<span class="bec-booking-summary__row-left">' . \esc_html( $el ) . '</span>';
-				echo '<span class="bec-booking-summary__row-right">';
-				if ( is_numeric( $am ) ) {
-					echo \esc_html( BookingSummaryViewModelBuilder::formatMoney( (float) $am, $ec ) );
-				} else {
-					echo '—';
-				}
-				echo '</span>';
-				echo '</div>';
-			}
-		}
-
-		echo '<div class="bec-booking-summary__row bec-booking-summary__row--total">';
-		echo '<span class="bec-booking-summary__row-left"><strong>' . \esc_html__( 'Total', 'booking-engine-connector' ) . '</strong></span>';
-		$tot = isset( $vm['total'] ) && is_numeric( $vm['total'] ) ? (float) $vm['total'] : null;
-		if ( $tot !== null && $cur !== '' ) {
-			echo '<span class="bec-booking-summary__row-right"><strong>' . \esc_html( BookingSummaryViewModelBuilder::formatMoney( $tot, $cur ) ) . '</strong></span>';
-		}
-		echo '</div>';
-
-		$advA = isset( $vm['advance_amount'] ) && is_numeric( $vm['advance_amount'] ) ? (float) $vm['advance_amount'] : null;
-		$advL = (string) ( $vm['advance_label'] ?? \__( 'Prepayment needed', 'booking-engine-connector' ) );
-		if ( $advA !== null && $cur !== '' ) {
-			echo '<div class="bec-booking-summary__row">';
-			echo '<span class="bec-booking-summary__row-left">' . \esc_html( $advL ) . '</span>';
-			echo '<span class="bec-booking-summary__row-right">' . \esc_html( BookingSummaryViewModelBuilder::formatMoney( $advA, $cur ) ) . '</span>';
-			echo '</div>';
-		}
-
-		$dd = isset( $vm['deposit_amount'] ) && is_numeric( $vm['deposit_amount'] ) ? (float) $vm['deposit_amount'] : null;
-		$dl = (string) ( $vm['deposit_label'] ?? \__( 'Damage deposit', 'booking-engine-connector' ) );
-		if ( $dd !== null && $cur !== '' ) {
-			echo '<div class="bec-booking-summary__row">';
-			echo '<span class="bec-booking-summary__row-left">' . \esc_html( $dl ) . '</span>';
-			echo '<span class="bec-booking-summary__row-right">' . \esc_html( BookingSummaryViewModelBuilder::formatMoney( $dd, $cur ) ) . '</span>';
-			echo '</div>';
-		}
-
-		if ( $tt !== '' ) {
-			echo '<p class="bec-booking-summary__tax-note" role="status">';
-			echo '<span class="bec-booking-summary__tax-ico" aria-hidden="true">i</span>';
-			echo ' <span class="bec-booking-summary__tax-txt">' . \esc_html( $tt ) . '</span></p>';
-		}
-
+	private static function printPriceBreakdown( array $vm, string $cur ): void {
+		echo '<div class="bec-booking-summary__breakdown" data-bec-bsummary-breakdown>';
+		// phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
+		echo self::getBreakdownInnerHtml( $vm, $cur );
 		echo '</div>';
 	}
 
@@ -455,8 +400,9 @@ final class BookingSummaryRenderer
 			if ( is_numeric( $am ) && $c2 !== '' ) {
 				$line = BookingSummaryViewModelBuilder::formatMoney( (float) $am, $c2 );
 			}
+			$ac = $selected ? 'true' : 'false';
 			echo '<li class="' . \esc_attr( $classes ) . '">';
-			echo '<a class="bec-booking-summary__rate-link" href="' . \esc_url( $url ) . '">';
+			echo '<a class="bec-booking-summary__rate-link" role="radio" aria-checked="' . \esc_attr( $ac ) . '" data-bec-rate-id="' . \esc_attr( $rid ) . '" href="' . \esc_url( $url ) . '">';
 			echo '<span class="bec-booking-summary__rate-dot" aria-hidden="true"></span>';
 			echo '<span class="bec-booking-summary__rate-name">' . \esc_html( $lbl ) . '</span>';
 			if ( $line !== '' ) {
@@ -483,7 +429,7 @@ final class BookingSummaryRenderer
 		$ct  = '';
 		if ( ! $hideContinue && \is_array( $urlData ) && isset( $urlData['url'] ) && (string) $urlData['url'] !== '' ) {
 			$cta = CheckoutCtaHtml::renderCta( $urlData );
-			$ct  = '<div class="bec-booking-summary__action bec-booking-summary__action--primary">' . $cta . '</div>';
+			$ct  = '<div class="bec-booking-summary__action bec-booking-summary__action--primary" data-bec-bsummary-continue>' . $cta . '</div>';
 		}
 		$row = '<div class="bec-booking-summary__actions' . ( $isDesktopRow ? ' bec-booking-summary__actions--row' : '' ) . '">';
 		if ( $enq !== '' ) {
@@ -517,10 +463,9 @@ final class BookingSummaryRenderer
 
 		$bar = '';
 		if ( $st === 'available' && $tot !== null && $cur !== '' ) {
-			$bar = '<span class="bec-booking-summary__bar-amount-total">'
-				. \esc_html( BookingSummaryViewModelBuilder::formatMoney( $tot, $cur ) ) . ' '
-				. '<span class="bec-booking-summary__bar-total-lbl">' . \esc_html__( 'Total', 'booking-engine-connector' ) . '</span>'
-				. '</span>';
+			$bar = '<div data-bec-bsummary-bar-amount class="bec-booking-summary__bar-amount">'
+				. self::getBarAmountSpanHtml( $vm )
+				. '</div>';
 		} elseif ( \in_array( $mode, [ 'error-or-empty', 'fallback' ], true ) || ( $st === 'unavailable' ) || ( $st === 'error' ) ) {
 			$bar = '<span class="bec-booking-summary__bar-amount-total bec-booking-summary__bar-amount--muted">'
 				. \esc_html__( 'View details', 'booking-engine-connector' ) . '</span>';
@@ -578,11 +523,10 @@ final class BookingSummaryRenderer
 		self::printSearch( $ctxArg, $instanceId . '-m', $ctx, 'bec-booking-summary__search--drawer' );
 
 		if ( $st === 'available' ) {
-			$nights = (int) ( $vm['nights'] ?? 0 );
 			self::printDatesGuestsBlock( $vm );
 			self::printRateList( $vm, $postId, $ctx );
-			self::printAccordions( $vm, $nights );
-			self::printPriceBreakdown( $vm, $nights, $cur );
+			self::printAccordions( $vm );
+			self::printPriceBreakdown( $vm, $cur );
 			self::renderActions( $postId, $ctx, $showEnquiry, $enquiryLabel, false, $urlData, false );
 		} else {
 			self::printFallbackMessageInPanel( $postId, $ctx, $showEnquiry, $enquiryLabel, $urlData, $mode, $vm );
@@ -662,6 +606,142 @@ final class BookingSummaryRenderer
 			$wrapClass .= ' ' . $extraClass;
 		}
 		echo '<div class="' . \esc_attr( $wrapClass ) . '" data-bec-bsummary-search>' . $form . '</div>';
+	}
+
+	/**
+	 * @param array<string, mixed> $vm
+	 */
+	public static function getHeadPriceBlockInnerHtml( array $vm ): string {
+		$cur = (string) ( $vm['currency'] ?? '' );
+		$pn  = isset( $vm['per_night'] ) && is_numeric( $vm['per_night'] ) ? (float) $vm['per_night'] : null;
+		$tot = isset( $vm['total'] ) && is_numeric( $vm['total'] ) ? (float) $vm['total'] : null;
+		$out = '';
+		if ( $pn !== null && $cur !== '' ) {
+			$out .= '<span class="bec-booking-summary__head-amount" data-bec-bsummary-head-amount>' . \esc_html( BookingSummaryViewModelBuilder::formatMoney( $pn, $cur ) ) . '</span>';
+			$out .= '<span class="bec-booking-summary__head-sub" data-bec-bsummary-head-per-night="1">' . \esc_html__( 'Per night', 'booking-engine-connector' ) . '</span>';
+		} elseif ( $tot !== null && $cur !== '' ) {
+			$out .= '<span class="bec-booking-summary__head-amount" data-bec-bsummary-head-amount>' . \esc_html( BookingSummaryViewModelBuilder::formatMoney( $tot, $cur ) ) . '</span>';
+			$out .= '<span class="bec-booking-summary__head-sub" data-bec-bsummary-head-per-night="1" hidden="hidden"></span>';
+		}
+
+		return $out;
+	}
+
+	/**
+	 * @param array<string, mixed> $vm
+	 */
+	public static function getBreakdownInnerHtml( array $vm, string $cur ): string {
+		$tt = (string) ( $vm['tax_note'] ?? '' );
+		\ob_start();
+		$l = (string) ( $vm['subtotal_line_left'] ?? '' );
+		$r = (string) ( $vm['subtotal_line_right'] ?? '' );
+		if ( $l !== '' || $r !== '' ) {
+			echo '<div class="bec-booking-summary__row bec-booking-summary__row--accommodation">';
+			echo '<span class="bec-booking-summary__row-left">' . \esc_html( $l ) . '</span>';
+			echo '<span class="bec-booking-summary__row-right">' . \esc_html( $r ) . '</span>';
+			echo '</div>';
+		}
+
+		$extras = $vm['extra_lines'] ?? null;
+		if ( \is_array( $extras ) && $extras !== [] ) {
+			foreach ( $extras as $ex ) {
+				if ( ! \is_array( $ex ) ) {
+					continue;
+				}
+				$el = (string) ( $ex['label'] ?? '' );
+				$am = $ex['amount'] ?? null;
+				$ec = (string) ( $ex['currency'] ?? $cur );
+				if ( $el === '' ) {
+					continue;
+				}
+				echo '<div class="bec-booking-summary__row bec-booking-summary__row--service">';
+				echo '<span class="bec-booking-summary__row-left">' . \esc_html( $el ) . '</span>';
+				echo '<span class="bec-booking-summary__row-right">';
+				if ( is_numeric( $am ) ) {
+					echo \esc_html( BookingSummaryViewModelBuilder::formatMoney( (float) $am, $ec ) );
+				} else {
+					echo '—';
+				}
+				echo '</span>';
+				echo '</div>';
+			}
+		}
+
+		echo '<div class="bec-booking-summary__row bec-booking-summary__row--total">';
+		echo '<span class="bec-booking-summary__row-left"><strong>' . \esc_html__( 'Total', 'booking-engine-connector' ) . '</strong></span>';
+		$tot = isset( $vm['total'] ) && is_numeric( $vm['total'] ) ? (float) $vm['total'] : null;
+		if ( $tot !== null && $cur !== '' ) {
+			echo '<span class="bec-booking-summary__row-right"><strong>' . \esc_html( BookingSummaryViewModelBuilder::formatMoney( $tot, $cur ) ) . '</strong></span>';
+		}
+		echo '</div>';
+
+		$advA = isset( $vm['advance_amount'] ) && is_numeric( $vm['advance_amount'] ) ? (float) $vm['advance_amount'] : null;
+		$advL = (string) ( $vm['advance_label'] ?? \__( 'Prepayment needed', 'booking-engine-connector' ) );
+		if ( $advA !== null && $cur !== '' ) {
+			echo '<div class="bec-booking-summary__row">';
+			echo '<span class="bec-booking-summary__row-left">' . \esc_html( $advL ) . '</span>';
+			echo '<span class="bec-booking-summary__row-right">' . \esc_html( BookingSummaryViewModelBuilder::formatMoney( $advA, $cur ) ) . '</span>';
+			echo '</div>';
+		}
+
+		$dd = isset( $vm['deposit_amount'] ) && is_numeric( $vm['deposit_amount'] ) ? (float) $vm['deposit_amount'] : null;
+		$dl = (string) ( $vm['deposit_label'] ?? \__( 'Damage deposit', 'booking-engine-connector' ) );
+		if ( $dd !== null && $cur !== '' ) {
+			echo '<div class="bec-booking-summary__row">';
+			echo '<span class="bec-booking-summary__row-left">' . \esc_html( $dl ) . '</span>';
+			echo '<span class="bec-booking-summary__row-right">' . \esc_html( BookingSummaryViewModelBuilder::formatMoney( $dd, $cur ) ) . '</span>';
+			echo '</div>';
+		}
+
+		if ( $tt !== '' ) {
+			echo '<p class="bec-booking-summary__tax-note" role="status">';
+			echo '<span class="bec-booking-summary__tax-ico" aria-hidden="true">i</span>';
+			echo ' <span class="bec-booking-summary__tax-txt">' . \esc_html( $tt ) . '</span></p>';
+		}
+
+		return (string) \ob_get_clean();
+	}
+
+	/**
+	 * @param array<string, mixed> $vm
+	 */
+	public static function getAccordionsInnerHtml( array $vm ): string {
+		$incl  = (string) ( $vm['inclusions'] ?? '' );
+		$cond  = (string) ( $vm['conditions'] ?? '' );
+		$tIncl = (string) ( $vm['inclusions_title'] ?? \__( 'This rate includes', 'booking-engine-connector' ) );
+		$tCond = (string) ( $vm['conditions_title'] ?? \__( 'Cancellation and payments', 'booking-engine-connector' ) );
+		\ob_start();
+		if ( $incl !== '' ) {
+			echo '<details class="bec-booking-summary__accordion" role="listitem">';
+			echo '<summary class="bec-booking-summary__accordion-title">' . \esc_html( $tIncl ) . '</summary>';
+			echo '<div class="bec-booking-summary__accordion-body">' . self::formatMultiline( $incl ) . '</div>';
+			echo '</details>';
+		}
+		if ( $cond !== '' ) {
+			echo '<details class="bec-booking-summary__accordion" role="listitem">';
+			echo '<summary class="bec-booking-summary__accordion-title">' . \esc_html( $tCond ) . '</summary>';
+			echo '<div class="bec-booking-summary__accordion-body">' . self::formatMultiline( $cond ) . '</div>';
+			echo '</details>';
+		}
+
+		return (string) \ob_get_clean();
+	}
+
+	/**
+	 * @param array<string, mixed> $vm
+	 */
+	public static function getBarAmountSpanHtml( array $vm ): string {
+		$cur = (string) ( $vm['currency'] ?? '' );
+		$tot = isset( $vm['total'] ) && is_numeric( $vm['total'] ) ? (float) $vm['total'] : null;
+		$st  = (string) ( $vm['state'] ?? '' );
+		if ( $st === 'available' && $tot !== null && $cur !== '' ) {
+			return '<span class="bec-booking-summary__bar-amount-total">'
+				. \esc_html( BookingSummaryViewModelBuilder::formatMoney( $tot, $cur ) ) . ' '
+				. '<span class="bec-booking-summary__bar-total-lbl">' . \esc_html__( 'Total', 'booking-engine-connector' ) . '</span>'
+				. '</span>';
+		}
+
+		return '';
 	}
 
 	private static function formatShortDate( string $ymd ): string {

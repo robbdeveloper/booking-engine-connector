@@ -41,6 +41,25 @@ final class CanonicalQuote
 	}
 
 	/**
+	 * Re-applies rate selection to an already-enriched quote (e.g. when building per-rate view models
+	 * from the same cached quote payload as the initial request).
+	 *
+	 * @param array<string, mixed> $quote
+	 * @return array<string, mixed>
+	 */
+	public static function applySelectionForContext( array $quote, SearchContext $ctx ): array {
+		$rates = $quote['rates'] ?? null;
+		if ( ! \is_array( $rates ) || $rates === [] ) {
+			return $quote;
+		}
+
+		$q         = $quote;
+		$q['rates'] = self::sortRatesByAmount( self::dedupeRatesById( $rates ) );
+
+		return self::applySelection( $q, $ctx );
+	}
+
+	/**
 	 * @param array<string, mixed> $quote
 	 * @return array<string, mixed>
 	 */
