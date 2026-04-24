@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace BookingEngineConnector\Admin;
 
+use BookingEngineConnector\Media\GalleryImageFilenameRenamer;
 use BookingEngineConnector\Media\GalleryImageSyncSettings;
 use BookingEngineConnector\PostTypes\UnitPostType;
 use BookingEngineConnector\Sync\SyncCron;
@@ -22,6 +23,8 @@ final class SyncAdmin
 		\add_action('admin_post_bec_sync_save_settings', [self::class, 'handleSaveSettings']);
 		\add_action('admin_post_bec_sync_all', [self::class, 'handleSyncAll']);
 		\add_action('admin_post_bec_sync_unit', [self::class, 'handleSyncUnit']);
+		\add_action('admin_post_bec_rename_gallery_all', [self::class, 'handleRenameGalleryAll']);
+		\add_action('admin_post_bec_rename_unit_gallery', [self::class, 'handleRenameUnitGallery']);
 		\add_action('admin_notices', [self::class, 'renderNotices']);
 	}
 
@@ -40,6 +43,9 @@ final class SyncAdmin
 		$result = \get_transient(self::resultTransientKey());
 		\delete_transient(self::resultTransientKey());
 
+		$renameResult = \get_transient(self::renameResultTransientKey());
+		\delete_transient(self::renameResultTransientKey());
+
 		echo '<div class="wrap">';
 		echo '<h1>' . \esc_html__('Sync units', 'booking-engine-connector') . '</h1>';
 
@@ -56,6 +62,46 @@ final class SyncAdmin
 			);
 			if (! empty($result['errors']) && \is_array($result['errors'])) {
 				echo ' ' . \esc_html(\implode(' ', \array_map('strval', $result['errors'])));
+			}
+			echo '</p></div>';
+		}
+
+		if (\is_array($renameResult)) {
+			$scope  = isset($renameResult['scope']) ? (string) $renameResult['scope'] : '';
+			$unitId = isset($renameResult['unit_id']) ? (int) $renameResult['unit_id'] : 0;
+			echo '<div class="notice notice-info"><p>';
+			if ($scope === 'unit' && $unitId > 0) {
+				echo \esc_html(
+					\sprintf(
+						/* translators: 1: unit post ID */
+						\__('Gallery file rename for unit #%1$d:', 'booking-engine-connector'),
+						$unitId
+					)
+				);
+			} elseif ($scope === 'all') {
+				echo \esc_html(
+					\sprintf(
+						/* translators: 1: number of units processed */
+						\__('Gallery file rename across %1$d units:', 'booking-engine-connector'),
+						(int) ( $renameResult['units'] ?? 0 )
+					)
+				);
+			} else {
+				echo \esc_html__('Gallery file rename:', 'booking-engine-connector');
+			}
+			echo ' ';
+			echo \esc_html(
+				\sprintf(
+					/* translators: 1: renamed, 2: copied, 3: skipped, 4: failed */
+					\__('renamed %1$d, copied %2$d, skipped %3$d, failed %4$d.', 'booking-engine-connector'),
+					(int) ( $renameResult['renamed'] ?? 0 ),
+					(int) ( $renameResult['duplicated'] ?? 0 ),
+					(int) ( $renameResult['skipped'] ?? 0 ),
+					(int) ( $renameResult['failed'] ?? 0 )
+				)
+			);
+			if (! empty($renameResult['errors']) && \is_array($renameResult['errors'])) {
+				echo ' ' . \esc_html(\implode(' ', \array_map('strval', $renameResult['errors'])));
 			}
 			echo '</p></div>';
 		}
@@ -104,6 +150,17 @@ final class SyncAdmin
 		\wp_nonce_field('bec_sync_all', 'bec_sync_all_nonce');
 		echo '<input type="hidden" name="action" value="bec_sync_all" />';
 		\submit_button(\__('Run sync now', 'booking-engine-connector'), 'secondary');
+		echo '</form>';
+
+		echo '<hr /><h2 class="title">' . \esc_html__('Gallery file names', 'booking-engine-connector') . '</h2>';
+		echo '<p class="description">' . \esc_html__(
+			'Apply the current filename prefix/suffix settings to images already stored in each unit’s gallery. Images shared by more than one unit are copied for this unit so other units are not affected. This may take a while on large sites.',
+			'booking-engine-connector'
+		) . '</p>';
+		echo '<form method="post" action="' . \esc_url(\admin_url('admin-post.php')) . '">';
+		\wp_nonce_field('bec_rename_gallery_all', 'bec_rename_gallery_all_nonce');
+		echo '<input type="hidden" name="action" value="bec_rename_gallery_all" />';
+		\submit_button(\__('Rename all unit gallery files', 'booking-engine-connector'), 'secondary');
 		echo '</form>';
 
 		echo '</div>';
@@ -155,6 +212,12 @@ final class SyncAdmin
 			'bec_sync_unit_' . (int) $post->ID
 		);
 		$actions['bec_sync'] = '<a href="' . \esc_url($url) . '">' . \esc_html__('Sync now', 'booking-engine-connector') . '</a>';
+
+		$renameUrl                = \wp_nonce_url(
+			\admin_url('admin-post.php?action=bec_rename_unit_gallery&post_id=' . (int) $post->ID),
+			'bec_rename_unit_gallery_' . (int) $post->ID
+		);
+		$actions['bec_rename_gallery'] = '<a href="' . \esc_url($renameUrl) . '">' . \esc_html__('Rename gallery files', 'booking-engine-connector') . '</a>';
 
 		return $actions;
 	}
@@ -242,6 +305,45 @@ final class SyncAdmin
 		exit;
 	}
 
+	public static function handleRenameGalleryAll(): void
+	{
+		if (! \current_user_can(AdminMenu::CAPABILITY)) {
+			\wp_die(\esc_html__('Insufficient permissions.', 'booking-engine-connector'));
+		}
+
+		\check_admin_referer('bec_rename_gallery_all', 'bec_rename_gallery_all_nonce');
+
+		$result  = GalleryImageFilenameRenamer::renameForAllUnits();
+		$payload = \array_merge(['scope' => 'all'], $result);
+		\set_transient(self::renameResultTransientKey(), $payload, 120);
+
+		\wp_safe_redirect(\admin_url('admin.php?page=' . self::PAGE_SLUG));
+		exit;
+	}
+
+	public static function handleRenameUnitGallery(): void
+	{
+		if (! \current_user_can(AdminMenu::CAPABILITY)) {
+			\wp_die(\esc_html__('Insufficient permissions.', 'booking-engine-connector'));
+		}
+
+		$postId = isset($_GET['post_id']) ? (int) $_GET['post_id'] : 0;
+		\check_admin_referer('bec_rename_unit_gallery_' . $postId);
+
+		$r       = GalleryImageFilenameRenamer::renameForUnit($postId);
+		$payload = \array_merge(
+			[
+				'scope'   => 'unit',
+				'unit_id' => $postId,
+			],
+			$r
+		);
+		\set_transient(self::renameResultTransientKey(), $payload, 120);
+
+		\wp_safe_redirect(\admin_url('admin.php?page=' . self::PAGE_SLUG));
+		exit;
+	}
+
 	public static function renderNotices(): void
 	{
 		if (! \is_admin() || ! \current_user_can(AdminMenu::CAPABILITY)) {
@@ -258,5 +360,10 @@ final class SyncAdmin
 	private static function resultTransientKey(): string
 	{
 		return 'bec_sync_result_' . \get_current_user_id();
+	}
+
+	private static function renameResultTransientKey(): string
+	{
+		return 'bec_rename_gallery_result_' . \get_current_user_id();
 	}
 }
