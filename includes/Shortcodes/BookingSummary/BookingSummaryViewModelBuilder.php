@@ -277,20 +277,16 @@ final class BookingSummaryViewModelBuilder
 			$postId,
 			$vm
 		);
-		$stayForAdv = null;
-		if ( isset( $vm['accommodation_subtotal'] ) && is_numeric( $vm['accommodation_subtotal'] ) ) {
-			$stayForAdv = (float) $vm['accommodation_subtotal'];
-		} elseif ( isset( $vm['total'] ) && is_numeric( $vm['total'] ) ) {
-			$stayForAdv = (float) $vm['total'];
-		}
 		$adv = $rawArr['adv_tot_price'] ?? null;
-		if ( \is_numeric( $adv ) && $sumForPrepay > 0.0001 ) {
+		$percRaw = $rawArr['adv_perc'] ?? null;
+		// Kross can send both; `adv_tot_price` may mirror a % of the room only — use `adv_perc` on grand total when set.
+		if ( isset( $vm['total'] ) && is_numeric( $vm['total'] ) && is_numeric( $percRaw ) ) {
+			$perc = (float) $percRaw;
+			$vm['advance_amount'] = \round( (float) $vm['total'] * ( $perc / 100.0 ), 2 );
+		} elseif ( \is_numeric( $adv ) && $sumForPrepay > 0.0001 ) {
 			$vm['advance_amount'] = \round( (float) $adv + $sumForPrepay, 2 );
 		} elseif ( \is_numeric( $adv ) ) {
 			$vm['advance_amount'] = (float) $adv;
-		} elseif ( $stayForAdv !== null && isset( $rawArr['adv_perc'] ) && is_numeric( $rawArr['adv_perc'] ) ) {
-			$perc = (float) $rawArr['adv_perc'];
-			$vm['advance_amount'] = \round( $stayForAdv * ( $perc / 100.0 ) + $sumForPrepay, 2 );
 		}
 
 		$vm = self::buildSubtotalDisplayLines( $vm, (string) $vm['currency'] );
