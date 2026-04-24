@@ -16,7 +16,7 @@ use BookingEngineConnector\Units\CoreUnitSemantic;
  *
  * Filters: {@see bec_sync_apply_core_unit_fields}, {@see bec_core_unit_fields}, {@see bec_core_unit_locale},
  * {@see bec_provider_amenities_from_row}, {@see bec_sync_import_gallery_images}, {@see bec_core_unit_gallery_before_save},
- * {@see bec_core_unit_gallery_remote_urls}, {@see bec_sync_gallery_ignore_hash}, {@see bec_gallery_download_concurrency}.
+ * {@see bec_core_unit_gallery_remote_urls}, {@see bec_sync_gallery_ignore_hash} (3rd param: order-key hash), {@see bec_gallery_download_concurrency}.
  */
 final class CoreUnitFieldRegistry
 {
@@ -141,28 +141,38 @@ final class CoreUnitFieldRegistry
 
 		if (isset($value['urls']) && is_array($value['urls'])) {
 			$flat = [];
-			foreach ($value['urls'] as $u) {
-				if (is_string($u) && self::looksLikeHttpUrl($u)) {
-					$flat[] = $u;
-					continue;
+			if (isset($value['items']) && is_array($value['items']) && $value['items'] !== []) {
+				foreach ($value['items'] as $row) {
+					if (is_array($row) && isset($row['url']) && is_string($row['url']) && self::looksLikeHttpUrl($row['url'])) {
+						$flat[] = $row['url'];
+					}
 				}
-				if (is_array($u) && isset($u['url']) && is_string($u['url'])) {
-					$flat[] = $u['url'];
+			}
+			if ($flat === []) {
+				foreach ($value['urls'] as $u) {
+					if (is_string($u) && self::looksLikeHttpUrl($u)) {
+						$flat[] = $u;
+						continue;
+					}
+					if (is_array($u) && isset($u['url']) && is_string($u['url'])) {
+						$flat[] = $u['url'];
+					}
 				}
 			}
 			$flat = \apply_filters('bec_core_unit_gallery_remote_urls', $flat, $postId, $value);
 
-			$ids = RemoteGalleryImporter::importUrls($postId, $flat);
-
-			$feat = isset($value['featured_url']) ? (string) $value['featured_url'] : '';
-			if ($feat !== '' && self::looksLikeHttpUrl($feat)) {
-				$aid = RemoteGalleryImporter::findAttachmentIdBySourceUrl($feat);
-				if ($aid !== null) {
-					\set_post_thumbnail($postId, $aid);
+			if (isset($value['items']) && is_array($value['items']) && $value['items'] !== [] && \count($flat) === \count($value['items'])) {
+				$i = 0;
+				foreach ($value['items'] as $k => $row) {
+					if (is_array($row) && isset($row['url'])) {
+						$value['items'][ $k ]['url'] = $flat[ $i ];
+					}
+					++$i;
 				}
 			}
+			$value['urls'] = $flat;
 
-			return $ids;
+			return RemoteGalleryImporter::importFromRemotePayload($postId, $value);
 		}
 
 		if ($value === []) {

@@ -54,13 +54,17 @@ final class KrossCoreUnitFields
 	/**
 	 * Shape consumed by {@see CoreUnitFieldRegistry} for sideload into `bec_core_gallery`.
 	 *
-	 * @return array{urls: list<string>, featured_url: string|null}
+	 * - `items`: per-image URL, order, main flag, and a stable `key` for unit-scoped sync (Kross: remote id if present, else hash of normalised URL).
+	 * - `urls`: ordered URLs (backward compatibility for filters and legacy consumers).
+	 *
+	 * @return array{items: list<array{url: string, key: string, order: int, main: bool}>, urls: list<string>, featured_url: string|null}
 	 */
 	private static function extractGalleryRemotePayload(array $raw): array
 	{
 		$images = $raw['images'] ?? null;
 		if (! is_array($images)) {
 			return [
+				'items'         => [],
 				'urls'          => [],
 				'featured_url' => null,
 			];
@@ -75,11 +79,16 @@ final class KrossCoreUnitFields
 			if ($url === '' || ( ! \str_starts_with($url, 'http://') && ! \str_starts_with($url, 'https://') )) {
 				continue;
 			}
+			$nurl = \esc_url_raw($url);
+			if ($nurl === '' || ( ! \str_starts_with($nurl, 'http://') && ! \str_starts_with($nurl, 'https://') )) {
+				continue;
+			}
 			$order = isset($img['image_order']) ? (int) $img['image_order'] : 0;
 			$rows[] = [
-				'url'  => $url,
+				'url'   => $nurl,
 				'order' => $order,
-				'main' => ! empty($img['main']),
+				'main'  => ! empty($img['main']),
+				'key'   => self::krossImageStableKey($img, $nurl),
 			];
 		}
 
@@ -90,15 +99,31 @@ final class KrossCoreUnitFields
 			}
 		);
 
-		$urls = [];
+		$usedKeys = [];
+		$items    = [];
+		$urls     = [];
 		foreach ($rows as $row) {
-			$urls[] = $row['url'];
+			$baseKey = (string) $row['key'];
+			$k       = $baseKey;
+			$n       = 0;
+			while (isset($usedKeys[ $k ])) {
+				++$n;
+				$k = $baseKey . ':' . (string) $n;
+			}
+			$usedKeys[ $k ] = true;
+			$items[] = [
+				'url'   => (string) $row['url'],
+				'key'   => $k,
+				'order' => (int) $row['order'],
+				'main'  => (bool) $row['main'],
+			];
+			$urls[]  = (string) $row['url'];
 		}
 
 		$featured = null;
-		foreach ($rows as $row) {
-			if ($row['main']) {
-				$featured = $row['url'];
+		foreach ($items as $it) {
+			if (! empty($it['main'])) {
+				$featured = (string) $it['url'];
 				break;
 			}
 		}
@@ -107,9 +132,39 @@ final class KrossCoreUnitFields
 		}
 
 		return [
-			'urls'           => $urls,
-			'featured_url'   => $featured,
+			'items'         => $items,
+			'urls'          => $urls,
+			'featured_url'  => $featured,
 		];
+	}
+
+	/**
+	 * Prefer a remote id from the API payload; otherwise hash the normalised URL.
+	 *
+	 * @param array<string, mixed> $img
+	 */
+	private static function krossImageStableKey(array $img, string $normalisedUrl): string
+	{
+		$candidates = ['id', 'id_image', 'id_img', 'image_id', 'id_image_type'];
+		foreach ($candidates as $ck) {
+			if (! isset($img[ $ck ])) {
+				continue;
+			}
+			$v = $img[ $ck ];
+			if (is_int($v) || is_float($v)) {
+				$s = (string) ( (int) $v );
+			} else {
+				$s = \trim((string) $v);
+			}
+			if ($s !== '' && $s !== '0') {
+				$part = \trim( \preg_replace( '/[^a-z0-9_-]+/i', '-', $s ), '-' );
+				if ($part !== '') {
+					return 'kross:' . $part;
+				}
+			}
+		}
+
+		return \hash('sha256', $normalisedUrl);
 	}
 
 	/**

@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace BookingEngineConnector\Admin;
 
+use BookingEngineConnector\Media\GalleryImageSyncSettings;
 use BookingEngineConnector\PostTypes\UnitPostType;
 use BookingEngineConnector\Sync\SyncCron;
 use BookingEngineConnector\Sync\SyncService;
@@ -32,6 +33,9 @@ final class SyncAdmin
 
 		$hours = \max(1, (int) \get_option(SyncCron::OPTION_INTERVAL_HOURS, 6));
 		$last  = (string) \get_option('bec_sync_last_run_at', '');
+
+		$imgPrefix = GalleryImageSyncSettings::getFilenamePrefix();
+		$imgSuffix = GalleryImageSyncSettings::getFilenameSuffix();
 
 		$result = \get_transient(self::resultTransientKey());
 		\delete_transient(self::resultTransientKey());
@@ -69,11 +73,31 @@ final class SyncAdmin
 		echo '<form method="post" action="' . \esc_url(\admin_url('admin-post.php')) . '">';
 		\wp_nonce_field('bec_sync_settings', 'bec_sync_settings_nonce');
 		echo '<input type="hidden" name="action" value="bec_sync_save_settings" />';
+		echo '<h2 class="title">' . \esc_html__('Schedule', 'booking-engine-connector') . '</h2>';
 		echo '<table class="form-table"><tr><th><label for="bec_sync_interval_hours">' . \esc_html__('Interval (hours)', 'booking-engine-connector') . '</label></th><td>';
 		echo '<input type="number" min="1" max="168" name="bec_sync_interval_hours" id="bec_sync_interval_hours" value="' . \esc_attr((string) $hours) . '" />';
 		echo '<p class="description">' . \esc_html__('How often the scheduled sync runs (1–168).', 'booking-engine-connector') . '</p>';
 		echo '</td></tr></table>';
-		\submit_button(\__('Save schedule', 'booking-engine-connector'));
+
+		echo '<h2 class="title">' . \esc_html__('Gallery image filenames', 'booking-engine-connector') . '</h2>';
+		echo '<p class="description">' . \esc_html__(
+			'Synced unit images are saved with: prefix + unit name (slug) + suffix + order index + file extension. Leave prefix and suffix empty to use only the unit name.',
+			'booking-engine-connector'
+		) . '</p>';
+		echo '<table class="form-table" role="presentation">';
+		echo '<tr><th scope="row"><label for="bec_sync_gallery_image_prefix">' . \esc_html__('Filename prefix', 'booking-engine-connector') . '</label></th><td>';
+		echo '<input type="text" class="regular-text" name="bec_sync_gallery_image_prefix" id="bec_sync_gallery_image_prefix" value="' . \esc_attr($imgPrefix) . '" autocomplete="off" />';
+		echo '<p class="description">' . \esc_html__('Optional text prepended to each file base name (safe characters only).', 'booking-engine-connector') . '</p>';
+		echo '</td></tr>';
+		echo '<tr><th scope="row"><label for="bec_sync_gallery_image_suffix">' . \esc_html__('Filename suffix (before index)', 'booking-engine-connector') . '</label></th><td>';
+		echo '<input type="text" class="regular-text" name="bec_sync_gallery_image_suffix" id="bec_sync_gallery_image_suffix" value="' . \esc_attr($imgSuffix) . '" autocomplete="off" />';
+		echo '<p class="description">' . \esc_html__(
+			'Placed after the unit name slug, before the numeric index (e.g. "-room").',
+			'booking-engine-connector'
+		) . '</p>';
+		echo '</td></tr></table>';
+
+		\submit_button(\__('Save sync settings', 'booking-engine-connector'));
 		echo '</form>';
 
 		echo '<hr /><form method="post" action="' . \esc_url(\admin_url('admin-post.php')) . '">';
@@ -106,6 +130,11 @@ final class SyncAdmin
 		$h = \max(1, \min(168, $h));
 		\update_option(SyncCron::OPTION_INTERVAL_HOURS, $h, false);
 		SyncCron::reschedule();
+
+		$prefix = isset($_POST['bec_sync_gallery_image_prefix']) ? \wp_unslash((string) $_POST['bec_sync_gallery_image_prefix']) : '';
+		$suffix = isset($_POST['bec_sync_gallery_image_suffix']) ? \wp_unslash((string) $_POST['bec_sync_gallery_image_suffix']) : '';
+		\update_option(GalleryImageSyncSettings::OPTION_FILENAME_PREFIX, \sanitize_file_name($prefix), false);
+		\update_option(GalleryImageSyncSettings::OPTION_FILENAME_SUFFIX, \sanitize_file_name($suffix), false);
 
 		\wp_safe_redirect(\add_query_arg(['page' => self::PAGE_SLUG, 'bec_saved' => '1'], \admin_url('admin.php')));
 		exit;
@@ -221,7 +250,7 @@ final class SyncAdmin
 
 		if (isset($_GET['page']) && (string) \sanitize_key(\wp_unslash((string) $_GET['page'])) === self::PAGE_SLUG && isset($_GET['bec_saved'])) {
 			if ((string) \sanitize_text_field(\wp_unslash((string) $_GET['bec_saved'])) === '1') {
-				echo '<div class="notice notice-success is-dismissible"><p>' . \esc_html__('Schedule saved.', 'booking-engine-connector') . '</p></div>';
+				echo '<div class="notice notice-success is-dismissible"><p>' . \esc_html__('Sync settings saved.', 'booking-engine-connector') . '</p></div>';
 			}
 		}
 	}
