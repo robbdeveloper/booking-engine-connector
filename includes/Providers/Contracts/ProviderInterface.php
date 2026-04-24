@@ -50,8 +50,17 @@ interface ProviderInterface
 	/**
 	 * When true, the search layer collects one age per child (`bec_child_age[]`) and passes
 	 * `children_ages` in the provider search context (used e.g. for Kross checkout `guests_rooms`).
+	 *
+	 * Only applies when {@see getSearchGuestFieldMode()} is {@see SearchGuestFieldMode::BREAKDOWN}
+	 * (adults + children); in {@see SearchGuestFieldMode::TOTAL} mode the form does not show child age fields.
 	 */
 	public function requiresChildrenAges(): bool;
+
+	/**
+	 * How the search bar collects guest counts: {@see SearchGuestFieldMode::BREAKDOWN} (adults + children, optional ages)
+	 * or {@see SearchGuestFieldMode::TOTAL} (single pax count).
+	 */
+	public function getSearchGuestFieldMode(): string;
 
 	/**
 	 * Price/availability quote for one remote unit and a search context.

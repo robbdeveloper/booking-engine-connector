@@ -12,6 +12,7 @@ use BookingEngineConnector\Search\QuoteService;
 use BookingEngineConnector\Search\SearchContext;
 use BookingEngineConnector\Providers\ProviderRegistry;
 use BookingEngineConnector\Search\SearchForm;
+use BookingEngineConnector\Shortcodes\BookingSummary\BookingSummaryRenderer;
 
 /**
  * Public shortcodes (TASK-SHO-001).
@@ -28,6 +29,7 @@ final class ShortcodeRegistry
 		\add_shortcode('bec_fallback', [self::class, 'renderFallback']);
 		\add_shortcode('bec_unit_url', [self::class, 'renderUnitUrl']);
 		\add_shortcode('bec_unit_info', [self::class, 'renderUnitInfo']);
+		\add_shortcode('bec_booking_summary', [BookingSummaryRenderer::class, 'renderFromShortcode']);
 	}
 
 	public static function renderVersion(): string

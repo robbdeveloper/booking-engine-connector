@@ -12,8 +12,9 @@ namespace BookingEngineConnector\Search;
  *
  * - `bec_checkin` — check-in date (Y-m-d or site-accepted string)
  * - `bec_checkout` — check-out date
- * - `bec_adults` — adult count (positive integer)
+ * - `bec_adults` — adult count (positive integer; used with `bec_children` in “breakdown” guest mode)
  * - `bec_children` — child count (non-negative integer)
+ * - `bec_total_guests` — single guest / pax count when the active provider uses “total” guest mode (no adult/child split in the URL)
  * - `bec_child_age` — repeated query key (`bec_child_age[]=…`) for each child’s age when the active provider requires it
  * - `bec_rate_id` — optional rate plan id (provider-specific; e.g. Kross `id_rate`) to pick price from a multi-rate quote
  */
@@ -26,6 +27,9 @@ final class SearchContext
 	public const PARAM_ADULTS = 'bec_adults';
 
 	public const PARAM_CHILDREN = 'bec_children';
+
+	/** Set when the request encodes occupancy as a single number (“total” guest field mode; see `SearchGuestFieldMode::TOTAL`). */
+	public const PARAM_TOTAL_GUESTS = 'bec_total_guests';
 
 	/** Repeated in GET as `bec_child_age[]`. */
 	public const PARAM_CHILD_AGE = 'bec_child_age';
@@ -45,6 +49,9 @@ final class SearchContext
 
 	private string $rateId = '';
 
+	/** When true, {@see toQueryArgs()} uses {@see PARAM_TOTAL_GUESTS} instead of {@see PARAM_ADULTS} / {@see PARAM_CHILDREN}. */
+	private bool $storedAsTotalGuestQuery = false;
+
 	private function __construct()
 	{
 	}
@@ -58,12 +65,24 @@ final class SearchContext
 		$ctx->checkout = isset($_GET[self::PARAM_CHECKOUT])
 			? sanitize_text_field(wp_unslash((string) $_GET[self::PARAM_CHECKOUT]))
 			: '';
-		$ctx->adults   = isset($_GET[self::PARAM_ADULTS])
-			? max(0, absint($_GET[self::PARAM_ADULTS]))
-			: 0;
-		$ctx->children = isset($_GET[self::PARAM_CHILDREN])
-			? max(0, absint($_GET[self::PARAM_CHILDREN]))
-			: 0;
+
+		if (isset($_GET[self::PARAM_ADULTS])) {
+			$ctx->adults   = \max(0, \absint($_GET[self::PARAM_ADULTS]));
+			$ctx->children = isset($_GET[self::PARAM_CHILDREN])
+				? \max(0, \absint($_GET[self::PARAM_CHILDREN]))
+				: 0;
+			$ctx->storedAsTotalGuestQuery = false;
+		} elseif (isset($_GET[self::PARAM_TOTAL_GUESTS])) {
+			$total                      = \max(0, \absint($_GET[self::PARAM_TOTAL_GUESTS]));
+			$ctx->adults                = $total;
+			$ctx->children              = 0;
+			$ctx->storedAsTotalGuestQuery = true;
+		} else {
+			$ctx->adults   = 0;
+			$ctx->children = 0;
+			$ctx->storedAsTotalGuestQuery = false;
+		}
+
 		$ctx->rateId = isset($_GET[self::PARAM_RATE_ID])
 			? sanitize_text_field(wp_unslash((string) $_GET[self::PARAM_RATE_ID]))
 			: '';
@@ -109,11 +128,18 @@ final class SearchContext
 		if ($this->checkout !== '') {
 			$args[self::PARAM_CHECKOUT] = $this->checkout;
 		}
-		if ($this->adults > 0) {
-			$args[self::PARAM_ADULTS] = $this->adults;
-		}
-		if ($this->children > 0) {
-			$args[self::PARAM_CHILDREN] = $this->children;
+		$pax = $this->adults + $this->children;
+		if ($this->storedAsTotalGuestQuery) {
+			if ($pax > 0) {
+				$args[self::PARAM_TOTAL_GUESTS] = $pax;
+			}
+		} else {
+			if ($this->adults > 0) {
+				$args[self::PARAM_ADULTS] = $this->adults;
+			}
+			if ($this->children > 0) {
+				$args[self::PARAM_CHILDREN] = $this->children;
+			}
 		}
 		if ($this->rateId !== '') {
 			$args[self::PARAM_RATE_ID] = $this->rateId;
@@ -211,10 +237,15 @@ final class SearchContext
 		return $this->rateId;
 	}
 
+	public function isStoredAsTotalGuestQuery(): bool
+	{
+		return $this->storedAsTotalGuestQuery;
+	}
+
 	/**
 	 * Payload for {@see ProviderInterface::getQuoteForUnit()}.
 	 *
-	 * @return array{checkin: string, checkout: string, adults: int, children: int, children_ages?: list<int>, rate_id?: string}
+	 * @return array{checkin: string, checkout: string, adults: int, children: int, guests?: int, children_ages?: list<int>, rate_id?: string}
 	 */
 	public function toProviderSearchContext(): array
 	{
@@ -224,6 +255,10 @@ final class SearchContext
 			'adults'   => $this->adults,
 			'children' => $this->children,
 		];
+		$pax = $this->adults + $this->children;
+		if ($pax > 0) {
+			$out['guests'] = $pax;
+		}
 		if ($this->children > 0) {
 			$out['children_ages'] = $this->normalizedChildrenAgesForProvider();
 		}

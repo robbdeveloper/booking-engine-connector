@@ -11,6 +11,7 @@ use BookingEngineConnector\Providers\Contracts\BulkQuoteProviderInterface;
 use BookingEngineConnector\Providers\Contracts\ProviderErrorCategory;
 use BookingEngineConnector\Providers\Contracts\ProviderException;
 use BookingEngineConnector\Providers\Contracts\ProviderInterface;
+use BookingEngineConnector\Providers\Contracts\SearchGuestFieldMode;
 
 /**
  * Kross API v5: room types + calendar availability (see docs/KROSS-API.md).
@@ -76,7 +77,12 @@ final class KrossProvider implements ProviderInterface, BulkQuoteProviderInterfa
 
 	public function requiresChildrenAges(): bool
 	{
-		return true;
+		return false;
+	}
+
+	public function getSearchGuestFieldMode(): string
+	{
+		return SearchGuestFieldMode::TOTAL;
 	}
 
 	public function fetchRemoteUnits(): array
@@ -290,7 +296,7 @@ final class KrossProvider implements ProviderInterface, BulkQuoteProviderInterfa
 			'guests'       => $guests,
 			'adults'       => $adults,
 			'children'     => $children,
-			'uid'          => \uniqid(),
+			'uid'          => \bin2hex(\random_bytes(16)),
 		];
 		if ($rateId !== '') {
 			$args['id_rate'] = $rateId;

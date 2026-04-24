@@ -13,6 +13,7 @@ use BookingEngineConnector\Front\AmenitiesAssets;
 use BookingEngineConnector\Front\PublicAssets;
 use BookingEngineConnector\Front\PublicContentBlocks;
 use BookingEngineConnector\PostTypes\UnitPostType;
+use BookingEngineConnector\Search\SearchSettings;
 use BookingEngineConnector\Search\SearchTemplateHooks;
 use BookingEngineConnector\Shortcodes\ShortcodeRegistry;
 use BookingEngineConnector\Sync\CoreUnitFieldRegistry;
@@ -53,6 +54,7 @@ final class Plugin
 			dirname(\BEC_PLUGIN_BASENAME) . '/languages'
 		);
 
+		SearchSettings::register();
 		SearchTemplateHooks::register();
 		PublicAssets::register();
 		AmenitiesAssets::register();

@@ -68,12 +68,30 @@ final class PublicAssets
 			true
 		);
 
+		\wp_enqueue_script(
+			'bec-public-booking-summary',
+			\BEC_PLUGIN_URL . 'assets/public-booking-summary.js',
+			[],
+			\BEC_VERSION,
+			true
+		);
+
 		$ctx = SearchContext::fromRequest();
 
 		$l10n = [
 			'strAdultsOne'     => \__('%d adult', 'booking-engine-connector'),
 			'strAdultsMany'    => \__('%d adults', 'booking-engine-connector'),
 			'strWithChildren'  => \__('%1$d adults · %2$d children', 'booking-engine-connector'),
+			'strGuestsOne'     => \__('%d guest', 'booking-engine-connector'),
+			'strGuestsMany'    => \__('%d guests', 'booking-engine-connector'),
+			'strChildAgeLabel'  => \__(
+				'Child %d age',
+				'booking-engine-connector'
+			),
+			'strChildAgePlaceholder' => \__(
+				'Age',
+				'booking-engine-connector'
+			),
 			'momentLocale'     => self::momentLocaleString(),
 			'firstDayOfWeek'   => (int) \get_option('start_of_week', 0),
 			'maxNights'        => (int) \apply_filters('bec_search_max_nights', 365, $ctx),
@@ -122,7 +140,10 @@ final class PublicAssets
 
 		if (\is_singular()) {
 			$post = \get_post();
-			if ($post instanceof \WP_Post && \has_shortcode($post->post_content, 'bec_search')) {
+			if ($post instanceof \WP_Post && (
+				\has_shortcode($post->post_content, 'bec_search')
+				|| \has_shortcode($post->post_content, 'bec_booking_summary')
+			)) {
 				return true;
 			}
 		}

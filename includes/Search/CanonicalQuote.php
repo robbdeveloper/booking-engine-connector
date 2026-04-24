@@ -212,6 +212,10 @@ final class CanonicalQuote
 			return '';
 		}
 
+		if (isset($value['main']) && \is_string($value['main']) && $value['main'] !== '') {
+			return \trim($value['main']);
+		}
+
 		$lang = \substr(\get_locale(), 0, 2);
 		if (isset($value[$lang]) && \is_string($value[$lang])) {
 			return \trim($value[$lang]);

@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace BookingEngineConnector\Search;
 
 use BookingEngineConnector\PostTypes\UnitPostType;
+use BookingEngineConnector\Providers\Contracts\SearchGuestFieldMode;
 use BookingEngineConnector\Providers\ProviderRegistry;
 
 /**
@@ -54,37 +55,70 @@ final class SearchForm
 		$checkout = \esc_attr($ctx->getCheckout());
 		$adults   = $ctx->getAdults() > 0 ? (string) $ctx->getAdults() : '';
 		$children = (string) \max(0, $ctx->getChildren());
+		$totalPax = $ctx->getAdults() + $ctx->getChildren();
 
-		$needsChildAges = (bool) \apply_filters(
-			'bec_provider_requires_children_ages',
-			ProviderRegistry::getProvider()->requiresChildrenAges(),
+		$guestFieldMode = (string) \apply_filters(
+			'bec_search_guest_field_mode',
+			ProviderRegistry::getProvider()->getSearchGuestFieldMode(),
 			$ctx
 		);
+		if ($guestFieldMode !== SearchGuestFieldMode::TOTAL && $guestFieldMode !== SearchGuestFieldMode::BREAKDOWN) {
+			$guestFieldMode = SearchGuestFieldMode::BREAKDOWN;
+		}
 
-		$fields = [
-			SearchContext::PARAM_CHECKIN  => [
-				'label' => \__('Check-in', 'booking-engine-connector'),
-				'type'  => 'date',
-				'value' => $checkin,
-			],
-			SearchContext::PARAM_CHECKOUT => [
-				'label' => \__('Check-out', 'booking-engine-connector'),
-				'type'  => 'date',
-				'value' => $checkout,
-			],
-			SearchContext::PARAM_ADULTS   => [
-				'label' => \__('Adults', 'booking-engine-connector'),
-				'type'  => 'number',
-				'value' => $adults,
-				'min'   => '1',
-			],
-			SearchContext::PARAM_CHILDREN => [
-				'label' => \__('Children', 'booking-engine-connector'),
-				'type'  => 'number',
-				'value' => $children,
-				'min'   => '0',
-			],
-		];
+		$needsChildAges = $guestFieldMode === SearchGuestFieldMode::BREAKDOWN
+			&& (bool) \apply_filters(
+				'bec_provider_requires_children_ages',
+				ProviderRegistry::getProvider()->requiresChildrenAges(),
+				$ctx
+			);
+
+		if ($guestFieldMode === SearchGuestFieldMode::TOTAL) {
+			$totalStr = $totalPax > 0 ? (string) $totalPax : '';
+			$fields   = [
+				SearchContext::PARAM_CHECKIN  => [
+					'label' => \__('Check-in', 'booking-engine-connector'),
+					'type'  => 'date',
+					'value' => $checkin,
+				],
+				SearchContext::PARAM_CHECKOUT => [
+					'label' => \__('Check-out', 'booking-engine-connector'),
+					'type'  => 'date',
+					'value' => $checkout,
+				],
+				SearchContext::PARAM_TOTAL_GUESTS => [
+					'label' => \__('Guests', 'booking-engine-connector'),
+					'type'  => 'number',
+					'value' => $totalStr,
+					'min'   => '1',
+				],
+			];
+		} else {
+			$fields = [
+				SearchContext::PARAM_CHECKIN  => [
+					'label' => \__('Check-in', 'booking-engine-connector'),
+					'type'  => 'date',
+					'value' => $checkin,
+				],
+				SearchContext::PARAM_CHECKOUT => [
+					'label' => \__('Check-out', 'booking-engine-connector'),
+					'type'  => 'date',
+					'value' => $checkout,
+				],
+				SearchContext::PARAM_ADULTS   => [
+					'label' => \__('Adults', 'booking-engine-connector'),
+					'type'  => 'number',
+					'value' => $adults,
+					'min'   => '1',
+				],
+				SearchContext::PARAM_CHILDREN => [
+					'label' => \__('Children', 'booking-engine-connector'),
+					'type'  => 'number',
+					'value' => $children,
+					'min'   => '0',
+				],
+			];
+		}
 
 		/**
 		 * @var array<string, array<string, string>> $fields
@@ -105,7 +139,8 @@ final class SearchForm
 				$checkin,
 				$checkout,
 				$adults,
-				$children
+				$children,
+				$guestFieldMode
 			);
 
 			return;
@@ -118,7 +153,8 @@ final class SearchForm
 			$error,
 			$fields,
 			$ctx,
-			$needsChildAges
+			$needsChildAges,
+			$guestFieldMode
 		);
 	}
 
@@ -132,10 +168,11 @@ final class SearchForm
 		?\WP_Error $error,
 		array $fields,
 		SearchContext $ctx,
-		bool $needsChildAges
+		bool $needsChildAges,
+		string $guestFieldMode
 	): void {
 		echo '<div class="' . \esc_attr($htmlClass) . '-wrap">';
-		echo '<form class="' . \esc_attr($htmlClass) . '" id="' . \esc_attr($formId) . '" method="get" action="' . \esc_url($action) . '">';
+		echo '<form class="' . \esc_attr($htmlClass) . '" id="' . \esc_attr($formId) . '" method="get" action="' . \esc_url($action) . '" data-bec-guest-mode="' . \esc_attr($guestFieldMode) . '">';
 
 		if ($error instanceof \WP_Error) {
 			echo '<p class="bec-search-form__error" role="alert">' . \esc_html($error->get_error_message()) . '</p>';
@@ -174,29 +211,18 @@ final class SearchForm
 		if ($maxSlots < 1) {
 			$maxSlots = 8;
 		}
-		echo '<div class="bec-search-form__child-ages">';
-		for ($i = 0; $i < $maxSlots; $i++) {
-			$active = $i < $n;
+		$show = \min($n, $maxSlots);
+		echo '<div class="bec-search-form__child-ages" data-bec-child-ages-root="1" data-bec-form-id="' . \esc_attr($formId) . '" data-bec-max-child-age-slots="' . (int) $maxSlots . '">';
+		for ($i = 0; $i < $show; $i++) {
 			$ageVal = isset($ages[$i]) ? (string) (int) $ages[$i] : '';
 			/* translators: %d: child index (1-based) */
 			$lbl = \sprintf(\__('Child %d age', 'booking-engine-connector'), $i + 1);
-			echo '<p class="bec-search-form__field bec-search-form__field--bec-child-age" data-bec-child-age-index="' . (int) $i . '"';
-			if (! $active) {
-				echo ' hidden';
-			}
-			echo '>';
+			echo '<p class="bec-search-form__field bec-search-form__field--bec-child-age" data-bec-child-age-index="' . (int) $i . '">';
 			echo '<label for="' . \esc_attr($formId . '-child-age-' . $i) . '">' . \esc_html($lbl) . '</label> ';
-			echo '<input id="' . \esc_attr($formId . '-child-age-' . $i) . '" name="' . \esc_attr(SearchContext::PARAM_CHILD_AGE) . '[]" type="number" min="0" max="17" value="' . \esc_attr($ageVal) . '"';
-			if (! $active) {
-				echo ' disabled';
-			}
-			echo ' />';
+			echo '<input id="' . \esc_attr($formId . '-child-age-' . $i) . '" name="' . \esc_attr(SearchContext::PARAM_CHILD_AGE) . '[]" type="number" min="0" max="17" value="' . \esc_attr($ageVal) . '" />';
 			echo '</p>';
 		}
 		echo '</div>';
-		echo '<script>';
-		echo '(function(){var f=document.getElementById(' . \wp_json_encode($formId) . ');if(!f)return;var w=f.querySelector(".bec-search-form__child-ages");var ch=f.querySelector("[name=\\"' . \esc_js(SearchContext::PARAM_CHILDREN) . '\\"]");if(!w||!ch)return;var rows=w.querySelectorAll("[data-bec-child-age-index]");function sync(){var n=parseInt(ch.value,10)||0;for(var i=0;i<rows.length;i++){var on=i<n;var inp=rows[i].querySelector("input");rows[i].hidden=!on;if(inp){inp.disabled=!on;if(!on)inp.value="";}}}sync();ch.addEventListener("input",sync);ch.addEventListener("change",sync);})();';
-		echo '</script>';
 	}
 
 	/**
@@ -213,7 +239,8 @@ final class SearchForm
 		string $checkin,
 		string $checkout,
 		string $adults,
-		string $children
+		string $children,
+		string $guestFieldMode
 	): void {
 		$labelCheckin  = isset($fields[SearchContext::PARAM_CHECKIN]['label'])
 			? (string) $fields[SearchContext::PARAM_CHECKIN]['label']
@@ -227,6 +254,9 @@ final class SearchForm
 		$labelChildren = isset($fields[SearchContext::PARAM_CHILDREN]['label'])
 			? (string) $fields[SearchContext::PARAM_CHILDREN]['label']
 			: \__('Children', 'booking-engine-connector');
+		$labelTotalGuests = isset($fields[SearchContext::PARAM_TOTAL_GUESTS]['label'])
+			? (string) $fields[SearchContext::PARAM_TOTAL_GUESTS]['label']
+			: \__('Guests', 'booking-engine-connector');
 
 		$maxSlots = (int) \apply_filters('bec_search_max_child_age_slots', 8, $ctx);
 		if ($maxSlots < 1) {
@@ -234,20 +264,26 @@ final class SearchForm
 		}
 		$maxAdults   = (int) \apply_filters('bec_search_max_adults', 30, $ctx);
 		$maxChildren = (int) \apply_filters('bec_search_max_children', $maxSlots, $ctx);
+		$maxTotal    = (int) \apply_filters('bec_search_max_total_guests', 30, $ctx);
 		if ($maxAdults < 1) {
 			$maxAdults = 30;
 		}
 		if ($maxChildren < 0) {
 			$maxChildren = $maxSlots;
 		}
+		if ($maxTotal < 1) {
+			$maxTotal = 30;
+		}
 
 		$adultsVal = $adults !== '' ? $adults : '1';
+		$totalPax  = $ctx->getAdults() + $ctx->getChildren();
+		$totalVal  = $totalPax > 0 ? (string) $totalPax : '1';
 		$guestsId  = $formId . '-popover-guests';
 
 		$guestsLbl = \esc_attr(\__('Guests', 'booking-engine-connector'));
 
 		echo '<div class="' . \esc_attr($htmlClass) . '-wrap ' . \esc_attr($htmlClass) . '-wrap--enhanced">';
-		echo '<form class="' . \esc_attr($htmlClass) . ' ' . \esc_attr($htmlClass) . '--enhanced" id="' . \esc_attr($formId) . '" method="get" action="' . \esc_url($action) . '">';
+		echo '<form class="' . \esc_attr($htmlClass) . ' ' . \esc_attr($htmlClass) . '--enhanced" id="' . \esc_attr($formId) . '" method="get" action="' . \esc_url($action) . '" data-bec-guest-mode="' . \esc_attr($guestFieldMode) . '">';
 
 		if ($error instanceof \WP_Error) {
 			echo '<p class="bec-search-form__error" role="alert">' . \esc_html($error->get_error_message()) . '</p>';
@@ -287,57 +323,59 @@ final class SearchForm
 		echo '<div class="bec-search-form__panel" id="' . \esc_attr($guestsId) . '" role="dialog" aria-modal="true" aria-labelledby="' . \esc_attr($formId . '-trigger-guests') . '" hidden tabindex="-1">';
 		echo '<div class="bec-search-form__panel-inner">';
 
-		echo '<div class="bec-search-form__row">';
-		echo '<span class="bec-search-form__row-label">' . \esc_html($labelAdults) . '</span>';
-		echo '<div class="bec-search-form__stepper" data-bec-stepper-for="' . \esc_attr(SearchContext::PARAM_ADULTS) . '">';
-		echo '<button type="button" class="bec-search-form__step-btn" data-bec-step="-1" aria-label="' . \esc_attr__('Decrease adults', 'booking-engine-connector') . '">−</button>';
-		echo '<input id="' . \esc_attr($formId . '-' . SearchContext::PARAM_ADULTS) . '" name="' . \esc_attr(SearchContext::PARAM_ADULTS) . '" type="number" min="1" max="' . (int) $maxAdults . '" step="1" value="' . \esc_attr($adultsVal) . '" inputmode="numeric" />';
-		echo '<button type="button" class="bec-search-form__step-btn" data-bec-step="1" aria-label="' . \esc_attr__('Increase adults', 'booking-engine-connector') . '">+</button>';
-		echo '</div></div>';
+		if ($guestFieldMode === SearchGuestFieldMode::TOTAL) {
+			echo '<div class="bec-search-form__row">';
+			echo '<span class="bec-search-form__row-label">' . \esc_html($labelTotalGuests) . '</span>';
+			echo '<div class="bec-search-form__stepper" data-bec-stepper-for="' . \esc_attr(SearchContext::PARAM_TOTAL_GUESTS) . '">';
+			echo '<button type="button" class="bec-search-form__step-btn" data-bec-step="-1" aria-label="' . \esc_attr__('Decrease guests', 'booking-engine-connector') . '">−</button>';
+			echo '<input id="' . \esc_attr($formId . '-' . SearchContext::PARAM_TOTAL_GUESTS) . '" name="' . \esc_attr(SearchContext::PARAM_TOTAL_GUESTS) . '" type="number" min="1" max="' . (int) $maxTotal . '" step="1" value="' . \esc_attr($totalVal) . '" inputmode="numeric" />';
+			echo '<button type="button" class="bec-search-form__step-btn" data-bec-step="1" aria-label="' . \esc_attr__('Increase guests', 'booking-engine-connector') . '">+</button>';
+			echo '</div></div>';
+		} else {
+			echo '<div class="bec-search-form__row">';
+			echo '<span class="bec-search-form__row-label">' . \esc_html($labelAdults) . '</span>';
+			echo '<div class="bec-search-form__stepper" data-bec-stepper-for="' . \esc_attr(SearchContext::PARAM_ADULTS) . '">';
+			echo '<button type="button" class="bec-search-form__step-btn" data-bec-step="-1" aria-label="' . \esc_attr__('Decrease adults', 'booking-engine-connector') . '">−</button>';
+			echo '<input id="' . \esc_attr($formId . '-' . SearchContext::PARAM_ADULTS) . '" name="' . \esc_attr(SearchContext::PARAM_ADULTS) . '" type="number" min="1" max="' . (int) $maxAdults . '" step="1" value="' . \esc_attr($adultsVal) . '" inputmode="numeric" />';
+			echo '<button type="button" class="bec-search-form__step-btn" data-bec-step="1" aria-label="' . \esc_attr__('Increase adults', 'booking-engine-connector') . '">+</button>';
+			echo '</div></div>';
 
-		echo '<div class="bec-search-form__row">';
-		echo '<span class="bec-search-form__row-label">' . \esc_html($labelChildren) . '</span>';
-		echo '<div class="bec-search-form__stepper" data-bec-stepper-for="' . \esc_attr(SearchContext::PARAM_CHILDREN) . '">';
-		echo '<button type="button" class="bec-search-form__step-btn" data-bec-step="-1" aria-label="' . \esc_attr__('Decrease children', 'booking-engine-connector') . '">−</button>';
-		echo '<input id="' . \esc_attr($formId . '-' . SearchContext::PARAM_CHILDREN) . '" name="' . \esc_attr(SearchContext::PARAM_CHILDREN) . '" type="number" min="0" max="' . (int) $maxChildren . '" step="1" value="' . \esc_attr($children) . '" inputmode="numeric" />';
-		echo '<button type="button" class="bec-search-form__step-btn" data-bec-step="1" aria-label="' . \esc_attr__('Increase children', 'booking-engine-connector') . '">+</button>';
-		echo '</div></div>';
+			echo '<div class="bec-search-form__row">';
+			echo '<span class="bec-search-form__row-label">' . \esc_html($labelChildren) . '</span>';
+			echo '<div class="bec-search-form__stepper" data-bec-stepper-for="' . \esc_attr(SearchContext::PARAM_CHILDREN) . '">';
+			echo '<button type="button" class="bec-search-form__step-btn" data-bec-step="-1" aria-label="' . \esc_attr__('Decrease children', 'booking-engine-connector') . '">−</button>';
+			echo '<input id="' . \esc_attr($formId . '-' . SearchContext::PARAM_CHILDREN) . '" name="' . \esc_attr(SearchContext::PARAM_CHILDREN) . '" type="number" min="0" max="' . (int) $maxChildren . '" step="1" value="' . \esc_attr($children) . '" inputmode="numeric" />';
+			echo '<button type="button" class="bec-search-form__step-btn" data-bec-step="1" aria-label="' . \esc_attr__('Increase children', 'booking-engine-connector') . '">+</button>';
+			echo '</div></div>';
 
-		if ($needsChildAges) {
-			echo '<div class="bec-search-form__child-ages bec-search-form__child-ages--enhanced">';
-			$ages = $ctx->getChildrenAges();
-			$n    = \max(0, $ctx->getChildren());
-			for ($i = 0; $i < $maxSlots; $i++) {
-				$active = $i < $n;
-				$ageVal = isset($ages[$i]) ? (string) (int) $ages[$i] : '';
-				/* translators: %d: child index (1-based) */
-				$lbl = \sprintf(\__('Child %d age', 'booking-engine-connector'), $i + 1);
-				echo '<div class="bec-search-form__child-age" data-bec-child-age-index="' . (int) $i . '"';
-				if (! $active) {
-					echo ' hidden';
-				}
-				echo '>';
-				echo '<label for="' . \esc_attr($formId . '-child-age-' . $i) . '">' . \esc_html($lbl) . '</label>';
-				echo '<select id="' . \esc_attr($formId . '-child-age-' . $i) . '" name="' . \esc_attr(SearchContext::PARAM_CHILD_AGE) . '[]"';
-				if (! $active) {
-					echo ' disabled';
-				}
-				echo '>';
-				echo '<option value=""';
-				if ($ageVal === '') {
-					echo ' selected="selected"';
-				}
-				echo '>' . \esc_html__('Age', 'booking-engine-connector') . '</option>';
-				for ($age = 0; $age <= 17; $age++) {
-					echo '<option value="' . (int) $age . '"';
-					if ($ageVal !== '' && (int) $ageVal === $age) {
+			if ($needsChildAges) {
+				$ages = $ctx->getChildrenAges();
+				$n    = \max(0, $ctx->getChildren());
+				$show = \min($n, $maxSlots);
+				echo '<div class="bec-search-form__child-ages bec-search-form__child-ages--enhanced" data-bec-child-ages-root="1" data-bec-form-id="' . \esc_attr($formId) . '" data-bec-max-child-age-slots="' . (int) $maxSlots . '">';
+				for ($i = 0; $i < $show; $i++) {
+					$ageVal = isset($ages[$i]) ? (string) (int) $ages[$i] : '';
+					/* translators: %d: child index (1-based) */
+					$lbl = \sprintf(\__('Child %d age', 'booking-engine-connector'), $i + 1);
+					echo '<div class="bec-search-form__child-age" data-bec-child-age-index="' . (int) $i . '">';
+					echo '<label for="' . \esc_attr($formId . '-child-age-' . $i) . '">' . \esc_html($lbl) . '</label>';
+					echo '<select id="' . \esc_attr($formId . '-child-age-' . $i) . '" name="' . \esc_attr(SearchContext::PARAM_CHILD_AGE) . '[]">';
+					echo '<option value=""';
+					if ($ageVal === '') {
 						echo ' selected="selected"';
 					}
-					echo '>' . \esc_html((string) $age) . '</option>';
+					echo '>' . \esc_html__('Age', 'booking-engine-connector') . '</option>';
+					for ($age = 0; $age <= 17; $age++) {
+						echo '<option value="' . (int) $age . '"';
+						if ($ageVal !== '' && (int) $ageVal === $age) {
+							echo ' selected="selected"';
+						}
+						echo '>' . \esc_html((string) $age) . '</option>';
+					}
+					echo '</select></div>';
 				}
-				echo '</select></div>';
+				echo '</div>';
 			}
-			echo '</div>';
 		}
 
 		echo '</div></div></div>';
