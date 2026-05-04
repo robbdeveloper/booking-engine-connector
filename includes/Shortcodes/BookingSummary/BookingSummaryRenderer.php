@@ -14,6 +14,7 @@ use BookingEngineConnector\Providers\ProviderRegistry;
 use BookingEngineConnector\Search\QuoteService;
 use BookingEngineConnector\Search\SearchContext;
 use BookingEngineConnector\Search\SearchForm;
+use BookingEngineConnector\Styling\StylingSettings;
 
 /**
  * Renders the booking summary / sidebar shortcode.
@@ -50,12 +51,16 @@ final class BookingSummaryRenderer
 		$syncPayload = $syncJson !== '' ? (array) ( \json_decode( $syncJson, true ) ?: [] ) : [];
 
 		$instanceId  = (string) ( $a['form_id'] ?? 'bec-booking-summary' ) . '-uid-' . (string) ( $postId );
+		$layout      = self::resolveLayoutPreset( $postId, $ctx );
 		$rootClasses = (string) \apply_filters(
 			'bec_booking_summary_root_class',
 			'bec-booking-summary',
 			$postId,
 			$ctx
 		);
+		if ( $layout === StylingSettings::BOOKING_SUMMARY_PRESET_COMPACT ) {
+			$rootClasses .= ' bec-booking-summary--preset-compact';
+		}
 		$ctxArg      = (string) ( $a['context'] ?? 'bec_booking_summary' );
 
 		$showEnquiry    = \in_array( \strtolower( (string) ( $a['show_enquiry'] ?? '1' ) ), [ '1', 'true', 'yes' ], true );
@@ -116,7 +121,8 @@ final class BookingSummaryRenderer
 						$showEnquiry,
 						$enquiryLabel,
 						$quote,
-						$rateStateMap
+						$rateStateMap,
+						$layout
 					);
 				}
 			}
@@ -149,6 +155,20 @@ final class BookingSummaryRenderer
 		/** @var array<string, string> $out */
 
 		return self::render( $out );
+	}
+
+	/**
+	 * @return string Layout preset slug.
+	 */
+	private static function resolveLayoutPreset( int $postId, SearchContext $ctx ): string {
+		$raw = StylingSettings::getBookingSummaryPreset();
+		/** @var string $preset */
+		$preset = \apply_filters( 'bec_booking_summary_layout_preset', $raw, $postId, $ctx );
+		$preset = \sanitize_key( (string) $preset );
+
+		return $preset === StylingSettings::BOOKING_SUMMARY_PRESET_COMPACT
+			? StylingSettings::BOOKING_SUMMARY_PRESET_COMPACT
+			: StylingSettings::BOOKING_SUMMARY_PRESET_DEFAULT;
 	}
 
 	/**
@@ -250,6 +270,7 @@ final class BookingSummaryRenderer
 	 * @param array<string, mixed>         $vm
 	 * @param array<string, mixed>         $quote
 	 * @param array<string, array<string, mixed>> $rateStateMap
+	 * @param string                              $layoutPreset
 	 */
 	private static function renderAvailable(
 		array $vm,
@@ -260,8 +281,12 @@ final class BookingSummaryRenderer
 		bool $showEnquiry,
 		string $enquiryLabel,
 		array $quote,
-		array $rateStateMap = []
+		array $rateStateMap = [],
+		string $layoutPreset = ''
 	): void {
+		if ( $layoutPreset === '' ) {
+			$layoutPreset = self::resolveLayoutPreset( $postId, $ctx );
+		}
 		$urlData = CheckoutUrlService::buildForPost( $postId, $ctx );
 		if ( \is_array( $urlData ) && isset( $urlData['url'] ) ) {
 			$urlData['label'] = (string) \apply_filters(
@@ -274,7 +299,11 @@ final class BookingSummaryRenderer
 
 		echo '<div class="bec-booking-summary__inner">';
 
-		self::printSearch( $ctxArg, $instanceId, $ctx, 'bec-booking-summary__search--desktop' );
+		$isCompact = $layoutPreset === StylingSettings::BOOKING_SUMMARY_PRESET_COMPACT;
+
+		if ( ! $isCompact ) {
+			self::printSearch( $ctxArg, $instanceId, $ctx, 'bec-booking-summary__search--desktop' );
+		}
 
 		echo '<div class="bec-booking-summary__desktop">';
 
@@ -299,9 +328,13 @@ final class BookingSummaryRenderer
 
 		echo '</div>'; // desktop
 
+		if ( $isCompact ) {
+			self::printSearch( $ctxArg, $instanceId, $ctx, 'bec-booking-summary__search--desktop bec-booking-summary__search--trail' );
+		}
+
 		echo '</div>'; // inner
 
-		self::printMobileShell( $vm, $postId, $ctx, $ctxArg, $instanceId, $showEnquiry, $enquiryLabel, $urlData, 'available' );
+		self::printMobileShell( $vm, $postId, $ctx, $ctxArg, $instanceId, $showEnquiry, $enquiryLabel, $urlData, 'available', $layoutPreset );
 
 		if ( $rateStateMap !== [] ) {
 			$defRate = (string) ( $vm['selected_rate_id'] ?? $ctx->getRateId() );
@@ -445,6 +478,7 @@ final class BookingSummaryRenderer
 	/**
 	 * @param array<string, mixed>          $vm
 	 * @param array<string, mixed>|\stdClass|mixed $urlData
+	 * @param string                                $layoutPreset Booking summary preset when $mode is available.
 	 */
 	private static function printMobileShell(
 		array $vm,
@@ -455,7 +489,8 @@ final class BookingSummaryRenderer
 		bool $showEnquiry,
 		string $enquiryLabel,
 		$urlData,
-		string $mode
+		string $mode,
+		string $layoutPreset = ''
 	): void {
 		$cur = (string) ( $vm['currency'] ?? '' );
 		$tot = isset( $vm['total'] ) && is_numeric( $vm['total'] ) ? (float) $vm['total'] : null;
@@ -520,15 +555,24 @@ final class BookingSummaryRenderer
 			echo '</div></div>';
 		}
 
-		self::printSearch( $ctxArg, $instanceId . '-m', $ctx, 'bec-booking-summary__search--drawer' );
-
 		if ( $st === 'available' ) {
-			self::printDatesGuestsBlock( $vm );
-			self::printRateList( $vm, $postId, $ctx );
-			self::printAccordions( $vm );
-			self::printPriceBreakdown( $vm, $cur );
-			self::renderActions( $postId, $ctx, $showEnquiry, $enquiryLabel, false, $urlData, false );
+			if ( $mode === 'available' && $layoutPreset === StylingSettings::BOOKING_SUMMARY_PRESET_COMPACT ) {
+				self::printDatesGuestsBlock( $vm );
+				self::printRateList( $vm, $postId, $ctx );
+				self::printAccordions( $vm );
+				self::printPriceBreakdown( $vm, $cur );
+				self::renderActions( $postId, $ctx, $showEnquiry, $enquiryLabel, false, $urlData, false );
+				self::printSearch( $ctxArg, $instanceId . '-m', $ctx, 'bec-booking-summary__search--drawer bec-booking-summary__search--trail' );
+			} else {
+				self::printSearch( $ctxArg, $instanceId . '-m', $ctx, 'bec-booking-summary__search--drawer' );
+				self::printDatesGuestsBlock( $vm );
+				self::printRateList( $vm, $postId, $ctx );
+				self::printAccordions( $vm );
+				self::printPriceBreakdown( $vm, $cur );
+				self::renderActions( $postId, $ctx, $showEnquiry, $enquiryLabel, false, $urlData, false );
+			}
 		} else {
+			self::printSearch( $ctxArg, $instanceId . '-m', $ctx, 'bec-booking-summary__search--drawer' );
 			self::printFallbackMessageInPanel( $postId, $ctx, $showEnquiry, $enquiryLabel, $urlData, $mode, $vm );
 		}
 
@@ -711,13 +755,13 @@ final class BookingSummaryRenderer
 		$tIncl = (string) ( $vm['inclusions_title'] ?? \__( 'This rate includes', 'booking-engine-connector' ) );
 		$tCond = (string) ( $vm['conditions_title'] ?? \__( 'Cancellation and payments', 'booking-engine-connector' ) );
 		\ob_start();
-		if ( $incl !== '' ) {
+		if ( StylingSettings::isAccordionInclusionsEnabled() && $incl !== '' ) {
 			echo '<details class="bec-booking-summary__accordion" role="listitem">';
 			echo '<summary class="bec-booking-summary__accordion-title">' . \esc_html( $tIncl ) . '</summary>';
 			echo '<div class="bec-booking-summary__accordion-body">' . self::formatMultiline( $incl ) . '</div>';
 			echo '</details>';
 		}
-		if ( $cond !== '' ) {
+		if ( StylingSettings::isAccordionConditionsEnabled() && $cond !== '' ) {
 			echo '<details class="bec-booking-summary__accordion" role="listitem">';
 			echo '<summary class="bec-booking-summary__accordion-title">' . \esc_html( $tCond ) . '</summary>';
 			echo '<div class="bec-booking-summary__accordion-body">' . self::formatMultiline( $cond ) . '</div>';
