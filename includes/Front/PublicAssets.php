@@ -6,9 +6,11 @@ namespace BookingEngineConnector\Front;
 
 use BookingEngineConnector\PostTypes\UnitPostType;
 use BookingEngineConnector\Search\SearchContext;
+use BookingEngineConnector\Styling\StylingSettings;
 
 /**
- * Enqueues minimal public styles (TASK-UI-001), Date Range Picker (daterangepicker.com), and scripts.
+ * Enqueues public base CSS (`public.css`), per-preset bundles under `assets/styling/`,
+ * vendor daterangepicker (enhanced layout only), and scripts.
  */
 final class PublicAssets
 {
@@ -30,6 +32,13 @@ final class PublicAssets
 			\BEC_VERSION
 		);
 
+		$inlineCss = StylingSettings::buildInlineCss();
+		if ($inlineCss !== '') {
+			\wp_add_inline_style('bec-public', $inlineCss);
+		}
+
+		self::enqueuePresetStyles();
+
 		\wp_register_script(
 			'bec-moment',
 			\BEC_PLUGIN_URL . 'assets/vendor/moment-with-locales.min.js',
@@ -43,13 +52,6 @@ final class PublicAssets
 			['jquery', 'bec-moment'],
 			'3.1.0',
 			true
-		);
-
-		\wp_enqueue_style(
-			'bec-daterangepicker',
-			\BEC_PLUGIN_URL . 'assets/vendor/daterangepicker.css',
-			['bec-public'],
-			'3.1.0'
 		);
 
 		\wp_enqueue_script(
@@ -110,6 +112,45 @@ final class PublicAssets
 		$l10n = \apply_filters('bec_search_form_js_l10n', $l10n, $ctx);
 
 		\wp_localize_script('bec-public-search', 'becSearchForm', $l10n);
+	}
+
+	/**
+	 * Preset bundles: assets/styling/search-form-{preset}.css, booking-summary-*.css
+	 */
+	private static function enqueuePresetStyles(): void
+	{
+		$searchSlug = StylingSettings::getSearchPreset();
+		$searchHandle = 'bec-search-form-' . $searchSlug;
+		$searchUrl    = \BEC_PLUGIN_URL . 'assets/styling/search-form-' . $searchSlug . '.css';
+
+		if ($searchSlug === StylingSettings::SEARCH_PRESET_ENHANCED) {
+			\wp_enqueue_style(
+				'bec-daterangepicker',
+				\BEC_PLUGIN_URL . 'assets/vendor/daterangepicker.css',
+				['bec-public'],
+				'3.1.0'
+			);
+			\wp_enqueue_style($searchHandle, $searchUrl, ['bec-public', 'bec-daterangepicker'], \BEC_VERSION);
+		} else {
+			\wp_enqueue_style($searchHandle, $searchUrl, ['bec-public'], \BEC_VERSION);
+		}
+
+		$bsDefaultHandle = 'bec-booking-summary-default';
+		\wp_enqueue_style(
+			$bsDefaultHandle,
+			\BEC_PLUGIN_URL . 'assets/styling/booking-summary-default.css',
+			['bec-public'],
+			\BEC_VERSION
+		);
+
+		if (StylingSettings::getBookingSummaryPreset() === StylingSettings::BOOKING_SUMMARY_PRESET_COMPACT) {
+			\wp_enqueue_style(
+				'bec-booking-summary-compact',
+				\BEC_PLUGIN_URL . 'assets/styling/booking-summary-compact.css',
+				['bec-public', $bsDefaultHandle],
+				\BEC_VERSION
+			);
+		}
 	}
 
 	private static function momentLocaleString(): string

@@ -7,6 +7,7 @@ namespace BookingEngineConnector\Search;
 use BookingEngineConnector\PostTypes\UnitPostType;
 use BookingEngineConnector\Providers\Contracts\SearchGuestFieldMode;
 use BookingEngineConnector\Providers\ProviderRegistry;
+use BookingEngineConnector\Styling\StylingSettings;
 
 /**
  * Renders the availability search form (GET → bec_* query parameters).
@@ -125,7 +126,17 @@ final class SearchForm
 		 */
 		$fields = \apply_filters('bec_search_form_fields', $fields, $context, $ctx);
 
-		$useEnhanced = (bool) \apply_filters('bec_search_form_use_enhanced_layout', true, $context, $ctx);
+		$preset = (string) \apply_filters(
+			'bec_search_form_preset',
+			StylingSettings::getSearchPreset(),
+			$context,
+			$ctx
+		);
+		if (! \in_array($preset, [StylingSettings::SEARCH_PRESET_ENHANCED, StylingSettings::SEARCH_PRESET_CLASSIC], true)) {
+			$preset = StylingSettings::SEARCH_PRESET_ENHANCED;
+		}
+		$useEnhanced = $preset === StylingSettings::SEARCH_PRESET_ENHANCED;
+		$useEnhanced = (bool) \apply_filters('bec_search_form_use_enhanced_layout', $useEnhanced, $context, $ctx);
 
 		if ($useEnhanced) {
 			self::renderEnhanced(

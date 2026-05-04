@@ -6,6 +6,7 @@ namespace BookingEngineConnector\Admin;
 
 use BookingEngineConnector\Admin\Settings\ConnectionPage;
 use BookingEngineConnector\Admin\Settings\FallbackPage;
+use BookingEngineConnector\Admin\Settings\StylingPage;
 use BookingEngineConnector\Admin\Settings\UnitPermalinkPage;
 use BookingEngineConnector\Admin\SyncAdmin;
 
@@ -53,6 +54,15 @@ final class AdminMenu
 			self::CAPABILITY,
 			'bec-connection',
 			[ConnectionPage::class, 'render']
+		);
+
+		add_submenu_page(
+			'bec-dashboard',
+			__('Styling', 'booking-engine-connector'),
+			__('Styling', 'booking-engine-connector'),
+			self::CAPABILITY,
+			StylingPage::PAGE_SLUG,
+			[StylingPage::class, 'render']
 		);
 
 		add_submenu_page(

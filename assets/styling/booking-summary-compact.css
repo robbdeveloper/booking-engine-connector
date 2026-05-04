@@ -1,0 +1,9 @@
+/**
+ * Booking Engine Connector — booking summary preset: compact
+ * Search block moved after desktop summary panels; mobile drawer order matches markup.
+ */
+
+.bec-booking-summary--preset-compact .bec-booking-summary__search--trail {
+	margin-top: 0.75rem;
+	margin-bottom: 0;
+}

@@ -26,7 +26,7 @@ if (! defined('ABSPATH')) {
 	exit;
 }
 
-define('BEC_VERSION', '0.1.8');
+define('BEC_VERSION', '0.1.10');
 define('BEC_PLUGIN_FILE', __FILE__);
 define('BEC_PLUGIN_DIR', \plugin_dir_path(__FILE__));
 define('BEC_PLUGIN_URL', \plugin_dir_url(__FILE__));
