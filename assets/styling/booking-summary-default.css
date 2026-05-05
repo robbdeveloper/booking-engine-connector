@@ -35,8 +35,95 @@
 	margin-bottom: 0.5rem;
 }
 
-.bec-booking-summary__search .bec-search-form-wrap--enhanced {
-	--bec-color-surface: #fff;
+.bec-booking-summary__search .bec-search-form-wrap {
+	margin: 0;
+}
+
+/*
+ * Restyle only the inline booking-summary search controls.
+ * Popovers and daterangepicker keep the shared enhanced search styling.
+ */
+.bec-booking-summary__search .bec-search-form__bar {
+	display: grid;
+	grid-template-columns: minmax(0, 1fr);
+	gap: 0.55rem;
+	padding: 0;
+	background: transparent;
+	border: 0;
+	box-shadow: none;
+}
+
+.bec-booking-summary__search .bec-search-form__control,
+.bec-booking-summary__search .bec-search-form__control--daterange,
+.bec-booking-summary__search .bec-search-form__control--submit {
+	min-width: 0;
+}
+
+.bec-booking-summary__search .bec-search-form__date-split,
+.bec-booking-summary__search .bec-search-form__trigger {
+	min-height: 3.45rem;
+	padding: 0.75rem 0.9rem;
+	background: rgba(255, 255, 255, 0.82);
+	border: 1px solid var(--bec-bsummary-border);
+	border-radius: var(--bec-bsummary-radius);
+	box-shadow: none;
+}
+
+.bec-booking-summary__search .bec-search-form__date-split:hover,
+.bec-booking-summary__search .bec-search-form__trigger:hover {
+	background: #fff;
+	border-color: var(--bec-bsummary-color-primary);
+}
+
+.bec-booking-summary__search .bec-search-form__date-split:focus-visible,
+.bec-booking-summary__search .bec-search-form__trigger:focus-visible,
+.bec-booking-summary__search .bec-search-form__button:focus-visible {
+	outline-color: var(--bec-bsummary-color-primary);
+}
+
+.bec-booking-summary__search .bec-search-form__date-label,
+.bec-booking-summary__search .bec-search-form__trigger-label {
+	font-size: 0.72rem;
+	letter-spacing: 0.08em;
+	color: var(--bec-bsummary-color-muted);
+}
+
+.bec-booking-summary__search .bec-search-form__date-day {
+	font-size: 1.65rem;
+	color: var(--bec-bsummary-color-primary);
+}
+
+.bec-booking-summary__search .bec-search-form__date-my,
+.bec-booking-summary__search .bec-search-form__trigger-value {
+	font-size: 0.95rem;
+	color: var(--bec-bsummary-color-text);
+}
+
+.bec-booking-summary__search .bec-search-form__date-dow {
+	color: var(--bec-bsummary-color-muted);
+}
+
+.bec-booking-summary__search .bec-search-form__date-divider {
+	margin: 0.15rem 0.5rem;
+	background: rgba(107, 91, 69, 0.14);
+}
+
+.bec-booking-summary__search .bec-search-form__control--submit {
+	display: block;
+}
+
+.bec-booking-summary__search .bec-search-form__button {
+	width: 100%;
+	min-height: 3.25rem;
+	padding: 0.85rem 1rem;
+	border-radius: var(--bec-bsummary-radius);
+	background: var(--bec-bsummary-color-primary);
+	color: #fff;
+}
+
+.bec-booking-summary__search .bec-search-form__error {
+	margin: 0 0 0.35rem;
+	font-size: 0.8rem;
 }
 
 .bec-booking-summary__head {
