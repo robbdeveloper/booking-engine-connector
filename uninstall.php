@@ -41,6 +41,10 @@ $options = [
 	'bec_styling_summary_extra_css',
 	'bec_styling_accordion_inclusions',
 	'bec_styling_accordion_conditions',
+	'bec_search_guest_input_mode',
+	'bec_search_child_ages_mode',
+	'bec_auto_append_search_form_single_unit',
+	'bec_append_booking_blocks_to_content',
 ];
 
 foreach ($options as $option) {

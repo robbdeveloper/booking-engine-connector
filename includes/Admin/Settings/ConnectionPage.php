@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace BookingEngineConnector\Admin\Settings;
 
 use BookingEngineConnector\Admin\AdminMenu;
+use BookingEngineConnector\Front\PublicContentSettings;
 use BookingEngineConnector\Providers\Auth\CredentialField;
 use BookingEngineConnector\Providers\Contracts\ProviderException;
 use BookingEngineConnector\Providers\Kross\KrossAuthenticator;
@@ -43,6 +44,8 @@ final class ConnectionPage
 
 		$guestInputMode  = SearchSettings::getGuestInputModeOption();
 		$childAgesMode   = SearchSettings::getChildAgesModeOption();
+		$autoSearchForm  = SearchSettings::isAutoAppendSearchFormOnSingleUnit();
+		$appendBooking   = PublicContentSettings::isAppendBookingBlocksToContentEnabled();
 
 		echo '<div class="wrap bec-connection">';
 		echo '<h1>' . \esc_html__('Connection', 'booking-engine-connector') . '</h1>';
@@ -135,6 +138,29 @@ final class ConnectionPage
 			'Applies when the search form shows adults and children. Ignored when using only a single guest count.',
 			'booking-engine-connector'
 		) . '</p>';
+		echo '</td></tr>';
+
+		echo '<tr><th scope="row">' . \esc_html__('Single unit pages', 'booking-engine-connector') . '</th><td>';
+		echo '<fieldset>';
+		echo '<label><input type="checkbox" name="bec_auto_append_search_form_single_unit" value="1" ' . \checked($autoSearchForm, true, false) . ' /> ';
+		echo \esc_html__(
+			'Insert the availability search form above the main post content',
+			'booking-engine-connector'
+		) . '</label>';
+		echo '<p class="description">' . \esc_html__(
+			'When disabled, place `[bec_search]` (or the booking summary shortcode) in your template or block editor instead.',
+			'booking-engine-connector'
+		) . '</p>';
+		echo '<label><input type="checkbox" name="bec_append_booking_blocks_to_content" value="1" ' . \checked($appendBooking, true, false) . ' /> ';
+		echo \esc_html__(
+			'Append the booking quote and Continue button after the main post content when the URL has dates',
+			'booking-engine-connector'
+		) . '</label>';
+		echo '<p class="description">' . \esc_html__(
+			'When disabled, use `[bec_booking_summary]` or `[bec_quote]` where you want pricing and checkout.',
+			'booking-engine-connector'
+		) . '</p>';
+		echo '</fieldset>';
 		echo '</td></tr>';
 
 		echo '</table>';
@@ -231,6 +257,17 @@ final class ConnectionPage
 				$cMode = SearchSettings::CHILD_AGES_PROVIDER;
 			}
 			\update_option(SearchSettings::OPTION_CHILD_AGES_MODE, $cMode, false);
+
+			\update_option(
+				SearchSettings::OPTION_AUTO_APPEND_SEARCH_FORM_SINGLE_UNIT,
+				isset($_POST['bec_auto_append_search_form_single_unit']) ? 1 : 0,
+				false
+			);
+			\update_option(
+				PublicContentSettings::OPTION_APPEND_BOOKING_BLOCKS_TO_CONTENT,
+				isset($_POST['bec_append_booking_blocks_to_content']) ? 1 : 0,
+				false
+			);
 
 			self::setFlash('success', \__('Connection settings saved.', 'booking-engine-connector'));
 			self::redirectBack();

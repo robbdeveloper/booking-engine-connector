@@ -11,6 +11,9 @@ use BookingEngineConnector\PostTypes\UnitPostType;
  */
 final class SearchTemplateHooks
 {
+	/** @var array<int, true> Post IDs that already received the auto-prepended search form this request */
+	private static array $prependedSearchFormForPostId = [];
+
 	public static function register(): void
 	{
 		\add_action('wp', [self::class, 'maybeAutoAppendFormOnSingleUnit']);
@@ -29,7 +32,11 @@ final class SearchTemplateHooks
 			return;
 		}
 
-		if (! (bool) \apply_filters('bec_auto_append_search_form_on_single_unit', true)) {
+		$allow = (bool) \apply_filters(
+			'bec_auto_append_search_form_on_single_unit',
+			SearchSettings::isAutoAppendSearchFormOnSingleUnit()
+		);
+		if (! $allow) {
 			return;
 		}
 
@@ -45,6 +52,12 @@ final class SearchTemplateHooks
 		if (\get_post_type() !== UnitPostType::getSlug()) {
 			return $content;
 		}
+
+		$postId = (int) \get_the_ID();
+		if ($postId <= 0 || isset(self::$prependedSearchFormForPostId[$postId])) {
+			return $content;
+		}
+		self::$prependedSearchFormForPostId[$postId] = true;
 
 		\ob_start();
 		\do_action('bec_before_search_form', 'single');

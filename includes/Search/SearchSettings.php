@@ -7,7 +7,7 @@ namespace BookingEngineConnector\Search;
 use BookingEngineConnector\Providers\Contracts\SearchGuestFieldMode;
 
 /**
- * WordPress options and filters for the public search form (guest fields).
+ * WordPress options and filters for the public search form (guest fields, single-unit auto form).
  *
  * Admin UI: {@see \BookingEngineConnector\Admin\Settings\ConnectionPage}.
  */
@@ -34,6 +34,9 @@ final class SearchSettings
 	public const OPTION_GUEST_INPUT_MODE = 'bec_search_guest_input_mode';
 
 	public const OPTION_CHILD_AGES_MODE = 'bec_search_child_ages_mode';
+
+	/** Stored as 1 or 0; default off — use `[bec_search]` for manual placement. */
+	public const OPTION_AUTO_APPEND_SEARCH_FORM_SINGLE_UNIT = 'bec_auto_append_search_form_single_unit';
 
 	public static function register(): void
 	{
@@ -63,6 +66,11 @@ final class SearchSettings
 		$allowed = [self::CHILD_AGES_PROVIDER, self::CHILD_AGES_YES, self::CHILD_AGES_NO];
 
 		return \in_array($raw, $allowed, true) ? $raw : self::CHILD_AGES_PROVIDER;
+	}
+
+	public static function isAutoAppendSearchFormOnSingleUnit(): bool
+	{
+		return (int) \get_option(self::OPTION_AUTO_APPEND_SEARCH_FORM_SINGLE_UNIT, 0) === 1;
 	}
 
 	/**

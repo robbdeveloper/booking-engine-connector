@@ -32,7 +32,11 @@ final class PublicContentBlocks
 		if (\get_post_type() !== UnitPostType::getSlug()) {
 			return $content;
 		}
-		if (! (bool) \apply_filters('bec_append_public_booking_blocks', true)) {
+		$allow = (bool) \apply_filters(
+			'bec_append_public_booking_blocks',
+			PublicContentSettings::isAppendBookingBlocksToContentEnabled()
+		);
+		if (! $allow) {
 			return $content;
 		}
 
