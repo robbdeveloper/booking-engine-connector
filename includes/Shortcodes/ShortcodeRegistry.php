@@ -7,6 +7,7 @@ namespace BookingEngineConnector\Shortcodes;
 use BookingEngineConnector\Checkout\CheckoutCtaHtml;
 use BookingEngineConnector\Checkout\CheckoutUrlService;
 use BookingEngineConnector\Fallback\FallbackRenderer;
+use BookingEngineConnector\Fallback\FallbackService;
 use BookingEngineConnector\PostTypes\UnitPostType;
 use BookingEngineConnector\Search\QuoteService;
 use BookingEngineConnector\Search\SearchContext;
@@ -47,6 +48,10 @@ final class ShortcodeRegistry
 			\is_array($atts) ? $atts : [],
 			'bec_search'
 		);
+
+		if (FallbackService::isAlwaysOn()) {
+			return FallbackRenderer::render();
+		}
 
 		\ob_start();
 		SearchForm::render(
@@ -97,6 +102,10 @@ final class ShortcodeRegistry
 			return '';
 		}
 
+		if (FallbackService::isAlwaysOn()) {
+			return '';
+		}
+
 		$ctx = SearchContext::fromRequest();
 		if (! $ctx->isComplete()) {
 			return '';
@@ -134,12 +143,19 @@ final class ShortcodeRegistry
 			return '';
 		}
 
+		if (FallbackService::isAlwaysOn()) {
+			return '';
+		}
+
 		$ctx = SearchContext::fromRequest();
 		if (! $ctx->isComplete()) {
 			return '';
 		}
 
 		$quote = QuoteService::getQuote($postId, $ctx);
+		if (FallbackService::shouldDisplay($quote)) {
+			return FallbackRenderer::render();
+		}
 		if ($quote instanceof \WP_Error) {
 			return '';
 		}

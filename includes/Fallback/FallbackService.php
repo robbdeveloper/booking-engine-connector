@@ -12,6 +12,15 @@ use BookingEngineConnector\Providers\Contracts\ProviderErrorCategory;
 final class FallbackService
 {
 	/**
+	 * True when fallback is globally enabled and “Always use fallback” (force) is on.
+	 */
+	public static function isAlwaysOn(): bool
+	{
+		return (bool) \get_option(FallbackSettings::OPTION_ENABLED, true)
+			&& (bool) \get_option(FallbackSettings::OPTION_FORCE, false);
+	}
+
+	/**
 	 * @param mixed $quote From {@see \BookingEngineConnector\Search\QuoteService::getQuote()}.
 	 */
 	public static function shouldDisplay($quote): bool

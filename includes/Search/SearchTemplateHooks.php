@@ -4,6 +4,8 @@ declare(strict_types=1);
 
 namespace BookingEngineConnector\Search;
 
+use BookingEngineConnector\Fallback\FallbackRenderer;
+use BookingEngineConnector\Fallback\FallbackService;
 use BookingEngineConnector\PostTypes\UnitPostType;
 
 /**
@@ -58,6 +60,10 @@ final class SearchTemplateHooks
 			return $content;
 		}
 		self::$prependedSearchFormForPostId[$postId] = true;
+
+		if (FallbackService::isAlwaysOn()) {
+			return FallbackRenderer::render() . $content;
+		}
 
 		\ob_start();
 		\do_action('bec_before_search_form', 'single');

@@ -73,7 +73,9 @@ final class BookingSummaryRenderer
 		\ob_start();
 		echo '<div id="' . \esc_attr( $instanceId ) . '" class="' . \esc_attr( $rootClasses ) . '" data-bec-booking-summary data-bec-post-id="' . (int) $postId . '">';
 
-		if ( ! $ctx->isComplete() ) {
+		if ( FallbackService::isAlwaysOn() ) {
+			self::renderFallbackOnly();
+		} elseif ( ! $ctx->isComplete() ) {
 			self::renderIncomplete(
 				$postId,
 				$ctx,
@@ -89,8 +91,7 @@ final class BookingSummaryRenderer
 				$vm = BookingSummaryViewModelBuilder::build( $postId, $ctx, $slug, $quote, $syncPayload, $taxNote );
 				self::renderErrorOrUnavailable( $vm, $postId, $ctx, $instanceId, $ctxArg, $showEnquiry, $enquiryLabel );
 			} elseif ( FallbackService::shouldDisplay( $quote ) ) {
-				$vm = self::baseVmForPanel( $postId, $ctx, $slug, 'fallback' );
-				self::renderFallbackBlock( $vm, $instanceId, $ctxArg, $postId, $ctx, $showEnquiry, $enquiryLabel );
+				self::renderFallbackOnly();
 			} else {
 				$vm = BookingSummaryViewModelBuilder::build( $postId, $ctx, $slug, $quote, $syncPayload, $taxNote );
 				$st = (string) ( $vm['state'] ?? 'unavailable' );
@@ -200,55 +201,13 @@ final class BookingSummaryRenderer
 	}
 
 	/**
-	 * @param array<string, mixed>  $vm
+	 * Fallback replaces the full summary UI (no embedded search, enquiry row, or mobile shell).
 	 */
-	private static function renderFallbackBlock(
-		array $vm,
-		string $instanceId,
-		string $ctxArg,
-		int $postId,
-		SearchContext $ctx,
-		bool $showEnquiry,
-		string $enquiryLabel
-	): void {
+	private static function renderFallbackOnly(): void {
 		echo '<div class="bec-booking-summary__inner bec-booking-summary__inner--fallback">';
-		self::printSearch( $ctxArg, $instanceId, $ctx );
-		echo '<div class="bec-booking-summary__fallback-wrap">';
 		// phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
 		echo FallbackRenderer::render();
 		echo '</div>';
-		self::renderActions( $postId, $ctx, $showEnquiry, $enquiryLabel, true, null, true );
-		echo '</div>';
-		self::printMobileShell( $vm, $postId, $ctx, $ctxArg, $instanceId, $showEnquiry, $enquiryLabel, null, 'fallback' );
-	}
-
-	/**
-	 * @return array<string, mixed>
-	 */
-	private static function baseVmForPanel( int $postId, SearchContext $ctx, string $providerSlug, string $state ): array {
-		$title = (string) \get_post_meta( $postId, 'bec_core_name', true );
-		if ( $title === '' ) {
-			$title = (string) \get_the_title( $postId );
-		}
-		$imageUrl = BookingSummaryViewModelBuilder::unitFeaturedImageUrl( $postId );
-
-		return [
-			'state'            => $state,
-			'unit_id'          => $postId,
-			'provider'         => $providerSlug,
-			'unit_title'       => $title,
-			'unit_image_url'   => $imageUrl,
-			'checkin'          => $ctx->getCheckin(),
-			'checkout'         => $ctx->getCheckout(),
-			'nights'           => BookingSummaryViewModelBuilder::nightsBetween( $ctx->getCheckin(), $ctx->getCheckout() ),
-			'guests_line'      => self::guestsLine( $ctx ),
-		];
-	}
-
-	private static function guestsLine( SearchContext $ctx ): string {
-		$g = $ctx->getAdults() + $ctx->getChildren();
-		/* translators: %d: total number of guests */
-		return (string) \sprintf( \__( '%d guests', 'booking-engine-connector' ), $g );
 	}
 
 	private static function renderIncomplete(
