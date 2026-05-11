@@ -302,7 +302,7 @@ final class SearchForm
 
 		echo '<div class="bec-search-form__bar" role="group" aria-label="' . \esc_attr__('Search stays', 'booking-engine-connector') . '">';
 
-		echo '<div class="bec-search-form__control bec-search-form__control--dates bec-search-form__control--daterange" data-bec-daterange>';
+		echo '<div class="bec-search-form__control bec-search-form__control--dates bec-search-form__control--daterange" data-bec-section-heading="' . \esc_attr(\__('Select dates', 'booking-engine-connector')) . '" data-bec-daterange>';
 		echo '<input type="hidden" name="' . \esc_attr(SearchContext::PARAM_CHECKIN) . '" id="' . \esc_attr($formId . '-' . SearchContext::PARAM_CHECKIN) . '" value="' . $checkin . '" autocomplete="off" />';
 		echo '<input type="hidden" name="' . \esc_attr(SearchContext::PARAM_CHECKOUT) . '" id="' . \esc_attr($formId . '-' . SearchContext::PARAM_CHECKOUT) . '" value="' . $checkout . '" autocomplete="off" />';
 		echo '<button type="button" class="bec-search-form__date-split" id="' . \esc_attr($formId . '-daterange-trigger') . '" aria-expanded="false" aria-haspopup="dialog">';

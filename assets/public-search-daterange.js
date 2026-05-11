@@ -28,12 +28,12 @@
 			return;
 		}
 
-		$in.text(start.format('D'));
-		$imy.text(start.format('MMMM YYYY'));
-		$idow.text(start.format('dddd'));
-		$out.text(end.format('D'));
-		$omy.text(end.format('MMMM YYYY'));
-		$odow.text(end.format('dddd'));
+		$in.text(start.format('D MMMM'));
+		$imy.text('');
+		$idow.text('');
+		$out.text(end.format('D MMMM'));
+		$omy.text('');
+		$odow.text('');
 	}
 
 	function initDaterange(form) {
