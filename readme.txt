@@ -4,7 +4,7 @@ Tags: booking, kross, hospitality, availability
 Requires at least: 6.4
 Tested up to: 6.7
 Requires PHP: 8.0
-Stable tag: 0.1.10
+Stable tag: 0.1.13
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
@@ -31,6 +31,9 @@ PHP 8.0+ and WordPress 6.4+ are required (see header above).
 Search context uses **GET query parameters** prefixed with `bec_` (e.g. check-in/out). See `docs/SEARCH-CONTEXT.md` when available.
 
 == Changelog ==
+
+= 0.1.13 =
+* Fix GitHub updater visibility: Plugin Update Checker uses the **`Version`** header inside `booking-engine-connector.php` on the tagged commit (not only the Git tag name). Bump that header plus `BEC_VERSION` whenever you publish a release, or WordPress will not offer the update.
 
 = 0.1.10 =
 * GitHub release updates: bundled Plugin Update Checker (YahnisElsts), `Update URI` header, optional `BEC_GITHUB_UPDATER_TOKEN` for private repos; see `docs/RELEASES.md`.

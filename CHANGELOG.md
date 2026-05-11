@@ -1,5 +1,9 @@
 # Changelog
 
+## 0.1.13 — 2026-05-11
+
+- **GitHub updater / versioning**: Plugin Update Checker fetches `booking-engine-connector.php` from the release ref and **`Version:` in that file overrides the tag** for comparisons. Releases whose tag says e.g. `v0.1.12` but whose header remains `0.1.10` will **not** show an update on sites running `0.1.10`. This release aligns the semantic version metadata after that pitfall (`docs/RELEASES.md`).
+
 ## 0.1.10 — 2026-05-11
 
 - **Updates from GitHub releases**: `Update URI` plugin header, vendored **Plugin Update Checker** (checks public `robbdeveloper/booking-engine-connector` releases). WordPress shows update notices when a newer release tag exists and the release includes a matching `booking-engine-connector-{version}.zip` asset. Optional `BEC_GITHUB_UPDATER_TOKEN` in `wp-config.php` for private repo access. Maintainer workflow: [**docs/RELEASES.md**](docs/RELEASES.md). GitHub Actions **Release** workflow builds and uploads the zip on `v*` tags.
