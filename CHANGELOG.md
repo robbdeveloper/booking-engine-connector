@@ -1,5 +1,9 @@
 # Changelog
 
+## 0.1.10 — 2026-05-11
+
+- **Updates from GitHub releases**: `Update URI` plugin header, vendored **Plugin Update Checker** (checks public `robbdeveloper/booking-engine-connector` releases). WordPress shows update notices when a newer release tag exists and the release includes a matching `booking-engine-connector-{version}.zip` asset. Optional `BEC_GITHUB_UPDATER_TOKEN` in `wp-config.php` for private repo access. Maintainer workflow: [**docs/RELEASES.md**](docs/RELEASES.md). GitHub Actions **Release** workflow builds and uploads the zip on `v*` tags.
+
 ## 0.1.8 — 2026-04-24
 
 - **Search (guest field mode)**: `SearchGuestFieldMode` (`breakdown` vs `total`) via `ProviderInterface::getSearchGuestFieldMode()` (Kross uses **total** / single pax). `SearchContext` supports `bec_total_guests` (round-trip with `toQueryArgs()`), optional `bec_rate_id`, and child ages; `toProviderSearchContext()` passes total `guests` and `rate_id` for quotes. Filter `bec_search_guest_field_mode`. **`SearchSettings`** — options `bec_search_guest_input_mode` (follow provider / force total / force breakdown) and `bec_search_child_ages_mode` (follow provider / always / never collect ages), wired through **Connection** admin (`ConnectionPage`) and filters `bec_provider_requires_children_ages`. `SearchForm` + `assets/public-search.js` updated for the two UX modes and guest-oriented strings (`bec_search_form_js_l10n`).

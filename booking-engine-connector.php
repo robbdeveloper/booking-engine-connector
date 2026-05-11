@@ -3,7 +3,8 @@
  * Plugin Name:       Booking Engine Connector
  * Plugin URI:        https://example.com/booking-engine-connector
  * Description:       Connects WordPress to external booking engines (Kross Booking and others) with sync, search context, and checkout links.
- * Version:           0.1.8
+ * Version:           0.1.10
+ * Update URI:        https://github.com/robbdeveloper/booking-engine-connector/
  * Requires at least: 6.4
  * Requires PHP:      8.0
  * Author:            RobbDev
