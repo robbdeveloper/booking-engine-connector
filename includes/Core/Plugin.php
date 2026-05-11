@@ -10,6 +10,7 @@ use BookingEngineConnector\Admin\Settings\FallbackPage;
 use BookingEngineConnector\Admin\Settings\StylingPage;
 use BookingEngineConnector\Admin\Settings\UnitPermalinkPage;
 use BookingEngineConnector\Admin\SyncAdmin;
+use BookingEngineConnector\Elementor\AvailabilityQueryFilter;
 use BookingEngineConnector\Front\AmenitiesAssets;
 use BookingEngineConnector\Front\PublicAssets;
 use BookingEngineConnector\Front\PublicContentBlocks;
@@ -61,6 +62,7 @@ final class Plugin
 		PublicAssets::register();
 		AmenitiesAssets::register();
 		PublicContentBlocks::register();
+		AvailabilityQueryFilter::register();
 		AdminMenu::register();
 		StylingSettings::register();
 		ConnectionPage::register();
