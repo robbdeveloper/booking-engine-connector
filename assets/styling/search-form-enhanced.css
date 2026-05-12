@@ -68,7 +68,8 @@
 	border: var(--bec-border-width) solid var(--bec-color-border);
 	border-radius: var(--bec-radius-field);
 	box-shadow: var(--bec-shadow-bar);
-	overflow: hidden;
+	/* Must stay visible so the guests popover (.bec-search-form__panel) is not clipped. */
+	overflow: visible;
 }
 
 @media (min-width: 640px) {
