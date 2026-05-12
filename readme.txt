@@ -4,7 +4,7 @@ Tags: booking, kross, hospitality, availability
 Requires at least: 6.4
 Tested up to: 6.7
 Requires PHP: 8.0
-Stable tag: 0.1.13
+Stable tag: 0.1.14
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
@@ -31,6 +31,9 @@ PHP 8.0+ and WordPress 6.4+ are required (see header above).
 Search context uses **GET query parameters** prefixed with `bec_` (e.g. check-in/out). See `docs/SEARCH-CONTEXT.md` when available.
 
 == Changelog ==
+
+= 0.1.14 =
+* Enhanced search form: fix guest popover hidden behind the bar (`.bec-search-form__bar` no longer uses `overflow: hidden`, so the absolutely positioned guests panel is visible on desktop).
 
 = 0.1.13 =
 * Fix GitHub updater visibility: Plugin Update Checker uses the **`Version`** header inside `booking-engine-connector.php` on the tagged commit (not only the Git tag name). Bump that header plus `BEC_VERSION` whenever you publish a release, or WordPress will not offer the update.

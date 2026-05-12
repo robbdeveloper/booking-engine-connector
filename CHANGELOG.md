@@ -1,5 +1,9 @@
 # Changelog
 
+## 0.1.14 — 2026-05-12
+
+- **Search (enhanced preset)**: Guest popover was clipped by `.bec-search-form__bar { overflow: hidden; }` while the panel is absolutely positioned below the control. The bar now uses `overflow: visible` so the popover can display (date range still uses `parentEl: 'body'`).
+
 ## 0.1.13 — 2026-05-11
 
 - **GitHub updater / versioning**: Plugin Update Checker fetches `booking-engine-connector.php` from the release ref and **`Version:` in that file overrides the tag** for comparisons. Releases whose tag says e.g. `v0.1.12` but whose header remains `0.1.10` will **not** show an update on sites running `0.1.10`. This release aligns the semantic version metadata after that pitfall (`docs/RELEASES.md`).
