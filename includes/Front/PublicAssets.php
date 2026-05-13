@@ -73,7 +73,7 @@ final class PublicAssets
 		\wp_enqueue_script(
 			'bec-public-booking-summary',
 			\BEC_PLUGIN_URL . 'assets/public-booking-summary.js',
-			[],
+			[ 'bec-public-search-daterange' ],
 			\BEC_VERSION,
 			true
 		);

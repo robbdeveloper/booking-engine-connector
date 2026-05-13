@@ -71,11 +71,12 @@ final class BookingSummaryRenderer
 		}
 
 		\ob_start();
-		echo '<div id="' . \esc_attr( $instanceId ) . '" class="' . \esc_attr( $rootClasses ) . '" data-bec-booking-summary data-bec-post-id="' . (int) $postId . '">';
 
 		if ( FallbackService::isAlwaysOn() ) {
+			self::printRootOpen( $instanceId, $rootClasses, $postId, 'fallback' );
 			self::renderFallbackOnly();
 		} elseif ( ! $ctx->isComplete() ) {
+			self::printRootOpen( $instanceId, $rootClasses, $postId, 'incomplete' );
 			self::renderIncomplete(
 				$postId,
 				$ctx,
@@ -88,16 +89,25 @@ final class BookingSummaryRenderer
 		} else {
 			$quote = QuoteService::getQuote( $postId, $ctx );
 			if ( $quote instanceof \WP_Error ) {
+				self::printRootOpen( $instanceId, $rootClasses, $postId, 'error' );
 				$vm = BookingSummaryViewModelBuilder::build( $postId, $ctx, $slug, $quote, $syncPayload, $taxNote );
 				self::renderErrorOrUnavailable( $vm, $postId, $ctx, $instanceId, $ctxArg, $showEnquiry, $enquiryLabel );
 			} elseif ( FallbackService::shouldDisplay( $quote ) ) {
+				self::printRootOpen( $instanceId, $rootClasses, $postId, 'fallback' );
 				self::renderFallbackOnly();
 			} else {
 				$vm = BookingSummaryViewModelBuilder::build( $postId, $ctx, $slug, $quote, $syncPayload, $taxNote );
 				$st = (string) ( $vm['state'] ?? 'unavailable' );
 				if ( $st === 'unavailable' || $st === 'error' ) {
+					self::printRootOpen(
+						$instanceId,
+						$rootClasses,
+						$postId,
+						$st === 'error' ? 'error' : 'unavailable'
+					);
 					self::renderErrorOrUnavailable( $vm, $postId, $ctx, $instanceId, $ctxArg, $showEnquiry, $enquiryLabel );
 				} else {
+					self::printRootOpen( $instanceId, $rootClasses, $postId, 'available' );
 					$rateStateMap = [];
 					if ( \is_array( $quote )
 						&& ! empty( $vm['show_rate_list'] )
@@ -175,12 +185,19 @@ final class BookingSummaryRenderer
 	/**
 	 * @param array<string, mixed> $vm May be empty (incomplete context — header shows title only).
 	 */
+	private static function printRootOpen( string $instanceId, string $rootClasses, int $postId, string $uiState ): void {
+		$uiState = \sanitize_key( $uiState );
+		// Root id must differ from the embedded search form id ($instanceId) or getElementById
+		// would resolve the div and submission from the footer button would silently no-op.
+		echo '<div id="' . \esc_attr( $instanceId . '-root' ) . '" class="' . \esc_attr( $rootClasses ) . '" data-bec-booking-summary data-bec-post-id="' . (int) $postId . '" data-bec-bsummary-ui-state="' . \esc_attr( $uiState ) . '">';
+	}
+
 	private static function printSummaryHead( array $vm ): void {
 		echo '<header class="bec-booking-summary__head">';
 		echo '<span class="bec-booking-summary__title">' . \esc_html__( 'Summary', 'booking-engine-connector' ) . '</span>';
 		$headInner = self::getHeadPriceBlockInnerHtml( $vm );
 		if ( $headInner !== '' ) {
-			echo '<div class="bec-booking-summary__head-price" data-bec-bsummary-head>';
+			echo '<div class="bec-booking-summary__head-price" data-bec-bsummary-head data-bec-bsummary-head-price>';
 			// phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
 			echo $headInner;
 			echo '</div>';
@@ -188,7 +205,7 @@ final class BookingSummaryRenderer
 		echo '</header>';
 	}
 
-	private static function checkAvailabilityButtonHtml( int $postId, SearchContext $ctx, string $targetFormId ): string {
+	private static function checkAvailabilityButtonHtml( int $postId, SearchContext $ctx, string $targetFormId, bool $disabled = false ): string {
 		$label = (string) \apply_filters(
 			'bec_booking_summary_check_availability_label',
 			\__( 'Check availability', 'booking-engine-connector' ),
@@ -196,9 +213,28 @@ final class BookingSummaryRenderer
 			$ctx
 		);
 
-		return '<button type="button" data-bec-submit-search-form="' . \esc_attr( $targetFormId ) . '" class="bec-booking-summary__check-availability bec-checkout-cta">'
+		$attrs = 'type="button" data-bec-submit-search-form="' . \esc_attr( $targetFormId ) . '" class="bec-booking-summary__check-availability bec-checkout-cta"';
+		if ( $disabled ) {
+			$attrs .= ' disabled="disabled" aria-disabled="true"';
+		}
+
+		return '<button ' . $attrs . '>'
 			. \esc_html( $label )
 			. '</button>';
+	}
+
+	/**
+	 * User-facing copy when the quote is available=false (not WP_Error).
+	 */
+	private static function getUnavailableMessageText( int $postId, SearchContext $ctx ): string {
+		$msg = (string) \apply_filters(
+			'bec_booking_summary_unavailable_message',
+			\__( 'No solution available for the dates and guests indicated.', 'booking-engine-connector' ),
+			$postId,
+			$ctx
+		);
+
+		return $msg;
 	}
 
 	/**
@@ -221,13 +257,13 @@ final class BookingSummaryRenderer
 		if ( $st === 'error' && isset( $vm['error'] ) && $vm['error'] instanceof \WP_Error ) {
 			echo '<p class="bec-booking-summary__message-text" role="alert">' . \esc_html( $vm['error']->get_error_message() ) . '</p>';
 		} else {
-			echo '<p class="bec-booking-summary__message-text">' . \esc_html__( 'No availability for these dates.', 'booking-engine-connector' ) . '</p>';
+			echo '<p class="bec-booking-summary__message-text">' . \esc_html( self::getUnavailableMessageText( $postId, $ctx ) ) . '</p>';
 		}
 		echo '</div>';
-		self::renderActions( $postId, $ctx, $showEnquiry, $enquiryLabel, false, $instanceId, null, true );
+		self::renderActions( $postId, $ctx, $showEnquiry, $enquiryLabel, false, $instanceId, null, true, true );
 		echo '</div>';
 		// phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
-		self::printMobileShell( $vm, $postId, $ctx, $ctxArg, $instanceId, $showEnquiry, $enquiryLabel, null, 'error-or-empty' );
+		self::printMobileShell( $vm, $postId, $ctx, $ctxArg, $instanceId, $showEnquiry, $enquiryLabel, null, 'error-or-empty', true );
 	}
 
 	/**
@@ -252,7 +288,7 @@ final class BookingSummaryRenderer
 		echo '<div class="bec-booking-summary__inner bec-booking-summary__inner--incomplete">';
 		self::printSummaryHead( [] );
 		self::printSearch( $ctxArg, $instanceId, $ctx, 'bec-booking-summary__search--incomplete' );
-		self::renderActions( $postId, $ctx, $showEnquiry, $enquiryLabel, false, $instanceId, null, true );
+		self::renderActions( $postId, $ctx, $showEnquiry, $enquiryLabel, false, $instanceId, null, true, true );
 		echo '</div>';
 	}
 
@@ -303,19 +339,23 @@ final class BookingSummaryRenderer
 		}
 		self::printSearch( $ctxArg, $instanceId, $ctx, $desktopSearchClass );
 
+		echo '<div class="bec-booking-summary__quote-results" data-bec-bsummary-quote-results>';
 		self::printDatesGuestsBlock( $vm );
 		self::printRateList( $vm, $postId, $ctx );
 		self::printAccordions( $vm );
 		self::printPriceBreakdown( $vm, $cur );
+		echo '</div>';
 
 		$hasCheckoutUrl = \is_array( $urlData ) && isset( $urlData['url'] ) && (string) $urlData['url'] !== '';
-		self::renderActions( $postId, $ctx, $showEnquiry, $enquiryLabel, $hasCheckoutUrl, $hasCheckoutUrl ? null : $instanceId, $urlData, true );
+		$checkAvailDisabled = ! $hasCheckoutUrl;
+		$retryFormId        = $hasCheckoutUrl ? $instanceId : null;
+		self::renderActions( $postId, $ctx, $showEnquiry, $enquiryLabel, $hasCheckoutUrl, $hasCheckoutUrl ? null : $instanceId, $urlData, true, $checkAvailDisabled, $retryFormId );
 
 		echo '</div>'; // desktop
 
 		echo '</div>'; // inner
 
-		self::printMobileShell( $vm, $postId, $ctx, $ctxArg, $instanceId, $showEnquiry, $enquiryLabel, $urlData, 'available' );
+		self::printMobileShell( $vm, $postId, $ctx, $ctxArg, $instanceId, $showEnquiry, $enquiryLabel, $urlData, 'available', $checkAvailDisabled );
 
 		if ( $rateStateMap !== [] ) {
 			$defRate = (string) ( $vm['selected_rate_id'] ?? $ctx->getRateId() );
@@ -438,7 +478,9 @@ final class BookingSummaryRenderer
 		bool $showCheckoutContinue,
 		?string $checkAvailabilityFormId,
 		$urlData,
-		bool $isDesktopRow
+		bool $isDesktopRow,
+		bool $checkAvailabilityDisabled = false,
+		?string $checkAvailabilityRetryFormId = null
 	): void {
 		$enq = self::enquiryButton( $postId, $ctx, $showEnquiry, $enquiryLabel );
 		$hasCheckoutUrl = \is_array( $urlData ) && isset( $urlData['url'] ) && (string) $urlData['url'] !== '';
@@ -446,10 +488,17 @@ final class BookingSummaryRenderer
 		$ct = '';
 		if ( $showCheckoutContinue && $hasCheckoutUrl ) {
 			$cta = CheckoutCtaHtml::renderCta( $urlData );
-			$ct  = '<div class="bec-booking-summary__action bec-booking-summary__action--primary" data-bec-bsummary-continue>' . $cta . '</div>';
+			$ct  = '<div class="bec-booking-summary__action bec-booking-summary__action--primary" data-bec-bsummary-continue data-bec-bsummary-checkout-actions>'
+				. $cta
+				. '</div>';
+			if ( $checkAvailabilityRetryFormId !== null && $checkAvailabilityRetryFormId !== '' ) {
+				$ct .= '<div class="bec-booking-summary__action bec-booking-summary__action--primary" hidden data-bec-bsummary-check-retry>'
+					. self::checkAvailabilityButtonHtml( $postId, $ctx, $checkAvailabilityRetryFormId, true )
+					. '</div>';
+			}
 		} elseif ( $checkAvailabilityFormId !== null && $checkAvailabilityFormId !== '' ) {
 			$ct = '<div class="bec-booking-summary__action bec-booking-summary__action--primary" data-bec-bsummary-continue>'
-				. self::checkAvailabilityButtonHtml( $postId, $ctx, $checkAvailabilityFormId )
+				. self::checkAvailabilityButtonHtml( $postId, $ctx, $checkAvailabilityFormId, $checkAvailabilityDisabled )
 				. '</div>';
 		}
 
@@ -465,6 +514,44 @@ final class BookingSummaryRenderer
 	}
 
 	/**
+	 * Hero strip inside mobile drawer (unit thumb + title + stay summary).
+	 *
+	 * @param array<string, mixed> $vm
+	 */
+	private static function printMobileDrawerHero( array $vm, int $postId ): void {
+		$img = (string) ( $vm['unit_image_url'] ?? '' );
+		$ttl = (string) ( $vm['unit_title'] ?? \get_the_title( $postId ) );
+		if ( $img === '' && $ttl === '' ) {
+			return;
+		}
+		echo '<div class="bec-booking-summary__hero">';
+		if ( $img !== '' ) {
+			echo '<img class="bec-booking-summary__hero-img" src="' . \esc_url( $img ) . '" alt="" loading="lazy" width="80" height="80" />';
+		}
+		echo '<div class="bec-booking-summary__hero-text">';
+		echo '<div class="bec-booking-summary__hero-title">' . \esc_html( $ttl ) . '</div>';
+		$in = (string) ( $vm['checkin'] ?? '' );
+		$out = (string) ( $vm['checkout'] ?? '' );
+		$n  = (int) ( $vm['nights'] ?? 0 );
+		if ( $in !== '' && $out !== '' ) {
+			echo '<div class="bec-booking-summary__hero-dates">— ' . \esc_html(
+				\sprintf(
+					/* translators: 1: from date, 2: to date */
+					\__( 'from %1$s to %2$s', 'booking-engine-connector' ),
+					self::formatShortDate( $in ),
+					self::formatShortDate( $out )
+				)
+			) . '</div>';
+		}
+		if ( $n > 0 ) {
+			echo '<div class="bec-booking-summary__hero-nights">— ' . \esc_html(
+				\sprintf( /* translators: %d: nights */ \_n( '%d night', '%d nights', $n, 'booking-engine-connector' ), $n )
+			) . '</div>';
+		}
+		echo '</div></div>';
+	}
+
+	/**
 	 * @param array<string, mixed>          $vm
 	 * @param array<string, mixed>|\stdClass|mixed $urlData
 	 */
@@ -477,7 +564,8 @@ final class BookingSummaryRenderer
 		bool $showEnquiry,
 		string $enquiryLabel,
 		$urlData,
-		string $mode
+		string $mode,
+		bool $checkAvailabilityDisabled = false
 	): void {
 		$cur = (string) ( $vm['currency'] ?? '' );
 		$tot = isset( $vm['total'] ) && is_numeric( $vm['total'] ) ? (float) $vm['total'] : null;
@@ -512,47 +600,43 @@ final class BookingSummaryRenderer
 		echo '<button type="button" class="bec-booking-summary__back" aria-label="' . \esc_attr__( 'Back', 'booking-engine-connector' ) . '">← ' . \esc_html__( 'Summary', 'booking-engine-connector' ) . '</button>';
 		echo '</div>';
 
-		$img = (string) ( $vm['unit_image_url'] ?? '' );
-		$ttl = (string) ( $vm['unit_title'] ?? \get_the_title( $postId ) );
-		if ( $img !== '' || $ttl !== '' ) {
-			echo '<div class="bec-booking-summary__hero">';
-			if ( $img !== '' ) {
-				echo '<img class="bec-booking-summary__hero-img" src="' . \esc_url( $img ) . '" alt="" loading="lazy" width="80" height="80" />';
-			}
-			echo '<div class="bec-booking-summary__hero-text">';
-			echo '<div class="bec-booking-summary__hero-title">' . \esc_html( $ttl ) . '</div>';
-			$in  = (string) ( $vm['checkin'] ?? '' );
-			$out = (string) ( $vm['checkout'] ?? '' );
-			$n  = (int) ( $vm['nights'] ?? 0 );
-			if ( $in !== '' && $out !== '' ) {
-				echo '<div class="bec-booking-summary__hero-dates">— ' . \esc_html(
-					\sprintf(
-						/* translators: 1: from date, 2: to date */
-						\__( 'from %1$s to %2$s', 'booking-engine-connector' ),
-						self::formatShortDate( $in ),
-						self::formatShortDate( $out )
-					)
-				) . '</div>';
-			}
-			if ( $n > 0 ) {
-				echo '<div class="bec-booking-summary__hero-nights">— ' . \esc_html(
-					\sprintf( /* translators: %d: nights */ \_n( '%d night', '%d nights', $n, 'booking-engine-connector' ), $n )
-				) . '</div>';
-			}
-			echo '</div></div>';
-		}
-
 		if ( $st === 'available' ) {
 			self::printSearch( $ctxArg, $instanceId . '-m', $ctx, 'bec-booking-summary__search--drawer' );
+			echo '<div class="bec-booking-summary__quote-results" data-bec-bsummary-quote-results>';
+			self::printMobileDrawerHero( $vm, $postId );
 			self::printDatesGuestsBlock( $vm );
 			self::printRateList( $vm, $postId, $ctx );
 			self::printAccordions( $vm );
 			self::printPriceBreakdown( $vm, $cur );
+			echo '</div>';
 			$hasCheckoutUrl = \is_array( $urlData ) && isset( $urlData['url'] ) && (string) $urlData['url'] !== '';
-			self::renderActions( $postId, $ctx, $showEnquiry, $enquiryLabel, $hasCheckoutUrl, $hasCheckoutUrl ? null : $instanceId . '-m', $urlData, false );
+			$retryFormId    = $hasCheckoutUrl ? $instanceId . '-m' : null;
+			self::renderActions(
+				$postId,
+				$ctx,
+				$showEnquiry,
+				$enquiryLabel,
+				$hasCheckoutUrl,
+				$hasCheckoutUrl ? null : $instanceId . '-m',
+				$urlData,
+				false,
+				$checkAvailabilityDisabled,
+				$retryFormId
+			);
 		} else {
+			self::printMobileDrawerHero( $vm, $postId );
 			self::printSearch( $ctxArg, $instanceId . '-m', $ctx, 'bec-booking-summary__search--drawer' );
-			self::printFallbackMessageInPanel( $postId, $ctx, $showEnquiry, $enquiryLabel, $urlData, $mode, $vm, $instanceId . '-m' );
+			self::printFallbackMessageInPanel(
+				$postId,
+				$ctx,
+				$showEnquiry,
+				$enquiryLabel,
+				$urlData,
+				$mode,
+				$vm,
+				$instanceId . '-m',
+				$checkAvailabilityDisabled
+			);
 		}
 
 		echo '</div>'; // drawer
@@ -570,7 +654,8 @@ final class BookingSummaryRenderer
 		$urlData,
 		string $mode,
 		array $vm,
-		string $drawerSearchFormId
+		string $drawerSearchFormId,
+		bool $checkAvailabilityDisabled = false
 	): void {
 		if ( $mode === 'fallback' ) {
 			echo '<div class="bec-booking-summary__drawer-fallback">';
@@ -582,11 +667,21 @@ final class BookingSummaryRenderer
 			if ( $st === 'error' && isset( $vm['error'] ) && $vm['error'] instanceof \WP_Error ) {
 				echo '<p class="bec-booking-summary__message-text" role="alert">' . \esc_html( $vm['error']->get_error_message() ) . '</p>';
 			} else {
-				echo '<p class="bec-booking-summary__message-text">' . \esc_html__( 'No availability for these dates.', 'booking-engine-connector' ) . '</p>';
+				echo '<p class="bec-booking-summary__message-text">' . \esc_html( self::getUnavailableMessageText( $postId, $ctx ) ) . '</p>';
 			}
 		}
 		$hasCheckoutUrl = \is_array( $urlData ) && isset( $urlData['url'] ) && (string) $urlData['url'] !== '';
-		self::renderActions( $postId, $ctx, $showEnquiry, $enquiryLabel, $hasCheckoutUrl, $hasCheckoutUrl ? null : $drawerSearchFormId, $urlData, false );
+		self::renderActions(
+			$postId,
+			$ctx,
+			$showEnquiry,
+			$enquiryLabel,
+			$hasCheckoutUrl,
+			$hasCheckoutUrl ? null : $drawerSearchFormId,
+			$urlData,
+			false,
+			$checkAvailabilityDisabled
+		);
 	}
 
 	/**

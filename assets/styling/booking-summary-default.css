@@ -16,6 +16,7 @@
 	box-sizing: border-box;
 	font-family: var(--bec-bsummary-font);
 	color: var(--bec-bsummary-color-text);
+	position: relative;
 }
 
 .bec-booking-summary__inner {
@@ -328,6 +329,70 @@
 	cursor: pointer;
 	box-sizing: border-box;
 }
+
+.bec-booking-summary__check-availability.bec-checkout-cta:disabled,
+.bec-booking-summary__check-availability.bec-checkout-cta[disabled] {
+	cursor: not-allowed;
+	opacity: 0.92;
+	background: rgba(255, 255, 255, 0.55) !important;
+	color: rgba(255, 255, 255, 0.85) !important;
+	border: 1px solid rgba(107, 91, 69, 0.35);
+	filter: grayscale(0.15);
+}
+
+/* Submit in progress: dim card + centered spinner */
+.bec-booking-summary.is-loading {
+	pointer-events: none;
+}
+.bec-booking-summary.is-loading::before {
+	content: "";
+	position: absolute;
+	inset: 0;
+	z-index: 30;
+	background: rgba(250, 248, 245, 0.72);
+	border-radius: var(--bec-bsummary-radius, 0.5rem);
+}
+.bec-booking-summary.is-loading::after {
+	content: "";
+	position: absolute;
+	left: 50%;
+	top: 50%;
+	width: 2.25rem;
+	height: 2.25rem;
+	margin: -1.125rem 0 0 -1.125rem;
+	border-radius: 50%;
+	border: 0.35rem solid rgba(92, 77, 58, 0.2);
+	border-top-color: var(--bec-bsummary-color-accent, #5c4d3a);
+	z-index: 31;
+	animation: bec-bsummary-spin 0.75s linear infinite;
+	box-sizing: border-box;
+}
+@media (prefers-reduced-motion: reduce) {
+	.bec-booking-summary.is-loading::after {
+		animation: none;
+		border-top-color: rgba(92, 77, 58, 0.45);
+	}
+}
+@keyframes bec-bsummary-spin {
+	to {
+		transform: rotate(360deg);
+	}
+}
+
+/* Available quote: editing search hides results until "Check availability" resubmits */
+.bec-booking-summary--quote-stale [data-bec-bsummary-quote-results],
+.bec-booking-summary--quote-stale [data-bec-bsummary-head-price],
+.bec-booking-summary--quote-stale [data-bec-bsummary-bar-amount],
+.bec-booking-summary--quote-stale [data-bec-bsummary-checkout-actions] {
+	display: none !important;
+}
+.bec-booking-summary--quote-stale [data-bec-bsummary-check-retry] {
+	display: flex !important;
+	align-items: stretch;
+	flex: 1 1 0;
+	min-width: 0;
+}
+
 .bec-booking-summary__actions--row {
 	flex-direction: row;
 }
@@ -340,6 +405,11 @@
 
 .bec-booking-summary__message-text {
 	margin: 0.5rem 0;
+}
+.bec-booking-summary__message--empty {
+	padding-top: 0.35rem;
+	margin-top: 0.35rem;
+	border-top: 1px solid #e5e7eb;
 }
 .bec-booking-summary__message--error .bec-booking-summary__message-text {
 	color: #b32d2e;

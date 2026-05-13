@@ -8,6 +8,21 @@
 		return typeof window.becSearchForm === 'object' && window.becSearchForm ? window.becSearchForm : {};
 	}
 
+	/**
+	 * Bubble to native listeners on ancestors (e.g. booking summary’s root). jQuery’s
+	 * .trigger("change") does not always do that for handlers added with addEventListener.
+	 */
+	function dispatchBecNativeInputChange($el) {
+		var el = $el && $el[0];
+		if (!el) {
+			return;
+		}
+		try {
+			el.dispatchEvent(new Event('input', { bubbles: true }));
+			el.dispatchEvent(new Event('change', { bubbles: true }));
+		} catch (err) {}
+	}
+
 	function updateSplit($wrap, start, end) {
 		var $in = $wrap.find('[data-bec-part="day-in"]');
 		var $imy = $wrap.find('[data-bec-part="my-in"]');
@@ -128,6 +143,10 @@
 		$btn.on('apply.daterangepicker', function (ev, picker) {
 			$inCheckin.val(picker.startDate.format('YYYY-MM-DD'));
 			$inCheckout.val(picker.endDate.format('YYYY-MM-DD'));
+			dispatchBecNativeInputChange($inCheckin);
+			dispatchBecNativeInputChange($inCheckout);
+			$inCheckin.trigger('change');
+			$inCheckout.trigger('change');
 			updateSplit($wrap, picker.startDate, picker.endDate);
 			$btn.attr('aria-expanded', 'false');
 		});
