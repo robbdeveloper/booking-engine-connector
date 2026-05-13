@@ -22,6 +22,7 @@ final class SearchForm
 	 *   action?: string,
 	 *   form_id?: string,
 	 *   html_class?: string,
+	 *   show_submit?: bool,
 	 * } $args
 	 */
 	public static function render(array $args = []): void
@@ -30,6 +31,7 @@ final class SearchForm
 		$action    = isset($args['action']) ? (string) $args['action'] : '';
 		$formId    = isset($args['form_id']) ? (string) $args['form_id'] : 'bec-search-form';
 		$htmlClass = isset($args['html_class']) ? (string) $args['html_class'] : 'bec-search-form';
+		$showSubmit = ! isset( $args['show_submit'] ) || (bool) $args['show_submit'];
 
 		if ($action === '') {
 			$action = (string) \apply_filters('bec_search_form_action', '', $context);
@@ -151,7 +153,8 @@ final class SearchForm
 				$checkout,
 				$adults,
 				$children,
-				$guestFieldMode
+				$guestFieldMode,
+				$showSubmit
 			);
 
 			return;
@@ -165,7 +168,8 @@ final class SearchForm
 			$fields,
 			$ctx,
 			$needsChildAges,
-			$guestFieldMode
+			$guestFieldMode,
+			$showSubmit
 		);
 	}
 
@@ -180,7 +184,8 @@ final class SearchForm
 		array $fields,
 		SearchContext $ctx,
 		bool $needsChildAges,
-		string $guestFieldMode
+		string $guestFieldMode,
+		bool $showSubmit = true
 	): void {
 		echo '<div class="' . \esc_attr($htmlClass) . '-wrap">';
 		echo '<form class="' . \esc_attr($htmlClass) . '" id="' . \esc_attr($formId) . '" method="get" action="' . \esc_url($action) . '" data-bec-guest-mode="' . \esc_attr($guestFieldMode) . '">';
@@ -209,7 +214,9 @@ final class SearchForm
 			self::renderClassicChildAges($formId, $ctx);
 		}
 
-		echo '<p class="bec-search-form__submit"><button type="submit" class="bec-search-form__button">' . \esc_html__('Search availability', 'booking-engine-connector') . '</button></p>';
+		if ($showSubmit) {
+			echo '<p class="bec-search-form__submit"><button type="submit" class="bec-search-form__button">' . \esc_html__('Search availability', 'booking-engine-connector') . '</button></p>';
+		}
 		echo '</form>';
 		echo '</div>';
 	}
@@ -251,7 +258,8 @@ final class SearchForm
 		string $checkout,
 		string $adults,
 		string $children,
-		string $guestFieldMode
+		string $guestFieldMode,
+		bool $showSubmit = true
 	): void {
 		$labelCheckin  = isset($fields[SearchContext::PARAM_CHECKIN]['label'])
 			? (string) $fields[SearchContext::PARAM_CHECKIN]['label']
@@ -391,9 +399,11 @@ final class SearchForm
 
 		echo '</div></div></div>';
 
-		echo '<div class="bec-search-form__control bec-search-form__control--submit">';
-		echo '<button type="submit" class="bec-search-form__button">' . \esc_html__('Search availability', 'booking-engine-connector') . '</button>';
-		echo '</div>';
+		if ($showSubmit) {
+			echo '<div class="bec-search-form__control bec-search-form__control--submit">';
+			echo '<button type="submit" class="bec-search-form__button">' . \esc_html__('Search availability', 'booking-engine-connector') . '</button>';
+			echo '</div>';
+		}
 
 		echo '</div>';
 		echo '</form>';

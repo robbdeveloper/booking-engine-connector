@@ -96,7 +96,7 @@ final class BookingSummaryRenderer
 				$vm = BookingSummaryViewModelBuilder::build( $postId, $ctx, $slug, $quote, $syncPayload, $taxNote );
 				$st = (string) ( $vm['state'] ?? 'unavailable' );
 				if ( $st === 'unavailable' || $st === 'error' ) {
-					self::renderErrorOrUnavailable( $vm, $postId, $ctx, $instanceId, $ctxArg, $showEnquiry, $enquiryLabel, $syncPayload, \is_array( $quote ) ? $quote : null );
+					self::renderErrorOrUnavailable( $vm, $postId, $ctx, $instanceId, $ctxArg, $showEnquiry, $enquiryLabel );
 				} else {
 					$rateStateMap = [];
 					if ( \is_array( $quote )
@@ -173,6 +173,35 @@ final class BookingSummaryRenderer
 	}
 
 	/**
+	 * @param array<string, mixed> $vm May be empty (incomplete context — header shows title only).
+	 */
+	private static function printSummaryHead( array $vm ): void {
+		echo '<header class="bec-booking-summary__head">';
+		echo '<span class="bec-booking-summary__title">' . \esc_html__( 'Summary', 'booking-engine-connector' ) . '</span>';
+		$headInner = self::getHeadPriceBlockInnerHtml( $vm );
+		if ( $headInner !== '' ) {
+			echo '<div class="bec-booking-summary__head-price" data-bec-bsummary-head>';
+			// phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
+			echo $headInner;
+			echo '</div>';
+		}
+		echo '</header>';
+	}
+
+	private static function checkAvailabilityButtonHtml( int $postId, SearchContext $ctx, string $targetFormId ): string {
+		$label = (string) \apply_filters(
+			'bec_booking_summary_check_availability_label',
+			\__( 'Check availability', 'booking-engine-connector' ),
+			$postId,
+			$ctx
+		);
+
+		return '<button type="button" data-bec-submit-search-form="' . \esc_attr( $targetFormId ) . '" class="bec-booking-summary__check-availability bec-checkout-cta">'
+			. \esc_html( $label )
+			. '</button>';
+	}
+
+	/**
 	 * @param array<string, mixed> $vm
 	 */
 	private static function renderErrorOrUnavailable(
@@ -186,6 +215,7 @@ final class BookingSummaryRenderer
 	): void {
 		$st = (string) ( $vm['state'] ?? 'unavailable' );
 		echo '<div class="bec-booking-summary__inner">';
+		self::printSummaryHead( $vm );
 		self::printSearch( $ctxArg, $instanceId, $ctx );
 		echo '<div class="bec-booking-summary__message bec-booking-summary__message--' . ( $st === 'error' ? 'error' : 'empty' ) . '">';
 		if ( $st === 'error' && isset( $vm['error'] ) && $vm['error'] instanceof \WP_Error ) {
@@ -194,7 +224,7 @@ final class BookingSummaryRenderer
 			echo '<p class="bec-booking-summary__message-text">' . \esc_html__( 'No availability for these dates.', 'booking-engine-connector' ) . '</p>';
 		}
 		echo '</div>';
-		self::renderActions( $postId, $ctx, $showEnquiry, $enquiryLabel, true, null, true );
+		self::renderActions( $postId, $ctx, $showEnquiry, $enquiryLabel, false, $instanceId, null, true );
 		echo '</div>';
 		// phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
 		self::printMobileShell( $vm, $postId, $ctx, $ctxArg, $instanceId, $showEnquiry, $enquiryLabel, null, 'error-or-empty' );
@@ -220,8 +250,9 @@ final class BookingSummaryRenderer
 		string $providerSlug
 	): void {
 		echo '<div class="bec-booking-summary__inner bec-booking-summary__inner--incomplete">';
+		self::printSummaryHead( [] );
 		self::printSearch( $ctxArg, $instanceId, $ctx, 'bec-booking-summary__search--incomplete' );
-		self::renderActions( $postId, $ctx, $showEnquiry, $enquiryLabel, true, null, true );
+		self::renderActions( $postId, $ctx, $showEnquiry, $enquiryLabel, false, $instanceId, null, true );
 		echo '</div>';
 	}
 
@@ -260,40 +291,31 @@ final class BookingSummaryRenderer
 
 		$isCompact = $layoutPreset === StylingSettings::BOOKING_SUMMARY_PRESET_COMPACT;
 
-		if ( ! $isCompact ) {
-			self::printSearch( $ctxArg, $instanceId, $ctx, 'bec-booking-summary__search--desktop' );
-		}
-
 		echo '<div class="bec-booking-summary__desktop">';
 
 		$cur = (string) ( $vm['currency'] ?? '' );
 
-		echo '<header class="bec-booking-summary__head">';
-		echo '<span class="bec-booking-summary__title">' . \esc_html__( 'Summary', 'booking-engine-connector' ) . '</span>';
-		$headInner = self::getHeadPriceBlockInnerHtml( $vm );
-		if ( $headInner !== '' ) {
-			echo '<div class="bec-booking-summary__head-price" data-bec-bsummary-head>';
-			// phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
-			echo $headInner;
-			echo '</div>';
+		self::printSummaryHead( $vm );
+
+		$desktopSearchClass = 'bec-booking-summary__search--desktop';
+		if ( $isCompact ) {
+			$desktopSearchClass .= ' bec-booking-summary__search--preset-compact';
 		}
-		echo '</header>';
+		self::printSearch( $ctxArg, $instanceId, $ctx, $desktopSearchClass );
 
 		self::printDatesGuestsBlock( $vm );
 		self::printRateList( $vm, $postId, $ctx );
 		self::printAccordions( $vm );
 		self::printPriceBreakdown( $vm, $cur );
-		self::renderActions( $postId, $ctx, $showEnquiry, $enquiryLabel, false, $urlData, true );
+
+		$hasCheckoutUrl = \is_array( $urlData ) && isset( $urlData['url'] ) && (string) $urlData['url'] !== '';
+		self::renderActions( $postId, $ctx, $showEnquiry, $enquiryLabel, $hasCheckoutUrl, $hasCheckoutUrl ? null : $instanceId, $urlData, true );
 
 		echo '</div>'; // desktop
 
-		if ( $isCompact ) {
-			self::printSearch( $ctxArg, $instanceId, $ctx, 'bec-booking-summary__search--desktop bec-booking-summary__search--trail' );
-		}
-
 		echo '</div>'; // inner
 
-		self::printMobileShell( $vm, $postId, $ctx, $ctxArg, $instanceId, $showEnquiry, $enquiryLabel, $urlData, 'available', $layoutPreset );
+		self::printMobileShell( $vm, $postId, $ctx, $ctxArg, $instanceId, $showEnquiry, $enquiryLabel, $urlData, 'available' );
 
 		if ( $rateStateMap !== [] ) {
 			$defRate = (string) ( $vm['selected_rate_id'] ?? $ctx->getRateId() );
@@ -413,16 +435,24 @@ final class BookingSummaryRenderer
 		SearchContext $ctx,
 		bool $showEnquiry,
 		string $enquiryLabel,
-		bool $hideContinue,
+		bool $showCheckoutContinue,
+		?string $checkAvailabilityFormId,
 		$urlData,
 		bool $isDesktopRow
 	): void {
 		$enq = self::enquiryButton( $postId, $ctx, $showEnquiry, $enquiryLabel );
-		$ct  = '';
-		if ( ! $hideContinue && \is_array( $urlData ) && isset( $urlData['url'] ) && (string) $urlData['url'] !== '' ) {
+		$hasCheckoutUrl = \is_array( $urlData ) && isset( $urlData['url'] ) && (string) $urlData['url'] !== '';
+
+		$ct = '';
+		if ( $showCheckoutContinue && $hasCheckoutUrl ) {
 			$cta = CheckoutCtaHtml::renderCta( $urlData );
 			$ct  = '<div class="bec-booking-summary__action bec-booking-summary__action--primary" data-bec-bsummary-continue>' . $cta . '</div>';
+		} elseif ( $checkAvailabilityFormId !== null && $checkAvailabilityFormId !== '' ) {
+			$ct = '<div class="bec-booking-summary__action bec-booking-summary__action--primary" data-bec-bsummary-continue>'
+				. self::checkAvailabilityButtonHtml( $postId, $ctx, $checkAvailabilityFormId )
+				. '</div>';
 		}
+
 		$row = '<div class="bec-booking-summary__actions' . ( $isDesktopRow ? ' bec-booking-summary__actions--row' : '' ) . '">';
 		if ( $enq !== '' ) {
 			$row .= '<div class="bec-booking-summary__action bec-booking-summary__action--secondary">' . $enq . '</div>';
@@ -437,7 +467,6 @@ final class BookingSummaryRenderer
 	/**
 	 * @param array<string, mixed>          $vm
 	 * @param array<string, mixed>|\stdClass|mixed $urlData
-	 * @param string                                $layoutPreset Booking summary preset when $mode is available.
 	 */
 	private static function printMobileShell(
 		array $vm,
@@ -448,8 +477,7 @@ final class BookingSummaryRenderer
 		bool $showEnquiry,
 		string $enquiryLabel,
 		$urlData,
-		string $mode,
-		string $layoutPreset = ''
+		string $mode
 	): void {
 		$cur = (string) ( $vm['currency'] ?? '' );
 		$tot = isset( $vm['total'] ) && is_numeric( $vm['total'] ) ? (float) $vm['total'] : null;
@@ -515,24 +543,16 @@ final class BookingSummaryRenderer
 		}
 
 		if ( $st === 'available' ) {
-			if ( $mode === 'available' && $layoutPreset === StylingSettings::BOOKING_SUMMARY_PRESET_COMPACT ) {
-				self::printDatesGuestsBlock( $vm );
-				self::printRateList( $vm, $postId, $ctx );
-				self::printAccordions( $vm );
-				self::printPriceBreakdown( $vm, $cur );
-				self::renderActions( $postId, $ctx, $showEnquiry, $enquiryLabel, false, $urlData, false );
-				self::printSearch( $ctxArg, $instanceId . '-m', $ctx, 'bec-booking-summary__search--drawer bec-booking-summary__search--trail' );
-			} else {
-				self::printSearch( $ctxArg, $instanceId . '-m', $ctx, 'bec-booking-summary__search--drawer' );
-				self::printDatesGuestsBlock( $vm );
-				self::printRateList( $vm, $postId, $ctx );
-				self::printAccordions( $vm );
-				self::printPriceBreakdown( $vm, $cur );
-				self::renderActions( $postId, $ctx, $showEnquiry, $enquiryLabel, false, $urlData, false );
-			}
+			self::printSearch( $ctxArg, $instanceId . '-m', $ctx, 'bec-booking-summary__search--drawer' );
+			self::printDatesGuestsBlock( $vm );
+			self::printRateList( $vm, $postId, $ctx );
+			self::printAccordions( $vm );
+			self::printPriceBreakdown( $vm, $cur );
+			$hasCheckoutUrl = \is_array( $urlData ) && isset( $urlData['url'] ) && (string) $urlData['url'] !== '';
+			self::renderActions( $postId, $ctx, $showEnquiry, $enquiryLabel, $hasCheckoutUrl, $hasCheckoutUrl ? null : $instanceId . '-m', $urlData, false );
 		} else {
 			self::printSearch( $ctxArg, $instanceId . '-m', $ctx, 'bec-booking-summary__search--drawer' );
-			self::printFallbackMessageInPanel( $postId, $ctx, $showEnquiry, $enquiryLabel, $urlData, $mode, $vm );
+			self::printFallbackMessageInPanel( $postId, $ctx, $showEnquiry, $enquiryLabel, $urlData, $mode, $vm, $instanceId . '-m' );
 		}
 
 		echo '</div>'; // drawer
@@ -549,7 +569,8 @@ final class BookingSummaryRenderer
 		string $enquiryLabel,
 		$urlData,
 		string $mode,
-		array $vm
+		array $vm,
+		string $drawerSearchFormId
 	): void {
 		if ( $mode === 'fallback' ) {
 			echo '<div class="bec-booking-summary__drawer-fallback">';
@@ -564,8 +585,8 @@ final class BookingSummaryRenderer
 				echo '<p class="bec-booking-summary__message-text">' . \esc_html__( 'No availability for these dates.', 'booking-engine-connector' ) . '</p>';
 			}
 		}
-		$noCheckout = ! \is_array( $urlData ) || ! isset( $urlData['url'] ) || (string) $urlData['url'] === '';
-		self::renderActions( $postId, $ctx, $showEnquiry, $enquiryLabel, $noCheckout, $urlData, false );
+		$hasCheckoutUrl = \is_array( $urlData ) && isset( $urlData['url'] ) && (string) $urlData['url'] !== '';
+		self::renderActions( $postId, $ctx, $showEnquiry, $enquiryLabel, $hasCheckoutUrl, $hasCheckoutUrl ? null : $drawerSearchFormId, $urlData, false );
 	}
 
 	/**
@@ -598,9 +619,10 @@ final class BookingSummaryRenderer
 		\ob_start();
 		SearchForm::render(
 			[
-				'context'  => $context,
-				'form_id'  => $formId,
+				'context'    => $context,
+				'form_id'    => $formId,
 				'html_class' => 'bec-search-form',
+				'show_submit' => false,
 			]
 		);
 		$form = (string) \ob_get_clean();

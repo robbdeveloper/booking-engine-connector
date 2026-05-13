@@ -321,6 +321,13 @@
 	flex: 1 1 auto;
 	width: 100%;
 }
+
+/* Footer primary: associate booking-summary submit with checkout CTA look */
+.bec-booking-summary__check-availability.bec-checkout-cta {
+	font: inherit;
+	cursor: pointer;
+	box-sizing: border-box;
+}
 .bec-booking-summary__actions--row {
 	flex-direction: row;
 }

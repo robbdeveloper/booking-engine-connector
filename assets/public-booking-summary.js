@@ -161,6 +161,36 @@
 		}
 	}
 
+	function initSearchFormSubmit(root) {
+		if (!root) {
+			return;
+		}
+		root.addEventListener('click', function (e) {
+			var el = e.target;
+			if (!el || !el.closest) {
+				return;
+			}
+			var btn = el.closest('[data-bec-submit-search-form]');
+			if (!btn || !root.contains(btn)) {
+				return;
+			}
+			var fid = btn.getAttribute('data-bec-submit-search-form');
+			if (!fid) {
+				return;
+			}
+			var form = document.getElementById(fid);
+			if (!form || form.tagName !== 'FORM') {
+				return;
+			}
+			e.preventDefault();
+			if (typeof form.requestSubmit === 'function') {
+				form.requestSubmit();
+			} else {
+				form.submit();
+			}
+		});
+	}
+
 	function initRateSwitch(root) {
 		if (!root) {
 			return;
@@ -203,6 +233,7 @@
 	var n;
 	for (n = 0; n < list.length; n++) {
 		initDrawer(list[n]);
+		initSearchFormSubmit(list[n]);
 		initRateSwitch(list[n]);
 	}
 })();
