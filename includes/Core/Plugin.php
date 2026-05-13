@@ -57,6 +57,7 @@ final class Plugin
 			dirname(\BEC_PLUGIN_BASENAME) . '/languages'
 		);
 
+		PluginScreenLinks::register();
 		PluginUpdater::register();
 
 		SearchSettings::register();

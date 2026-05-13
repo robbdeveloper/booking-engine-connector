@@ -1,5 +1,9 @@
 # Changelog
 
+## 0.1.15 — 2026-05-13
+
+- **Booking summary (incomplete / check availability)**: The footer **Check availability** control listens on the summary root with native `input`/`change` handlers. Enhanced search’s daterange Apply only used jQuery `.trigger('change')` on the hidden date fields, which did not bubble to those listeners, so the button stayed disabled until a guest field fired a native event. `assets/public-search-daterange.js` now dispatches bubbling native `input` and `change` after updating `bec_checkin` / `bec_checkout`. **`public-booking-summary.js`** treats blank or invalid occupancy like the rest of the stack (default at least one adult / guest) when deciding if the search is complete.
+
 ## 0.1.14 — 2026-05-12
 
 - **Search (enhanced preset)**: Guest popover was clipped by `.bec-search-form__bar { overflow: hidden; }` while the panel is absolutely positioned below the control. The bar now uses `overflow: visible` so the popover can display (date range still uses `parentEl: 'body'`).
