@@ -87,6 +87,53 @@ final class KrossProvider implements ProviderInterface, BulkQuoteProviderInterfa
 
 	public function fetchRemoteUnits(): array
 	{
+		[ $decoded, $rows ] = $this->fetchRoomTypesDecodedAndRows();
+
+		KrossBookingEngineSyncSettings::updateAvailableEnginesFromNormalizedRows($rows);
+
+		$filtered = [];
+
+		foreach ($rows as $row) {
+			if (! \is_array($row)) {
+				continue;
+			}
+
+			if (KrossBookingEngineSyncSettings::normalizedRowPassesSyncSelection($row)) {
+				$filtered[] = $row;
+			}
+		}
+
+		/**
+		 * @param array<int, array<string, mixed>> $filtered
+		 * @param array<string, mixed> $decoded
+		 * @return array<int, array<string, mixed>>
+		 */
+		return \apply_filters('bec_provider_remote_units', $filtered, 'kross', $decoded);
+	}
+
+	/**
+	 * Calls `/v5/rooms/get-room-types` and merges discovered `be_enabled` slugs into the cached catalog.
+	 *
+	 * @return list<string> Cached available engine slugs after merge.
+	 *
+	 * @throws ProviderException
+	 */
+	public function refreshBookingEngineOptionsFromRemote(): array
+	{
+		[ , $rows ] = $this->fetchRoomTypesDecodedAndRows();
+
+		KrossBookingEngineSyncSettings::updateAvailableEnginesFromNormalizedRows($rows);
+
+		return KrossBookingEngineSyncSettings::getCachedAvailableEngines();
+	}
+
+	/**
+	 * @return array{0: array<string, mixed>, 1: array<int, array<string, mixed>>}
+	 *
+	 * @throws ProviderException
+	 */
+	private function fetchRoomTypesDecodedAndRows(): array
+	{
 		$payload = (array) \apply_filters(
 			'bec_kross_room_types_payload',
 			[
@@ -107,6 +154,7 @@ final class KrossProvider implements ProviderInterface, BulkQuoteProviderInterfa
 		$this->assertHttpOk($response);
 
 		$decoded = KrossResponseParser::decodeBody($response->getBody());
+
 		if (! KrossResponseParser::isSuccess($decoded)) {
 			throw new ProviderException(
 				self::formatEnvelopeFailure(
@@ -120,12 +168,7 @@ final class KrossProvider implements ProviderInterface, BulkQuoteProviderInterfa
 		$data = KrossResponseParser::getDataPayload($decoded);
 		$rows = $this->normalizeRoomTypesList($data);
 
-		/**
-		 * @param array<int, array<string, mixed>> $rows
-		 * @param array<string, mixed> $decoded
-		 * @return array<int, array<string, mixed>>
-		 */
-		return \apply_filters('bec_provider_remote_units', $rows, 'kross', $decoded);
+		return [ $decoded, $rows ];
 	}
 
 	/**

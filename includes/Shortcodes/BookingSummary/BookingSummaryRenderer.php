@@ -15,6 +15,8 @@ use BookingEngineConnector\Search\QuoteService;
 use BookingEngineConnector\Search\SearchContext;
 use BookingEngineConnector\Search\SearchForm;
 use BookingEngineConnector\Styling\StylingSettings;
+use BookingEngineConnector\Sync\JsonExtensionFlags;
+use BookingEngineConnector\Sync\SyncPayloadEncoder;
 
 /**
  * Renders the booking summary / sidebar shortcode.
@@ -48,7 +50,7 @@ final class BookingSummaryRenderer
 		}
 
 		$syncJson = (string) \get_post_meta( $postId, 'bec_sync_payload', true );
-		$syncPayload = $syncJson !== '' ? (array) ( \json_decode( $syncJson, true ) ?: [] ) : [];
+		$syncPayload = $syncJson !== '' ? ( SyncPayloadEncoder::decodeStored( $syncJson ) ?? [] ) : [];
 
 		$instanceId  = (string) ( $a['form_id'] ?? 'bec-booking-summary' ) . '-uid-' . (string) ( $postId );
 		$layout      = self::resolveLayoutPreset( $postId, $ctx );
@@ -366,7 +368,10 @@ final class BookingSummaryRenderer
 			];
 			$json    = (string) \wp_json_encode(
 				$payload,
-				\JSON_HEX_TAG | \JSON_HEX_AMP | \JSON_HEX_APOS | \JSON_UNESCAPED_SLASHES
+				JsonExtensionFlags::hexTag()
+					| JsonExtensionFlags::hexAmp()
+					| JsonExtensionFlags::hexApos()
+					| JsonExtensionFlags::unescapedSlashes()
 			);
 			if ( $json !== 'null' && $json !== 'false' ) {
 				echo '<script type="application/json" class="bec-booking-summary__state" data-bec-bsummary-state>' . $json . '</script>';

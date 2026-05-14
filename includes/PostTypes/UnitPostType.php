@@ -4,6 +4,9 @@ declare(strict_types=1);
 
 namespace BookingEngineConnector\PostTypes;
 
+use BookingEngineConnector\Providers\ProviderRegistry;
+use BookingEngineConnector\Sync\JsonExtensionFlags;
+use BookingEngineConnector\Sync\SyncPayloadEncoder;
 use DateTimeImmutable;
 use DateTimeInterface;
 use WP_Query;
@@ -298,23 +301,14 @@ final class UnitPostType
 			return '';
 		}
 
-		$decodeFlags = 0;
-		if (defined('JSON_INVALID_UTF8_SUBSTITUTE')) {
-			$decodeFlags |= JSON_INVALID_UTF8_SUBSTITUTE;
-		}
+		$decoded = SyncPayloadEncoder::decodeStored($value);
 
-		$decoded = json_decode($value, true, 8192, $decodeFlags);
-		if (json_last_error() !== JSON_ERROR_NONE) {
+		if ($decoded === null) {
 			// Do not wipe payloads that fail re-parse (depth, edge cases); keep as stored.
 			return $value;
 		}
 
-		$encodeFlags = JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES;
-		if (defined('JSON_INVALID_UTF8_SUBSTITUTE')) {
-			$encodeFlags |= JSON_INVALID_UTF8_SUBSTITUTE;
-		}
-
-		$encoded = wp_json_encode($decoded, $encodeFlags);
+		$encoded = wp_json_encode($decoded, SyncPayloadEncoder::metaEncodeFlags());
 
 		return $encoded !== false ? $encoded : $value;
 	}
@@ -415,7 +409,8 @@ final class UnitPostType
 			return;
 		}
 
-		$decoded = json_decode($payload, true);
+		$decoded = SyncPayloadEncoder::decodeStored($payload);
+
 		if (! is_array($decoded)) {
 			echo '<pre style="max-height:24rem;overflow:auto;padding:12px;background:#f6f7f7;border:1px solid #c3c4c7;">';
 			echo esc_html($payload);
@@ -424,7 +419,10 @@ final class UnitPostType
 			return;
 		}
 
-		$pretty = wp_json_encode($decoded, JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES);
+		$pretty = wp_json_encode(
+			$decoded,
+			JsonExtensionFlags::prettyPrint() | SyncPayloadEncoder::metaEncodeFlags(false)
+		);
 		if ($pretty === false) {
 			echo '<pre style="max-height:24rem;overflow:auto;padding:12px;background:#f6f7f7;border:1px solid #c3c4c7;">';
 			echo esc_html($payload);
@@ -451,6 +449,11 @@ final class UnitPostType
 				$out['bec_external_id']   = __('External ID', 'booking-engine-connector');
 				$out['bec_provider_slug'] = __('Provider', 'booking-engine-connector');
 				$out['bec_last_sync_at']  = __('Last sync', 'booking-engine-connector');
+
+				if (ProviderRegistry::getActiveSlug() === 'kross') {
+					/* translators: Kross API field indicating which booking engine slugs enable this unit. */
+					$out['bec_kross_be_enabled'] = __('Kross BE enabled', 'booking-engine-connector');
+				}
 			}
 		}
 
@@ -469,6 +472,42 @@ final class UnitPostType
 			case 'bec_last_sync_at':
 				echo esc_html((string) get_post_meta($post_id, 'bec_last_sync_at', true));
 				break;
+			case 'bec_kross_be_enabled':
+				if (ProviderRegistry::getActiveSlug() !== 'kross') {
+					break;
+				}
+				echo self::formatKrossBeEnabledListCell($post_id);
+				break;
+		}
+	}
+
+	private static function formatKrossBeEnabledListCell(int $postId): void
+	{
+		$payload = (string) get_post_meta($postId, 'bec_sync_payload', true);
+
+		if ($payload === '') {
+			echo '<span aria-hidden="true">—</span>';
+
+			return;
+		}
+
+		$slugs = SyncPayloadEncoder::readBeEnabledSlugsFromStoredPayload($payload);
+
+		if ($slugs === []) {
+			echo '<span aria-hidden="true">—</span>';
+
+			return;
+		}
+
+		$first = true;
+
+		foreach ($slugs as $slug) {
+			if (! $first) {
+				echo ', ';
+			}
+
+			$first = false;
+			echo '<code>' . esc_html($slug) . '</code>';
 		}
 	}
 

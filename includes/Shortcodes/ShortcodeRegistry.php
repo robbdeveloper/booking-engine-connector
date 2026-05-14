@@ -14,6 +14,7 @@ use BookingEngineConnector\Search\SearchContext;
 use BookingEngineConnector\Providers\ProviderRegistry;
 use BookingEngineConnector\Search\SearchForm;
 use BookingEngineConnector\Shortcodes\BookingSummary\BookingSummaryRenderer;
+use BookingEngineConnector\Sync\SyncPayloadEncoder;
 
 /**
  * Public shortcodes (TASK-SHO-001).
@@ -380,8 +381,8 @@ final class ShortcodeRegistry
 			return $defOut;
 		}
 
-		$decoded = \json_decode($json, true);
-		if (! \is_array($decoded)) {
+		$decoded = SyncPayloadEncoder::decodeStored($json);
+		if ($decoded === null) {
 			return $defOut;
 		}
 

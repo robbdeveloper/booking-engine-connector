@@ -7,6 +7,10 @@ namespace BookingEngineConnector\Admin;
 use BookingEngineConnector\Media\GalleryImageFilenameRenamer;
 use BookingEngineConnector\Media\GalleryImageSyncSettings;
 use BookingEngineConnector\PostTypes\UnitPostType;
+use BookingEngineConnector\Providers\Contracts\ProviderException;
+use BookingEngineConnector\Providers\Kross\KrossBookingEngineSyncSettings;
+use BookingEngineConnector\Providers\Kross\KrossProvider;
+use BookingEngineConnector\Providers\ProviderRegistry;
 use BookingEngineConnector\Sync\SyncCron;
 use BookingEngineConnector\Sync\SyncService;
 
@@ -21,6 +25,7 @@ final class SyncAdmin
 	{
 		\add_action('admin_init', [self::class, 'registerListHooks']);
 		\add_action('admin_post_bec_sync_save_settings', [self::class, 'handleSaveSettings']);
+		\add_action('admin_post_bec_kross_refresh_booking_engines', [self::class, 'handleKrossRefreshBookingEngines']);
 		\add_action('admin_post_bec_sync_all', [self::class, 'handleSyncAll']);
 		\add_action('admin_post_bec_sync_unit', [self::class, 'handleSyncUnit']);
 		\add_action('admin_post_bec_rename_gallery_all', [self::class, 'handleRenameGalleryAll']);
@@ -46,8 +51,20 @@ final class SyncAdmin
 		$renameResult = \get_transient(self::renameResultTransientKey());
 		\delete_transient(self::renameResultTransientKey());
 
+		$krossRefreshResult = \get_transient(self::krossBookingEngineRefreshTransientKey());
+		\delete_transient(self::krossBookingEngineRefreshTransientKey());
+
+		$isKrossActive = ProviderRegistry::getActiveSlug() === 'kross';
+
 		echo '<div class="wrap">';
 		echo '<h1>' . \esc_html__('Sync units', 'booking-engine-connector') . '</h1>';
+
+		if ($isKrossActive) {
+			echo '<form id="bec-kross-booking-engine-refresh" method="post" action="' . \esc_url(\admin_url('admin-post.php')) . '" tabindex="-1" aria-hidden="true" style="position:absolute;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap;border-width:0;">';
+			\wp_nonce_field('bec_kross_refresh_booking_engines', 'bec_kross_refresh_booking_engines_nonce');
+			echo '<input type="hidden" name="action" value="bec_kross_refresh_booking_engines" />';
+			echo '</form>';
+		}
 
 		if (\is_array($result)) {
 			echo '<div class="notice notice-info"><p>';
@@ -106,6 +123,14 @@ final class SyncAdmin
 			echo '</p></div>';
 		}
 
+		if (\is_array($krossRefreshResult) && isset($krossRefreshResult['message'])) {
+			$noticeClass = (($krossRefreshResult['type'] ?? '') === 'error')
+				? 'notice notice-error is-dismissible'
+				: 'notice notice-success is-dismissible';
+
+			echo '<div class="' . \esc_attr($noticeClass) . '"><p>' . \esc_html((string) $krossRefreshResult['message']) . '</p></div>';
+		}
+
 		if ($last !== '') {
 			echo '<p>' . \esc_html(\sprintf(
 				/* translators: %s datetime */
@@ -124,6 +149,65 @@ final class SyncAdmin
 		echo '<input type="number" min="1" max="168" name="bec_sync_interval_hours" id="bec_sync_interval_hours" value="' . \esc_attr((string) $hours) . '" />';
 		echo '<p class="description">' . \esc_html__('How often the scheduled sync runs (1–168).', 'booking-engine-connector') . '</p>';
 		echo '</td></tr></table>';
+
+		if ($isKrossActive) {
+			$selectedList   = KrossBookingEngineSyncSettings::getSelectedBookingEngines();
+			$selectedFlip   = \array_fill_keys($selectedList, true);
+			$cachedList     = KrossBookingEngineSyncSettings::getCachedAvailableEngines();
+			$displayEngines = \array_unique(\array_merge($cachedList, $selectedList));
+			\sort($displayEngines, \SORT_STRING);
+
+			echo '<h2 class="title">' . \esc_html__('Kross booking engines', 'booking-engine-connector') . '</h2>';
+			echo '<p class="description">' . \esc_html__(
+				'Sync only units whose Kross payload includes the room’s enabled booking-engine slugs (`be_enabled`). Matching any selected slug includes the unit.',
+				'booking-engine-connector'
+			) . '</p>';
+			echo '<p class="description">' . \esc_html__(
+				'Leave all unchecked to sync every Kross room type from this property.',
+				'booking-engine-connector'
+			) . '</p>';
+
+			echo '<table class="form-table" role="presentation">';
+			echo '<tr><th scope="row">' . \esc_html__('Booking engines', 'booking-engine-connector') . '</th><td>';
+
+			echo '<p><button type="submit" form="bec-kross-booking-engine-refresh" class="button">' . \esc_html__(
+				'Refresh booking engines list from Kross',
+				'booking-engine-connector'
+			) . '</button>';
+			echo ' <span class="description">' . \esc_html__(
+				'Merges all `be_enabled` values discovered from `/v5/rooms/get-room-types` into the checklist below.',
+				'booking-engine-connector'
+			) . '</span></p>';
+
+			if ($displayEngines === []) {
+				echo '<p class="description"><em>' . \esc_html__(
+					'No engines cached yet — use Refresh to populate this list.',
+					'booking-engine-connector'
+				) . '</em></p>';
+			} else {
+				echo '<fieldset class="bec-kross-be-checkboxes"><legend class="screen-reader-text">' . \esc_html__(
+					'Kross booking engine slugs to include in sync',
+					'booking-engine-connector'
+				) . '</legend>';
+
+				foreach ($displayEngines as $engineSlug) {
+					if (! \is_string($engineSlug) || $engineSlug === '') {
+						continue;
+					}
+					$inputId = 'bec_kross_sync_be_' . \sanitize_key($engineSlug);
+
+					echo '<p style="margin:0.35em 0;"><label for="' . \esc_attr($inputId) . '">';
+					echo '<input type="checkbox" id="' . \esc_attr($inputId) . '" name="bec_kross_sync_booking_engines[]" value="' . \esc_attr($engineSlug) . '" ' .
+						\checked(isset($selectedFlip[ $engineSlug ]), true, false) . ' /> ';
+					echo '<code>' . \esc_html($engineSlug) . '</code>';
+					echo '</label></p>';
+				}
+
+				echo '</fieldset>';
+			}
+
+			echo '</td></tr></table>';
+		}
 
 		echo '<h2 class="title">' . \esc_html__('Gallery image filenames', 'booking-engine-connector') . '</h2>';
 		echo '<p class="description">' . \esc_html__(
@@ -192,6 +276,25 @@ final class SyncAdmin
 		$suffix = isset($_POST['bec_sync_gallery_image_suffix']) ? \wp_unslash((string) $_POST['bec_sync_gallery_image_suffix']) : '';
 		\update_option(GalleryImageSyncSettings::OPTION_FILENAME_PREFIX, \sanitize_file_name($prefix), false);
 		\update_option(GalleryImageSyncSettings::OPTION_FILENAME_SUFFIX, \sanitize_file_name($suffix), false);
+
+		if (ProviderRegistry::getActiveSlug() === 'kross') {
+			$rawEngines = [];
+
+			if (
+				isset($_POST['bec_kross_sync_booking_engines'])
+				&& \is_array($_POST['bec_kross_sync_booking_engines'])
+			) {
+				$unslash = \wp_unslash($_POST['bec_kross_sync_booking_engines']);
+
+				foreach ($unslash as $slug) {
+					if (\is_string($slug) || \is_numeric($slug)) {
+						$rawEngines[] = (string) $slug;
+					}
+				}
+			}
+
+			KrossBookingEngineSyncSettings::setSelectedBookingEngines($rawEngines);
+		}
 
 		\wp_safe_redirect(\add_query_arg(['page' => self::PAGE_SLUG, 'bec_saved' => '1'], \admin_url('admin.php')));
 		exit;
@@ -344,6 +447,107 @@ final class SyncAdmin
 		exit;
 	}
 
+	public static function handleKrossRefreshBookingEngines(): void
+	{
+		if (! \current_user_can(AdminMenu::CAPABILITY)) {
+			\wp_die(\esc_html__('Insufficient permissions.', 'booking-engine-connector'));
+		}
+
+		\check_admin_referer('bec_kross_refresh_booking_engines', 'bec_kross_refresh_booking_engines_nonce');
+
+		if (ProviderRegistry::getActiveSlug() !== 'kross') {
+			\set_transient(
+				self::krossBookingEngineRefreshTransientKey(),
+				[
+					'type'    => 'error',
+					'message' => \__(
+						'Booking engine discovery is available only while Kross is the active provider.',
+						'booking-engine-connector'
+					),
+				],
+				120
+			);
+
+			self::redirectToSyncSettingsPage();
+
+			exit;
+		}
+
+		$resolved = ProviderRegistry::getProvider();
+		if (! $resolved->validateCredentials()) {
+			\set_transient(
+				self::krossBookingEngineRefreshTransientKey(),
+				[
+					'type'    => 'error',
+					'message' => \__(
+						'Complete Kross credentials on the Connection page before refreshing booking engines.',
+						'booking-engine-connector'
+					),
+				],
+				120
+			);
+
+			self::redirectToSyncSettingsPage();
+
+			exit;
+		}
+
+		/** @var KrossProvider $krossProvider */
+		$krossProvider = $resolved instanceof KrossProvider ? $resolved : new KrossProvider();
+
+		try {
+			$krossProvider->refreshBookingEngineOptionsFromRemote();
+			$count = \count(KrossBookingEngineSyncSettings::getCachedAvailableEngines());
+
+			\set_transient(
+				self::krossBookingEngineRefreshTransientKey(),
+				[
+					'type'    => 'success',
+					'message' => \sprintf(
+						/* translators: %d number of distinct booking-engine slugs cached after refresh */
+						\_n(
+							'Booking engines list refreshed. %d slug cached.',
+							'Booking engines list refreshed. %d slugs cached.',
+							$count,
+							'booking-engine-connector'
+						),
+						$count
+					),
+				],
+				120
+			);
+		} catch (ProviderException $e) {
+			self::persistKrossBookingEngineTransientErrorFromThrowable($e);
+		} catch (\Throwable $e) {
+			self::persistKrossBookingEngineTransientErrorFromThrowable($e);
+		}
+
+		self::redirectToSyncSettingsPage();
+
+		exit;
+	}
+
+	private static function persistKrossBookingEngineTransientErrorFromThrowable(\Throwable $e): void
+	{
+		\set_transient(
+			self::krossBookingEngineRefreshTransientKey(),
+			[
+				'type'    => 'error',
+				'message' => \sprintf(
+					/* translators: %s error detail */
+					\__('Could not refresh booking engines: %s', 'booking-engine-connector'),
+					$e->getMessage()
+				),
+			],
+			120
+		);
+	}
+
+	private static function redirectToSyncSettingsPage(): void
+	{
+		\wp_safe_redirect(\admin_url('admin.php?page=' . self::PAGE_SLUG));
+	}
+
 	public static function renderNotices(): void
 	{
 		if (! \is_admin() || ! \current_user_can(AdminMenu::CAPABILITY)) {
@@ -365,5 +569,10 @@ final class SyncAdmin
 	private static function renameResultTransientKey(): string
 	{
 		return 'bec_rename_gallery_result_' . \get_current_user_id();
+	}
+
+	private static function krossBookingEngineRefreshTransientKey(): string
+	{
+		return 'bec_kross_booking_engine_refresh_notice_' . \get_current_user_id();
 	}
 }
