@@ -158,6 +158,32 @@
 
 		var drp = $btn.data('daterangepicker');
 
+		/**
+		 * Wrap calendar panes so mobile CSS can scroll only the calendars and keep .drp-buttons pinned.
+		 * Safe to call once; no-op if a wrap already exists or markup is unexpected.
+		 */
+		function ensureDrpScrollWrap() {
+			if (!drp || !drp.container || !drp.container.length) {
+				return;
+			}
+			var $root = drp.container;
+			if ($root.find('.bec-drp-scroll').length) {
+				return;
+			}
+			var $left = $root.find('.drp-calendar.left');
+			if (!$left.length) {
+				return;
+			}
+			var $right = $root.find('.drp-calendar.right');
+			var $scroll = $('<div class="bec-drp-scroll" />');
+			$left.first().before($scroll);
+			$scroll.append($left);
+			if ($right.length) {
+				$scroll.append($right);
+			}
+		}
+		ensureDrpScrollWrap();
+
 		if (ci && co) {
 			updateSplit($wrap, start, end);
 		} else {
@@ -180,11 +206,18 @@
 
 		$btn.on('hide.daterangepicker', function () {
 			$btn.attr('aria-expanded', 'false');
+			if (drp.container && drp.container.length) {
+				drp.container.removeClass('bec-drp-is-open');
+			}
 			syncBackdropWithDaterange(false);
 		});
 
 		$btn.on('show.daterangepicker', function () {
 			$btn.attr('aria-expanded', 'true');
+			if (drp.container && drp.container.length) {
+				drp.container.addClass('bec-drp-is-open');
+			}
+			ensureDrpScrollWrap();
 			var s = $inCheckin.val() ? moment($inCheckin.val(), 'YYYY-MM-DD', true) : null;
 			var e = $inCheckout.val() ? moment($inCheckout.val(), 'YYYY-MM-DD', true) : null;
 			if (s && s.isValid() && e && e.isValid()) {
