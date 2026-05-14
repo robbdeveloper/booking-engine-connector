@@ -281,7 +281,18 @@
 			repositionScheduled = false;
 		}
 
+		/** @type {Record<string, unknown> | null} */
+		var guestPanelCommitSnapshot = null;
+
 		function closeAll() {
+			guestPanelCommitSnapshot = null;
+			var dateTrigger = form.querySelector('.bec-search-form__date-split');
+			if (dateTrigger && typeof window.jQuery !== 'undefined') {
+				var drp = window.jQuery(dateTrigger).data('daterangepicker');
+				if (drp && typeof drp.hide === 'function') {
+					drp.hide();
+				}
+			}
 			unbindGuestPanelReposition();
 			clearGuestPanelDesktopPosition();
 			form.querySelectorAll('.bec-search-form__trigger').forEach(function (btn) {
@@ -328,6 +339,9 @@
 			}
 			openTrigger = trigger;
 			openPanel = panel;
+			if (panel === guestPanel) {
+				captureGuestPanelCommitSnapshot();
+			}
 		}
 
 		function togglePanel(trigger) {
@@ -342,6 +356,17 @@
 			} else {
 				openPanelFor(trigger);
 			}
+		}
+
+		if (guestTrigger && guestPanel) {
+			form.addEventListener('bec:daterange-applied', function () {
+				window.requestAnimationFrame(function () {
+					openPanelFor(guestTrigger);
+					if (typeof guestPanel.focus === 'function') {
+						guestPanel.focus();
+					}
+				});
+			});
 		}
 
 		form.querySelectorAll('.bec-search-form__trigger').forEach(function (btn) {
@@ -450,6 +475,91 @@
 				guestSummary.textContent = sprintfPhpStyle(a === 1 ? tplOne : tplMany, a);
 			} else {
 				guestSummary.textContent = sprintfPhpStyle(tplKids, a, c);
+			}
+		}
+
+		function captureGuestPanelCommitSnapshot() {
+			if (!guestPanel || openPanel !== guestPanel) {
+				return;
+			}
+			if (guestMode === 'total') {
+				if (totalGuestsInput instanceof HTMLInputElement) {
+					guestPanelCommitSnapshot = { mode: 'total', total: totalGuestsInput.value };
+				}
+				return;
+			}
+			var ages = [];
+			if (childAgesRoot) {
+				childAgesRoot.querySelectorAll('select[name="bec_child_age[]"]').forEach(function (sel) {
+					if (sel instanceof HTMLSelectElement) {
+						ages.push(sel.value);
+					}
+				});
+			}
+			guestPanelCommitSnapshot = {
+				mode: 'breakdown',
+				adults: adultsInput instanceof HTMLInputElement ? adultsInput.value : '1',
+				children: childrenInput instanceof HTMLInputElement ? childrenInput.value : '0',
+				childAges: ages,
+			};
+		}
+
+		function restoreGuestPanelCommitSnapshot() {
+			var snap = guestPanelCommitSnapshot;
+			if (!snap || typeof snap !== 'object') {
+				return;
+			}
+			if (snap.mode === 'total' && totalGuestsInput instanceof HTMLInputElement && snap.total !== undefined) {
+				totalGuestsInput.value = String(snap.total);
+				return;
+			}
+			if (snap.mode !== 'breakdown') {
+				return;
+			}
+			if (adultsInput instanceof HTMLInputElement && snap.adults !== undefined) {
+				adultsInput.value = String(snap.adults);
+			}
+			if (childrenInput instanceof HTMLInputElement && snap.children !== undefined) {
+				childrenInput.value = String(snap.children);
+				childrenInput.dispatchEvent(new Event('input', { bubbles: true }));
+				childrenInput.dispatchEvent(new Event('change', { bubbles: true }));
+			}
+			var aged = snap.childAges;
+			if (childAgesRoot && Array.isArray(aged) && aged.length > 0) {
+				childAgesRoot.querySelectorAll('select[name="bec_child_age[]"]').forEach(function (sel, idx) {
+					var v = aged[idx];
+					if (v !== undefined && sel instanceof HTMLSelectElement) {
+						sel.value = String(v);
+					}
+				});
+			}
+		}
+
+		if (guestPanel) {
+			var guestActionsEl = guestPanel.querySelector('[data-bec-guest-actions="1"]');
+			if (guestActionsEl) {
+				guestActionsEl.addEventListener('click', function (e) {
+					var t = e.target;
+					var btn =
+						t && typeof t.closest === 'function'
+							? t.closest('[data-bec-guest-dismiss]')
+							: null;
+					if (!(btn instanceof HTMLButtonElement) || !(guestActionsEl instanceof HTMLElement) || !guestActionsEl.contains(btn)) {
+						return;
+					}
+					var action = btn.getAttribute('data-bec-guest-dismiss');
+					e.preventDefault();
+					if (action === 'cancel') {
+						restoreGuestPanelCommitSnapshot();
+						formatGuests();
+					}
+					closeAll();
+					if (guestTrigger && typeof guestTrigger.focus === 'function') {
+						window.requestAnimationFrame(function () {
+							guestTrigger.focus();
+						});
+					}
+				});
 			}
 		}
 

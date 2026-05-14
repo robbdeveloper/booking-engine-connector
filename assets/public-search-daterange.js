@@ -66,6 +66,30 @@
 			return;
 		}
 
+		var wrap = form.closest('.bec-search-form-wrap--enhanced');
+		var backdrop = wrap ? wrap.querySelector('.bec-search-form__backdrop') : null;
+		var mqDrawer = window.matchMedia('(max-width: 639px)');
+
+		function isGuestPanelOpen() {
+			var gt = form.querySelector('.bec-search-form__control--guests .bec-search-form__trigger');
+			return !!(gt && gt.getAttribute('aria-expanded') === 'true');
+		}
+
+		function syncBackdropWithDaterange(showing) {
+			if (!wrap || !backdrop || !mqDrawer.matches) {
+				return;
+			}
+			if (showing) {
+				backdrop.hidden = false;
+				wrap.classList.add('bec-search-form-wrap--popover-open');
+				document.body.style.overflow = 'hidden';
+			} else if (!isGuestPanelOpen()) {
+				backdrop.hidden = true;
+				wrap.classList.remove('bec-search-form-wrap--popover-open');
+				document.body.style.overflow = '';
+			}
+		}
+
 		var cfg = getCfg();
 		var loc = cfg.momentLocale || 'en';
 		if (typeof moment !== 'undefined') {
@@ -102,7 +126,7 @@
 			autoUpdateInput: false,
 			alwaysShowCalendars: true,
 			linkedCalendars: true,
-			showDropdowns: true,
+			showDropdowns: false,
 			showCustomRangeLabel: false,
 			opens: 'center',
 			drops: 'down',
@@ -149,10 +173,14 @@
 			$inCheckout.trigger('change');
 			updateSplit($wrap, picker.startDate, picker.endDate);
 			$btn.attr('aria-expanded', 'false');
+			try {
+				form.dispatchEvent(new CustomEvent('bec:daterange-applied'));
+			} catch (err) {}
 		});
 
 		$btn.on('hide.daterangepicker', function () {
 			$btn.attr('aria-expanded', 'false');
+			syncBackdropWithDaterange(false);
 		});
 
 		$btn.on('show.daterangepicker', function () {
@@ -163,6 +191,7 @@
 				drp.setStartDate(s);
 				drp.setEndDate(e);
 			}
+			syncBackdropWithDaterange(true);
 		});
 	}
 

@@ -181,7 +181,7 @@ final class ShortcodeRegistry
 			}
 		}
 
-		$text = self::defaultQuoteShortcodeText($quote, $available, $appendRatesList);
+		$text = self::defaultQuoteShortcodeText($quote, $available, $ctx);
 		$text = (string) \apply_filters('bec_shortcode_quote_text', $text, $quote, $postId, $ctx);
 
 		$html = '<p class="bec-shortcode-quote">' . \esc_html($text) . '</p>';
@@ -196,49 +196,42 @@ final class ShortcodeRegistry
 	/**
 	 * @param array<string, mixed> $quote
 	 */
-	private static function defaultQuoteShortcodeText(array $quote, bool $available, bool $ratesListShown): string
+	private static function defaultQuoteShortcodeText(array $quote, bool $available, SearchContext $ctx): string
 	{
 		if (! $available) {
 			return \__('No availability for these dates.', 'booking-engine-connector');
 		}
 
 		$priceAmount = $quote['price']['amount'] ?? null;
-		$text        = '';
-		if (\is_numeric($priceAmount)) {
-			$formatted = \number_format_i18n((float) $priceAmount, 2);
-			$currency  = (string) ($quote['price']['currency'] ?? '');
-			$label     = (string) ($quote['price']['label'] ?? '');
-			if ($label !== '') {
-				$text = \sprintf(
-					/* translators: 1: rate name, 2: formatted amount, 3: currency code */
-					\__('%1$s — %2$s %3$s. Available for your dates.', 'booking-engine-connector'),
-					$label,
-					$formatted,
-					$currency
-				);
-			} else {
-				$text = \sprintf(
-					/* translators: 1: formatted amount, 2: currency code */
-					\__('%1$s %2$s — available for your dates.', 'booking-engine-connector'),
-					$formatted,
-					$currency
-				);
-			}
-		} else {
-			$text = \__('Available for your dates.', 'booking-engine-connector');
+		if (! \is_numeric($priceAmount)) {
+			return \__('Available for your dates.', 'booking-engine-connector');
 		}
+
+		$formatted = \number_format_i18n((float) $priceAmount, 2);
+		$currency  = \trim((string) ($quote['price']['currency'] ?? ''));
+		$priceLine = $currency !== ''
+			? (string) \sprintf(
+				/* translators: 1: formatted amount, 2: currency code */
+				\__('%1$s %2$s', 'booking-engine-connector'),
+				$formatted,
+				$currency
+			)
+			: $formatted;
 
 		$rates = $quote['rates'] ?? [];
 		$n     = \is_array($rates) ? \count($rates) : 0;
-		if ($n > 1 && ! $ratesListShown) {
-			$text .= ' ' . \sprintf(
-				/* translators: %d: number of distinct rate plans */
-				\__('(%d rates available.)', 'booking-engine-connector'),
-				$n
+		if ($n > 1 && $ctx->getRateId() === '') {
+			return \trim(
+				(string) \sprintf(
+					/* translators: 1: formatted amount, 2: currency code (may be empty) */
+					\__('From %1$s %2$s', 'booking-engine-connector'),
+					$formatted,
+					$currency
+				)
 			);
 		}
 
-		return $text;
+		return $priceLine;
 	}
 
 	/**

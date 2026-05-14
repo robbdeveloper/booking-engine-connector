@@ -397,6 +397,11 @@ final class SearchForm
 			}
 		}
 
+		echo '<div class="bec-search-form__panel-footer" data-bec-guest-actions="1">';
+		echo '<button type="button" class="bec-search-form__panel-footer-btn bec-search-form__panel-footer-btn--secondary" data-bec-guest-dismiss="cancel">' . \esc_html__('Cancel', 'booking-engine-connector') . '</button>';
+		echo '<button type="button" class="bec-search-form__panel-footer-btn bec-search-form__panel-footer-btn--primary" data-bec-guest-dismiss="apply">' . \esc_html__('Apply', 'booking-engine-connector') . '</button>';
+		echo '</div>';
+
 		echo '</div></div></div>';
 
 		if ($showSubmit) {
