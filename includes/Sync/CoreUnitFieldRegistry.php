@@ -275,7 +275,7 @@ final class CoreUnitFieldRegistry
 				}
 				if (is_array($value)) {
 					$norm = AmenityItem::normalizeList($value);
-					$enc  = wp_json_encode($norm, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES);
+					$enc  = wp_json_encode($norm, SyncPayloadEncoder::metaEncodeFlags(false));
 
 					return $enc !== false ? $enc : '';
 				}
@@ -286,12 +286,12 @@ final class CoreUnitFieldRegistry
 				if ($trim === '') {
 					return '';
 				}
-				$decoded = json_decode($trim, true);
-				if (json_last_error() !== JSON_ERROR_NONE || ! is_array($decoded)) {
+				$decoded = SyncPayloadEncoder::decodeMetaJson($trim);
+				if (! is_array($decoded)) {
 					return '';
 				}
 				$norm = AmenityItem::normalizeList($decoded);
-				$enc  = wp_json_encode($norm, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES);
+				$enc  = wp_json_encode($norm, SyncPayloadEncoder::metaEncodeFlags(false));
 
 				return $enc !== false ? $enc : '';
 
@@ -309,7 +309,7 @@ final class CoreUnitFieldRegistry
 							}
 						}
 					}
-					$enc = wp_json_encode(array_values(array_unique($ids)), JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES);
+					$enc = wp_json_encode(array_values(array_unique($ids)), SyncPayloadEncoder::metaEncodeFlags(false));
 
 					return $enc !== false ? $enc : '';
 				}
@@ -320,8 +320,8 @@ final class CoreUnitFieldRegistry
 				if ($trim === '') {
 					return '';
 				}
-				$decoded = json_decode($trim, true);
-				if (json_last_error() !== JSON_ERROR_NONE || ! is_array($decoded)) {
+				$decoded = SyncPayloadEncoder::decodeMetaJson($trim);
+				if (! is_array($decoded)) {
 					return '';
 				}
 				$ids = [];
@@ -333,7 +333,7 @@ final class CoreUnitFieldRegistry
 						}
 					}
 				}
-				$enc = wp_json_encode(array_values(array_unique($ids)), JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES);
+				$enc = wp_json_encode(array_values(array_unique($ids)), SyncPayloadEncoder::metaEncodeFlags(false));
 
 				return $enc !== false ? $enc : '';
 
@@ -390,13 +390,15 @@ final class CoreUnitFieldRegistry
 					if (is_string($val) && $val !== '') {
 						$display = $val;
 					} elseif (is_array($val)) {
-						$enc = wp_json_encode($val, JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES);
-						$display = $enc !== false ? $enc : '';
+						$prettyFlags = JsonExtensionFlags::prettyPrint() | SyncPayloadEncoder::metaEncodeFlags(false);
+						$enc         = wp_json_encode($val, $prettyFlags);
+						$display     = $enc !== false ? $enc : '';
 					} else {
-						$dec = json_decode((string) $val, true);
+						$dec = SyncPayloadEncoder::decodeMetaJson((string) $val);
 						if (is_array($dec)) {
-							$enc = wp_json_encode($dec, JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES);
-							$display = $enc !== false ? $enc : '';
+							$prettyFlags = JsonExtensionFlags::prettyPrint() | SyncPayloadEncoder::metaEncodeFlags(false);
+							$enc         = wp_json_encode($dec, $prettyFlags);
+							$display     = $enc !== false ? $enc : '';
 						}
 					}
 					echo '<textarea class="large-text code" rows="8" id="bec_core_' . esc_attr($metaKey) . '" name="' . esc_attr($name) . '" spellcheck="false">';
@@ -412,8 +414,9 @@ final class CoreUnitFieldRegistry
 					if (is_string($val) && $val !== '') {
 						$display = $val;
 					} elseif (is_array($val)) {
-						$enc = wp_json_encode($val, JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES);
-						$display = $enc !== false ? $enc : '';
+						$prettyFlags = JsonExtensionFlags::prettyPrint() | SyncPayloadEncoder::metaEncodeFlags(false);
+						$enc         = wp_json_encode($val, $prettyFlags);
+						$display     = $enc !== false ? $enc : '';
 					}
 					echo '<textarea class="large-text code" rows="4" id="bec_core_' . esc_attr($metaKey) . '" name="' . esc_attr($name) . '" spellcheck="false">';
 					echo esc_textarea($display);

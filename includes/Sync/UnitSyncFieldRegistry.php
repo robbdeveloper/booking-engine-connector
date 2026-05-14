@@ -211,7 +211,7 @@ final class UnitSyncFieldRegistry
 					return '';
 				}
 				if (is_array($value)) {
-					$enc = wp_json_encode($value, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES);
+					$enc = wp_json_encode($value, SyncPayloadEncoder::metaEncodeFlags(false));
 
 					return $enc !== false ? $enc : '';
 				}
@@ -222,11 +222,11 @@ final class UnitSyncFieldRegistry
 				if ($trim === '') {
 					return '';
 				}
-				$decoded = json_decode($trim, true);
-				if (json_last_error() !== JSON_ERROR_NONE) {
+				$decoded = SyncPayloadEncoder::decodeMetaJson($trim);
+				if ($decoded === null) {
 					return '';
 				}
-				$enc = wp_json_encode($decoded, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES);
+				$enc = wp_json_encode($decoded, SyncPayloadEncoder::metaEncodeFlags(false));
 
 				return $enc !== false ? $enc : '';
 
@@ -310,8 +310,9 @@ final class UnitSyncFieldRegistry
 					if (is_string($val) && $val !== '') {
 						$display = $val;
 					} elseif (is_array($val)) {
-						$enc = wp_json_encode($val, JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES);
-						$display = $enc !== false ? $enc : '';
+						$prettyFlags = JsonExtensionFlags::prettyPrint() | SyncPayloadEncoder::metaEncodeFlags(false);
+						$enc         = wp_json_encode($val, $prettyFlags);
+						$display     = $enc !== false ? $enc : '';
 					}
 					echo '<textarea class="large-text code" rows="6" id="bec_mapped_' . esc_attr($key) . '" name="' . esc_attr($name) . '" spellcheck="false">';
 					echo esc_textarea($display);

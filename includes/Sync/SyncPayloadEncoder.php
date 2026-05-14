@@ -82,12 +82,12 @@ final class SyncPayloadEncoder
 	}
 
 	/**
-	 * Decode payload read from post meta. Retries once after {@see stripslashes()} when JSON is
-	 * otherwise invalid (slash-handling edge cases).
+	 * Decode JSON read from WordPress meta. Retries once after {@see stripslashes()} when JSON is
+	 * otherwise invalid (slash-handling edge cases including `\"` beside meta {@see wp_slash()}).
 	 *
-	 * @return array<string, mixed>|null
+	 * @return mixed|null null when invalid
 	 */
-	public static function decodeStored(string $payload): ?array
+	public static function decodeMetaJson(string $payload): mixed
 	{
 		$payload = \trim($payload);
 
@@ -108,12 +108,24 @@ final class SyncPayloadEncoder
 		foreach ($candidates as $candidate) {
 			$decoded = \json_decode($candidate, true, 8192, $decodeFlags);
 
-			if (\json_last_error() === \JSON_ERROR_NONE && \is_array($decoded)) {
+			if (\json_last_error() === \JSON_ERROR_NONE) {
 				return $decoded;
 			}
 		}
 
 		return null;
+	}
+
+	/**
+	 * Decode synced unit payload ({@see bec_sync_payload}) from post meta.
+	 *
+	 * @return array<string, mixed>|null
+	 */
+	public static function decodeStored(string $payload): ?array
+	{
+		$decoded = self::decodeMetaJson($payload);
+
+		return \is_array($decoded) ? $decoded : null;
 	}
 
 	/**
