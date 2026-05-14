@@ -4,7 +4,7 @@ Tags: booking, kross, hospitality, availability
 Requires at least: 6.4
 Tested up to: 6.7
 Requires PHP: 8.0
-Stable tag: 0.1.15
+Stable tag: 0.1.16
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
@@ -31,6 +31,11 @@ PHP 8.0+ and WordPress 6.4+ are required (see header above).
 Search context uses **GET query parameters** prefixed with `bec_` (e.g. check-in/out). See `docs/SEARCH-CONTEXT.md` when available.
 
 == Changelog ==
+
+= 0.1.16 =
+* **Kross**: Admin UI to pick a booking engine, refresh engines from the API, and sync units for that engine; sync payloads use **`JsonExtensionFlags`**-backed encode options (`SyncPayloadEncoder`).
+* **Admin sync**: Live progress and log while **Run full sync** runs (Ajax polling, `SyncProgressReporter`); gallery import reports into the same progress stream.
+* **Maintainer**: GitHub **release** workflow restored; see `CHANGELOG.md` for full notes.
 
 = 0.1.15 =
 * Booking summary: **Check availability** enables when dates are applied (native bubbling `input`/`change` after daterange Apply; guest counts default when checking form completeness). See `CHANGELOG.md`.
