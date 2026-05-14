@@ -1,5 +1,10 @@
 # Changelog
 
+## 0.1.17 — 2026-05-14
+
+- **Search (enhanced preset) — mobile date range picker**: Bottom sheet layout (`max-width: 639px`) with a scrollable middle region (`.bec-drp-scroll` wrapping both calendar panes) so long two-month views scroll while **Cancel / Apply** and the selected range stay pinned at the bottom. Desktop layout is unchanged: the wrapper uses `display: contents` so the vendor two-column calendar floats still apply.
+- **Search (enhanced preset) — daterangepicker visibility**: Mobile styles used `display: flex` on `.daterangepicker`, which overrode the library’s `display: none` until jQuery set an inline `display` after the first close, so the footer could appear at page load. The picker container now gets **`bec-drp-is-open`** only while the popup is shown (`assets/public-search-daterange.js`); sheet rules are scoped to `.daterangepicker.bec-drp-is-open` with `display: flex !important` when open.
+
 ## 0.1.16 — 2026-05-14
 
 - **Kross — booking engines (admin)**: Select which remote booking engine to sync against, refresh the list of engines from the API, and fetch room types for that engine. New persisted settings (`KrossBookingEngineSyncSettings`), provider wiring (`KrossProvider`), and unit behaviour (`UnitPostType`) for engine-scoped sync. **`SyncPayloadEncoder`** gains consistent JSON encode/decode options via **`JsonExtensionFlags`** (safe resolution / fallbacks when platform JSON constants vary).
