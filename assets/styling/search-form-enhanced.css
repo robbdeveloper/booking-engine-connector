@@ -68,8 +68,7 @@
 	border: var(--bec-border-width) solid var(--bec-color-border);
 	border-radius: var(--bec-radius-field);
 	box-shadow: var(--bec-shadow-bar);
-	/* Must stay visible so the guests popover (.bec-search-form__panel) is not clipped. */
-	overflow: visible;
+	overflow: hidden;
 }
 
 @media (min-width: 640px) {
@@ -277,6 +276,27 @@
 	background-size: contain;
 }
 
+/* Guest dialog portaled to document.body — inherits theme vars from .bec-search-form-wrap--enhanced host */
+.bec-search-form__guest-panel-mount {
+	position: fixed;
+	inset: 0;
+	z-index: 130;
+	pointer-events: none;
+}
+
+.bec-search-form__guest-panel-mount .bec-search-form__panel {
+	pointer-events: auto;
+}
+
+.bec-search-form__panel.bec-search-form__panel--portal-desktop {
+	position: fixed !important;
+	margin: 0;
+	left: auto;
+	right: auto;
+	bottom: auto;
+	top: auto;
+}
+
 .bec-search-form__panel {
 	position: absolute;
 	z-index: 120;
@@ -410,7 +430,6 @@
 	gap: 0.65rem;
 	margin-top: 0.5rem;
 	padding-top: 0.75rem;
-	border-top: var(--bec-border-width) solid var(--bec-color-border);
 }
 
 .bec-search-form__child-age {
@@ -451,7 +470,6 @@
 	color: var(--bec-color-accent-text);
 	background: var(--bec-color-accent);
 	border: none;
-	border-radius: 0;
 	box-shadow: none;
 	transition:
 		filter var(--bec-transition),

@@ -52,6 +52,9 @@
 		var sel = document.createElement('select');
 		sel.id = formId + '-child-age-' + index;
 		sel.name = 'bec_child_age[]';
+		if (formId) {
+			sel.setAttribute('form', formId);
+		}
 		var o0 = document.createElement('option');
 		o0.value = '';
 		o0.textContent = placeholder;
@@ -106,7 +109,7 @@
 	/**
 	 * @param {HTMLElement} agesRoot
 	 * @param {HTMLFormElement} form
-	 * @param {{ isEnhanced?: boolean, onAfterSync?: () => void }} options
+	 * @param {{ isEnhanced?: boolean, onAfterSync?: () => void, fieldScope?: HTMLElement }} options
 	 */
 	function initDynamicChildAges(agesRoot, form, options) {
 		if (!agesRoot || !form) {
@@ -123,7 +126,9 @@
 			maxSlots = 8;
 		}
 		var formId = agesRoot.getAttribute('data-bec-form-id') || '';
-		var childrenInput = form.querySelector('[name="bec_children"]');
+		var fieldScope =
+			options && options.fieldScope instanceof HTMLElement ? options.fieldScope : form;
+		var childrenInput = fieldScope.querySelector('[name="bec_children"]');
 		if (!childrenInput) {
 			return;
 		}
@@ -173,12 +178,27 @@
 		}
 		form.dataset.becSearchEnhanced = '1';
 
+		var guestControl = form.querySelector('.bec-search-form__control--guests');
+		var guestPanel = guestControl ? guestControl.querySelector('.bec-search-form__panel') : null;
+		var guestTrigger = guestControl ? guestControl.querySelector('.bec-search-form__trigger') : null;
+
+		if (guestPanel && guestTrigger) {
+			var mount = document.createElement('div');
+			mount.className = 'bec-search-form-wrap--enhanced bec-search-form__guest-panel-mount';
+			mount.setAttribute('aria-hidden', 'true');
+			document.body.appendChild(mount);
+			mount.appendChild(guestPanel);
+		}
+
+		var fieldRoot = guestPanel || form;
+
 		var wrap = form.closest('.bec-search-form-wrap--enhanced');
 		var backdrop = wrap ? wrap.querySelector('.bec-search-form__backdrop') : null;
 		var mqDrawer = window.matchMedia('(max-width: 639px)');
 
 		var openTrigger = null;
 		var openPanel = null;
+		var repositionScheduled = false;
 
 		function setBodyScrollLock(lock) {
 			if (lock) {
@@ -188,14 +208,89 @@
 			}
 		}
 
+		function clearGuestPanelDesktopPosition() {
+			if (!guestPanel) {
+				return;
+			}
+			guestPanel.classList.remove('bec-search-form__panel--portal-desktop');
+			guestPanel.style.top = '';
+			guestPanel.style.left = '';
+			guestPanel.style.width = '';
+			guestPanel.style.bottom = '';
+			guestPanel.style.right = '';
+		}
+
+		function positionGuestPanelDesktop() {
+			if (!guestPanel || !guestTrigger || mqDrawer.matches) {
+				return;
+			}
+			var rect = guestTrigger.getBoundingClientRect();
+			var pxRem = parseFloat(getComputedStyle(document.documentElement).fontSize) || 16;
+			var gap = 0.35 * pxRem;
+			var vw = window.innerWidth;
+			var vh = window.innerHeight;
+			var minW = Math.min(vw - 16, 18 * pxRem);
+			var maxW = 22 * pxRem;
+			var width = Math.min(maxW, Math.max(minW, rect.width));
+			var left = rect.left;
+			if (left + width > vw - 8) {
+				left = Math.max(8, vw - width - 8);
+			}
+			if (left < 8) {
+				left = 8;
+			}
+			var top = rect.bottom + gap;
+			guestPanel.classList.add('bec-search-form__panel--portal-desktop');
+			guestPanel.style.left = left + 'px';
+			guestPanel.style.width = width + 'px';
+			guestPanel.style.top = top + 'px';
+			var ph = guestPanel.offsetHeight;
+			var spaceBelow = vh - top - 8;
+			if (ph > 0 && spaceBelow < ph && rect.top - gap - ph >= 8) {
+				top = rect.top - ph - gap;
+				guestPanel.style.top = top + 'px';
+			}
+		}
+
+		function schedulePositionGuestPanelDesktop() {
+			if (!guestPanel || openPanel !== guestPanel || mqDrawer.matches) {
+				return;
+			}
+			if (repositionScheduled) {
+				return;
+			}
+			repositionScheduled = true;
+			window.requestAnimationFrame(function () {
+				repositionScheduled = false;
+				positionGuestPanelDesktop();
+			});
+		}
+
+		function onGuestPanelScrollOrResize() {
+			schedulePositionGuestPanelDesktop();
+		}
+
+		function bindGuestPanelReposition() {
+			window.addEventListener('scroll', onGuestPanelScrollOrResize, true);
+			window.addEventListener('resize', onGuestPanelScrollOrResize);
+		}
+
+		function unbindGuestPanelReposition() {
+			window.removeEventListener('scroll', onGuestPanelScrollOrResize, true);
+			window.removeEventListener('resize', onGuestPanelScrollOrResize);
+			repositionScheduled = false;
+		}
+
 		function closeAll() {
+			unbindGuestPanelReposition();
+			clearGuestPanelDesktopPosition();
 			form.querySelectorAll('.bec-search-form__trigger').forEach(function (btn) {
 				btn.setAttribute('aria-expanded', 'false');
 			});
-			form.querySelectorAll('.bec-search-form__panel').forEach(function (panel) {
-				panel.hidden = true;
-				panel.classList.remove('bec-search-form__panel--open');
-			});
+			if (guestPanel) {
+				guestPanel.hidden = true;
+				guestPanel.classList.remove('bec-search-form__panel--open');
+			}
 			if (backdrop) {
 				backdrop.hidden = true;
 			}
@@ -225,6 +320,11 @@
 					wrap.classList.add('bec-search-form-wrap--popover-open');
 				}
 				setBodyScrollLock(true);
+			} else if (panel === guestPanel && guestTrigger) {
+				bindGuestPanelReposition();
+				window.requestAnimationFrame(function () {
+					window.requestAnimationFrame(positionGuestPanelDesktop);
+				});
 			}
 			openTrigger = trigger;
 			openPanel = panel;
@@ -285,6 +385,8 @@
 				return;
 			}
 			if (mqDrawer.matches) {
+				unbindGuestPanelReposition();
+				clearGuestPanelDesktopPosition();
 				openPanel.classList.add('bec-search-form__panel--open');
 				if (backdrop) {
 					backdrop.hidden = false;
@@ -302,15 +404,21 @@
 					wrap.classList.remove('bec-search-form-wrap--popover-open');
 				}
 				setBodyScrollLock(false);
+				if (openPanel === guestPanel) {
+					bindGuestPanelReposition();
+					window.requestAnimationFrame(function () {
+						window.requestAnimationFrame(positionGuestPanelDesktop);
+					});
+				}
 			}
 		});
 
 		var guestMode = form.getAttribute('data-bec-guest-mode') || 'breakdown';
-		var adultsInput = form.querySelector('[name="bec_adults"]');
-		var childrenInput = form.querySelector('[name="bec_children"]');
-		var totalGuestsInput = form.querySelector('[name="bec_total_guests"]');
+		var adultsInput = fieldRoot.querySelector('[name="bec_adults"]');
+		var childrenInput = fieldRoot.querySelector('[name="bec_children"]');
+		var totalGuestsInput = fieldRoot.querySelector('[name="bec_total_guests"]');
 		var guestSummary = form.querySelector('[data-bec-guest-summary]');
-		var childAgesRoot = form.querySelector('.bec-search-form__child-ages[data-bec-child-ages-root]');
+		var childAgesRoot = fieldRoot.querySelector('.bec-search-form__child-ages[data-bec-child-ages-root]');
 
 		function formatGuests() {
 			if (!guestSummary) {
@@ -352,7 +460,11 @@
 			}
 		} else {
 			if (childAgesRoot) {
-				initDynamicChildAges(childAgesRoot, form, { isEnhanced: true, onAfterSync: formatGuests });
+				initDynamicChildAges(childAgesRoot, form, {
+					isEnhanced: true,
+					onAfterSync: formatGuests,
+					fieldScope: fieldRoot,
+				});
 			} else if (childrenInput instanceof HTMLInputElement) {
 				childrenInput.addEventListener('input', formatGuests);
 				childrenInput.addEventListener('change', formatGuests);
@@ -363,9 +475,9 @@
 			}
 		}
 
-		form.querySelectorAll('.bec-search-form__stepper').forEach(function (stepper) {
+		fieldRoot.querySelectorAll('.bec-search-form__stepper').forEach(function (stepper) {
 			var targetName = stepper.getAttribute('data-bec-stepper-for');
-			var input = targetName ? form.querySelector('[name="' + targetName.replace(/"/g, '\\"') + '"]') : null;
+			var input = targetName ? fieldRoot.querySelector('[name="' + targetName.replace(/"/g, '\\"') + '"]') : null;
 			if (!(input instanceof HTMLInputElement)) {
 				return;
 			}

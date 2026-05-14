@@ -4,6 +4,49 @@
 (function () {
 	'use strict';
 
+	/**
+	 * First control associated with the form (includes fields with form="…" outside the form node).
+	 * @param {HTMLFormElement} form
+	 * @param {string} name
+	 * @returns {Element | null}
+	 */
+	function becFormNamedControl(form, name) {
+		if (!form || !form.elements) {
+			return null;
+		}
+		var el = form.elements.namedItem(name);
+		if (!el) {
+			return null;
+		}
+		if (typeof RadioNodeList !== 'undefined' && el instanceof RadioNodeList) {
+			return el.length ? el[0] : null;
+		}
+		if (el && typeof el.length === 'number' && !el.tagName && typeof el.item === 'function') {
+			return el.length ? el.item(0) : null;
+		}
+		return el;
+	}
+
+	/**
+	 * @param {HTMLFormElement} form
+	 * @param {string} name
+	 * @returns {Element[]}
+	 */
+	function becFormNamedControls(form, name) {
+		var out = [];
+		if (!form || !form.elements) {
+			return out;
+		}
+		var i;
+		for (i = 0; i < form.elements.length; i++) {
+			var c = form.elements[i];
+			if (c && c.getAttribute && c.getAttribute('name') === name) {
+				out.push(c);
+			}
+		}
+		return out;
+	}
+
 	function findPanel(root, openBtn) {
 		var id = openBtn.getAttribute('aria-controls');
 		if (!id) {
@@ -216,19 +259,19 @@
 		var co = form.querySelector('input[name="bec_checkout"]');
 		parts.push('in=' + (ci && ci.value ? ci.value : ''));
 		parts.push('out=' + (co && co.value ? co.value : ''));
-		var tg = form.querySelector('input[name="bec_total_guests"]');
+		var tg = becFormNamedControl(form, 'bec_total_guests');
 		if (tg) {
 			parts.push('tg=' + (tg.value || ''));
 		}
-		var ad = form.querySelector('input[name="bec_adults"]');
+		var ad = becFormNamedControl(form, 'bec_adults');
 		if (ad) {
 			parts.push('ad=' + (ad.value || ''));
 		}
-		var ch = form.querySelector('input[name="bec_children"]');
+		var ch = becFormNamedControl(form, 'bec_children');
 		if (ch) {
 			parts.push('ch=' + (ch.value || ''));
 		}
-		var ages = form.querySelectorAll('[name="bec_child_age[]"]');
+		var ages = becFormNamedControls(form, 'bec_child_age[]');
 		var i;
 		for (i = 0; i < ages.length; i++) {
 			parts.push('ca' + i + '=' + (ages[i].value || ''));
@@ -258,14 +301,14 @@
 		// Check availability enables after valid dates without an extra guest interaction.
 		var mode = form.getAttribute('data-bec-guest-mode') || '';
 		if (mode === 'total') {
-			var tg = form.querySelector('input[name="bec_total_guests"]');
+			var tg = becFormNamedControl(form, 'bec_total_guests');
 			var n = tg ? parseInt(tg.value, 10) : NaN;
 			if (isNaN(n) || n < 1) {
 				n = 1;
 			}
 			return n >= 1;
 		}
-		var adu = form.querySelector('input[name="bec_adults"]');
+		var adu = becFormNamedControl(form, 'bec_adults');
 		var a = adu ? parseInt(adu.value, 10) : NaN;
 		if (isNaN(a) || a < 1) {
 			a = 1;
@@ -343,8 +386,8 @@
 		var j;
 		for (j = 0; j < names.length; j++) {
 			var nm = names[j];
-			var sEl = sourceForm.querySelector('[name="' + nm + '"]');
-			var oEl = other.querySelector('[name="' + nm + '"]');
+			var sEl = becFormNamedControl(sourceForm, nm);
+			var oEl = becFormNamedControl(other, nm);
 			if (sEl && oEl && sEl.value !== oEl.value) {
 				oEl.value = sEl.value;
 				changed = true;

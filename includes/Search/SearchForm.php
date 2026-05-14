@@ -347,7 +347,7 @@ final class SearchForm
 			echo '<span class="bec-search-form__row-label">' . \esc_html($labelTotalGuests) . '</span>';
 			echo '<div class="bec-search-form__stepper" data-bec-stepper-for="' . \esc_attr(SearchContext::PARAM_TOTAL_GUESTS) . '">';
 			echo '<button type="button" class="bec-search-form__step-btn" data-bec-step="-1" aria-label="' . \esc_attr__('Decrease guests', 'booking-engine-connector') . '">−</button>';
-			echo '<input id="' . \esc_attr($formId . '-' . SearchContext::PARAM_TOTAL_GUESTS) . '" name="' . \esc_attr(SearchContext::PARAM_TOTAL_GUESTS) . '" type="number" min="1" max="' . (int) $maxTotal . '" step="1" value="' . \esc_attr($totalVal) . '" inputmode="numeric" />';
+			echo '<input id="' . \esc_attr($formId . '-' . SearchContext::PARAM_TOTAL_GUESTS) . '" form="' . \esc_attr($formId) . '" name="' . \esc_attr(SearchContext::PARAM_TOTAL_GUESTS) . '" type="number" min="1" max="' . (int) $maxTotal . '" step="1" value="' . \esc_attr($totalVal) . '" inputmode="numeric" />';
 			echo '<button type="button" class="bec-search-form__step-btn" data-bec-step="1" aria-label="' . \esc_attr__('Increase guests', 'booking-engine-connector') . '">+</button>';
 			echo '</div></div>';
 		} else {
@@ -355,7 +355,7 @@ final class SearchForm
 			echo '<span class="bec-search-form__row-label">' . \esc_html($labelAdults) . '</span>';
 			echo '<div class="bec-search-form__stepper" data-bec-stepper-for="' . \esc_attr(SearchContext::PARAM_ADULTS) . '">';
 			echo '<button type="button" class="bec-search-form__step-btn" data-bec-step="-1" aria-label="' . \esc_attr__('Decrease adults', 'booking-engine-connector') . '">−</button>';
-			echo '<input id="' . \esc_attr($formId . '-' . SearchContext::PARAM_ADULTS) . '" name="' . \esc_attr(SearchContext::PARAM_ADULTS) . '" type="number" min="1" max="' . (int) $maxAdults . '" step="1" value="' . \esc_attr($adultsVal) . '" inputmode="numeric" />';
+			echo '<input id="' . \esc_attr($formId . '-' . SearchContext::PARAM_ADULTS) . '" form="' . \esc_attr($formId) . '" name="' . \esc_attr(SearchContext::PARAM_ADULTS) . '" type="number" min="1" max="' . (int) $maxAdults . '" step="1" value="' . \esc_attr($adultsVal) . '" inputmode="numeric" />';
 			echo '<button type="button" class="bec-search-form__step-btn" data-bec-step="1" aria-label="' . \esc_attr__('Increase adults', 'booking-engine-connector') . '">+</button>';
 			echo '</div></div>';
 
@@ -363,7 +363,7 @@ final class SearchForm
 			echo '<span class="bec-search-form__row-label">' . \esc_html($labelChildren) . '</span>';
 			echo '<div class="bec-search-form__stepper" data-bec-stepper-for="' . \esc_attr(SearchContext::PARAM_CHILDREN) . '">';
 			echo '<button type="button" class="bec-search-form__step-btn" data-bec-step="-1" aria-label="' . \esc_attr__('Decrease children', 'booking-engine-connector') . '">−</button>';
-			echo '<input id="' . \esc_attr($formId . '-' . SearchContext::PARAM_CHILDREN) . '" name="' . \esc_attr(SearchContext::PARAM_CHILDREN) . '" type="number" min="0" max="' . (int) $maxChildren . '" step="1" value="' . \esc_attr($children) . '" inputmode="numeric" />';
+			echo '<input id="' . \esc_attr($formId . '-' . SearchContext::PARAM_CHILDREN) . '" form="' . \esc_attr($formId) . '" name="' . \esc_attr(SearchContext::PARAM_CHILDREN) . '" type="number" min="0" max="' . (int) $maxChildren . '" step="1" value="' . \esc_attr($children) . '" inputmode="numeric" />';
 			echo '<button type="button" class="bec-search-form__step-btn" data-bec-step="1" aria-label="' . \esc_attr__('Increase children', 'booking-engine-connector') . '">+</button>';
 			echo '</div></div>';
 
@@ -378,7 +378,7 @@ final class SearchForm
 					$lbl = \sprintf(\__('Child %d age', 'booking-engine-connector'), $i + 1);
 					echo '<div class="bec-search-form__child-age" data-bec-child-age-index="' . (int) $i . '">';
 					echo '<label for="' . \esc_attr($formId . '-child-age-' . $i) . '">' . \esc_html($lbl) . '</label>';
-					echo '<select id="' . \esc_attr($formId . '-child-age-' . $i) . '" name="' . \esc_attr(SearchContext::PARAM_CHILD_AGE) . '[]">';
+					echo '<select id="' . \esc_attr($formId . '-child-age-' . $i) . '" form="' . \esc_attr($formId) . '" name="' . \esc_attr(SearchContext::PARAM_CHILD_AGE) . '[]">';
 					echo '<option value=""';
 					if ($ageVal === '') {
 						echo ' selected="selected"';
