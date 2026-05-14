@@ -13,24 +13,36 @@ use BookingEngineConnector\Providers\ProviderRegistry;
 use BookingEngineConnector\Units\CoreUnitSemantic;
 
 /**
- * Maps remote inventory rows to Unit posts (meta, title, content). Hooks: bec_before_unit_sync, bec_after_unit_sync; filters: bec_sync_remote_unit, bec_sync_unit_title, bec_sync_unit_content, bec_sync_unit_post_data.
+ * Maps remote inventory rows to Unit posts (meta, title, content). Hooks: bec_before_unit_sync, bec_after_unit_sync; filters: bec_sync_remote_unit, bec_sync_unit_title, bec_sync_unit_content, bec_sync_unit_post_data, bec_sync_unit_resolve_post_statuses.
  */
 final class SyncService
 {
 	/**
 	 * Full sync: fetch remote units, upsert posts. Uses {@see SyncLock}.
 	 *
+	 * @param SyncProgressReporter|null $progress Optional UI progress for manual runs.
 	 * @return array{created:int, updated:int, skipped:int, errors: list<string>}
 	 */
-	public function syncAll(): array
+	public function syncAll(?SyncProgressReporter $progress = null): array
 	{
+		if ($progress !== null) {
+			$progress->running(\__('Starting sync…', 'booking-engine-connector'));
+			$progress->addLine(\__('Acquiring sync lock…', 'booking-engine-connector'));
+		}
+
 		if (! SyncLock::acquire()) {
-			return [
+			$out = [
 				'created' => 0,
 				'updated' => 0,
 				'skipped' => 0,
 				'errors'  => [\__('Another sync is already running.', 'booking-engine-connector')],
 			];
+			if ($progress !== null) {
+				$progress->addLine((string) ( $out['errors'][0] ?? '' ));
+				$progress->done($out);
+			}
+
+			return $out;
 		}
 
 		$out = [
@@ -41,53 +53,152 @@ final class SyncService
 		];
 
 		try {
+			if ($progress !== null) {
+				$progress->addLine(\__('Lock acquired.', 'booking-engine-connector'));
+			}
+
 			$provider = ProviderRegistry::getProvider();
 			if (! $provider->validateCredentials()) {
 				$out['errors'][] = \__('Provider credentials are incomplete.', 'booking-engine-connector');
+				if ($progress !== null) {
+					$progress->addLine((string) ( $out['errors'][0] ?? '' ));
+					$progress->done($out);
+				}
 
 				return $out;
 			}
 
 			$slug = $provider->getSlug();
 
+			if ($progress !== null) {
+				$progress->addLine(\__('Fetching remote units…', 'booking-engine-connector'));
+			}
+
 			try {
 				$remote = $provider->fetchRemoteUnits();
 			} catch (ProviderException $e) {
 				$out['errors'][] = $e->getMessage();
+				if ($progress !== null) {
+					$progress->addLine($e->getMessage());
+					$progress->done($out);
+				}
 
 				return $out;
 			}
 
+			/** @var list<array<string, mixed>> $rowList */
+			$rowList = [];
 			foreach ($remote as $row) {
 				if (! \is_array($row)) {
 					continue;
 				}
+				$rowList[] = $row;
+			}
 
+			$total = \count($rowList);
+			if ($progress !== null) {
+				$progress->setCounters(0, $total);
+				if ($total === 0) {
+					$progress->addLine(\__('No remote unit rows returned.', 'booking-engine-connector'));
+				} else {
+					$progress->addLine(
+						\sprintf(
+							/* translators: %d: number of remote rows to process */
+							\_n('%d remote unit row to process.', '%d remote unit rows to process.', $total, 'booking-engine-connector'),
+							$total
+						)
+					);
+				}
+			}
+
+			$index = 0;
+			foreach ($rowList as $row) {
+				++$index;
 				$row = (array) \apply_filters('bec_sync_remote_unit', $row, $slug);
 
 				$externalId = (string) ($row['external_id'] ?? '');
 				if ($externalId === '') {
 					++$out['skipped'];
+					if ($progress !== null) {
+						$progress->setCounters($index, $total);
+						$progress->addLine(
+							\sprintf(
+								/* translators: 1: current index, 2: total rows */
+								\__('Row %1$d/%2$d: skipped (no external ID).', 'booking-engine-connector'),
+								$index,
+								$total
+							)
+						);
+					}
+
 					continue;
+				}
+
+				if ($progress !== null) {
+					$label = $this->resolveRowTitleForProgress($slug, $row);
+					$progress->setCounters($index, $total);
+					$progress->addLine(
+						\sprintf(
+							/* translators: 1: current index, 2: total rows, 3: unit title */
+							\__('Processing %1$d/%2$d: %3$s', 'booking-engine-connector'),
+							$index,
+							$total,
+							$label
+						)
+					);
 				}
 
 				try {
 					$result = $this->upsertFromRemoteRow($externalId, $slug, $row);
 					if ($result === 'created') {
 						++$out['created'];
+						if ($progress !== null) {
+							$progress->addLine(
+								\sprintf(
+									/* translators: %s: external id */
+									\__('Created unit for external ID %s.', 'booking-engine-connector'),
+									$externalId
+								)
+							);
+						}
 					} elseif ($result === 'updated') {
 						++$out['updated'];
+						if ($progress !== null) {
+							$progress->addLine(
+								\sprintf(
+									/* translators: %s: external id */
+									\__('Updated unit for external ID %s.', 'booking-engine-connector'),
+									$externalId
+								)
+							);
+						}
 					} else {
 						++$out['skipped'];
+						if ($progress !== null) {
+							$progress->addLine(
+								\sprintf(
+									/* translators: %s: external id */
+									\__('Skipped external ID %s.', 'booking-engine-connector'),
+									$externalId
+								)
+							);
+						}
 					}
 				} catch (\Throwable $e) {
 					$out['errors'][] = $externalId . ': ' . $e->getMessage();
+					if ($progress !== null) {
+						$progress->addLine($externalId . ': ' . $e->getMessage());
+					}
 				}
 			}
 
 			\update_option('bec_sync_last_run_at', \current_time('mysql'), false);
 		} finally {
 			SyncLock::release();
+		}
+
+		if ($progress !== null) {
+			$progress->done($out);
 		}
 
 		return $out;
@@ -246,12 +357,57 @@ final class SyncService
 		return $postId ? 'updated' : 'created';
 	}
 
+	/**
+	 * @param array<string, mixed> $row
+	 */
+	private function resolveRowTitleForProgress(string $providerSlug, array $row): string
+	{
+		$externalId = (string) ($row['external_id'] ?? '');
+
+		$providerInstance = ProviderRegistry::getProvider($providerSlug);
+		$coreData         = $providerInstance->extractCoreUnitFields($row);
+		$coreData         = \apply_filters('bec_core_unit_fields', \is_array($coreData) ? $coreData : [], $providerSlug, $row);
+		$nameDefault      = '';
+		if (\is_array($coreData) && isset($coreData[ CoreUnitSemantic::NAME ])) {
+			$nameDefault = (string) $coreData[ CoreUnitSemantic::NAME ];
+		}
+
+		$title = (string) \apply_filters(
+			'bec_sync_unit_title',
+			$nameDefault,
+			$row,
+			$providerSlug
+		);
+		if ($title === '') {
+			$title = $externalId !== ''
+				? \sprintf(
+					/* translators: %s external id */
+					\__('Unit %s', 'booking-engine-connector'),
+					$externalId
+				)
+				: \__('(unnamed)', 'booking-engine-connector');
+		}
+
+		return $title;
+	}
+
 	private function findPostIdByExternal(string $externalId, string $providerSlug): int
 	{
+		/** @var list<string> $statuses */
+		$statuses = \apply_filters(
+			'bec_sync_unit_resolve_post_statuses',
+			[ 'publish', 'draft', 'pending', 'future', 'private' ],
+			$externalId,
+			$providerSlug
+		);
+		if (! \is_array($statuses) || $statuses === []) {
+			$statuses = [ 'publish', 'draft', 'pending', 'future', 'private' ];
+		}
+
 		$q = new \WP_Query(
 			[
 				'post_type'      => UnitPostType::getSlug(),
-				'post_status'    => 'any',
+				'post_status'    => $statuses,
 				'posts_per_page' => 1,
 				'fields'         => 'ids',
 				'no_found_rows'  => true,

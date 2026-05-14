@@ -12,6 +12,7 @@ use BookingEngineConnector\Providers\Kross\KrossBookingEngineSyncSettings;
 use BookingEngineConnector\Providers\Kross\KrossProvider;
 use BookingEngineConnector\Providers\ProviderRegistry;
 use BookingEngineConnector\Sync\SyncCron;
+use BookingEngineConnector\Sync\SyncProgressReporter;
 use BookingEngineConnector\Sync\SyncService;
 
 /**
@@ -24,6 +25,9 @@ final class SyncAdmin
 	public static function register(): void
 	{
 		\add_action('admin_init', [self::class, 'registerListHooks']);
+		\add_action('admin_enqueue_scripts', [self::class, 'enqueueAdminAssets']);
+		\add_action('wp_ajax_bec_sync_progress_poll', [self::class, 'handleAjaxProgressPoll']);
+		\add_action('wp_ajax_bec_sync_run_all', [self::class, 'handleAjaxRunAll']);
 		\add_action('admin_post_bec_sync_save_settings', [self::class, 'handleSaveSettings']);
 		\add_action('admin_post_bec_kross_refresh_booking_engines', [self::class, 'handleKrossRefreshBookingEngines']);
 		\add_action('admin_post_bec_sync_all', [self::class, 'handleSyncAll']);
@@ -230,11 +234,17 @@ final class SyncAdmin
 		\submit_button(\__('Save sync settings', 'booking-engine-connector'));
 		echo '</form>';
 
-		echo '<hr /><form method="post" action="' . \esc_url(\admin_url('admin-post.php')) . '">';
+		echo '<hr /><form id="bec-sync-all-form" class="bec-sync-all-form" method="post" action="' . \esc_url(\admin_url('admin-post.php')) . '">';
 		\wp_nonce_field('bec_sync_all', 'bec_sync_all_nonce');
 		echo '<input type="hidden" name="action" value="bec_sync_all" />';
-		\submit_button(\__('Run sync now', 'booking-engine-connector'), 'secondary');
+		\submit_button(\__('Run sync now', 'booking-engine-connector'), 'secondary', '', false, ['id' => 'bec-sync-all-submit']);
 		echo '</form>';
+
+		echo '<div id="bec-sync-progress" class="bec-sync-progress" hidden style="margin-top:1em;padding:1em;max-width:56em;border:1px solid #c3c4c7;background:#fff;">';
+		echo '<h2 class="title" style="margin-top:0;">' . \esc_html__('Sync progress', 'booking-engine-connector') . '</h2>';
+		echo '<p id="bec-sync-progress-status" class="bec-sync-progress__status" style="margin:0.5em 0;font-weight:600;" aria-live="polite"></p>';
+		echo '<pre id="bec-sync-progress-log" class="bec-sync-progress__log" style="margin:0;max-height:20em;overflow:auto;white-space:pre-wrap;word-break:break-word;background:#f6f7f7;padding:0.75em;border:1px solid #dcdcde;font-size:12px;line-height:1.45;"></pre>';
+		echo '</div>';
 
 		echo '<hr /><h2 class="title">' . \esc_html__('Gallery file names', 'booking-engine-connector') . '</h2>';
 		echo '<p class="description">' . \esc_html__(
@@ -248,6 +258,72 @@ final class SyncAdmin
 		echo '</form>';
 
 		echo '</div>';
+	}
+
+	public static function enqueueAdminAssets(string $hookSuffix): void
+	{
+		$onSyncPage = isset($_GET['page']) && (string) \sanitize_key(\wp_unslash((string) $_GET['page'])) === self::PAGE_SLUG;
+		$onHook     = $hookSuffix === 'bec-dashboard_page_' . self::PAGE_SLUG;
+		if (! $onSyncPage && ! $onHook) {
+			return;
+		}
+
+		\wp_enqueue_script(
+			'bec-admin-sync-progress',
+			\BEC_PLUGIN_URL . 'assets/admin-sync-progress.js',
+			[],
+			\BEC_VERSION,
+			true
+		);
+		\wp_localize_script(
+			'bec-admin-sync-progress',
+			'becSyncProgress',
+			[
+				'ajaxUrl'   => \admin_url('admin-ajax.php'),
+				'nonce'     => \wp_create_nonce('bec_sync_progress'),
+				'syncNonce' => \wp_create_nonce('bec_sync_all'),
+			]
+		);
+	}
+
+	public static function handleAjaxProgressPoll(): void
+	{
+		if (! \current_user_can(AdminMenu::CAPABILITY)) {
+			\wp_send_json_error(
+				[ 'message' => \__('Insufficient permissions.', 'booking-engine-connector') ],
+				403
+			);
+		}
+
+		\check_ajax_referer('bec_sync_progress', 'nonce');
+
+		$runId = isset($_REQUEST['run_id']) ? \wp_unslash((string) $_REQUEST['run_id']) : '';
+		if (! SyncProgressReporter::isValidRunId($runId)) {
+			\wp_send_json_success(
+				[
+					'status'  => 'invalid',
+					'message' => '',
+					'lines'   => [],
+					'current' => 0,
+					'total'   => 0,
+				]
+			);
+		}
+
+		$data = SyncProgressReporter::read((int) \get_current_user_id(), $runId);
+		if ($data === null) {
+			\wp_send_json_success(
+				[
+					'status'  => 'waiting',
+					'message' => \__('Waiting for sync to start…', 'booking-engine-connector'),
+					'lines'   => [],
+					'current' => 0,
+					'total'   => 0,
+				]
+			);
+		}
+
+		\wp_send_json_success($data);
 	}
 
 	public static function registerListHooks(): void
@@ -363,6 +439,22 @@ final class SyncAdmin
 		return \add_query_arg('bec_bulk_synced', $errors === 0 ? '1' : '0', $redirect);
 	}
 
+	public static function handleAjaxRunAll(): void
+	{
+		if (! \current_user_can(AdminMenu::CAPABILITY)) {
+			\wp_send_json_error(
+				[ 'message' => \__('Insufficient permissions.', 'booking-engine-connector') ],
+				403
+			);
+		}
+
+		\check_ajax_referer('bec_sync_all', 'sync_nonce');
+
+		$result = self::executeFullSyncAndStoreResult();
+
+		\wp_send_json_success(['result' => $result]);
+	}
+
 	public static function handleSyncAll(): void
 	{
 		if (! \current_user_can(AdminMenu::CAPABILITY)) {
@@ -371,9 +463,7 @@ final class SyncAdmin
 
 		\check_admin_referer('bec_sync_all', 'bec_sync_all_nonce');
 
-		$service = new SyncService();
-		$result  = $service->syncAll();
-		\set_transient(self::resultTransientKey(), $result, 120);
+		self::executeFullSyncAndStoreResult();
 
 		\wp_safe_redirect(\admin_url('admin.php?page=' . self::PAGE_SLUG . '&bec_sync_done=1'));
 		exit;
@@ -559,6 +649,24 @@ final class SyncAdmin
 				echo '<div class="notice notice-success is-dismissible"><p>' . \esc_html__('Sync settings saved.', 'booking-engine-connector') . '</p></div>';
 			}
 		}
+	}
+
+	/**
+	 * @return array{created:int, updated:int, skipped:int, errors: list<string>}
+	 */
+	private static function executeFullSyncAndStoreResult(): array
+	{
+		$runRaw = isset($_POST['bec_sync_run_id']) ? (string) \wp_unslash((string) $_POST['bec_sync_run_id']) : '';
+		$progress = null;
+		if (SyncProgressReporter::isValidRunId($runRaw)) {
+			$progress = new SyncProgressReporter((int) \get_current_user_id(), $runRaw);
+		}
+
+		$service = new SyncService();
+		$result  = $service->syncAll($progress);
+		\set_transient(self::resultTransientKey(), $result, 120);
+
+		return $result;
 	}
 
 	private static function resultTransientKey(): string

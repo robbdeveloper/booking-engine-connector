@@ -13,6 +13,7 @@ use BookingEngineConnector\PostTypes\UnitPostType;
  * - Fingerprints: {@see self::IMAGE_SET_HASH_META} (order-insensitive) and {@see self::IMAGE_ORDER_HASH_META} (order).
  * - Legacy: {@see self::SOURCE_HASH_META} (ordered URL list) is still read for first-run migration.
  * - On removal from a unit, attachments are deleted only when not referenced by any `bec_unit` gallery or featured image.
+ * - Orphan Library files (same `_bec_source_url`, owner unit deleted/trashed/unscoped): reclaimed or duplicated onto the syncing unit instead of silently skipping imports.
  */
 final class RemoteGalleryImporter
 {
@@ -122,7 +123,7 @@ final class RemoteGalleryImporter
 				if ($reuse !== null) {
 					self::reparentAttachments($parentPostId, $reuse);
 					self::markAttachmentsWithKeys($parentPostId, $items, $reuse, $urls);
-					self::applyFeaturedImage($parentPostId, $featuredUrl, $items, $reuse);
+					self::applyFeaturedImage($parentPostId, $featuredUrl, $items, $reuse, $urls);
 					self::updateUnitHashes($parentPostId, $setHash, $orderHash, $urlHash);
 					\update_post_meta($parentPostId, self::SOURCE_HASH_META, $urlHash);
 
@@ -136,7 +137,7 @@ final class RemoteGalleryImporter
 					$oldIdsBefore = self::readStoredGalleryIdsOnly($parentPostId);
 					self::reparentAttachments($parentPostId, $legacy);
 					self::markAttachmentsWithKeys($parentPostId, $items, $legacy, $urls);
-					self::applyFeaturedImage($parentPostId, $featuredUrl, $items, $legacy);
+					self::applyFeaturedImage($parentPostId, $featuredUrl, $items, $legacy, $urls);
 					self::updateUnitHashes($parentPostId, $setHash, $orderHash, $urlHash);
 					\update_post_meta($parentPostId, self::SOURCE_HASH_META, $urlHash);
 					self::deleteRemovedFromPreviousSync($parentPostId, $legacy, false, $oldIdsBefore, $legacy);
@@ -150,7 +151,7 @@ final class RemoteGalleryImporter
 				if ($reordered !== null) {
 					$oldIdsBefore = self::readStoredGalleryIdsOnly($parentPostId);
 					self::reparentAttachments($parentPostId, $reordered);
-					self::applyFeaturedImage($parentPostId, $featuredUrl, $items, $reordered);
+					self::applyFeaturedImage($parentPostId, $featuredUrl, $items, $reordered, $urls);
 					self::updateUnitHashes($parentPostId, $setHash, $orderHash, $urlHash);
 					\update_post_meta($parentPostId, self::SOURCE_HASH_META, $urlHash);
 					self::deleteRemovedFromPreviousSync($parentPostId, $reordered, false, $oldIdsBefore, $reordered);
@@ -241,6 +242,128 @@ final class RemoteGalleryImporter
 		}
 
 		return $map;
+	}
+
+	/**
+	 * All image attachments whose gallery source URL meta matches exactly (may be multiple).
+	 *
+	 * @return list<int>
+	 */
+	private static function findAttachmentIdsWithExactSourceUrl(string $normalizedUrl): array
+	{
+		if ($normalizedUrl === '') {
+			return [];
+		}
+
+		$q = new \WP_Query(
+			[
+				'post_type'              => 'attachment',
+				'post_status'            => 'inherit',
+				'posts_per_page'         => -1,
+				'fields'                 => 'ids',
+				'no_found_rows'          => true,
+				'update_post_meta_cache' => true,
+				'update_post_term_cache' => false,
+				'meta_query'             => [
+					[
+						'key'     => self::SOURCE_URL_META,
+						'value'   => $normalizedUrl,
+						'compare' => '=',
+					],
+				],
+			]
+		);
+
+		$out = [];
+		foreach ($q->posts as $id) {
+			$id = (int) $id;
+			if ($id > 0) {
+				$out[] = $id;
+			}
+		}
+
+		return $out;
+	}
+
+	/**
+	 * True when this attachment may be reclaimed for $unitId without copying (unscoped, same unit, deleted unit, or trashed unit owner).
+	 */
+	private static function attachmentMayReuseOrClaimForGalleryUnit(int $unitId, int $attachmentId): bool
+	{
+		if ($unitId < 1 || $attachmentId < 1 || \get_post_type($attachmentId) !== 'attachment') {
+			return false;
+		}
+
+		$owned = (int) \get_post_meta($attachmentId, self::GALLERY_UNIT_ID_META, true);
+
+		if ($owned === 0 || $owned === $unitId) {
+			return true;
+		}
+
+		$post = \get_post($owned);
+		if (! $post instanceof \WP_Post) {
+			return true;
+		}
+
+		if ($post->post_type !== UnitPostType::getSlug()) {
+			return false;
+		}
+
+		return $post->post_status === 'trash';
+	}
+
+	/**
+	 * Re-link an existing library file to this unit before downloading again (e.g. unit was deleted but media kept).
+	 *
+	 * @param list<int> $oldGalleryIds
+	 */
+	private static function reuseLibraryAttachmentForGalleryUnit(int $unitId, string $key, string $url, array $oldGalleryIds): ?int
+	{
+		unset($oldGalleryIds);
+		$url = \esc_url_raw(\trim($url));
+		if ($url === '' || ! self::isHttpUrl($url)) {
+			return null;
+		}
+
+		$candidates = self::findAttachmentIdsWithExactSourceUrl($url);
+		if ($candidates === []) {
+			return null;
+		}
+
+		\rsort($candidates, \SORT_NUMERIC);
+
+		foreach ($candidates as $aid) {
+			$aid = (int) $aid;
+			if ($aid < 1 || ! \wp_attachment_is_image($aid)) {
+				continue;
+			}
+
+			$file = \get_attached_file($aid, true);
+			if (! \is_string($file) || $file === '' || ! \is_readable($file)) {
+				continue;
+			}
+
+			$metaUrl = \esc_url_raw(\trim((string) \get_post_meta($aid, self::SOURCE_URL_META, true)));
+			if ($metaUrl !== $url) {
+				continue;
+			}
+
+			$kmeta = (string) \get_post_meta($aid, self::GALLERY_IMAGE_KEY_META, true);
+			if ($kmeta !== '' && $kmeta !== $key) {
+				continue;
+			}
+
+			if (self::attachmentMayReuseOrClaimForGalleryUnit($unitId, $aid)) {
+				return self::reconcileExistingAttachment($aid, $unitId, $key, $url);
+			}
+
+			$dup = self::duplicateAttachmentForUnit($aid, $unitId, $key, $url, []);
+			if ($dup !== null) {
+				return $dup;
+			}
+		}
+
+		return null;
 	}
 
 	/**
@@ -408,14 +531,13 @@ final class RemoteGalleryImporter
 		if (\count($ids) !== \count($items)) {
 			return null;
 		}
-		$keyToExpectedUrl = [];
-		foreach ($items as $it) {
-			$keyToExpectedUrl[ (string) $it['key'] ] = (string) $it['url'];
-		}
 		foreach ($urls as $i => $u) {
 			$key = (string) $items[ $i ]['key'];
 			$aid = $ids[ $i ] ?? 0;
 			if ($aid < 1 || \get_post_type($aid) !== 'attachment') {
+				return null;
+			}
+			if (! self::attachmentMaySyncWithUnitGallery($postId, $aid)) {
 				return null;
 			}
 			$attKey = (string) \get_post_meta($aid, self::GALLERY_IMAGE_KEY_META, true);
@@ -438,6 +560,8 @@ final class RemoteGalleryImporter
 	 */
 	private static function reuseLegacyUrlGallery(int $postId, array $items, array $urls): ?array
 	{
+		unset($items);
+
 		$raw = \get_post_meta($postId, 'bec_core_gallery', true);
 		$ids = self::decodeIdList($raw);
 		if (\count($ids) !== \count($urls)) {
@@ -448,6 +572,9 @@ final class RemoteGalleryImporter
 			if ($aid < 1 || \get_post_type($aid) !== 'attachment') {
 				return null;
 			}
+			if (! self::attachmentMaySyncWithUnitGallery($postId, $aid)) {
+				return null;
+			}
 			$attUrl = \esc_url_raw(\trim((string) \get_post_meta($aid, self::SOURCE_URL_META, true)));
 			if ($attUrl === '' || $attUrl !== $u) {
 				return null;
@@ -455,6 +582,19 @@ final class RemoteGalleryImporter
 		}
 
 		return $ids;
+	}
+
+	/**
+	 * Fast-path gallery reuse requires the attachment to be linked to this unit (or legacy unscoped).
+	 */
+	private static function attachmentMaySyncWithUnitGallery(int $unitId, int $attachmentId): bool
+	{
+		if ($unitId < 1 || $attachmentId < 1 || \get_post_type($attachmentId) !== 'attachment') {
+			return false;
+		}
+		$owned = (int) \get_post_meta($attachmentId, self::GALLERY_UNIT_ID_META, true);
+
+		return $owned === 0 || $owned === $unitId;
 	}
 
 	/**
@@ -574,6 +714,7 @@ final class RemoteGalleryImporter
 		$oldIds  = self::readStoredGalleryIdsOnly($unitId);
 		$keyToId = self::keyToAttachmentIdMapForUnit($unitId);
 		$out     = [];
+		$urlOut  = [];
 		$index   = 0;
 
 		foreach ($items as $it) {
@@ -582,12 +723,14 @@ final class RemoteGalleryImporter
 			$url = (string) $it['url'];
 			$id  = $keyToId[ $key ] ?? null;
 			if ($id !== null) {
-				$out[] = self::reconcileExistingAttachment(
+				$resolved = self::reconcileExistingAttachment(
 					(int) $id,
 					$unitId,
 					$key,
 					$url
 				);
+				$out[]    = $resolved;
+				$urlOut[] = $url;
 				continue;
 			}
 
@@ -600,6 +743,15 @@ final class RemoteGalleryImporter
 			if ($adopted !== null) {
 				$keyToId[ $key ] = $adopted;
 				$out[]           = $adopted;
+				$urlOut[]        = $url;
+				continue;
+			}
+
+			$fromLib = self::reuseLibraryAttachmentForGalleryUnit($unitId, $key, $url, $oldIds);
+			if ($fromLib !== null) {
+				$keyToId[ $key ] = $fromLib;
+				$out[]           = $fromLib;
+				$urlOut[]        = $url;
 				continue;
 			}
 
@@ -616,7 +768,8 @@ final class RemoteGalleryImporter
 				\update_post_meta($dupId, self::SOURCE_URL_META, $url);
 				\update_post_meta($dupId, self::GALLERY_IMAGE_KEY_META, $key);
 				\update_post_meta($dupId, self::GALLERY_UNIT_ID_META, (string) $unitId);
-				$out[] = $dupId;
+				$out[]    = $dupId;
+				$urlOut[] = $url;
 				continue;
 			}
 
@@ -635,10 +788,11 @@ final class RemoteGalleryImporter
 			if ($bytesHash !== '') {
 				\update_post_meta($aid, self::GALLERY_FILE_HASH_META, $bytesHash);
 			}
-			$out[] = $aid;
+			$out[]    = $aid;
+			$urlOut[] = $url;
 		}
 
-		self::applyFeaturedImage($unitId, $featuredUrl, $items, $out);
+		self::applyFeaturedImage($unitId, $featuredUrl, $items, $out, $urlOut);
 		self::deleteRemovedFromPreviousSync($unitId, $out, false, $oldIds, $out);
 		self::updateUnitHashes($unitId, $setHash, $orderHash, $urlHash);
 		\update_post_meta($unitId, self::SOURCE_HASH_META, $urlHash);
@@ -682,39 +836,64 @@ final class RemoteGalleryImporter
 	}
 
 	/**
-	 * @param list<array{url: string, key: string, order: int, main: bool}> $items
-	 * @param list<int> $out
+	 * Featured image follows Kross/list order via URL pairing (handles partial galleries where `$out[$i]` no longer aligns with `$items[$i]`).
+	 *
+	 * @param list<array<string, mixed>>                                                   $items
+	 * @param list<int>                                                                    $attachmentIdsOut
+	 * @param list<string>                                                                 $attachmentUrlsAligned Parallel URL per attachment ID (same count as `$attachmentIdsOut` when coming from importer).
 	 */
-	private static function applyFeaturedImage(int $unitId, ?string $featuredUrl, array $items, array $out): void
+	private static function applyFeaturedImage(int $unitId, ?string $featuredUrl, array $items, array $attachmentIdsOut, array $attachmentUrlsAligned): void
 	{
-		if ($out === []) {
+		if ($attachmentIdsOut === []) {
 			\delete_post_thumbnail($unitId);
 
 			return;
 		}
-		foreach ($items as $i => $it) {
-			if (! empty($it['main']) && isset($out[ $i ])) {
-				\set_post_thumbnail($unitId, (int) $out[ $i ]);
+
+		$urlToAtt = [];
+		$nPairs   = \min(\count($attachmentIdsOut), \count($attachmentUrlsAligned));
+
+		for ($i = 0; $i < $nPairs; ++$i) {
+			$tid = (int) $attachmentIdsOut[ $i ];
+			if ($tid < 1) {
+				continue;
+			}
+			$u = \esc_url_raw(\trim((string) $attachmentUrlsAligned[ $i ]));
+			if ($u !== '' && self::isHttpUrl($u)) {
+				$urlToAtt[ $u ] = $tid;
+			}
+		}
+
+		foreach ($items as $it) {
+			if (empty($it['main'])) {
+				continue;
+			}
+			$uItem = isset($it['url']) ? \esc_url_raw(\trim((string) $it['url'])) : '';
+			if ($uItem !== '' && isset($urlToAtt[ $uItem ])) {
+				\set_post_thumbnail($unitId, (int) $urlToAtt[ $uItem ]);
 
 				return;
 			}
 		}
-		$feat = $featuredUrl;
-		$feat = $feat !== null && $feat !== '' ? \esc_url_raw(\trim($feat)) : null;
-		if ($feat === null || $feat === '') {
-			\set_post_thumbnail($unitId, (int) $out[0] );
+
+		$feat = $featuredUrl !== null && $featuredUrl !== '' ? \esc_url_raw(\trim($featuredUrl)) : null;
+		if ($feat !== null && $feat !== '' && isset($urlToAtt[ $feat ])) {
+			\set_post_thumbnail($unitId, (int) $urlToAtt[ $feat ]);
 
 			return;
 		}
-		$u = $feat;
-		foreach ($items as $i => $it) {
-			if ( ( $it['url'] ?? '' ) === $u && isset($out[ $i ])) {
-				\set_post_thumbnail($unitId, (int) $out[ $i ]);
 
-				return;
+		\set_post_thumbnail($unitId, (int) $attachmentIdsOut[0] );
+
+		if ((int) \get_post_thumbnail_id($unitId) < 1) {
+			foreach ($attachmentIdsOut as $fallbackId) {
+				$fallbackId = (int) $fallbackId;
+				if ($fallbackId > 0) {
+					\set_post_thumbnail($unitId, $fallbackId);
+					break;
+				}
 			}
 		}
-		\set_post_thumbnail($unitId, (int) $out[0] );
 	}
 
 	/**

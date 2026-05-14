@@ -71,6 +71,7 @@ final class KrossCoreUnitFields
 		}
 
 		$rows = [];
+		$seq  = 0;
 		foreach ($images as $img) {
 			if (! is_array($img)) {
 				continue;
@@ -83,19 +84,39 @@ final class KrossCoreUnitFields
 			if ($nurl === '' || ( ! \str_starts_with($nurl, 'http://') && ! \str_starts_with($nurl, 'https://') )) {
 				continue;
 			}
-			$order = isset($img['image_order']) ? (int) $img['image_order'] : 0;
+			$imageOrder = null;
+			if (isset($img['image_order']) && $img['image_order'] !== null && $img['image_order'] !== '' && \is_numeric($img['image_order'])) {
+				$imageOrder = (int) $img['image_order'];
+			}
 			$rows[] = [
-				'url'   => $nurl,
-				'order' => $order,
-				'main'  => ! empty($img['main']),
-				'key'   => self::krossImageStableKey($img, $nurl),
+				'url'           => $nurl,
+				'image_order'   => $imageOrder,
+				'seq'           => $seq,
+				// Only explicit truthy API values mark the featured image (`main: true`; not `null` / empty).
+				'main'          => \filter_var($img['main'] ?? false, FILTER_VALIDATE_BOOLEAN, FILTER_NULL_ON_FAILURE) ?? false,
+				'key'           => self::krossImageStableKey($img, $nurl),
 			];
+			++$seq;
 		}
 
+		// Sort by Kross image_order when present; missing orders sort last, preserving payload order via seq. Tie-break equal orders by seq.
 		\usort(
 			$rows,
 			static function (array $a, array $b): int {
-				return $a['order'] <=> $b['order'];
+				$aO = $a['image_order'];
+				$bO = $b['image_order'];
+				if ($aO === null && $bO === null) {
+					return $a['seq'] <=> $b['seq'];
+				}
+				if ($aO === null) {
+					return 1;
+				}
+				if ($bO === null) {
+					return -1;
+				}
+				$c = $aO <=> $bO;
+
+				return $c !== 0 ? $c : $a['seq'] <=> $b['seq'];
 			}
 		);
 
@@ -111,10 +132,12 @@ final class KrossCoreUnitFields
 				$k = $baseKey . ':' . (string) $n;
 			}
 			$usedKeys[ $k ] = true;
+			// Importer sorts by numeric `order`; use image_order when set, else a stable sentinel after real orders.
+			$orderVal = $row['image_order'] !== null ? (int) $row['image_order'] : (1000000 + (int) $row['seq']);
 			$items[] = [
 				'url'   => (string) $row['url'],
 				'key'   => $k,
-				'order' => (int) $row['order'],
+				'order' => $orderVal,
 				'main'  => (bool) $row['main'],
 			];
 			$urls[]  = (string) $row['url'];
