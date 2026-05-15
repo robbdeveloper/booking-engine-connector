@@ -342,7 +342,7 @@ final class BookingSummaryRenderer
 		self::printSearch( $ctxArg, $instanceId, $ctx, $desktopSearchClass );
 
 		echo '<div class="bec-booking-summary__quote-results" data-bec-bsummary-quote-results>';
-		self::printDatesGuestsBlock( $vm );
+		//self::printDatesGuestsBlock( $vm );
 		self::printRateList( $vm, $postId, $ctx );
 		self::printAccordions( $vm );
 		self::printPriceBreakdown( $vm, $cur );
@@ -609,7 +609,7 @@ final class BookingSummaryRenderer
 			self::printSearch( $ctxArg, $instanceId . '-m', $ctx, 'bec-booking-summary__search--drawer' );
 			echo '<div class="bec-booking-summary__quote-results" data-bec-bsummary-quote-results>';
 			self::printMobileDrawerHero( $vm, $postId );
-			self::printDatesGuestsBlock( $vm );
+			//self::printDatesGuestsBlock( $vm );
 			self::printRateList( $vm, $postId, $ctx );
 			self::printAccordions( $vm );
 			self::printPriceBreakdown( $vm, $cur );
