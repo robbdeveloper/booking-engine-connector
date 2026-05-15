@@ -21,10 +21,21 @@
 
 .bec-booking-summary__inner {
 	background: var(--bec-bsummary-bg);
-	border: 1px solid var(--bec-bsummary-border);
 	border-radius: var(--bec-bsummary-radius);
-	padding: 1rem 1rem 0.5rem;
+	padding: 1.5rem 1.5rem 1rem;
 	margin: 0 0 1rem;
+}
+.bec-booking-summary__inner--incomplete .bec-booking-summary__head{
+	display: none;
+}
+
+.bec-booking-summary__inner:not(.bec-booking-summary__inner--incomplete) .bec-search-form__control--daterange::before{
+	display: none;
+}
+
+
+.bec-booking-summary__inner .bec-search-form__trigger-label{
+	display: none;
 }
 
 .bec-booking-summary__search--desktop {
@@ -47,7 +58,6 @@
 .bec-booking-summary__search .bec-search-form__bar {
 	display: grid;
 	grid-template-columns: minmax(0, 1fr);
-	gap: 0.55rem;
 	padding: 0;
 	background: transparent;
 	border: 0;
@@ -60,17 +70,51 @@
 	min-width: 0;
 }
 
+.bec-booking-summary__search .bec-search-form__control--daterange{
+	padding: 0;
+	border-radius: 0;
+	border-right: none;
+}
+
+.bec-booking-summary__search .bec-search-form__control--guests{
+	border-right: none;
+}
+
+.bec-booking-summary__search .bec-search-form__control--daterange::before{
+	font-family: var(--bec-bsummary-font);
+	font-weight: 300;
+    color: var(--bec-bsummary-color-muted);
+	font-size: 1.2rem;
+	letter-spacing: 0;
+	text-transform: none;
+	line-height: 1.2;
+	margin-bottom: 0.5rem;
+}
+
+.bec-booking-summary__search .bec-search-form__bar{
+	border-radius: 0;
+}
+
+
 .bec-booking-summary .bec-booking-summary__search button.bec-search-form__date-split,
 .bec-booking-summary .bec-booking-summary__search button.bec-search-form__trigger {
 	min-height: 3.45rem;
 	padding: 0.75rem 0.9rem;
 	background: rgba(255, 255, 255, 0.82);
 	border: 1px solid var(--bec-bsummary-border);
-	border-radius: var(--bec-bsummary-radius);
 	box-shadow: none;
 	width: 100%;
 	-webkit-appearance: none;
 	appearance: none;
+}
+
+.bec-booking-summary .bec-booking-summary__search button.bec-search-form__date-split{
+	border-radius: var(--bec-bsummary-radius) var(--bec-bsummary-radius) 0 0;
+	margin-bottom: -1px;
+}
+
+.bec-booking-summary .bec-booking-summary__search button.bec-search-form__trigger {
+	border-radius: 0 0 var(--bec-bsummary-radius) var(--bec-bsummary-radius);
 }
 
 .bec-booking-summary .bec-booking-summary__search button.bec-search-form__date-split:hover,

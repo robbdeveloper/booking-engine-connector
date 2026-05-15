@@ -446,12 +446,7 @@ final class CoreUnitFieldRegistry
 
 		echo '</tbody></table>';
 
-		echo '<hr style="margin:2em 0 1em;border:0;border-top:1px solid #c3c4c7;" />';
-		echo '<p class="description">' . esc_html__(
-			'Debug: last synced remote row (post meta bec_sync_payload). Duplicated from the Booking engine — synced data box for quick inspection.',
-			'booking-engine-connector'
-		) . '</p>';
-		UnitPostType::renderRemoteRowJsonPanel($post);
+		//UnitPostType::renderRemoteRowJsonPanel($post);
 	}
 
 	/**
