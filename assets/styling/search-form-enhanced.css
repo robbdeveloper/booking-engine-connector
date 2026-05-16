@@ -11,7 +11,7 @@
 :root,
 .bec-search-form-wrap--enhanced{
 	--bec-drp-z-index: 10050;
-	--bec-drp-range-bg: #c5c5c5;
+	--bec-drp-range-bg: #c1c1c1;
 	--bec-drp-range-edge: #222222;
 	--bec-drp-range-ends: #000000;
 	--bec-drp-range-edge-text: #ffffff;
@@ -31,9 +31,9 @@
 	--bec-color-text-muted: #6b7280;
 	--bec-color-border: #e0e0e0;
 	--bec-color-border-strong: #d1d5db;
-	--bec-color-accent: #766340;
+	--bec-color-accent: #000000;
 	--bec-color-accent-text: #ffffff;
-	--bec-icon-tint: #766340;
+	--bec-icon-tint: #000000;
 	--bec-radius-field: 1.125rem;
 	--bec-radius-popover: 0.75rem;
 	--bec-radius-pill: 999px;
@@ -44,8 +44,8 @@
 	--bec-field-padding-y: 0.65rem;
 	--bec-field-padding-x: 0.9rem;
 	--bec-transition: 0.2s ease;
-	--bec-cal-icon: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 24 24' stroke='%23766340' stroke-width='1.8'%3E%3Cpath stroke-linecap='round' stroke-linejoin='round' d='M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z'/%3E%3C/svg%3E");
-	--bec-users-icon: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 24 24' stroke='%23766340' stroke-width='1.8'%3E%3Cpath stroke-linecap='round' stroke-linejoin='round' d='M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z'/%3E%3C/svg%3E");
+	--bec-cal-icon: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 24 24' stroke='%23000000' stroke-width='1.8'%3E%3Cpath stroke-linecap='round' stroke-linejoin='round' d='M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z'/%3E%3C/svg%3E");
+	--bec-users-icon: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 24 24' stroke='%23000000' stroke-width='1.8'%3E%3Cpath stroke-linecap='round' stroke-linejoin='round' d='M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z'/%3E%3C/svg%3E");
 	--bec-search-icon: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 24 24' stroke='%23ffffff' stroke-width='2'%3E%3Cpath stroke-linecap='round' stroke-linejoin='round' d='M21 21l-4.35-4.35m0 0A7.5 7.5 0 103.5 3.5a7.5 7.5 0 0013.15 13.15z'/%3E%3C/svg%3E");
 }
 
