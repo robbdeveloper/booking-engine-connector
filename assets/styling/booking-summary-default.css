@@ -566,8 +566,8 @@ details>summary {
 	margin: 0.5rem 0;
 }
 .bec-booking-summary__message--empty {
-	padding-top: 0.35rem;
-	margin-top: 0.35rem;
+	padding-top: 0.5rem;
+	margin-top: 1rem;
 	border-top: 1px solid #e5e7eb;
 }
 .bec-booking-summary__message--error .bec-booking-summary__message-text {
@@ -596,9 +596,12 @@ details>summary {
 	display: block;
 }
 
-.bec-booking-summary__mobile .bec-booking-summary__search,
-.bec-booking-summary__mobile .bec-booking-summary__quote-results{
+.bec-booking-summary__mobile .bec-booking-summary__search{
 	padding: 1rem;
+}
+
+.bec-booking-summary__mobile .bec-booking-summary__quote-results{
+	padding: 0rem 1rem 1rem 1rem;
 }
 
 .bec-booking-summary__mobile .bec-booking-summary__actions{
@@ -747,7 +750,7 @@ details>summary {
 	.bec-booking-summary__hero {
 		display: flex;
 		gap: 0.6rem;
-		padding: 0.5rem 0.5rem 0.25rem;
+		padding: 0.75rem 0rem;
 	}
 	.bec-booking-summary__hero-title {
 		font-size: 1rem;
