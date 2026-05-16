@@ -284,13 +284,19 @@
 		/** @type {Record<string, unknown> | null} */
 		var guestPanelCommitSnapshot = null;
 
-		function closeAll() {
+		/**
+		 * @param {{ keepDaterange?: boolean }} [options]
+		 */
+		function closeAll(options) {
+			var keepDaterange = options && options.keepDaterange === true;
 			guestPanelCommitSnapshot = null;
-			var dateTrigger = form.querySelector('.bec-search-form__date-split');
-			if (dateTrigger && typeof window.jQuery !== 'undefined') {
-				var drp = window.jQuery(dateTrigger).data('daterangepicker');
-				if (drp && typeof drp.hide === 'function') {
-					drp.hide();
+			if (!keepDaterange) {
+				var dateTrigger = form.querySelector('.bec-search-form__date-split');
+				if (dateTrigger && typeof window.jQuery !== 'undefined') {
+					var drp = window.jQuery(dateTrigger).data('daterangepicker');
+					if (drp && typeof drp.hide === 'function') {
+						drp.hide();
+					}
 				}
 			}
 			unbindGuestPanelReposition();
@@ -388,6 +394,8 @@
 			}
 		});
 
+		var dateRangeWrap = form.querySelector('[data-bec-daterange]');
+
 		document.addEventListener('click', function (e) {
 			if (!wrap || !openPanel || !openTrigger) {
 				return;
@@ -400,6 +408,13 @@
 				return;
 			}
 			if (openPanel.contains(t) || openTrigger.contains(t)) {
+				return;
+			}
+			/* Clicking the date control closes the guest popover but must not hide the
+			 * daterangepicker: the same click opens it on the trigger first (bubble order),
+			 * and closeAll() would immediately call drp.hide(). */
+			if (dateRangeWrap instanceof HTMLElement && dateRangeWrap.contains(t)) {
+				closeAll({ keepDaterange: true });
 				return;
 			}
 			closeAll();
