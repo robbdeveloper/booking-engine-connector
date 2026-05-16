@@ -34,7 +34,7 @@
 }
 
 
-.bec-booking-summary__inner .bec-search-form__trigger-label{
+.bec-search-form__trigger-label{
 	display: none;
 }
 
@@ -621,6 +621,15 @@ details>summary {
 	.bec-booking-summary__desktop {
 		display: none;
 	}
+
+	/*
+		Incomplete summary: drawer + fixed bar duplicate the search/actions;
+		use the sticky bar pattern like available / unavailable mobile states.
+	*/
+	.bec-booking-summary[data-bec-bsummary-ui-state="incomplete"] .bec-booking-summary__inner--incomplete {
+		display: none;
+	}
+
 	.bec-booking-summary__bar {
 		display: flex;
 		align-items: center;
@@ -671,6 +680,23 @@ details>summary {
 		border: 0;
 		text-decoration: none;
 	}
+
+	/* Full-width primary CTA when no dates/guests yet (opens same slide-in panel as Continue) */
+	.bec-booking-summary__bar--check-only {
+		justify-content: stretch;
+	}
+	.bec-booking-summary__bar--check-only button.bec-booking-summary__open-panel--availability {
+		width: 100%;
+		flex: 1 1 auto;
+		min-height: 2.75rem;
+		padding: 0.55rem 1rem;
+		font-size: 1rem;
+		font-weight: 600;
+		text-transform: none;
+		letter-spacing: normal;
+		border-radius: 0.375rem;
+	}
+
 	.bec-booking-summary__drawer {
 		position: fixed;
 		z-index: 250;

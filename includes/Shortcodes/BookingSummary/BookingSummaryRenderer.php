@@ -207,13 +207,17 @@ final class BookingSummaryRenderer
 		echo '</header>';
 	}
 
-	private static function checkAvailabilityButtonHtml( int $postId, SearchContext $ctx, string $targetFormId, bool $disabled = false ): string {
-		$label = (string) \apply_filters(
+	private static function getCheckAvailabilityLabel( int $postId, SearchContext $ctx ): string {
+		return (string) \apply_filters(
 			'bec_booking_summary_check_availability_label',
 			\__( 'Check availability', 'booking-engine-connector' ),
 			$postId,
 			$ctx
 		);
+	}
+
+	private static function checkAvailabilityButtonHtml( int $postId, SearchContext $ctx, string $targetFormId, bool $disabled = false ): string {
+		$label = self::getCheckAvailabilityLabel( $postId, $ctx );
 
 		$attrs = 'type="button" data-bec-submit-search-form="' . \esc_attr( $targetFormId ) . '" class="bec-booking-summary__check-availability bec-checkout-cta"';
 		if ( $disabled ) {
@@ -292,6 +296,18 @@ final class BookingSummaryRenderer
 		self::printSearch( $ctxArg, $instanceId, $ctx, 'bec-booking-summary__search--incomplete' );
 		self::renderActions( $postId, $ctx, $showEnquiry, $enquiryLabel, false, $instanceId, null, true, true );
 		echo '</div>';
+		self::printMobileShell(
+			[],
+			$postId,
+			$ctx,
+			$ctxArg,
+			$instanceId,
+			$showEnquiry,
+			$enquiryLabel,
+			null,
+			'incomplete',
+			false
+		);
 	}
 
 	/**
@@ -576,19 +592,31 @@ final class BookingSummaryRenderer
 		$tot = isset( $vm['total'] ) && is_numeric( $vm['total'] ) ? (float) $vm['total'] : null;
 		$st  = (string) ( $vm['state'] ?? '' );
 
+		$barIncomplete = $mode === 'incomplete';
+
 		$bar = '';
-		if ( $st === 'available' && $tot !== null && $cur !== '' ) {
-			$bar = '<div data-bec-bsummary-bar-amount class="bec-booking-summary__bar-amount">'
-				. self::getBarAmountSpanHtml( $vm )
-				. '</div>';
-		} elseif ( \in_array( $mode, [ 'error-or-empty', 'fallback' ], true ) || ( $st === 'unavailable' ) || ( $st === 'error' ) ) {
-			$bar = '<span class="bec-booking-summary__bar-amount-total bec-booking-summary__bar-amount--muted">'
-				. \esc_html__( 'View details', 'booking-engine-connector' ) . '</span>';
+		if ( ! $barIncomplete ) {
+			if ( $st === 'available' && $tot !== null && $cur !== '' ) {
+				$bar = '<div data-bec-bsummary-bar-amount class="bec-booking-summary__bar-amount">'
+					. self::getBarAmountSpanHtml( $vm )
+					. '</div>';
+			} elseif ( \in_array( $mode, [ 'error-or-empty', 'fallback' ], true ) || ( $st === 'unavailable' ) || ( $st === 'error' ) ) {
+				$bar = '<span class="bec-booking-summary__bar-amount-total bec-booking-summary__bar-amount--muted">'
+					. \esc_html__( 'View details', 'booking-engine-connector' ) . '</span>';
+			}
 		}
 
 		echo '<div class="bec-booking-summary__mobile" aria-label="' . \esc_attr__( 'Booking on mobile', 'booking-engine-connector' ) . '">';
 
-		if ( $bar !== '' ) {
+		if ( $barIncomplete ) {
+			$panelId = $instanceId . '-panel';
+			$chkLbl  = self::getCheckAvailabilityLabel( $postId, $ctx );
+			echo '<div class="bec-booking-summary__bar bec-booking-summary__bar--check-only" role="region" aria-label="' . \esc_attr__( 'Check availability', 'booking-engine-connector' ) . '">';
+			echo '<button type="button" class="bec-booking-summary__open-panel bec-booking-summary__open-panel--availability" aria-controls="' . \esc_attr( $panelId ) . '" aria-expanded="false">';
+			echo \esc_html( $chkLbl );
+			echo '</button>';
+			echo '</div>';
+		} elseif ( $bar !== '' ) {
 			echo '<div class="bec-booking-summary__bar" role="region" aria-label="' . \esc_attr__( 'Current total', 'booking-engine-connector' ) . '">';
 			// phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
 			echo $bar;
@@ -629,7 +657,7 @@ final class BookingSummaryRenderer
 				$retryFormId
 			);
 		} else {
-			self::printMobileDrawerHero( $vm, $postId );
+			//self::printMobileDrawerHero( $vm, $postId );
 			self::printSearch( $ctxArg, $instanceId . '-m', $ctx, 'bec-booking-summary__search--drawer' );
 			self::printFallbackMessageInPanel(
 				$postId,
