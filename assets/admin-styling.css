@@ -1,0 +1,29 @@
+/**
+ * Booking Engine Connector — Styling admin (bec-styling screen).
+ */
+
+.bec-styling-admin .bec-styling-field {
+	margin: 0 0 1.25rem;
+}
+
+.bec-styling-admin .bec-styling-field textarea.code {
+	width: 100%;
+	max-width: 960px;
+	min-height: 12rem;
+	font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+	font-size: 13px;
+	line-height: 1.45;
+	box-sizing: border-box;
+}
+
+.bec-styling-admin .CodeMirror {
+	max-width: 960px;
+	border: 1px solid #c3c4c7;
+	border-radius: 4px;
+	min-height: 14rem;
+	font-size: 13px;
+}
+
+.bec-styling-admin .cm-s-default .cm-comment {
+	color: #646970;
+}

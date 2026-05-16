@@ -2,7 +2,7 @@
  * Booking Engine Connector — public base (prefixed bec-)
  * Search form presets: assets/styling/search-form-enhanced.css, search-form-classic.css
  * Booking summary presets: assets/styling/booking-summary-default.css, booking-summary-compact.css
- * Theme overrides: Booking Engine ▸ Styling (inline CSS appended to bec-public).
+ * Theme tokens: Booking Engine ▸ Styling (defaults inline on bec-public; overrides after presets).
  */
 
 .bec-search-form-wrap,
@@ -31,7 +31,7 @@
 }
 
 .bec-search-form__error {
-	color: #b32d2e;
+	color: var(--bec-color-error-muted);
 	margin: 0 0 0.5rem;
 }
 
@@ -55,11 +55,11 @@
 	font-size: 1rem;
 	line-height: 1.5;
 	font-weight: 600;
-	color: #333;
-	background: #fff;
-	background-color: #fff;
-	border: 1px solid #333;
-	border-radius: 3px;
+	color: var(--bec-color-text);
+	background: var(--bec-color-bg);
+	background-color: var(--bec-color-bg);
+	border: var(--bec-border-width) solid var(--bec-color-accent);
+	border-radius: var(--bec-radius-readout);
 	box-shadow: none;
 	cursor: pointer;
 	text-align: center;
@@ -74,15 +74,15 @@
 .bec-search-form-wrap:not(.bec-search-form-wrap--enhanced) .bec-search-form button.bec-search-form__button:hover,
 .bec-search-form-wrap:not(.bec-search-form-wrap--enhanced) .bec-search-form button.bec-search-form__button:focus {
 	outline-offset: 2px;
-	background: #333;
-	background-color: #333;
-	border-color: #333;
-	color: #fff;
+	background: var(--bec-color-accent);
+	background-color: var(--bec-color-accent);
+	border-color: var(--bec-color-accent);
+	color: var(--bec-color-accent-text);
 	text-decoration: none;
 }
 
 .bec-search-form-wrap:not(.bec-search-form-wrap--enhanced) .bec-search-form button.bec-search-form__button:focus-visible {
-	outline: 2px solid #333;
+	outline: 2px solid var(--bec-color-accent);
 	outline-offset: 2px;
 }
 
@@ -99,11 +99,11 @@
 }
 
 .bec-booking-block__status--ok {
-	color: #1e4620;
+	color: var(--bec-status-ok);
 }
 
 .bec-booking-block__status--none {
-	color: #666;
+	color: var(--bec-status-muted);
 }
 
 .bec-checkout-form {
@@ -124,15 +124,15 @@
 	display: inline-block;
 	padding: 0.5rem 1rem;
 	text-decoration: none;
-	border-radius: 2px;
+	border-radius: var(--bec-fallback-radius);
 	border: 1px solid currentColor;
 }
 
 .bec-fallback {
 	padding: 1rem;
-	border: 1px solid #ddd;
-	border-radius: 2px;
-	background: #fafafa;
+	border: 1px solid var(--bec-fallback-border);
+	border-radius: var(--bec-fallback-radius);
+	background: var(--bec-fallback-bg);
 }
 
 .bec-fallback__inner > *:first-child {
@@ -146,7 +146,7 @@
 .bec-fallback__hint {
 	margin: 0;
 	font-style: italic;
-	color: #666;
+	color: var(--bec-status-muted);
 }
 
 .bec-shortcode-checkout,

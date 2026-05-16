@@ -32,9 +32,9 @@ final class PublicAssets
 			\BEC_VERSION
 		);
 
-		$inlineCss = StylingSettings::buildInlineCss();
-		if ($inlineCss !== '') {
-			\wp_add_inline_style('bec-public', $inlineCss);
+		$defaultTokens = StylingSettings::buildDefaultRootVariablesCss();
+		if ($defaultTokens !== '') {
+			\wp_add_inline_style('bec-public', $defaultTokens);
 		}
 
 		self::enqueuePresetStyles();
@@ -143,6 +143,12 @@ final class PublicAssets
 			\BEC_VERSION
 		);
 
+		$overrideStyleDeps = [
+			'bec-public',
+			$searchHandle,
+			$bsDefaultHandle,
+		];
+
 		if (StylingSettings::getBookingSummaryPreset() === StylingSettings::BOOKING_SUMMARY_PRESET_COMPACT) {
 			\wp_enqueue_style(
 				'bec-booking-summary-compact',
@@ -150,6 +156,19 @@ final class PublicAssets
 				['bec-public', $bsDefaultHandle],
 				\BEC_VERSION
 			);
+			$overrideStyleDeps[] = 'bec-booking-summary-compact';
+		}
+
+		$lateCss = StylingSettings::buildLateOverrideCss();
+		if ($lateCss !== '') {
+			\wp_register_style(
+				'bec-styling-overrides',
+				false,
+				$overrideStyleDeps,
+				\BEC_VERSION
+			);
+			\wp_enqueue_style('bec-styling-overrides');
+			\wp_add_inline_style('bec-styling-overrides', $lateCss);
 		}
 	}
 

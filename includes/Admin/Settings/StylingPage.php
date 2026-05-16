@@ -19,6 +19,56 @@ final class StylingPage
 	public static function register(): void
 	{
 		\add_action('admin_init', [self::class, 'handlePost']);
+		\add_action('admin_enqueue_scripts', [self::class, 'enqueueAdminAssets']);
+	}
+
+	public static function enqueueAdminAssets(string $hookSuffix): void
+	{
+		if ($hookSuffix !== 'bec-dashboard_page_' . self::PAGE_SLUG) {
+			return;
+		}
+
+		if (! \current_user_can(AdminMenu::CAPABILITY)) {
+			return;
+		}
+
+		\wp_enqueue_style(
+			'bec-admin-styling',
+			\BEC_PLUGIN_URL . 'assets/admin-styling.css',
+			[],
+			\BEC_VERSION
+		);
+
+		$settings = \wp_enqueue_code_editor(
+			[
+				'type'       => 'text/css',
+				'codemirror' => [
+					'indentUnit' => 2,
+					'tabSize'    => 2,
+				],
+			]
+		);
+
+		$scriptDeps = [];
+		if (false === $settings) {
+			$settings = [ 'disabled' => true ];
+		} else {
+			$scriptDeps[] = 'wp-code-editor';
+		}
+
+		\wp_enqueue_script(
+			'bec-admin-styling',
+			\BEC_PLUGIN_URL . 'assets/admin-styling.js',
+			$scriptDeps,
+			\BEC_VERSION,
+			true
+		);
+
+		\wp_add_inline_script(
+			'bec-admin-styling',
+			'window.becStylingCodeEditor = ' . \wp_json_encode($settings) . ';',
+			'before'
+		);
 	}
 
 	public static function render(): void
@@ -29,13 +79,13 @@ final class StylingPage
 
 		$sPreset       = StylingSettings::getSearchPreset();
 		$bPreset       = StylingSettings::getBookingSummaryPreset();
-		$vars          = StylingSettings::getThemeVariablesCssRaw();
+		$vars          = StylingSettings::getThemeVariablesCssForAdmin();
 		$searchExtra   = StylingSettings::getSearchExtraCssRaw();
 		$summaryExtra  = StylingSettings::getSummaryExtraCssRaw();
 		$accIncl       = StylingSettings::isAccordionInclusionsEnabled();
 		$accCond       = StylingSettings::isAccordionConditionsEnabled();
 
-		echo '<div class="wrap">';
+		echo '<div class="wrap bec-styling-admin">';
 		if (isset($_GET['bec_saved']) && (string) \sanitize_text_field(\wp_unslash((string) $_GET['bec_saved'])) === '1') {
 			echo '<div class="notice notice-success is-dismissible"><p>' . \esc_html__(
 				'Settings saved.',
@@ -44,7 +94,7 @@ final class StylingPage
 		}
 		echo '<h1>' . \esc_html__('Styling (shortcodes)', 'booking-engine-connector') . '</h1>';
 		echo '<p class="description">' . \esc_html__(
-			'Customize colors, fonts, and layout presets for the availability search bar and booking summary. Preset CSS lives in the plugin under assets/styling/ (search-form-*.css, booking-summary-*.css). CSS saved here is output on the front end when plugin styles load.',
+			'Customize colors, fonts, borders, and radii via CSS variables (--bec-*). Preset layout CSS loads first; values here and in Extra CSS load last so they override presets. Preset files: assets/styling/search-form-*.css, booking-summary-*.css.',
 			'booking-engine-connector'
 		) . '</p>';
 
@@ -54,10 +104,10 @@ final class StylingPage
 
 		echo '<h2>' . \esc_html__('Shared theme variables', 'booking-engine-connector') . '</h2>';
 		echo '<p class="description">' . \esc_html__(
-			'Enter CSS custom properties (for example --bec-color-accent: #2563eb;) or a full rules block. Plain properties are wrapped to apply to the search bar and booking summary.',
+			'Prefilled defaults use the --bec-* namespace. Paste only custom properties (they apply under .bec-search-form-wrap and .bec-booking-summary) or a full CSS rules block. Use Extra CSS below for .daterangepicker or other selectors.',
 			'booking-engine-connector'
 		) . '</p>';
-		echo '<p><textarea name="bec_styling_theme_variables" id="bec_styling_theme_variables" class="large-text code" rows="12" style="font-family:monospace;">' . \esc_textarea($vars) . '</textarea></p>';
+		echo '<div class="bec-styling-field"><textarea name="bec_styling_theme_variables" id="bec_styling_theme_variables" class="large-text code" rows="18">' . \esc_textarea($vars) . '</textarea></div>';
 
 		echo '<h2>' . \esc_html__('Search bar', 'booking-engine-connector') . '</h2>';
 		echo '<table class="form-table" role="presentation">';
@@ -77,8 +127,8 @@ final class StylingPage
 			'booking-engine-connector'
 		) . '</p>';
 		echo '</td></tr>';
-		echo '<tr><th scope="row"><label for="bec_styling_search_extra_css">' . \esc_html__('Extra CSS', 'booking-engine-connector') . '</label></th><td>';
-		echo '<textarea name="bec_styling_search_extra_css" id="bec_styling_search_extra_css" class="large-text code" rows="8" style="font-family:monospace;">' . \esc_textarea($searchExtra) . '</textarea>';
+		echo '<tr><th scope="row"><label for="bec_styling_search_extra_css">' . \esc_html__('Search — extra CSS', 'booking-engine-connector') . '</label></th><td>';
+		echo '<div class="bec-styling-field"><textarea name="bec_styling_search_extra_css" id="bec_styling_search_extra_css" class="large-text code" rows="10">' . \esc_textarea($searchExtra) . '</textarea></div>';
 		echo '<p class="description">' . \esc_html__(
 			'Optional. Target classes such as .bec-search-form, .bec-search-form-wrap--enhanced, .daterangepicker.',
 			'booking-engine-connector'
@@ -107,8 +157,8 @@ final class StylingPage
 		echo \esc_html__('Show the conditions accordion when the rate provides text.', 'booking-engine-connector') . '</label>';
 		echo '</td></tr>';
 
-		echo '<tr><th scope="row"><label for="bec_styling_summary_extra_css">' . \esc_html__('Extra CSS', 'booking-engine-connector') . '</label></th><td>';
-		echo '<textarea name="bec_styling_summary_extra_css" id="bec_styling_summary_extra_css" class="large-text code" rows="8" style="font-family:monospace;">' . \esc_textarea($summaryExtra) . '</textarea>';
+		echo '<tr><th scope="row"><label for="bec_styling_summary_extra_css">' . \esc_html__('Booking summary — extra CSS', 'booking-engine-connector') . '</label></th><td>';
+		echo '<div class="bec-styling-field"><textarea name="bec_styling_summary_extra_css" id="bec_styling_summary_extra_css" class="large-text code" rows="10">' . \esc_textarea($summaryExtra) . '</textarea></div>';
 		echo '<p class="description">' . \esc_html__(
 			'Optional. Target .bec-booking-summary and inner BEM classes.',
 			'booking-engine-connector'
