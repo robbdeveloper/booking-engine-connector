@@ -659,7 +659,6 @@
 
 	.bec-search-form__control--guests {
 		border-right: none;
-		border-bottom: var(--bec-border-width) solid var(--bec-color-border);
 	}
 
 	.bec-search-form__control--submit {
