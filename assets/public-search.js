@@ -199,6 +199,7 @@
 		var openTrigger = null;
 		var openPanel = null;
 		var repositionScheduled = false;
+		var guestPanelCloseGen = 0;
 
 		function setBodyScrollLock(lock) {
 			if (lock) {
@@ -286,9 +287,17 @@
 
 		/**
 		 * @param {{ keepDaterange?: boolean }} [options]
+		 * @param {() => void} [onClosed]
 		 */
-		function closeAll(options) {
+		function closeAll(options, onClosed) {
+			if (typeof options === 'function') {
+				onClosed = options;
+				options = undefined;
+			}
+			onClosed = onClosed || function () {};
 			var keepDaterange = options && options.keepDaterange === true;
+			guestPanelCloseGen++;
+			var myGen = guestPanelCloseGen;
 			guestPanelCommitSnapshot = null;
 			if (!keepDaterange) {
 				var dateTrigger = form.querySelector('.bec-search-form__date-split');
@@ -304,19 +313,59 @@
 			form.querySelectorAll('.bec-search-form__trigger').forEach(function (btn) {
 				btn.setAttribute('aria-expanded', 'false');
 			});
-			if (guestPanel) {
-				guestPanel.hidden = true;
-				guestPanel.classList.remove('bec-search-form__panel--open');
+
+			var reduceSheetMotion =
+				typeof window.matchMedia === 'function' &&
+				window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+			var animateGuest =
+				!reduceSheetMotion &&
+				guestPanel &&
+				mqDrawer.matches &&
+				guestPanel.classList.contains('bec-search-form__panel--open');
+
+			function finalizeCloseUi() {
+				if (myGen !== guestPanelCloseGen) {
+					return;
+				}
+				if (guestPanel) {
+					guestPanel.hidden = true;
+					guestPanel.classList.remove('bec-search-form__panel--open');
+				}
+				if (backdrop) {
+					backdrop.hidden = true;
+				}
+				if (wrap) {
+					wrap.classList.remove('bec-search-form-wrap--popover-open');
+				}
+				setBodyScrollLock(false);
+				openTrigger = null;
+				openPanel = null;
+				onClosed();
 			}
-			if (backdrop) {
-				backdrop.hidden = true;
+
+			if (animateGuest && guestPanel) {
+				var gp = guestPanel;
+				gp.classList.remove('bec-search-form__panel--open');
+				var settled = false;
+				function settle() {
+					if (settled || myGen !== guestPanelCloseGen) {
+						return;
+					}
+					settled = true;
+					gp.removeEventListener('transitionend', onTe);
+					finalizeCloseUi();
+				}
+				function onTe(ev) {
+					if (ev.target !== gp || ev.propertyName !== 'transform') {
+						return;
+					}
+					settle();
+				}
+				gp.addEventListener('transitionend', onTe);
+				window.setTimeout(settle, 400);
+			} else {
+				finalizeCloseUi();
 			}
-			if (wrap) {
-				wrap.classList.remove('bec-search-form-wrap--popover-open');
-			}
-			setBodyScrollLock(false);
-			openTrigger = null;
-			openPanel = null;
 		}
 
 		function openPanelFor(trigger) {
@@ -325,29 +374,42 @@
 			if (!panel) {
 				return;
 			}
-			closeAll();
-			trigger.setAttribute('aria-expanded', 'true');
-			panel.hidden = false;
-			if (mqDrawer.matches) {
-				panel.classList.add('bec-search-form__panel--open');
-				if (backdrop) {
-					backdrop.hidden = false;
+			closeAll(undefined, function () {
+				trigger.setAttribute('aria-expanded', 'true');
+				panel.hidden = false;
+				if (mqDrawer.matches) {
+					panel.classList.remove('bec-search-form__panel--open');
+					if (backdrop) {
+						backdrop.hidden = false;
+					}
+					if (wrap) {
+						wrap.classList.add('bec-search-form-wrap--popover-open');
+					}
+					setBodyScrollLock(true);
+					var reduceSheetMotion =
+						typeof window.matchMedia === 'function' &&
+						window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+					if (reduceSheetMotion) {
+						panel.classList.add('bec-search-form__panel--open');
+					} else {
+						window.requestAnimationFrame(function () {
+							window.requestAnimationFrame(function () {
+								panel.classList.add('bec-search-form__panel--open');
+							});
+						});
+					}
+				} else if (panel === guestPanel && guestTrigger) {
+					bindGuestPanelReposition();
+					window.requestAnimationFrame(function () {
+						window.requestAnimationFrame(positionGuestPanelDesktop);
+					});
 				}
-				if (wrap) {
-					wrap.classList.add('bec-search-form-wrap--popover-open');
+				openTrigger = trigger;
+				openPanel = panel;
+				if (panel === guestPanel) {
+					captureGuestPanelCommitSnapshot();
 				}
-				setBodyScrollLock(true);
-			} else if (panel === guestPanel && guestTrigger) {
-				bindGuestPanelReposition();
-				window.requestAnimationFrame(function () {
-					window.requestAnimationFrame(positionGuestPanelDesktop);
-				});
-			}
-			openTrigger = trigger;
-			openPanel = panel;
-			if (panel === guestPanel) {
-				captureGuestPanelCommitSnapshot();
-			}
+			});
 		}
 
 		function togglePanel(trigger) {
@@ -568,12 +630,13 @@
 						restoreGuestPanelCommitSnapshot();
 						formatGuests();
 					}
-					closeAll();
-					if (guestTrigger && typeof guestTrigger.focus === 'function') {
-						window.requestAnimationFrame(function () {
-							guestTrigger.focus();
-						});
-					}
+					closeAll(undefined, function () {
+						if (guestTrigger && typeof guestTrigger.focus === 'function') {
+							window.requestAnimationFrame(function () {
+								guestTrigger.focus();
+							});
+						}
+					});
 				});
 			}
 		}

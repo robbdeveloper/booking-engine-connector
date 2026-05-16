@@ -184,6 +184,52 @@
 		}
 		ensureDrpScrollWrap();
 
+		(function patchDrpMobileSheetHide() {
+			if (!drp || typeof drp.hide !== 'function') {
+				return;
+			}
+			var mqSheet = window.matchMedia('(max-width: 639px)');
+			var reduceSheet = window.matchMedia('(prefers-reduced-motion: reduce)');
+			var origHide = drp.hide.bind(drp);
+			drp.hide = function () {
+				var $c = drp.container;
+				/* Second hide() during mobile slide-out (e.g. mousedown outside + backdrop click)
+				 * must not strip bec-drp-is-closing and call origHide early — that cancels the animation. */
+				if ($c && $c.length && $c.hasClass('bec-drp-is-closing')) {
+					return;
+				}
+				var shouldAnimate =
+					mqSheet.matches &&
+					!reduceSheet.matches &&
+					$c &&
+					$c.length &&
+					$c.hasClass('bec-drp-is-open') &&
+					!$c.hasClass('bec-drp-is-closing');
+				if (!shouldAnimate) {
+					return origHide();
+				}
+				$c.addClass('bec-drp-is-closing');
+				var el = $c[0];
+				var finished = false;
+				function done() {
+					if (finished) {
+						return;
+					}
+					finished = true;
+					el.removeEventListener('animationend', onEnd);
+					$c.removeClass('bec-drp-is-closing');
+					origHide();
+				}
+				function onEnd(e) {
+					if (e.target === el && e.animationName === 'bec-drp-sheet-exit') {
+						done();
+					}
+				}
+				el.addEventListener('animationend', onEnd);
+				window.setTimeout(done, 400);
+			};
+		})();
+
 		if (ci && co) {
 			updateSplit($wrap, start, end);
 		} else {
@@ -207,7 +253,7 @@
 		$btn.on('hide.daterangepicker', function () {
 			$btn.attr('aria-expanded', 'false');
 			if (drp.container && drp.container.length) {
-				drp.container.removeClass('bec-drp-is-open');
+				drp.container.removeClass('bec-drp-is-open bec-drp-is-closing');
 			}
 			syncBackdropWithDaterange(false);
 		});
@@ -215,7 +261,7 @@
 		$btn.on('show.daterangepicker', function () {
 			$btn.attr('aria-expanded', 'true');
 			if (drp.container && drp.container.length) {
-				drp.container.addClass('bec-drp-is-open');
+				drp.container.removeClass('bec-drp-is-closing').addClass('bec-drp-is-open');
 			}
 			ensureDrpScrollWrap();
 			var s = $inCheckin.val() ? moment($inCheckin.val(), 'YYYY-MM-DD', true) : null;

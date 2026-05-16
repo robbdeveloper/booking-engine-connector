@@ -685,12 +685,26 @@
 		border-radius: var(--bec-radius-popover) var(--bec-radius-popover) 0 0;
 		box-shadow: 0 -8px 32px rgba(0, 0, 0, 0.15);
 		transform: translateY(110%);
-		transition: transform 0.28s ease;
+		transition: transform 0.34s cubic-bezier(0.32, 0.72, 0, 1);
+		will-change: transform;
 		z-index: 130;
 	}
 
 	.bec-search-form__panel.bec-search-form__panel--open {
 		transform: translateY(0);
+		will-change: auto;
+	}
+
+	@media (prefers-reduced-motion: reduce) {
+		.bec-search-form__panel {
+			transition: none;
+			transform: none;
+			will-change: auto;
+		}
+
+		.bec-search-form__panel.bec-search-form__panel--open {
+			transform: none;
+		}
 	}
 
 	.bec-search-form__panel-inner {
@@ -1058,6 +1072,24 @@
  * Without it, plain .daterangepicker { display: flex } would override the vendor display:none
  * on first paint (before jQuery sets inline display on hide).
  */
+@keyframes bec-drp-sheet-enter {
+	from {
+		transform: translateY(110%);
+	}
+	to {
+		transform: translateY(0);
+	}
+}
+
+@keyframes bec-drp-sheet-exit {
+	from {
+		transform: translateY(0);
+	}
+	to {
+		transform: translateY(110%);
+	}
+}
+
 @media (max-width: 639px) {
 	.daterangepicker.bec-drp-is-open {
 		position: fixed !important;
@@ -1075,6 +1107,25 @@
 		border-radius: var(--bec-radius-popover) var(--bec-radius-popover) 0 0;
 		padding: 1rem 1rem 0;
 		box-shadow: 0 -8px 32px rgba(0, 0, 0, 0.15);
+		animation: bec-drp-sheet-enter 0.34s cubic-bezier(0.32, 0.72, 0, 1) both;
+		will-change: transform;
+	}
+
+	.daterangepicker.bec-drp-is-open.bec-drp-is-closing {
+		animation: bec-drp-sheet-exit 0.28s cubic-bezier(0.4, 0, 1, 1) both;
+		will-change: transform;
+	}
+
+	@media (prefers-reduced-motion: reduce) {
+		.daterangepicker.bec-drp-is-open {
+			animation: none !important;
+			will-change: auto;
+		}
+
+		.daterangepicker.bec-drp-is-open.bec-drp-is-closing {
+			animation: none !important;
+			will-change: auto;
+		}
 	}
 
 	.daterangepicker.bec-drp-is-open .ranges {
