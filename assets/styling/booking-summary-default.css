@@ -555,6 +555,20 @@ details>summary {
 	min-width: 0;
 }
 
+/*
+ * After availability was loaded, changing dates/guests marks the quote stale (JS).
+ * Match the initial incomplete layout: no "Summary" row; show the embedded search's
+ * "Select dates" label (daterange ::before) above the controls.
+ */
+.bec-booking-summary.bec-booking-summary--quote-stale .bec-booking-summary__desktop .bec-booking-summary__head {
+	display: none !important;
+}
+.bec-booking-summary.bec-booking-summary--quote-stale
+	.bec-booking-summary__inner:not(.bec-booking-summary__inner--incomplete)
+	.bec-search-form__control--daterange::before {
+	display: block !important;
+}
+
 .bec-booking-summary__actions--row {
 	flex-direction: row;
 }
