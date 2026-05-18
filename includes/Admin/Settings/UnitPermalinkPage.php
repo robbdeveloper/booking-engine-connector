@@ -6,6 +6,7 @@ namespace BookingEngineConnector\Admin\Settings;
 
 use BookingEngineConnector\Admin\AdminMenu;
 use BookingEngineConnector\PostTypes\UnitPostType;
+use BookingEngineConnector\Taxonomies\UnitCategoryTaxonomy;
 
 /**
  * Admin setting for the public URL slug of synced units (rewrite only; internal post type stays bec_unit).
@@ -30,6 +31,10 @@ final class UnitPermalinkPage
 		$stored = (string) \get_option(UnitPostType::OPTION_PERMALINK_SLUG, '');
 		$hasArchive = (bool) \get_option(UnitPostType::OPTION_HAS_ARCHIVE, false);
 		$exampleSlug = UnitPostType::getPermalinkSlug();
+
+		$categoryEnabled = (bool) \get_option(UnitCategoryTaxonomy::OPTION_ENABLED, false);
+		$categorySlugStored = (string) \get_option(UnitCategoryTaxonomy::OPTION_PERMALINK_SLUG, '');
+		$categoryExampleSlug = UnitCategoryTaxonomy::resolvePermalinkSlug();
 
 		echo '<div class="wrap">';
 		if (isset($_GET['bec_saved']) && (string) \sanitize_text_field(\wp_unslash((string) $_GET['bec_saved'])) === '1') {
@@ -67,6 +72,28 @@ final class UnitPermalinkPage
 			'booking-engine-connector'
 		) . '</p>';
 		echo '</td></tr>';
+
+		echo '<tr><th scope="row">' . \esc_html__('Unit categories', 'booking-engine-connector') . '</th><td>';
+		echo '<label for="bec_unit_category_enabled"><input type="checkbox" name="bec_unit_category_enabled" id="bec_unit_category_enabled" value="1" ' . \checked($categoryEnabled, true, false) . ' /> ';
+		echo \esc_html__('Enable the Unit Category taxonomy (sync assigns categories from the booking engine when supported).', 'booking-engine-connector') . '</label>';
+		echo '<p class="description">' . \sprintf(
+			/* translators: %s: internal taxonomy key (fixed in the database) */
+			\esc_html__('Internal taxonomy key (unchanged): %s', 'booking-engine-connector'),
+			'<code>' . \esc_html(UnitCategoryTaxonomy::getSlug()) . '</code>'
+		) . '</p>';
+		echo '</td></tr>';
+
+		echo '<tr><th scope="row"><label for="bec_unit_category_permalink_slug">' . \esc_html__('Category URL slug', 'booking-engine-connector') . '</label></th><td>';
+		echo '<input type="text" class="regular-text" name="bec_unit_category_permalink_slug" id="bec_unit_category_permalink_slug" value="' . \esc_attr($categorySlugStored) . '" autocomplete="off" placeholder="' . \esc_attr(UnitCategoryTaxonomy::DEFAULT_REWRITE_SLUG) . '" />';
+		$catSample = \trailingslashit($home) . $categoryExampleSlug . '/example-category/';
+		echo '<p class="description">' . \sprintf(
+			/* translators: 1: example term URL, 2: default slug */
+			\esc_html__('Category term URLs look like %1$s. Leave empty to use the default base “%2$s”. Disabling categories above removes public archives and the admin UI while keeping stored terms.', 'booking-engine-connector'),
+			'<code>' . \esc_html($catSample) . '</code>',
+			\esc_html(UnitCategoryTaxonomy::DEFAULT_REWRITE_SLUG)
+		) . '</p>';
+		echo '</td></tr>';
+
 		echo '</table>';
 
 		echo '<p class="submit"><button type="submit" class="button button-primary">' . \esc_html__('Save changes', 'booking-engine-connector') . '</button></p>';
@@ -94,6 +121,16 @@ final class UnitPermalinkPage
 		}
 
 		\update_option(UnitPostType::OPTION_HAS_ARCHIVE, isset($_POST['bec_unit_has_archive']), false);
+
+		\update_option(UnitCategoryTaxonomy::OPTION_ENABLED, isset($_POST['bec_unit_category_enabled']), false);
+
+		$rawCatSlug = isset($_POST['bec_unit_category_permalink_slug']) ? \wp_unslash((string) $_POST['bec_unit_category_permalink_slug']) : '';
+		$rawCatSlug = \trim($rawCatSlug);
+		if ($rawCatSlug === '') {
+			\update_option(UnitCategoryTaxonomy::OPTION_PERMALINK_SLUG, '', false);
+		} else {
+			\update_option(UnitCategoryTaxonomy::OPTION_PERMALINK_SLUG, \sanitize_title($rawCatSlug), false);
+		}
 
 		\flush_rewrite_rules(false);
 

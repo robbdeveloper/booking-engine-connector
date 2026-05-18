@@ -13,6 +13,7 @@ use BookingEngineConnector\Providers\Contracts\ProviderErrorCategory;
 use BookingEngineConnector\Providers\Contracts\ProviderException;
 use BookingEngineConnector\Providers\Contracts\ProviderInterface;
 use BookingEngineConnector\Providers\Contracts\SearchGuestFieldMode;
+use BookingEngineConnector\Taxonomies\UnitCategoryTaxonomy;
 
 /**
  * Kross API v5: room types + calendar availability (see docs/KROSS-API.md).
@@ -135,6 +136,11 @@ final class KrossProvider implements ProviderInterface, BulkQuoteProviderInterfa
 	 */
 	private function fetchRoomTypesDecodedAndRows(): array
 	{
+		$categoryMap = [];
+		if (UnitCategoryTaxonomy::isEnabled()) {
+			$categoryMap = $this->fetchRoomTypeCategoriesMap();
+		}
+
 		$payload = (array) \apply_filters(
 			'bec_kross_room_types_payload',
 			[
@@ -167,9 +173,86 @@ final class KrossProvider implements ProviderInterface, BulkQuoteProviderInterfa
 		}
 
 		$data = KrossResponseParser::getDataPayload($decoded);
-		$rows = $this->normalizeRoomTypesList($data);
+		$rows = $this->normalizeRoomTypesList($data, $categoryMap);
 
 		return [ $decoded, $rows ];
+	}
+
+	/**
+	 * Room-type categories keyed by {@see id_room_type_category}.
+	 *
+	 * @return array<string, array<string, mixed>>
+	 *
+	 * @throws ProviderException
+	 */
+	private function fetchRoomTypeCategoriesMap(): array
+	{
+		$payload = (array) \apply_filters('bec_kross_room_type_categories_payload', []);
+
+		$response = $this->api->request('GET', '/v5/rooms/get-room-types-categories', $payload);
+
+		$this->assertHttpOk($response);
+
+		$decoded = KrossResponseParser::decodeBody($response->getBody());
+
+		if (! KrossResponseParser::isSuccess($decoded)) {
+			throw new ProviderException(
+				self::formatEnvelopeFailure(
+					\__('Kross get-room-types-categories request was not successful.', 'booking-engine-connector'),
+					$decoded
+				),
+				self::decodedErrorCategory($decoded)
+			);
+		}
+
+		$data = KrossResponseParser::getDataPayload($decoded);
+		$list = self::isSequentialList($data) ? $data : ( $data !== [] ? [ $data ] : [] );
+
+		/** @var array<int, mixed> $list */
+		$list = \apply_filters('bec_kross_room_type_categories', $list, $decoded);
+
+		$map = [];
+
+		foreach ($list as $item) {
+			if (! \is_array($item)) {
+				continue;
+			}
+
+			$normalized = $this->normalizeRoomTypeCategoryRow($item);
+			$externalId = (string) ($normalized['external_id'] ?? '');
+			if ($externalId === '') {
+				continue;
+			}
+
+			$map[ $externalId ] = $normalized;
+		}
+
+		return $map;
+	}
+
+	/**
+	 * @param array<string, mixed> $row
+	 *
+	 * @return array<string, mixed>
+	 */
+	private function normalizeRoomTypeCategoryRow(array $row): array
+	{
+		$externalId = (string) ($row['id_room_type_category'] ?? '');
+		$name       = (string) ($row['name_room_type_category'] ?? '');
+		$namesRaw   = $row['names'] ?? [];
+		$names      = [];
+
+		if (\is_array($namesRaw)) {
+			/** @var array<mixed, mixed> $namesRaw */
+			$names = UnitCategoryTaxonomy::coerceDescriptorNamesToMap($namesRaw);
+		}
+
+		return [
+			'external_id' => $externalId,
+			'name'        => $name,
+			'names'       => $names,
+			'raw'         => $row,
+		];
 	}
 
 	/**
@@ -571,7 +654,13 @@ final class KrossProvider implements ProviderInterface, BulkQuoteProviderInterfa
 	 * @param array<int|string, mixed> $data
 	 * @return array<int, array<string, mixed>>
 	 */
-	private function normalizeRoomTypesList(array $data): array
+	/**
+	 * @param array<int|string, mixed> $data
+	 * @param array<string, array<string, mixed>> $categoryMap
+	 *
+	 * @return array<int, array<string, mixed>>
+	 */
+	private function normalizeRoomTypesList(array $data, array $categoryMap = []): array
 	{
 		$list = self::isSequentialList($data) ? $data : ( $data !== [] ? [ $data ] : [] );
 		$out  = [];
@@ -584,11 +673,28 @@ final class KrossProvider implements ProviderInterface, BulkQuoteProviderInterfa
 			if ($id === '') {
 				continue;
 			}
-			$out[] = [
+
+			$item = [
 				'external_id' => $id,
 				'name'        => (string) ($row['name'] ?? $row['name_room_type'] ?? $row['des_room_type'] ?? $row['room_type_name'] ?? ''),
 				'raw'         => $row,
 			];
+
+			$idCat = (string) ($row['id_room_type_category'] ?? '');
+			$descriptor = null;
+
+			if ($idCat !== '' && isset($categoryMap[ $idCat ])) {
+				$descriptor = $categoryMap[ $idCat ];
+			}
+
+			/** @var mixed $descriptor */
+			$descriptor = \apply_filters('bec_kross_room_type_category_from_row', $descriptor, $row, $categoryMap);
+
+			if (\is_array($descriptor) && (string) ($descriptor['external_id'] ?? '') !== '') {
+				$item['unit_category'] = $descriptor;
+			}
+
+			$out[] = $item;
 		}
 
 		return $out;

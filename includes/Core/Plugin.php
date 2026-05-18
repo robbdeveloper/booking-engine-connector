@@ -22,7 +22,9 @@ use BookingEngineConnector\Shortcodes\ShortcodeRegistry;
 use BookingEngineConnector\Styling\StylingSettings;
 use BookingEngineConnector\Sync\CoreUnitFieldRegistry;
 use BookingEngineConnector\Sync\SyncCron;
+use BookingEngineConnector\Sync\UnitCategorySync;
 use BookingEngineConnector\Sync\UnitSyncFieldRegistry;
+use BookingEngineConnector\Taxonomies\UnitCategoryTaxonomy;
 
 /**
  * Main plugin bootstrap.
@@ -78,8 +80,10 @@ final class Plugin
 		SyncCron::register();
 		SyncAdmin::register();
 		UnitPostType::register();
+		UnitCategoryTaxonomy::register();
 		CoreUnitFieldRegistry::register();
 		UnitSyncFieldRegistry::register();
+		UnitCategorySync::register();
 		ShortcodeRegistry::register();
 	}
 }

@@ -35,6 +35,7 @@ final class UnitPostType
 	public static function register(): void
 	{
 		add_action('init', [self::class, 'onInit'], 5);
+		add_action('init', [self::class, 'maybeFlushRewrites'], 100);
 	}
 
 	/**
@@ -77,14 +78,19 @@ final class UnitPostType
 			]
 		);
 
-		if (get_option(self::OPTION_NEEDS_REWRITE_FLUSH)) {
-			delete_option(self::OPTION_NEEDS_REWRITE_FLUSH);
-			flush_rewrite_rules(false);
-		}
-
 		self::registerMeta();
 		self::registerAdminListHooks();
 		self::registerAdminEditorHooks();
+	}
+
+	public static function maybeFlushRewrites(): void
+	{
+		if (! get_option(self::OPTION_NEEDS_REWRITE_FLUSH)) {
+			return;
+		}
+
+		delete_option(self::OPTION_NEEDS_REWRITE_FLUSH);
+		flush_rewrite_rules(false);
 	}
 
 	/**

@@ -6,6 +6,7 @@ namespace BookingEngineConnector\Core;
 
 use BookingEngineConnector\Fallback\FallbackSettings;
 use BookingEngineConnector\PostTypes\UnitPostType;
+use BookingEngineConnector\Taxonomies\UnitCategoryTaxonomy;
 use BookingEngineConnector\Providers\Contracts\ProviderErrorCategory;
 use BookingEngineConnector\Sync\SyncCron;
 
@@ -52,6 +53,8 @@ final class Activator
 		\add_option(FallbackSettings::OPTION_INLINE_CONTENT, '', '', false);
 
 		\add_option(UnitPostType::OPTION_PERMALINK_SLUG, '', '', false);
+		\add_option(UnitCategoryTaxonomy::OPTION_ENABLED, 0, '', false);
+		\add_option(UnitCategoryTaxonomy::OPTION_PERMALINK_SLUG, '', '', false);
 		UnitPostType::scheduleRewriteFlush();
 
 		\add_filter('cron_schedules', [SyncCron::class, 'registerSchedule']);
