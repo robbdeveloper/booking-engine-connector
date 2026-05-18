@@ -9,6 +9,16 @@
 		return;
 	}
 
+	function sprintfSyncedSummary(fmt, a1, a2, a3) {
+		if (!fmt) {
+			return '';
+		}
+		return fmt
+			.replace(/%1\$d/g, String(a1))
+			.replace(/%2\$d/g, String(a2))
+			.replace(/%3\$d/g, String(a3));
+	}
+
 	var form = document.getElementById('bec-sync-all-form');
 	var panel = document.getElementById('bec-sync-progress');
 	var statusEl = document.getElementById('bec-sync-progress-status');
@@ -144,7 +154,7 @@
 					var err =
 						body.data && body.data.message
 							? String(body.data.message)
-							: 'Sync failed.';
+							: cfg.syncFailedGeneric || 'Sync failed.';
 					if (statusEl) {
 						statusEl.textContent = err;
 					}
@@ -152,14 +162,24 @@
 				}
 				if (body && body.data && body.data.result && statusEl) {
 					var res = body.data.result;
+					var tmpl = cfg.syncResultSummary || '';
 					var tail =
+						tmpl ||
 						'Created ' +
-						(res.created || 0) +
-						', updated ' +
-						(res.updated || 0) +
-						', skipped ' +
-						(res.skipped || 0) +
-						'.';
+							(res.created || 0) +
+							', updated ' +
+							(res.updated || 0) +
+							', skipped ' +
+							(res.skipped || 0) +
+							'.';
+					if (tmpl) {
+						tail = sprintfSyncedSummary(
+							tmpl,
+							res.created || 0,
+							res.updated || 0,
+							res.skipped || 0
+						);
+					}
 					if (res.errors && res.errors.length) {
 						tail += ' ' + res.errors.join(' ');
 					}
@@ -174,6 +194,7 @@
 				}
 				if (statusEl) {
 					statusEl.textContent =
+						cfg.syncUnexpectedResponse ||
 						'Sync request failed or returned an unexpected response. Try again or disable JavaScript to use the standard sync.';
 				}
 			});

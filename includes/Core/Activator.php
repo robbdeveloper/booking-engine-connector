@@ -48,7 +48,7 @@ final class Activator
 		);
 		\add_option(FallbackSettings::OPTION_EMPTY_QUOTE, 0, '', false);
 		\add_option(FallbackSettings::OPTION_LINK_URL, '', '', false);
-		\add_option(FallbackSettings::OPTION_LINK_TEXT, 'Contact us', '', false);
+		\add_option(FallbackSettings::OPTION_LINK_TEXT, '', '', false);
 		\add_option(FallbackSettings::OPTION_INLINE_CONTENT, '', '', false);
 
 		\add_option(UnitPostType::OPTION_PERMALINK_SLUG, '', '', false);

@@ -7,6 +7,7 @@ namespace BookingEngineConnector\Providers\Kross;
 use BookingEngineConnector\Api\HttpClient;
 use BookingEngineConnector\Api\HttpResponse;
 use BookingEngineConnector\Fallback\FallbackSettings;
+use BookingEngineConnector\Integrations\Multilingual;
 use BookingEngineConnector\Providers\Contracts\BulkQuoteProviderInterface;
 use BookingEngineConnector\Providers\Contracts\ProviderErrorCategory;
 use BookingEngineConnector\Providers\Contracts\ProviderException;
@@ -400,7 +401,7 @@ final class KrossProvider implements ProviderInterface, BulkQuoteProviderInterfa
 			}
 		}
 
-		$locale = \function_exists('determine_locale') ? \determine_locale() : \get_locale();
+		$locale = Multilingual::filteredSiteLocale('kross_checkout');
 		$locale = \str_replace('-', '_', $locale);
 		$primary = \explode('_', $locale, 2)[0];
 		$code = \strtolower(\substr($primary, 0, 2));

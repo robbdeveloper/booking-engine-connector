@@ -18,6 +18,9 @@ use BookingEngineConnector\Sync\SyncPayloadEncoder;
 
 /**
  * Public shortcodes (TASK-SHO-001).
+ *
+ * User-visible labels use gettext on this text domain. Numbers, currency codes, and rate titles from
+ * the booking provider are treated as dynamic content and are not wrapped for translation here.
  */
 final class ShortcodeRegistry
 {

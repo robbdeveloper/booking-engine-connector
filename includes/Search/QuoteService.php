@@ -11,6 +11,9 @@ use BookingEngineConnector\Providers\ProviderRegistry;
 /**
  * Fetches quotes via the active provider with transient caching (NFR-PERF).
  *
+ * User-facing {@see \WP_Error} messages use generic translated strings; provider exception text is
+ * kept in the error data (`technical`) for logs, not for raw display.
+ *
  * Providers implementing {@see BulkQuoteProviderInterface} (e.g. Kross) cache one batch
  * response per search context and derive per-unit quotes locally (archive loops).
  */
@@ -71,10 +74,17 @@ final class QuoteService
 					$result = $provider->quoteFromBulk($bulk, $externalId, $searchContext);
 				}
 			} catch (ProviderException $e) {
+				/* translators: User-visible error when the booking API returns a failure. */
 				$err = new \WP_Error(
 					'bec_provider_error',
-					$e->getMessage(),
-					['category' => $e->getCategory()]
+					\__(
+						'We could not retrieve a price from the booking provider. Please try again.',
+						'booking-engine-connector'
+					),
+					[
+						'category'  => $e->getCategory(),
+						'technical' => $e->getMessage(),
+					]
 				);
 
 				return \apply_filters('bec_quote_provider_error', $err, $e, $postId, $ctx);
@@ -98,10 +108,17 @@ final class QuoteService
 		try {
 			$result = $provider->getQuoteForUnit($externalId, $searchContext);
 		} catch (ProviderException $e) {
+			/* translators: User-visible error when the booking API returns a failure. */
 			$err = new \WP_Error(
 				'bec_provider_error',
-				$e->getMessage(),
-				['category' => $e->getCategory()]
+				\__(
+					'We could not retrieve a price from the booking provider. Please try again.',
+					'booking-engine-connector'
+				),
+				[
+					'category'  => $e->getCategory(),
+					'technical' => $e->getMessage(),
+				]
 			);
 
 			return \apply_filters('bec_quote_provider_error', $err, $e, $postId, $ctx);

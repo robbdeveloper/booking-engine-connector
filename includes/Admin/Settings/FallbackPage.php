@@ -6,6 +6,7 @@ namespace BookingEngineConnector\Admin\Settings;
 
 use BookingEngineConnector\Admin\AdminMenu;
 use BookingEngineConnector\Fallback\FallbackSettings;
+use BookingEngineConnector\Integrations\Multilingual;
 use BookingEngineConnector\Providers\Contracts\ProviderErrorCategory;
 
 /**
@@ -35,10 +36,7 @@ final class FallbackPage
 		$force        = (bool) \get_option(FallbackSettings::OPTION_FORCE, false);
 		$emptyQuote   = (bool) \get_option(FallbackSettings::OPTION_EMPTY_QUOTE, false);
 		$linkUrl      = (string) \get_option(FallbackSettings::OPTION_LINK_URL, '');
-		$linkText     = (string) \get_option(
-			FallbackSettings::OPTION_LINK_TEXT,
-			\__('Contact us', 'booking-engine-connector')
-		);
+		$linkText = (string) \get_option(FallbackSettings::OPTION_LINK_TEXT, '');
 		$inline       = (string) \get_option(FallbackSettings::OPTION_INLINE_CONTENT, '');
 
 		$triggers = \BookingEngineConnector\Fallback\FallbackService::getTriggerCategories();
@@ -114,6 +112,10 @@ final class FallbackPage
 
 		echo '<tr><th scope="row"><label for="bec_fallback_link_text">' . \esc_html__('Fallback link text', 'booking-engine-connector') . '</label></th><td>';
 		echo '<input type="text" class="regular-text" name="bec_fallback_link_text" id="bec_fallback_link_text" value="' . \esc_attr($linkText) . '" />';
+		echo '<p class="description">' . \esc_html__(
+			'Leave empty to use the default contact label, which follows the active site language.',
+			'booking-engine-connector'
+		) . '</p>';
 		echo '</td></tr>';
 
 		echo '<tr><th scope="row"><label for="bec_fallback_inline_content">' . \esc_html__('Inline content', 'booking-engine-connector') . '</label></th><td>';
@@ -205,6 +207,8 @@ final class FallbackPage
 			}
 		}
 		\update_option(FallbackSettings::OPTION_TRIGGER_CATEGORIES, \wp_json_encode($cats), false);
+
+		Multilingual::syncAfterFallbackSave();
 
 		\wp_safe_redirect(\add_query_arg(['page' => self::PAGE_SLUG, 'bec_saved' => '1'], \admin_url('admin.php')));
 		exit;

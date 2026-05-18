@@ -11,6 +11,10 @@ use BookingEngineConnector\Units\AmenityItem;
  * `[bec_unit_info key="..."]` renderers for Kross — maps keys to callables
  * that read the synced `bec_sync_payload` row (incl. `raw` API data).
  *
+ * Amenity and bedroom labels come from the API (`labels` per locale); fixed UI strings belong in
+ * gettext. When the API omits a label, the amenity key is shown — use the
+ * `bec_kross_unit_amenity_display_label` filter to map or translate those fallbacks.
+ *
  * @see KrossProvider::getUnitInfoRenderers()
  */
 final class KrossUnitInfoRenderers
@@ -74,6 +78,14 @@ final class KrossUnitInfoRenderers
 			if ($label === '') {
 				$label = $key;
 			}
+			$label = (string) \apply_filters(
+				'bec_kross_unit_amenity_display_label',
+				$label,
+				$key,
+				$labs,
+				$locale,
+				$postId
+			);
 			$iconClass    = 'bec-amenities__icon icon-' . $key;
 			$li[] = '<li class="bec-amenities__item">'
 				. '<i class="' . \esc_attr($iconClass) . '" aria-hidden="true"></i>'

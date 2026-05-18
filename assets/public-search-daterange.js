@@ -134,12 +134,15 @@
 			maxSpan: { days: maxNights },
 			locale: {
 				format: 'YYYY-MM-DD',
-				separator: ' – ',
+				separator:
+					cfg.dateRangeSeparator !== undefined && cfg.dateRangeSeparator !== ''
+						? cfg.dateRangeSeparator
+						: ' – ',
 				applyLabel: cfg.applyLabel || 'Apply',
 				cancelLabel: cfg.cancelLabel || 'Cancel',
 				fromLabel: cfg.checkinLabel || 'Check-in',
 				toLabel: cfg.checkoutLabel || 'Check-out',
-				customRangeLabel: 'Custom',
+				customRangeLabel: cfg.customRangeLabel || 'Custom',
 				daysOfWeek: daysOfWeek,
 				monthNames: monthNames,
 				firstDay: firstDay,

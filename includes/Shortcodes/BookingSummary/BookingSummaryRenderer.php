@@ -9,6 +9,7 @@ use BookingEngineConnector\Checkout\CheckoutUrlService;
 use BookingEngineConnector\Fallback\FallbackRenderer;
 use BookingEngineConnector\Fallback\FallbackService;
 use BookingEngineConnector\Fallback\FallbackSettings;
+use BookingEngineConnector\Integrations\Multilingual;
 use BookingEngineConnector\PostTypes\UnitPostType;
 use BookingEngineConnector\Providers\ProviderRegistry;
 use BookingEngineConnector\Search\QuoteService;
@@ -66,7 +67,12 @@ final class BookingSummaryRenderer
 		$ctxArg      = (string) ( $a['context'] ?? 'bec_booking_summary' );
 
 		$showEnquiry    = \in_array( \strtolower( (string) ( $a['show_enquiry'] ?? '1' ) ), [ '1', 'true', 'yes' ], true );
-		$enquiryDefault = (string) \get_option( FallbackSettings::OPTION_LINK_TEXT, \__( 'Contact us', 'booking-engine-connector' ) );
+		$storedFallbackLink = (string) \get_option( FallbackSettings::OPTION_LINK_TEXT, '' );
+		if ( $storedFallbackLink !== '' ) {
+			$enquiryDefault = Multilingual::translateFallbackLinkText( $storedFallbackLink );
+		} else {
+			$enquiryDefault = \__( 'Contact us', 'booking-engine-connector' );
+		}
 		$enquiryLabel   = (string) ( $a['enquiry_label'] ?? \__( 'Enquiry', 'booking-engine-connector' ) );
 		if ( $enquiryLabel === '' ) {
 			$enquiryLabel = $enquiryDefault;

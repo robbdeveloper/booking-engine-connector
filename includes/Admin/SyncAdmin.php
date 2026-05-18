@@ -282,6 +282,19 @@ final class SyncAdmin
 				'ajaxUrl'   => \admin_url('admin-ajax.php'),
 				'nonce'     => \wp_create_nonce('bec_sync_progress'),
 				'syncNonce' => \wp_create_nonce('bec_sync_all'),
+				'syncFailedGeneric' => \__(
+					'Sync failed.',
+					'booking-engine-connector'
+				),
+				/* translators: 1: created posts, 2: updated posts, 3: skipped posts */
+				'syncResultSummary' => \__(
+					'Created %1$d, updated %2$d, skipped %3$d.',
+					'booking-engine-connector'
+				),
+				'syncUnexpectedResponse' => \__(
+					'Sync request failed or returned an unexpected response. Try again or disable JavaScript to use the standard sync.',
+					'booking-engine-connector'
+				),
 			]
 		);
 	}

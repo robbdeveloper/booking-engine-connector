@@ -9,6 +9,11 @@ use BookingEngineConnector\Search\SearchContext;
 /**
  * Builds a view-model array for {@see BookingSummaryRenderer} from quote + unit payload.
  *
+ * Rate names, inclusion/condition HTML, amounts, and API-derived service titles are provider content
+ * and are not passed through `_x()` / `__()`. Section headings and generic fallbacks ("Mandatory service",
+ * "Service", currency/guest fragments) use gettext; per-row labels prefer API values via
+ * {@see self::krossV5ServiceLabel()} and filters such as `bec_kross_included_service_label`.
+ *
  * @phpstan-type SummaryRate array{id: string, label: string, amount: ?float, currency: ?string, raw: mixed}
  * @phpstan-type LineItem array{key: string, label: string, amount: ?float, currency: ?string, note: string}
  * @phpstan-type ViewModel array{
@@ -727,13 +732,10 @@ final class BookingSummaryViewModelBuilder
 	public static function formatMoney( float $amount, string $currency ): string {
 		$num = \number_format_i18n( $amount, 2 );
 		$cc  = \strtoupper( $currency );
-		if ( $cc === 'EUR' || $cc === '€' ) {
-			/* translators: %s: amount with i18n decimal formatting (European style). */
-			return \sprintf( \__( '%s €', 'booking-engine-connector' ), $num );
-		}
-		if ( $cc !== '' ) {
-			/* translators: 1: amount, 2: currency. */
-			return \sprintf( \__( '%1$s %2$s', 'booking-engine-connector' ), $num, $cc );
+		$symbolOrCode = ( $cc === 'EUR' || $cc === '€' ) ? '€' : $cc;
+		if ( $symbolOrCode !== '' ) {
+			/* translators: 1: formatted amount, 2: currency code or symbol (e.g. EUR, €). */
+			return \sprintf( \__( '%1$s %2$s', 'booking-engine-connector' ), $num, $symbolOrCode );
 		}
 
 		return $num;

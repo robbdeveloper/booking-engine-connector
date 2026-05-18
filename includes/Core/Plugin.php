@@ -13,6 +13,7 @@ use BookingEngineConnector\Admin\SyncAdmin;
 use BookingEngineConnector\Elementor\AvailabilityQueryFilter;
 use BookingEngineConnector\Front\AmenitiesAssets;
 use BookingEngineConnector\Front\PublicAssets;
+use BookingEngineConnector\Integrations\Multilingual;
 use BookingEngineConnector\Front\PublicContentBlocks;
 use BookingEngineConnector\PostTypes\UnitPostType;
 use BookingEngineConnector\Search\SearchSettings;
@@ -56,6 +57,8 @@ final class Plugin
 			false,
 			dirname(\BEC_PLUGIN_BASENAME) . '/languages'
 		);
+
+		Multilingual::register();
 
 		PluginScreenLinks::register();
 		PluginUpdater::register();
