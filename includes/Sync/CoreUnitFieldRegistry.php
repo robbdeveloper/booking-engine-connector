@@ -37,7 +37,7 @@ final class CoreUnitFieldRegistry
 	/**
 	 * @param array<string, mixed> $row
 	 */
-	public static function applyFromProviderRow(int $postId, string $providerSlug, array $row): void
+	public static function applyFromProviderRow(int $postId, string $providerSlug, array $row, bool $deferGallery = false): void
 	{
 		if (! \apply_filters('bec_sync_apply_core_unit_fields', true, $postId, $providerSlug, $row)) {
 			return;
@@ -66,11 +66,56 @@ final class CoreUnitFieldRegistry
 			$type    = $conf['type'];
 			$value   = $data[ $sem ];
 			if ($sem === CoreUnitSemantic::GALLERY) {
-				$value = self::resolveGalleryForStorage($postId, $value);
+				if ($deferGallery) {
+					$value = self::preserveExistingGalleryMetaForDeferredImport($postId, $value);
+				} else {
+					$value = self::resolveGalleryForStorage($postId, $value);
+				}
 			}
 			$san = self::sanitizeValue($type, $value);
 			update_post_meta($postId, $metaKey, $san);
 		}
+	}
+
+	/**
+	 * @param mixed $incomingGallery Value from the provider pipeline (may be a remote payload). Existing attachment IDs are kept until a deferred import finishes.
+	 */
+	private static function preserveExistingGalleryMetaForDeferredImport(int $postId, $incomingGallery)
+	{
+		unset($incomingGallery);
+
+		$metaKey = CoreUnitMetaKeys::definitions()[ CoreUnitSemantic::GALLERY ]['meta_key'];
+		$raw     = \get_post_meta($postId, $metaKey, true);
+
+		return self::decodeGalleryIdListFromMeta($raw);
+	}
+
+	/**
+	 * @return list<int>
+	 */
+	private static function decodeGalleryIdListFromMeta($raw): array
+	{
+		if (\is_string($raw) && $raw !== '') {
+			$decoded = \json_decode($raw, true);
+		} elseif (\is_array($raw)) {
+			$decoded = $raw;
+		} else {
+			return [];
+		}
+		if (! \is_array($decoded) || $decoded === []) {
+			return [];
+		}
+		$ids = [];
+		foreach ($decoded as $v) {
+			if (\is_numeric($v)) {
+				$n = (int) $v;
+				if ($n > 0) {
+					$ids[] = $n;
+				}
+			}
+		}
+
+		return $ids;
 	}
 
 	private static function registerPostMeta(): void

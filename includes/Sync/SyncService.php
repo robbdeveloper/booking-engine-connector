@@ -21,16 +21,30 @@ final class SyncService
 	 * Full sync: fetch remote units, upsert posts. Uses {@see SyncLock}.
 	 *
 	 * @param SyncProgressReporter|null $progress Optional UI progress for manual runs.
+	 * @param string|null               $manualRunId When set (valid admin AJAX id), uses {@see SyncLock::acquireManual()}; otherwise cron-style lock.
 	 * @return array{created:int, updated:int, skipped:int, errors: list<string>}
 	 */
-	public function syncAll(?SyncProgressReporter $progress = null): array
+	public function syncAll(?SyncProgressReporter $progress = null, ?string $manualRunId = null): array
 	{
 		if ($progress !== null) {
 			$progress->running(\__('Starting sync…', 'booking-engine-connector'));
 			$progress->addLine(\__('Acquiring sync lock…', 'booking-engine-connector'));
 		}
 
-		if (! SyncLock::acquire()) {
+		$manualSanitized = null;
+		if ($manualRunId !== null && SyncProgressReporter::isValidRunId($manualRunId)) {
+			$manualSanitized = SyncProgressReporter::sanitizeRunId($manualRunId);
+		}
+
+		$userId = (int) \get_current_user_id();
+
+		if ($manualSanitized !== null) {
+			$lockOk = SyncLock::acquireManual($userId, $manualSanitized);
+		} else {
+			$lockOk = SyncLock::acquireCron();
+		}
+
+		if (! $lockOk) {
 			$out = [
 				'created' => 0,
 				'updated' => 0,
@@ -86,14 +100,7 @@ final class SyncService
 				return $out;
 			}
 
-			/** @var list<array<string, mixed>> $rowList */
-			$rowList = [];
-			foreach ($remote as $row) {
-				if (! \is_array($row)) {
-					continue;
-				}
-				$rowList[] = $row;
-			}
+			$rowList = $this->normalizeRemoteUnitRows($remote);
 
 			$total = \count($rowList);
 			if ($progress !== null) {
@@ -113,6 +120,8 @@ final class SyncService
 
 			$index = 0;
 			foreach ($rowList as $row) {
+				SyncLock::refresh();
+
 				++$index;
 				$row = (array) \apply_filters('bec_sync_remote_unit', $row, $slug);
 
@@ -149,7 +158,8 @@ final class SyncService
 				}
 
 				try {
-					$result = $this->upsertFromRemoteRow($externalId, $slug, $row);
+					$pack    = $this->upsertFromRemoteRow($externalId, $slug, $row, null, false);
+					$result = $pack['result'];
 					if ($result === 'created') {
 						++$out['created'];
 						if ($progress !== null) {
@@ -194,7 +204,11 @@ final class SyncService
 
 			\update_option('bec_sync_last_run_at', \current_time('mysql'), false);
 		} finally {
-			SyncLock::release();
+			if ($manualSanitized !== null) {
+				SyncLock::releaseManual($userId, $manualSanitized);
+			} else {
+				SyncLock::releaseCron();
+			}
 		}
 
 		if ($progress !== null) {
@@ -258,20 +272,59 @@ final class SyncService
 			);
 		}
 
-		$this->upsertFromRemoteRow($externalId, $slug, $match, $postId);
+		$this->upsertFromRemoteRow($externalId, $slug, $match, $postId, false);
+	}
+
+	/**
+	 * @param iterable<mixed> $remote
+	 * @return list<array<string, mixed>>
+	 */
+	public function normalizeRemoteUnitRows(iterable $remote): array
+	{
+		$rowList = [];
+		foreach ($remote as $row) {
+			if (! \is_array($row)) {
+				continue;
+			}
+			$rowList[] = $row;
+		}
+
+		return $rowList;
 	}
 
 	/**
 	 * @param array<string, mixed> $row
-	 * @return 'created'|'updated'|'skipped'
+	 * @return array{result: 'created'|'updated'|'skipped', deferred_gallery: array<string, mixed>|null, post_id: int}
 	 */
-	private function upsertFromRemoteRow(string $externalId, string $providerSlug, array $row, ?int $knownPostId = null): string
+	public function upsertRemoteRowForManualBatch(string $providerSlug, array $row, bool $deferGallery): array
+	{
+		$externalId = (string) ($row['external_id'] ?? '');
+		if ($externalId === '') {
+			return [
+				'result'            => 'skipped',
+				'deferred_gallery'  => null,
+				'post_id'           => 0,
+			];
+		}
+
+		return $this->upsertFromRemoteRow($externalId, $providerSlug, $row, null, $deferGallery);
+	}
+
+	/**
+	 * @param array<string, mixed> $row
+	 * @return array{result: 'created'|'updated'|'skipped', deferred_gallery: array<string, mixed>|null}
+	 */
+	private function upsertFromRemoteRow(string $externalId, string $providerSlug, array $row, ?int $knownPostId = null, bool $deferGallery = false): array
 	{
 		$postId = $knownPostId ?? $this->findPostIdByExternal($externalId, $providerSlug);
 
 		$syncEnabled = $postId ? (bool) \get_post_meta($postId, 'bec_sync_enabled', true) : true;
 		if ($postId && ! $syncEnabled) {
-			return 'skipped';
+			return [
+				'result'            => 'skipped',
+				'deferred_gallery'  => null,
+				'post_id'           => $postId,
+			];
 		}
 
 		$providerInstance = ProviderRegistry::getProvider($providerSlug);
@@ -349,18 +402,72 @@ final class SyncService
 		$payloadJson = SyncPayloadEncoder::encode($row);
 		\update_post_meta($newId, 'bec_sync_payload', $payloadJson);
 
-		CoreUnitFieldRegistry::applyFromProviderRow($newId, $providerSlug, $row);
+		CoreUnitFieldRegistry::applyFromProviderRow($newId, $providerSlug, $row, $deferGallery);
 		UnitSyncFieldRegistry::applyFromRemoteRow($newId, $providerSlug, $row);
 
 		\do_action('bec_after_unit_sync', $newId, $providerSlug, $row);
 
-		return $postId ? 'updated' : 'created';
+		$deferredGallery = null;
+		if ($deferGallery) {
+			$deferredGallery = $this->maybeDeferredRemoteGalleryPayload($providerSlug, $row);
+		}
+
+		return [
+			'result'            => $postId ? 'updated' : 'created',
+			'deferred_gallery'  => $deferredGallery,
+			'post_id'           => $newId,
+		];
+	}
+
+	/**
+	 * @param array<string, mixed> $row
+	 * @return array<string, mixed>|null Normalised remote gallery payload for {@see \BookingEngineConnector\Media\RemoteGalleryImporter::importFromRemotePayloadResumable()}.
+	 */
+	private function maybeDeferredRemoteGalleryPayload(string $providerSlug, array $row): ?array
+	{
+		$providerInstance = ProviderRegistry::getProvider($providerSlug);
+		$coreData         = $providerInstance->extractCoreUnitFields($row);
+		$coreData         = \apply_filters('bec_core_unit_fields', \is_array($coreData) ? $coreData : [], $providerSlug, $row);
+		if (! \is_array($coreData) || ! isset($coreData[ CoreUnitSemantic::GALLERY ])) {
+			return null;
+		}
+		$g = $coreData[ CoreUnitSemantic::GALLERY ];
+		if (! \is_array($g)) {
+			return null;
+		}
+
+		$hasItems = isset($g['items']) && \is_array($g['items']) && $g['items'] !== [];
+		$hasUrls  = isset($g['urls']) && \is_array($g['urls']) && $g['urls'] !== [];
+		if ($hasItems || $hasUrls) {
+			return $g;
+		}
+
+		$keys   = \array_keys($g);
+		$isList = $keys === \range(0, \count($keys) - 1);
+		if ($isList && $g !== []) {
+			foreach ($g as $x) {
+				if (! \is_string($x) || ! $this->stringLooksLikeHttpUrl($x)) {
+					return null;
+				}
+			}
+
+			return [ 'urls' => \array_values($g) ];
+		}
+
+		return null;
+	}
+
+	private function stringLooksLikeHttpUrl(string $s): bool
+	{
+		$s = \trim($s);
+
+		return $s !== '' && ( \str_starts_with($s, 'http://') || \str_starts_with($s, 'https://') );
 	}
 
 	/**
 	 * @param array<string, mixed> $row
 	 */
-	private function resolveRowTitleForProgress(string $providerSlug, array $row): string
+	public function resolveRowTitleForProgress(string $providerSlug, array $row): string
 	{
 		$externalId = (string) ($row['external_id'] ?? '');
 

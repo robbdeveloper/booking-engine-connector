@@ -1,5 +1,6 @@
 /**
  * Live progress UI for manual full sync (Sync admin page).
+ * Uses short admin-ajax "start" + "step" requests so each HTTP round-trip stays within PHP/proxy limits.
  */
 (function () {
 	'use strict';
@@ -62,6 +63,74 @@
 		return body;
 	}
 
+	function showFinalSummary(res) {
+		if (!res || !statusEl) {
+			return;
+		}
+		var tmpl = cfg.syncResultSummary || '';
+		var tail =
+			tmpl ||
+			'Created ' +
+				(res.created || 0) +
+				', updated ' +
+				(res.updated || 0) +
+				', skipped ' +
+				(res.skipped || 0) +
+				'.';
+		if (tmpl) {
+			tail = sprintfSyncedSummary(tmpl, res.created || 0, res.updated || 0, res.skipped || 0);
+		}
+		if (res.errors && res.errors.length) {
+			tail += ' ' + res.errors.join(' ');
+		}
+		statusEl.textContent = tail;
+	}
+
+	function startSync(runId) {
+		var b = new FormData();
+		b.append('action', 'bec_sync_start_all');
+		b.append('sync_nonce', cfg.syncNonce);
+		b.append('bec_sync_run_id', runId);
+		return fetch(cfg.ajaxUrl, {
+			method: 'POST',
+			body: b,
+			credentials: 'same-origin',
+		}).then(function (r) {
+			return r.text().then(function (text) {
+				return parseWpJson(text);
+			});
+		});
+	}
+
+	function stepSync(runId) {
+		var b = new FormData();
+		b.append('action', 'bec_sync_step_all');
+		b.append('sync_nonce', cfg.syncNonce);
+		b.append('bec_sync_run_id', runId);
+		return fetch(cfg.ajaxUrl, {
+			method: 'POST',
+			body: b,
+			credentials: 'same-origin',
+		}).then(function (r) {
+			return r.text().then(function (text) {
+				return parseWpJson(text);
+			});
+		});
+	}
+
+	function finish(err, submitBtn, stoppedRef, pollTimer) {
+		stoppedRef.v = true;
+		if (pollTimer) {
+			window.clearInterval(pollTimer);
+		}
+		if (submitBtn) {
+			submitBtn.disabled = false;
+		}
+		if (err && statusEl) {
+			statusEl.textContent = err;
+		}
+	}
+
 	form.addEventListener('submit', function (e) {
 		if (form.getAttribute('data-bec-sync-fallback') === '1') {
 			return;
@@ -85,9 +154,9 @@
 			submitBtn.disabled = true;
 		}
 
-		var stopped = false;
+		var stoppedRef = { v: false };
 		var pollTimer = window.setInterval(function () {
-			if (stopped) {
+			if (stoppedRef.v) {
 				return;
 			}
 			fetch(pollUrl(runId), {
@@ -122,81 +191,64 @@
 						logEl.scrollTop = logEl.scrollHeight;
 					}
 					if (d.status === 'done') {
-						stopped = true;
+						stoppedRef.v = true;
 						window.clearInterval(pollTimer);
 					}
 				})
 				.catch(function () {});
 		}, 400);
 
-		var syncBody = new FormData();
-		syncBody.append('action', 'bec_sync_run_all');
-		syncBody.append('sync_nonce', cfg.syncNonce);
-		syncBody.append('bec_sync_run_id', runId);
-
-		fetch(cfg.ajaxUrl, {
-			method: 'POST',
-			body: syncBody,
-			credentials: 'same-origin',
-		})
-			.then(function (r) {
-				return r.text().then(function (text) {
-					return parseWpJson(text);
-				});
-			})
+		startSync(runId)
 			.then(function (body) {
-				stopped = true;
-				window.clearInterval(pollTimer);
-				if (submitBtn) {
-					submitBtn.disabled = false;
-				}
 				if (!body.success) {
-					var err =
+					var err0 =
 						body.data && body.data.message
 							? String(body.data.message)
 							: cfg.syncFailedGeneric || 'Sync failed.';
-					if (statusEl) {
-						statusEl.textContent = err;
-					}
+					finish(err0, submitBtn, stoppedRef, pollTimer);
 					return;
 				}
-				if (body && body.data && body.data.result && statusEl) {
-					var res = body.data.result;
-					var tmpl = cfg.syncResultSummary || '';
-					var tail =
-						tmpl ||
-						'Created ' +
-							(res.created || 0) +
-							', updated ' +
-							(res.updated || 0) +
-							', skipped ' +
-							(res.skipped || 0) +
-							'.';
-					if (tmpl) {
-						tail = sprintfSyncedSummary(
-							tmpl,
-							res.created || 0,
-							res.updated || 0,
-							res.skipped || 0
-						);
-					}
-					if (res.errors && res.errors.length) {
-						tail += ' ' + res.errors.join(' ');
-					}
-					statusEl.textContent = tail;
+				function nextStep() {
+					return stepSync(runId)
+						.then(function (stepBody) {
+							if (!stepBody.success) {
+								var err1 =
+									stepBody.data && stepBody.data.message
+										? String(stepBody.data.message)
+										: cfg.syncFailedGeneric || 'Sync failed.';
+								finish(err1, submitBtn, stoppedRef, pollTimer);
+								return;
+							}
+							var d = stepBody.data || {};
+							if (d.done) {
+								finish(null, submitBtn, stoppedRef, pollTimer);
+								if (d.result) {
+									showFinalSummary(d.result);
+								}
+								return;
+							}
+							return nextStep();
+						})
+						.catch(function () {
+							finish(
+								cfg.syncUnexpectedResponse ||
+									'Sync request failed or returned an unexpected response. Try again or disable JavaScript to use the standard sync.',
+								submitBtn,
+								stoppedRef,
+								pollTimer
+							);
+						});
 				}
+				return nextStep();
 			})
 			.catch(function () {
-				stopped = true;
-				window.clearInterval(pollTimer);
-				if (submitBtn) {
-					submitBtn.disabled = false;
-				}
-				if (statusEl) {
-					statusEl.textContent =
-						cfg.syncUnexpectedResponse ||
-						'Sync request failed or returned an unexpected response. Try again or disable JavaScript to use the standard sync.';
-				}
+				finish(
+					cfg.syncUnexpectedResponse ||
+						'Sync request failed or returned an unexpected response. Try again or disable JavaScript to use the standard sync.',
+					submitBtn,
+					stoppedRef,
+					pollTimer
+				);
 			});
 	});
 })();

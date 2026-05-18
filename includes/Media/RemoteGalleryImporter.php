@@ -72,6 +72,157 @@ final class RemoteGalleryImporter
 	}
 
 	/**
+	 * Resumable gallery import for manual admin batch sync: processes up to $maxDownloadsPerStep new downloads per request,
+	 * then returns state to continue. Finalization (featured image, hashes, orphans) runs only when pending is empty.
+	 *
+	 * @param array<string, mixed> $payload Same shape as {@see importFromRemotePayload()}.
+	 * @param array<string, mixed>|null $resumeState Prior-loaded worker state, or null to begin.
+	 * @return array{done: bool, attachment_ids?: list<int>, resume?: array<string, mixed>, error?: string}
+	 */
+	public static function importFromRemotePayloadResumable(int $parentPostId, array $payload, ?array $resumeState, int $maxDownloadsPerStep): array
+	{
+		if ($maxDownloadsPerStep < 1) {
+			$maxDownloadsPerStep = 1;
+		}
+
+		if ($resumeState !== null) {
+			if ((int) ( $resumeState['v'] ?? 0 ) !== 1 || (int) ( $resumeState['unit_id'] ?? 0 ) !== $parentPostId) {
+				return [
+					'done'             => true,
+					'attachment_ids'   => self::readStoredGalleryIdsOnly($parentPostId),
+					'error'            => \__(
+						'Invalid gallery import state.',
+						'booking-engine-connector'
+					),
+				];
+			}
+
+			$state = $resumeState;
+			/** @var list<mixed> $pending */
+			$pending = isset($state['pending']) && \is_array($state['pending']) ? $state['pending'] : [];
+			if ($pending !== []) {
+				$state = self::galleryWorkerProcessDownloadBatch($state, $maxDownloadsPerStep);
+			}
+			$pending = isset($state['pending']) && \is_array($state['pending']) ? $state['pending'] : [];
+			if ($pending !== []) {
+				return [ 'done' => false, 'resume' => $state ];
+			}
+
+			return [ 'done' => true, 'attachment_ids' => self::galleryWorkerFinalize($state) ];
+		}
+
+		$items    = self::normalizeRemoteItems($payload);
+		$featured = isset($payload['featured_url']) ? \trim((string) $payload['featured_url']) : '';
+		$feat     = $featured !== '' && self::isHttpUrl($featured) ? \esc_url_raw($featured) : null;
+		if ($items === [] && $feat === null) {
+			if (isset($payload['urls']) && \is_array($payload['urls']) && $payload['urls'] !== []) {
+				$ids = self::importUrls($parentPostId, self::normalizeUrlList($payload['urls']));
+
+				return [ 'done' => true, 'attachment_ids' => $ids ];
+			}
+		}
+
+		\usort(
+			$items,
+			static function (array $a, array $b): int {
+				return ( $a['order'] <=> $b['order'] ) ?: ( $a['key'] <=> $b['key'] );
+			}
+		);
+
+		$urls = [];
+		foreach ($items as $it) {
+			$urls[] = (string) $it['url'];
+		}
+		$urls = self::normalizeUrlList($urls);
+
+		if ($items === [] || $urls === []) {
+			$oldForClear = self::readStoredGalleryIdsOnly($parentPostId);
+			\delete_post_thumbnail($parentPostId);
+			self::clearUnitGalleryMeta($parentPostId);
+			self::deleteRemovedFromPreviousSync($parentPostId, [], true, $oldForClear, []);
+
+			return [ 'done' => true, 'attachment_ids' => [] ];
+		}
+
+		if (! \apply_filters('bec_sync_import_gallery_images', true, $parentPostId, $urls)) {
+			return [ 'done' => true, 'attachment_ids' => [] ];
+		}
+
+		$orderedKeys = [];
+		foreach ($items as $it) {
+			$orderedKeys[] = (string) $it['key'];
+		}
+		$setHash   = self::hashKeyListSet($orderedKeys);
+		$orderHash = self::hashKeyListOrdered($orderedKeys);
+		$urlHash   = self::hashUrlList($urls);
+
+		$ignore = \apply_filters('bec_sync_gallery_ignore_hash', false, $parentPostId, $urls, $orderHash);
+
+		if (! $ignore) {
+			$storedSet   = (string) \get_post_meta($parentPostId, self::IMAGE_SET_HASH_META, true);
+			$storedOrder = (string) \get_post_meta($parentPostId, self::IMAGE_ORDER_HASH_META, true);
+			$oldUrlHash  = (string) \get_post_meta($parentPostId, self::SOURCE_HASH_META, true);
+
+			if ($storedSet !== '' && $storedOrder !== '' && \hash_equals($storedSet, $setHash) && \hash_equals($storedOrder, $orderHash)) {
+				$reuse = self::reuseGalleryWhenHashesMatch($parentPostId, $items, $urls);
+				if ($reuse !== null) {
+					self::reparentAttachments($parentPostId, $reuse);
+					self::markAttachmentsWithKeys($parentPostId, $items, $reuse, $urls);
+					self::applyFeaturedImage($parentPostId, $feat, $items, $reuse, $urls);
+					self::updateUnitHashes($parentPostId, $setHash, $orderHash, $urlHash);
+					\update_post_meta($parentPostId, self::SOURCE_HASH_META, $urlHash);
+
+					return [ 'done' => true, 'attachment_ids' => $reuse ];
+				}
+			}
+
+			if ($storedSet === '' && $oldUrlHash !== '' && \hash_equals($oldUrlHash, $urlHash)) {
+				$legacy = self::reuseLegacyUrlGallery($parentPostId, $items, $urls);
+				if ($legacy !== null) {
+					$oldIdsBefore = self::readStoredGalleryIdsOnly($parentPostId);
+					self::reparentAttachments($parentPostId, $legacy);
+					self::markAttachmentsWithKeys($parentPostId, $items, $legacy, $urls);
+					self::applyFeaturedImage($parentPostId, $feat, $items, $legacy, $urls);
+					self::updateUnitHashes($parentPostId, $setHash, $orderHash, $urlHash);
+					\update_post_meta($parentPostId, self::SOURCE_HASH_META, $urlHash);
+					self::deleteRemovedFromPreviousSync($parentPostId, $legacy, false, $oldIdsBefore, $legacy);
+
+					return [ 'done' => true, 'attachment_ids' => $legacy ];
+				}
+			}
+
+			if ($storedSet !== '' && \hash_equals($storedSet, $setHash) && ! \hash_equals((string) \get_post_meta($parentPostId, self::IMAGE_ORDER_HASH_META, true), $orderHash)) {
+				$reordered = self::reorderGalleryOnly($parentPostId, $items, $urls);
+				if ($reordered !== null) {
+					$oldIdsBefore = self::readStoredGalleryIdsOnly($parentPostId);
+					self::reparentAttachments($parentPostId, $reordered);
+					self::applyFeaturedImage($parentPostId, $feat, $items, $reordered, $urls);
+					self::updateUnitHashes($parentPostId, $setHash, $orderHash, $urlHash);
+					\update_post_meta($parentPostId, self::SOURCE_HASH_META, $urlHash);
+					self::deleteRemovedFromPreviousSync($parentPostId, $reordered, false, $oldIdsBefore, $reordered);
+
+					return [ 'done' => true, 'attachment_ids' => $reordered ];
+				}
+			}
+		}
+
+		$state = self::createGalleryWorkerState($parentPostId, $items, $feat, $setHash, $orderHash, $urlHash, $ignore);
+		/** @var list<mixed> $pending */
+		$pending = isset($state['pending']) && \is_array($state['pending']) ? $state['pending'] : [];
+		if ($pending === []) {
+			return [ 'done' => true, 'attachment_ids' => self::galleryWorkerFinalize($state) ];
+		}
+
+		$state = self::galleryWorkerProcessDownloadBatch($state, $maxDownloadsPerStep);
+		$pending = isset($state['pending']) && \is_array($state['pending']) ? $state['pending'] : [];
+		if ($pending === []) {
+			return [ 'done' => true, 'attachment_ids' => self::galleryWorkerFinalize($state) ];
+		}
+
+		return [ 'done' => false, 'resume' => $state ];
+	}
+
+	/**
 	 * @param list<array{url: string, key: string, order: int, main?: bool}> $items
 	 * @return list<int>
 	 */
@@ -696,10 +847,9 @@ final class RemoteGalleryImporter
 
 	/**
 	 * @param list<array{url: string, key: string, order: int, main: bool}> $items
-	 * @param list<int> $outIds
-	 * @return list<int>
+	 * @return array<string, mixed>
 	 */
-	private static function syncGalleryFull(
+	private static function createGalleryWorkerState(
 		int $unitId,
 		array $items,
 		?string $featuredUrl,
@@ -711,12 +861,12 @@ final class RemoteGalleryImporter
 		unset($ignoreHashes);
 		self::loadDependencies();
 
-		$oldIds  = self::readStoredGalleryIdsOnly($unitId);
-		$keyToId = self::keyToAttachmentIdMapForUnit($unitId);
+		$oldIds        = self::readStoredGalleryIdsOnly($unitId);
+		$keyToId       = self::keyToAttachmentIdMapForUnit($unitId);
 		$outByIndex    = [];
 		$urlOutByIndex = [];
 		$pending       = [];
-		$index   = 0;
+		$index         = 0;
 
 		foreach ($items as $it) {
 			++$index;
@@ -724,7 +874,7 @@ final class RemoteGalleryImporter
 			$url = (string) $it['url'];
 			$id  = $keyToId[ $key ] ?? null;
 			if ($id !== null) {
-				$resolved = self::reconcileExistingAttachment(
+				$resolved                = self::reconcileExistingAttachment(
 					(int) $id,
 					$unitId,
 					$key,
@@ -742,7 +892,7 @@ final class RemoteGalleryImporter
 				$oldIds
 			);
 			if ($adopted !== null) {
-				$keyToId[ $key ] = $adopted;
+				$keyToId[ $key ]         = $adopted;
 				$outByIndex[ $index ]    = $adopted;
 				$urlOutByIndex[ $index ] = $url;
 				continue;
@@ -750,7 +900,7 @@ final class RemoteGalleryImporter
 
 			$fromLib = self::reuseLibraryAttachmentForGalleryUnit($unitId, $key, $url, $oldIds);
 			if ($fromLib !== null) {
-				$keyToId[ $key ] = $fromLib;
+				$keyToId[ $key ]         = $fromLib;
 				$outByIndex[ $index ]    = $fromLib;
 				$urlOutByIndex[ $index ] = $url;
 				continue;
@@ -763,19 +913,59 @@ final class RemoteGalleryImporter
 			];
 		}
 
+		return [
+			'v'                => 1,
+			'unit_id'          => $unitId,
+			'items'            => $items,
+			'featured_url'     => $featuredUrl,
+			'set_hash'         => $setHash,
+			'order_hash'       => $orderHash,
+			'url_hash'         => $urlHash,
+			'old_ids'          => $oldIds,
+			'out_by_index'     => $outByIndex,
+			'url_out_by_index' => $urlOutByIndex,
+			'pending'          => $pending,
+		];
+	}
+
+	/**
+	 * @param array<string, mixed> $state
+	 * @return array<string, mixed>
+	 */
+	private static function galleryWorkerProcessDownloadBatch(array $state, int $maxDownloads): array
+	{
+		self::loadDependencies();
+
+		/** @var list<array{index: int, key: string, url: string}> $pending */
+		$pending = isset($state['pending']) && \is_array($state['pending']) ? $state['pending'] : [];
+		if ($pending === [] || $maxDownloads < 1) {
+			return $state;
+		}
+
+		$unitId = (int) ($state['unit_id'] ?? 0);
+		if ($unitId < 1) {
+			return $state;
+		}
+
+		$chunk            = \array_slice($pending, 0, $maxDownloads);
+		$state['pending'] = \array_values(\array_slice($pending, \count($chunk)));
+
 		$pendingUrls = [];
-		foreach ($pending as $row) {
+		foreach ($chunk as $row) {
 			$pendingUrls[] = (string) $row['url'];
 		}
 
 		$downloads = self::downloadUrlsToTempFiles($pendingUrls, $unitId);
 
-		foreach ($pending as $row) {
+		$outByIndex    = isset($state['out_by_index']) && \is_array($state['out_by_index']) ? $state['out_by_index'] : [];
+		$urlOutByIndex = isset($state['url_out_by_index']) && \is_array($state['url_out_by_index']) ? $state['url_out_by_index'] : [];
+
+		foreach ($chunk as $row) {
 			$index = (int) $row['index'];
 			$key   = (string) $row['key'];
 			$url   = (string) $row['url'];
 			$tmp   = $downloads[ $url ] ?? null;
-			if (! is_string($tmp) || $tmp === '' || ! is_readable($tmp) || \filesize($tmp) < 1) {
+			if (! \is_string($tmp) || $tmp === '' || ! \is_readable($tmp) || \filesize($tmp) < 1) {
 				@\is_string($tmp) && @\unlink($tmp);
 				continue;
 			}
@@ -810,18 +1000,70 @@ final class RemoteGalleryImporter
 			$urlOutByIndex[ $index ] = $url;
 		}
 
+		$state['out_by_index']     = $outByIndex;
+		$state['url_out_by_index'] = $urlOutByIndex;
+
+		return $state;
+	}
+
+	/**
+	 * @param array<string, mixed> $state
+	 * @return list<int>
+	 */
+	private static function galleryWorkerFinalize(array $state): array
+	{
+		$unitId = (int) ($state['unit_id'] ?? 0);
+		/** @var list<array<string, mixed>> $items */
+		$items     = isset($state['items']) && \is_array($state['items']) ? $state['items'] : [];
+		$featRaw   = $state['featured_url'] ?? null;
+		$featured  = \is_string($featRaw) && $featRaw !== '' ? $featRaw : null;
+		$setHash   = (string) ($state['set_hash'] ?? '');
+		$orderHash = (string) ($state['order_hash'] ?? '');
+		$urlHash   = (string) ($state['url_hash'] ?? '');
+		/** @var list<int> $oldIds */
+		$oldIds        = isset($state['old_ids']) && \is_array($state['old_ids']) ? $state['old_ids'] : [];
+		$outByIndex    = isset($state['out_by_index']) && \is_array($state['out_by_index']) ? $state['out_by_index'] : [];
+		$urlOutByIndex = isset($state['url_out_by_index']) && \is_array($state['url_out_by_index']) ? $state['url_out_by_index'] : [];
+
 		\ksort($outByIndex, \SORT_NUMERIC);
 		\ksort($urlOutByIndex, \SORT_NUMERIC);
 		$out    = \array_values($outByIndex);
 		$urlOut = \array_values($urlOutByIndex);
 
-		self::applyFeaturedImage($unitId, $featuredUrl, $items, $out, $urlOut);
+		self::applyFeaturedImage($unitId, $featured, $items, $out, $urlOut);
 		self::deleteRemovedFromPreviousSync($unitId, $out, false, $oldIds, $out);
 		self::updateUnitHashes($unitId, $setHash, $orderHash, $urlHash);
 		\update_post_meta($unitId, self::SOURCE_HASH_META, $urlHash);
 		self::reparentAttachments($unitId, $out);
 
 		return $out;
+	}
+
+	/**
+	 * @param list<array{url: string, key: string, order: int, main: bool}> $items
+	 * @return list<int>
+	 */
+	private static function syncGalleryFull(
+		int $unitId,
+		array $items,
+		?string $featuredUrl,
+		string $setHash,
+		string $orderHash,
+		string $urlHash,
+		bool $ignoreHashes
+	): array {
+		$state = self::createGalleryWorkerState($unitId, $items, $featuredUrl, $setHash, $orderHash, $urlHash, $ignoreHashes);
+		/** @var list<array{index: int, key: string, url: string}> $pending */
+		$pending = isset($state['pending']) && \is_array($state['pending']) ? $state['pending'] : [];
+		if ($pending === []) {
+			return self::galleryWorkerFinalize($state);
+		}
+		while ($pending !== []) {
+			$state   = self::galleryWorkerProcessDownloadBatch($state, \PHP_INT_MAX);
+			$pending = isset($state['pending']) && \is_array($state['pending']) ? $state['pending'] : [];
+		}
+
+		return self::galleryWorkerFinalize($state);
 	}
 
 	/**

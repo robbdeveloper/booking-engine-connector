@@ -7,13 +7,19 @@ namespace BookingEngineConnector\Admin;
 use BookingEngineConnector\Media\GalleryImageFilenameRenamer;
 use BookingEngineConnector\Media\GalleryImageSyncSettings;
 use BookingEngineConnector\PostTypes\UnitPostType;
+use BookingEngineConnector\Media\RemoteGalleryImporter;
 use BookingEngineConnector\Providers\Contracts\ProviderException;
 use BookingEngineConnector\Providers\Kross\KrossBookingEngineSyncSettings;
 use BookingEngineConnector\Providers\Kross\KrossProvider;
 use BookingEngineConnector\Providers\ProviderRegistry;
+use BookingEngineConnector\Sync\CoreUnitFieldRegistry;
 use BookingEngineConnector\Sync\SyncCron;
+use BookingEngineConnector\Sync\SyncManualBatchState;
+use BookingEngineConnector\Sync\SyncLock;
 use BookingEngineConnector\Sync\SyncProgressReporter;
 use BookingEngineConnector\Sync\SyncService;
+use BookingEngineConnector\Units\CoreUnitMetaKeys;
+use BookingEngineConnector\Units\CoreUnitSemantic;
 
 /**
  * Sync settings page, bulk sync, row action, admin_post handlers.
@@ -28,9 +34,12 @@ final class SyncAdmin
 		\add_action('admin_enqueue_scripts', [self::class, 'enqueueAdminAssets']);
 		\add_action('wp_ajax_bec_sync_progress_poll', [self::class, 'handleAjaxProgressPoll']);
 		\add_action('wp_ajax_bec_sync_run_all', [self::class, 'handleAjaxRunAll']);
+		\add_action('wp_ajax_bec_sync_start_all', [self::class, 'handleAjaxStartAll']);
+		\add_action('wp_ajax_bec_sync_step_all', [self::class, 'handleAjaxStepAll']);
 		\add_action('admin_post_bec_sync_save_settings', [self::class, 'handleSaveSettings']);
 		\add_action('admin_post_bec_kross_refresh_booking_engines', [self::class, 'handleKrossRefreshBookingEngines']);
 		\add_action('admin_post_bec_sync_all', [self::class, 'handleSyncAll']);
+		\add_action('admin_post_bec_sync_clear_running_lock', [self::class, 'handleClearRunningLock']);
 		\add_action('admin_post_bec_sync_unit', [self::class, 'handleSyncUnit']);
 		\add_action('admin_post_bec_rename_gallery_all', [self::class, 'handleRenameGalleryAll']);
 		\add_action('admin_post_bec_rename_unit_gallery', [self::class, 'handleRenameUnitGallery']);
@@ -240,6 +249,31 @@ final class SyncAdmin
 		\submit_button(\__('Run sync now', 'booking-engine-connector'), 'secondary', '', false, ['id' => 'bec-sync-all-submit']);
 		echo '</form>';
 
+		echo '<hr /><h2 class="title">' . \esc_html__('Sync lock', 'booking-engine-connector') . '</h2>';
+		$locked = SyncLock::isLocked();
+		echo '<p class="description">' . \esc_html__(
+			'The sync lock prevents overlapping full syncs. If a run was interrupted you may see “Another sync is already running” until the lock expires or you clear it here.',
+			'booking-engine-connector'
+		) . '</p>';
+		echo '<p><strong>' . \esc_html__('Current status:', 'booking-engine-connector') . '</strong> ';
+		echo $locked
+			? \esc_html__('Lock is set (a sync may be in progress or stale).', 'booking-engine-connector')
+			: \esc_html__('No lock is set.', 'booking-engine-connector');
+		echo '</p>';
+		echo '<form method="post" action="' . \esc_url(\admin_url('admin-post.php')) . '" id="bec-sync-clear-lock-form" onsubmit="return window.confirm(\'' . \esc_js(
+			\__(
+				'Clear the sync lock? Only do this if no sync is running. Active syncs may be affected.',
+				'booking-engine-connector'
+			)
+		) . '\');">';
+		\wp_nonce_field('bec_sync_clear_running_lock', 'bec_sync_clear_running_lock_nonce');
+		echo '<input type="hidden" name="action" value="bec_sync_clear_running_lock" />';
+		\submit_button(\__('Clear sync lock', 'booking-engine-connector'), 'secondary', 'submit', false, [
+			'id'    => 'bec-sync-clear-lock-submit',
+			'style' => 'border-color:#b32d2e;color:#b32d2e;',
+		]);
+		echo '</form>';
+
 		echo '<div id="bec-sync-progress" class="bec-sync-progress" hidden style="margin-top:1em;padding:1em;max-width:56em;border:1px solid #c3c4c7;background:#fff;">';
 		echo '<h2 class="title" style="margin-top:0;">' . \esc_html__('Sync progress', 'booking-engine-connector') . '</h2>';
 		echo '<p id="bec-sync-progress-status" class="bec-sync-progress__status" style="margin:0.5em 0;font-weight:600;" aria-live="polite"></p>';
@@ -337,6 +371,388 @@ final class SyncAdmin
 		}
 
 		\wp_send_json_success($data);
+	}
+
+	public static function handleAjaxStartAll(): void
+	{
+		if (! \current_user_can(AdminMenu::CAPABILITY)) {
+			\wp_send_json_error(
+				[ 'message' => \__('Insufficient permissions.', 'booking-engine-connector') ],
+				403
+			);
+		}
+
+		\check_ajax_referer('bec_sync_all', 'sync_nonce');
+
+		self::prepareLongRunningSync();
+
+		$runRaw = isset($_POST['bec_sync_run_id']) ? (string) \wp_unslash((string) $_POST['bec_sync_run_id']) : '';
+		if (! SyncProgressReporter::isValidRunId($runRaw)) {
+			\wp_send_json_error(
+				[ 'message' => \__('Invalid sync run id.', 'booking-engine-connector') ],
+				400
+			);
+		}
+
+		$uid = (int) \get_current_user_id();
+		$san = SyncProgressReporter::sanitizeRunId($runRaw);
+
+		if (! SyncLock::acquireManual($uid, $san)) {
+			\wp_send_json_error(
+				[ 'message' => \__('Another sync is already running.', 'booking-engine-connector') ],
+				409
+			);
+		}
+
+		$progress = new SyncProgressReporter($uid, $runRaw);
+		$progress->running(\__('Starting sync…', 'booking-engine-connector'));
+		$progress->addLine(
+			\__(
+				'Preparing batched sync (each step runs briefly so the browser does not time out).',
+				'booking-engine-connector'
+			)
+		);
+
+		$provider = ProviderRegistry::getProvider();
+		if (! $provider->validateCredentials()) {
+			SyncLock::releaseManual($uid, $san);
+			$msg = \__('Provider credentials are incomplete.', 'booking-engine-connector');
+			$progress->addLine($msg);
+			$progress->fail($msg);
+			\wp_send_json_error([ 'message' => $msg ], 400);
+		}
+
+		$slug = $provider->getSlug();
+
+		$remote = [];
+		try {
+			$remote = $provider->fetchRemoteUnits();
+		} catch (ProviderException $e) {
+			SyncLock::releaseManual($uid, $san);
+			$progress->fail($e->getMessage());
+			\wp_send_json_error([ 'message' => $e->getMessage() ], 502);
+		} catch (\Throwable $e) {
+			SyncLock::releaseManual($uid, $san);
+			$m = self::formatUnexpectedSyncFailureMessage($e);
+			$progress->fail($m);
+			\wp_send_json_error([ 'message' => $m ], 500);
+		}
+
+		$service = new SyncService();
+		$rows    = $service->normalizeRemoteUnitRows($remote);
+		$total   = \count($rows);
+
+		$state = [
+			'provider_slug'  => $slug,
+			'run_id'         => $san,
+			'rows'           => $rows,
+			'row_cursor'     => 0,
+			'created'        => 0,
+			'updated'        => 0,
+			'skipped'        => 0,
+			'errors'         => [],
+			'gallery_queue'  => [],
+			'active_gallery' => null,
+			'started_at'     => \time(),
+		];
+
+		SyncManualBatchState::set($uid, $runRaw, $state);
+
+		$progress->setCounters(0, $total);
+		if ($total === 0) {
+			$progress->addLine(\__('No remote unit rows returned.', 'booking-engine-connector'));
+		} else {
+			$progress->addLine(
+				\sprintf(
+					/* translators: %d: number of remote rows to process */
+					\_n('%d remote unit row to process.', '%d remote unit rows to process.', $total, 'booking-engine-connector'),
+					$total
+				)
+			);
+		}
+
+		\wp_send_json_success(
+			[
+				'run_id' => $runRaw,
+				'total'  => $total,
+			]
+		);
+	}
+
+	public static function handleAjaxStepAll(): void
+	{
+		if (! \current_user_can(AdminMenu::CAPABILITY)) {
+			\wp_send_json_error(
+				[ 'message' => \__('Insufficient permissions.', 'booking-engine-connector') ],
+				403
+			);
+		}
+
+		\check_ajax_referer('bec_sync_all', 'sync_nonce');
+
+		$runRaw = isset($_POST['bec_sync_run_id']) ? (string) \wp_unslash((string) $_POST['bec_sync_run_id']) : '';
+		if (! SyncProgressReporter::isValidRunId($runRaw)) {
+			\wp_send_json_error(
+				[ 'message' => \__('Invalid sync run id.', 'booking-engine-connector') ],
+				400
+			);
+		}
+
+		$uid = (int) \get_current_user_id();
+		$san = SyncProgressReporter::sanitizeRunId($runRaw);
+
+		if (! SyncLock::isHeldByManualRun($uid, $san)) {
+			\wp_send_json_error(
+				[
+					'message' => \__(
+						'Sync lock was lost or this run expired. Start a new sync.',
+						'booking-engine-connector'
+					),
+				],
+				409
+			);
+		}
+
+		SyncLock::refresh();
+
+		$state = SyncManualBatchState::get($uid, $runRaw);
+		if ($state === null) {
+			SyncLock::releaseManual($uid, $san);
+			\wp_send_json_error(
+				[
+					'message' => \__(
+						'Sync batch state expired or was cleared. Start a new sync.',
+						'booking-engine-connector'
+					),
+				],
+				410
+			);
+		}
+
+		$progress = new SyncProgressReporter($uid, $runRaw);
+		$service  = new SyncService();
+		$slug     = (string) ( $state['provider_slug'] ?? '' );
+
+		$galleryBatch = (int) \apply_filters('bec_sync_manual_gallery_batch_size', 4, $uid, $runRaw);
+		if ($galleryBatch < 1) {
+			$galleryBatch = 1;
+		}
+
+		if (! isset($state['gallery_queue']) || ! \is_array($state['gallery_queue'])) {
+			$state['gallery_queue'] = [];
+		}
+
+		if (($state['active_gallery'] ?? null) === null) {
+			/** @var list<array<string, mixed>> $gq */
+			$gq = isset($state['gallery_queue']) && \is_array($state['gallery_queue']) ? $state['gallery_queue'] : [];
+			if ($gq !== []) {
+				$job                     = \array_shift($gq);
+				$state['gallery_queue'] = $gq;
+				$postId                  = (int) ( $job['post_id'] ?? 0 );
+				$payload                 = isset($job['payload']) && \is_array($job['payload']) ? $job['payload'] : [];
+				if ($postId > 0 && $payload !== []) {
+					$state['active_gallery'] = [
+						'post_id' => $postId,
+						'payload' => $payload,
+						'resume'  => null,
+					];
+					$progress->addLine(
+						\sprintf(
+							/* translators: %d: WordPress post ID */
+							\__('Starting deferred gallery import for unit #%d…', 'booking-engine-connector'),
+							$postId
+						)
+					);
+				}
+			}
+		}
+
+		if (($state['active_gallery'] ?? null) !== null && \is_array($state['active_gallery'])) {
+			$ag      = $state['active_gallery'];
+			$postId  = (int) ( $ag['post_id'] ?? 0 );
+			$payload = isset($ag['payload']) && \is_array($ag['payload']) ? $ag['payload'] : [];
+			$resume  = isset($ag['resume']) && \is_array($ag['resume']) ? $ag['resume'] : null;
+			if ($postId < 1 || $payload === []) {
+				$state['active_gallery'] = null;
+			} else {
+				try {
+					$r = RemoteGalleryImporter::importFromRemotePayloadResumable($postId, $payload, $resume, $galleryBatch);
+				} catch (\Throwable $e) {
+					$state['errors'][]       = (string) $postId . ': ' . $e->getMessage();
+					$state['active_gallery'] = null;
+					$progress->addLine((string) $postId . ': ' . $e->getMessage());
+					$r = null;
+				}
+
+				if ($r !== null) {
+					if (isset($r['error']) && \is_string($r['error']) && $r['error'] !== '') {
+						$state['errors'][]       = $r['error'];
+						$state['active_gallery'] = null;
+						$progress->addLine($r['error']);
+					} elseif (! empty($r['done'])) {
+						/** @var list<int> $ids */
+						$ids = isset($r['attachment_ids']) && \is_array($r['attachment_ids']) ? $r['attachment_ids'] : [];
+						self::persistUnitCoreGalleryIds($postId, $ids);
+						$state['active_gallery'] = null;
+						$progress->addLine(
+							\sprintf(
+								/* translators: %d: WordPress post ID */
+								\__('Gallery import finished for unit #%d.', 'booking-engine-connector'),
+								$postId
+							)
+						);
+					} else {
+						$state['active_gallery']['resume'] = isset($r['resume']) && \is_array($r['resume'])
+							? $r['resume']
+							: null;
+					}
+				}
+			}
+		}
+
+		if (($state['active_gallery'] ?? null) !== null) {
+			SyncManualBatchState::set($uid, $runRaw, $state);
+			/** @var list<array<string, mixed>> $rows */
+			$rows = isset($state['rows']) && \is_array($state['rows']) ? $state['rows'] : [];
+			$progress->setCounters(\min((int) ( $state['row_cursor'] ?? 0 ), \count($rows)), \count($rows));
+			\wp_send_json_success([ 'done' => false ]);
+		}
+
+		/** @var list<array<string, mixed>> $rows */
+		$rows      = isset($state['rows']) && \is_array($state['rows']) ? $state['rows'] : [];
+		$rowCursor = (int) ( $state['row_cursor'] ?? 0 );
+		$total     = \count($rows);
+
+		if ($rowCursor < $total) {
+			$row = $rows[ $rowCursor ];
+			++$state['row_cursor'];
+			$row = (array) \apply_filters('bec_sync_remote_unit', $row, $slug);
+
+			$externalId = (string) ($row['external_id'] ?? '');
+			if ($externalId === '') {
+				++$state['skipped'];
+				$progress->setCounters($rowCursor + 1, $total);
+				$progress->addLine(
+					\sprintf(
+						/* translators: 1: current index, 2: total rows */
+						\__('Row %1$d/%2$d: skipped (no external ID).', 'booking-engine-connector'),
+						$rowCursor + 1,
+						$total
+					)
+				);
+			} else {
+				$label = $service->resolveRowTitleForProgress($slug, $row);
+				$progress->setCounters($rowCursor + 1, $total);
+				$progress->addLine(
+					\sprintf(
+						/* translators: 1: current index, 2: total rows, 3: unit title */
+						\__('Processing %1$d/%2$d: %3$s', 'booking-engine-connector'),
+						$rowCursor + 1,
+						$total,
+						$label
+					)
+				);
+
+				try {
+					$pack   = $service->upsertRemoteRowForManualBatch($slug, $row, true);
+					$result = $pack['result'];
+					if ($result === 'created') {
+						++$state['created'];
+						$progress->addLine(
+							\sprintf(
+								/* translators: %s: external id */
+								\__('Created unit for external ID %s.', 'booking-engine-connector'),
+								$externalId
+							)
+						);
+					} elseif ($result === 'updated') {
+						++$state['updated'];
+						$progress->addLine(
+							\sprintf(
+								/* translators: %s: external id */
+								\__('Updated unit for external ID %s.', 'booking-engine-connector'),
+								$externalId
+							)
+						);
+					} else {
+						++$state['skipped'];
+						$progress->addLine(
+							\sprintf(
+								/* translators: %s: external id */
+								\__('Skipped external ID %s.', 'booking-engine-connector'),
+								$externalId
+							)
+						);
+					}
+
+					$dg = isset($pack['deferred_gallery']) && \is_array($pack['deferred_gallery']) ? $pack['deferred_gallery'] : null;
+					$pid = (int) ( $pack['post_id'] ?? 0 );
+					if ($dg !== null && $pid > 0) {
+						$state['gallery_queue'][] = [
+							'post_id' => $pid,
+							'payload' => $dg,
+						];
+					}
+				} catch (\Throwable $e) {
+					$state['errors'][] = $externalId . ': ' . $e->getMessage();
+					$progress->addLine($externalId . ': ' . $e->getMessage());
+				}
+			}
+		}
+
+		$rowCursor = (int) ( $state['row_cursor'] ?? 0 );
+		/** @var list<array<string, mixed>> $gq */
+		$gq       = isset($state['gallery_queue']) && \is_array($state['gallery_queue']) ? $state['gallery_queue'] : [];
+		$complete = $rowCursor >= $total && $gq === [] && ($state['active_gallery'] ?? null) === null;
+
+		if (! $complete) {
+			SyncManualBatchState::set($uid, $runRaw, $state);
+			\wp_send_json_success([ 'done' => false ]);
+		}
+
+		$result = [
+			'created' => (int) ( $state['created'] ?? 0 ),
+			'updated' => (int) ( $state['updated'] ?? 0 ),
+			'skipped' => (int) ( $state['skipped'] ?? 0 ),
+			'errors'  => isset($state['errors']) && \is_array($state['errors']) ? self::normalizeStringList($state['errors']) : [],
+		];
+
+		SyncManualBatchState::delete($uid, $runRaw);
+		SyncLock::releaseManual($uid, $san);
+		\set_transient(self::resultTransientKey(), $result, 120);
+		\update_option('bec_sync_last_run_at', \current_time('mysql'), false);
+
+		$progress->done($result);
+
+		\wp_send_json_success([ 'done' => true, 'result' => $result ]);
+	}
+
+	/**
+	 * @param list<mixed> $raw
+	 * @return list<string>
+	 */
+	private static function normalizeStringList(array $raw): array
+	{
+		$out = [];
+		foreach ($raw as $v) {
+			$s = \mb_substr(\wp_strip_all_tags((string) $v), 0, 500);
+			if ($s !== '') {
+				$out[] = $s;
+			}
+		}
+
+		return $out;
+	}
+
+	private static function persistUnitCoreGalleryIds(int $postId, array $ids): void
+	{
+		if ($postId < 1) {
+			return;
+		}
+
+		$metaKey = CoreUnitMetaKeys::definitions()[ CoreUnitSemantic::GALLERY ]['meta_key'];
+		$san     = CoreUnitFieldRegistry::sanitizeValue('gallery_json', $ids);
+		\update_post_meta($postId, $metaKey, $san);
 	}
 
 	public static function registerListHooks(): void
@@ -490,6 +906,29 @@ final class SyncAdmin
 		self::executeFullSyncAndStoreResult();
 
 		\wp_safe_redirect(\admin_url('admin.php?page=' . self::PAGE_SLUG . '&bec_sync_done=1'));
+		exit;
+	}
+
+	public static function handleClearRunningLock(): void
+	{
+		if (! \current_user_can(AdminMenu::CAPABILITY)) {
+			\wp_die(\esc_html__('Insufficient permissions.', 'booking-engine-connector'));
+		}
+
+		\check_admin_referer('bec_sync_clear_running_lock', 'bec_sync_clear_running_lock_nonce');
+
+		if (! (bool) \apply_filters('bec_sync_allow_admin_clear_lock', true)) {
+			\wp_die(\esc_html__('This action is disabled.', 'booking-engine-connector'));
+		}
+
+		SyncLock::forceReleaseAll();
+
+		\wp_safe_redirect(
+			\add_query_arg(
+				[ 'bec_sync_lock_cleared' => '1' ],
+				\admin_url('admin.php?page=' . self::PAGE_SLUG)
+			)
+		);
 		exit;
 	}
 
@@ -673,6 +1112,12 @@ final class SyncAdmin
 				echo '<div class="notice notice-success is-dismissible"><p>' . \esc_html__('Sync settings saved.', 'booking-engine-connector') . '</p></div>';
 			}
 		}
+
+		if (isset($_GET['page']) && (string) \sanitize_key(\wp_unslash((string) $_GET['page'])) === self::PAGE_SLUG && isset($_GET['bec_sync_lock_cleared'])) {
+			if ((string) \sanitize_text_field(\wp_unslash((string) $_GET['bec_sync_lock_cleared'])) === '1') {
+				echo '<div class="notice notice-success is-dismissible"><p>' . \esc_html__('Sync lock was cleared.', 'booking-engine-connector') . '</p></div>';
+			}
+		}
 	}
 
 	/**
@@ -682,9 +1127,11 @@ final class SyncAdmin
 	{
 		self::prepareLongRunningSync();
 
-		$progress = self::progressFromRequest();
-		$service = new SyncService();
-		$result  = $service->syncAll($progress);
+		$progress  = self::progressFromRequest();
+		$runRaw    = isset($_POST['bec_sync_run_id']) ? (string) \wp_unslash((string) $_POST['bec_sync_run_id']) : '';
+		$manualId  = SyncProgressReporter::isValidRunId($runRaw) ? $runRaw : null;
+		$service   = new SyncService();
+		$result    = $service->syncAll($progress, $manualId);
 		\set_transient(self::resultTransientKey(), $result, 120);
 
 		return $result;

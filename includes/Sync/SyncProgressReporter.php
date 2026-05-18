@@ -13,7 +13,7 @@ final class SyncProgressReporter
 
 	private const MAX_LINES = 50;
 
-	private const TTL_SECONDS = 600;
+	private const TTL_SECONDS = 7200;
 
 	private int $userId;
 

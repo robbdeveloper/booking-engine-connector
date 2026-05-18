@@ -1,5 +1,11 @@
 # Changelog
 
+## 0.1.22 — 2026-05-19
+
+- **Sync — scalable manual run**: **`wp_ajax_bec_sync_start_all`** / **`bec_sync_step_all`** replace a single long **`bec_sync_run_all`** round-trip. **`SyncManualBatchState`** (non-autoloaded options) holds remote rows, cursor, counters, deferred gallery queue, and importer resume blobs. **`SyncLock`** distinguishes **cron** (`c`) vs **manual** (`m:{user}:{run}`), **refreshes TTL** on each step, and **reclaims** same-user locks when batch state is missing or idle past **`bec_sync_manual_lock_abandon_seconds`** (default 30 minutes). **`RemoteGalleryImporter`**: worker state + **`importFromRemotePayloadResumable()`**; **`syncGalleryFull`** delegates to batched download/finalize. **`CoreUnitFieldRegistry`**: **`deferGallery`** keeps existing **`bec_core_gallery`** until deferred imports finish. **`SyncService`**: **`normalizeRemoteUnitRows()`**, **`upsertRemoteRowForManualBatch()`**, **`syncAll($progress, $manualRunId)`**; cron still uses **`acquireCron()`**. **`assets/admin-sync-progress.js`**: start → step loop + progress poll. Filters **`bec_sync_manual_may_preempt_cron_lock`**, **`bec_sync_manual_gallery_batch_size`**, **`bec_sync_manual_lock_abandon_seconds`**.
+- **Admin — Sync lock control**: **Clear sync lock** form on the Sync settings page (**`admin_post_bec_sync_clear_running_lock`**) with confirm dialog; **`SyncLock::forceReleaseAll()`**. Filter **`bec_sync_allow_admin_clear_lock`** (default true).
+- **i18n**: POT / **`it_IT`** updates for the new admin and sync strings.
+
 ## 0.1.21 — 2026-05-18
 
 - **Sync — manual AJAX run**: Raises the admin sync request memory/time allowance, keeps the run alive after client disconnects when supported, and returns a structured JSON failure (`Sync failed unexpectedly: …`) instead of falling through to the generic browser “unexpected response” message.

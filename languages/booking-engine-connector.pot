@@ -2,7 +2,7 @@
 # This file is distributed under the GPL-2.0-or-later.
 msgid ""
 msgstr ""
-"Project-Id-Version: Booking Engine Connector 0.1.21\n"
+"Project-Id-Version: Booking Engine Connector 0.1.22\n"
 "Report-Msgid-Bugs-To: https://wordpress.org/support/plugin/booking-engine-connector\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -1694,4 +1694,68 @@ msgstr ""
 
 #: includes/Units/CoreUnitMetaKeys.php:90
 msgid "Gallery (attachment IDs, JSON array)"
+msgstr ""
+
+#: includes/Admin/SyncAdmin.php
+msgid "Preparing batched sync (each step runs briefly so the browser does not time out)."
+msgstr ""
+
+#: includes/Admin/SyncAdmin.php
+msgid "Invalid sync run id."
+msgstr ""
+
+#: includes/Admin/SyncAdmin.php
+msgid "Sync lock was lost or this run expired. Start a new sync."
+msgstr ""
+
+#: includes/Admin/SyncAdmin.php
+msgid "Sync batch state expired or was cleared. Start a new sync."
+msgstr ""
+
+#: includes/Admin/SyncAdmin.php
+msgid "Starting deferred gallery import for unit #%d…"
+msgstr ""
+
+#: includes/Admin/SyncAdmin.php
+msgid "Gallery import finished for unit #%d."
+msgstr ""
+
+#: includes/Media/RemoteGalleryImporter.php
+msgid "Invalid gallery import state."
+msgstr ""
+
+#: includes/Admin/SyncAdmin.php
+msgid "Sync lock"
+msgstr ""
+
+#: includes/Admin/SyncAdmin.php
+msgid "The sync lock prevents overlapping full syncs. If a run was interrupted you may see “Another sync is already running” until the lock expires or you clear it here."
+msgstr ""
+
+#: includes/Admin/SyncAdmin.php
+msgid "Current status:"
+msgstr ""
+
+#: includes/Admin/SyncAdmin.php
+msgid "Lock is set (a sync may be in progress or stale)."
+msgstr ""
+
+#: includes/Admin/SyncAdmin.php
+msgid "No lock is set."
+msgstr ""
+
+#: includes/Admin/SyncAdmin.php
+msgid "Clear the sync lock? Only do this if no sync is running. Active syncs may be affected."
+msgstr ""
+
+#: includes/Admin/SyncAdmin.php
+msgid "Clear sync lock"
+msgstr ""
+
+#: includes/Admin/SyncAdmin.php
+msgid "Sync lock was cleared."
+msgstr ""
+
+#: includes/Admin/SyncAdmin.php
+msgid "This action is disabled."
 msgstr ""
