@@ -1,5 +1,9 @@
 # Changelog
 
+## Unreleased
+
+- **Admin — styling tokens**: Booking Engine ▸ Styling now prefills a **short semantic design-token** block (`--bec-font-family`, `--bec-color-*`, `--bec-radius-*`). Plain saved lines merge on **`:root`** in late CSS so **portaled** pickers inherit the same tokens; filter `bec_styling_admin_theme_variables_inner` customizes what appears in admin, and `bec_styling_default_theme_variables_inner` still receives the merged default root CSS. Saves that match the legacy full default fingerprint normalize to the short block without duplicate overrides.
+
 ## 0.1.17 — 2026-05-14
 
 - **Search (enhanced preset) — mobile date range picker**: Bottom sheet layout (`max-width: 639px`) with a scrollable middle region (`.bec-drp-scroll` wrapping both calendar panes) so long two-month views scroll while **Cancel / Apply** and the selected range stay pinned at the bottom. Desktop layout is unchanged: the wrapper uses `display: contents` so the vendor two-column calendar floats still apply.

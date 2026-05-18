@@ -59,7 +59,7 @@
 	background: var(--bec-color-bg);
 	background-color: var(--bec-color-bg);
 	border: var(--bec-border-width) solid var(--bec-color-accent);
-	border-radius: var(--bec-radius-readout);
+	border-radius: var(--bec-radius-ui);
 	box-shadow: none;
 	cursor: pointer;
 	text-align: center;

@@ -94,7 +94,7 @@ final class StylingPage
 		}
 		echo '<h1>' . \esc_html__('Styling (shortcodes)', 'booking-engine-connector') . '</h1>';
 		echo '<p class="description">' . \esc_html__(
-			'Customize colors, fonts, borders, and radii via CSS variables (--bec-*). Preset layout CSS loads first; values here and in Extra CSS load last so they override presets. Preset files: assets/styling/search-form-*.css, booking-summary-*.css.',
+			'Tune the search form and booking summary with a small semantic token block (colors, font stack, radius scale). Detailed layout or vendor overrides (.daterangepicker, etc.) go in Extra CSS below. Preset layout CSS loads first; shared tokens and Extra CSS load last.',
 			'booking-engine-connector'
 		) . '</p>';
 
@@ -102,12 +102,12 @@ final class StylingPage
 		echo '<input type="hidden" name="page" value="' . \esc_attr(self::PAGE_SLUG) . '" />';
 		\wp_nonce_field(self::NONCE_ACTION, 'bec_styling_nonce');
 
-		echo '<h2>' . \esc_html__('Shared theme variables', 'booking-engine-connector') . '</h2>';
+		echo '<h2>' . \esc_html__('Design system (shared tokens)', 'booking-engine-connector') . '</h2>';
 		echo '<p class="description">' . \esc_html__(
-			'Prefilled defaults use the --bec-* namespace. Paste only custom properties (they apply under .bec-search-form-wrap and .bec-booking-summary) or a full CSS rules block. Use Extra CSS below for .daterangepicker or other selectors.',
+			'Edit the semantic tokens (--bec-font-family, --bec-color-*, --bec-radius-*). Plain properties are applied on :root in late CSS so they reach portaled pickers (calendar, guest sheet); they also affect the rest of the site for any other use of the same --bec-* names. Paste a full selector block anytime you need narrower scoping or finer control.',
 			'booking-engine-connector'
 		) . '</p>';
-		echo '<div class="bec-styling-field"><textarea name="bec_styling_theme_variables" id="bec_styling_theme_variables" class="large-text code" rows="18">' . \esc_textarea($vars) . '</textarea></div>';
+		echo '<div class="bec-styling-field"><textarea name="bec_styling_theme_variables" id="bec_styling_theme_variables" class="large-text code" rows="14">' . \esc_textarea($vars) . '</textarea></div>';
 
 		echo '<h2>' . \esc_html__('Search bar', 'booking-engine-connector') . '</h2>';
 		echo '<table class="form-table" role="presentation">';

@@ -359,9 +359,9 @@
 }
 
 .bec-search-form-wrap--enhanced button.bec-search-form__panel-footer-btn--primary {
-	background-color: var(--bec-drp-range-edge);
-	color: var(--bec-drp-range-edge-text);
-	border-color: var(--bec-drp-range-edge);
+	background-color: var(--bec-color-accent);
+	color: var(--bec-color-accent-text);
+	border-color: var(--bec-color-accent);
 }
 
 .bec-search-form-wrap--enhanced button.bec-search-form__panel-footer-btn--primary:hover,
@@ -371,7 +371,7 @@
 }
 
 .bec-search-form-wrap--enhanced button.bec-search-form__panel-footer-btn:focus-visible {
-	outline: 2px solid var(--bec-drp-range-edge);
+	outline: 2px solid var(--bec-color-accent);
 	outline-offset: 2px;
 }
 
@@ -996,9 +996,9 @@
 
 .daterangepicker .drp-buttons .btn.btn-primary,
 .daterangepicker .drp-buttons .btn.applyBtn {
-	background-color: var(--bec-drp-range-edge) !important;
-	color: var(--bec-drp-range-edge-text) !important;
-	border-color: var(--bec-drp-range-edge) !important;
+	background-color: var(--bec-color-accent) !important;
+	color: var(--bec-color-accent-text) !important;
+	border-color: var(--bec-color-accent) !important;
 }
 
 .daterangepicker .drp-buttons .btn.btn-primary:hover,
