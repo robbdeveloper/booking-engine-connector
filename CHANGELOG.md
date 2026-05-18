@@ -1,5 +1,9 @@
 # Changelog
 
+## 0.1.26 — 2026-05-18
+
+- Version bump to 0.1.26.
+
 ## 0.1.25 — 2026-05-22
 
 - **Frontend — Elementor (`PublicAssets`)**: Detect BEC shortcodes stored in Elementor **`_elementor_data`** (JSON), recurse into embedded **Library** templates via **`template_id`** / **`import_template_id`**, and scan **Elementor Pro Theme Builder** templates resolved for standard locations (extend via **`bec_elementor_theme_builder_locations_to_scan`**). Registers **`elementor/frontend/before_enqueue_scripts`** (with **`wp_enqueue_scripts`** at priority 20) so the active Elementor document is known when needed. Filter **`bec_public_assets_probe_post_ids`** adds post IDs to scan for edge cases.
