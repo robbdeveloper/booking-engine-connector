@@ -1,5 +1,9 @@
 # Changelog
 
+## 0.1.24 — 2026-05-21
+
+- **Frontend — public assets (`PublicAssets`)**: Enqueue search/booking-summary CSS and JS when any tracked BEC shortcode is present — including **`core/block`** reusable block refs, nested block markup, and common **widget** option blobs (`widget_block`, `widget_text`, `widget_custom_html`). Covers **`bec_search`**, **`bec_booking_summary`**, **`bec_dates`**, **`bec_checkout`**, **`bec_quote`**, **`bec_fallback`**, **`bec_unit_info`** (not plain‑text `bec_version` or URL-only `bec_unit_url`). Filter **`bec_shortcodes_requiring_public_assets`** extends the list.
+
 ## 0.1.23 — 2026-05-20
 
 - **Admin — Unit editor (`CoreUnitFieldRegistry`)**: **`bec_core_gallery`** on **`bec_unit`** uses a **thumbnail grid** only; click opens the **Media Library** attachment modal (metadata including alt text). Same JSON **attachment-ID** meta; **`assets/admin-unit-gallery.js`** / **`admin-unit-gallery.css`** enqueued only on unit edit screens.

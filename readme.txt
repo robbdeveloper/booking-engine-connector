@@ -4,7 +4,7 @@ Tags: booking, kross, hospitality, availability
 Requires at least: 6.4
 Tested up to: 6.7
 Requires PHP: 8.0
-Stable tag: 0.1.23
+Stable tag: 0.1.24
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
@@ -31,6 +31,9 @@ PHP 8.0+ and WordPress 6.4+ are required (see header above).
 Search context uses **GET query parameters** prefixed with `bec_` (e.g. check-in/out). See `docs/SEARCH-CONTEXT.md` when available.
 
 == Changelog ==
+
+= 0.1.24 =
+* **Frontend — public assets (`PublicAssets`)**: Enqueue search/booking-summary CSS and JS when any tracked BEC shortcode is present — including **`core/block`** reusable block refs, nested block markup, and common **widget** option blobs (`widget_block`, `widget_text`, `widget_custom_html`). New filter **`bec_shortcodes_requiring_public_assets`** extends the shortcode list.
 
 = 0.1.23 =
 * **Admin — Unit gallery**: On the **bec_unit** edit screen, **Gallery** (meta **bec_core_gallery**) shows **thumbnails only**; click opens the **Media Library** modal for that attachment (e.g. alt text). Meta stays a JSON array of attachment IDs; **`assets/admin-unit-gallery.js`** and **`admin-unit-gallery.css`** load on unit edit screens only.
