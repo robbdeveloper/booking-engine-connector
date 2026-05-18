@@ -30,10 +30,14 @@ PHP 8.0+ and WordPress 6.4+ are required (see header above).
 
 Search context uses **GET query parameters** prefixed with `bec_` (e.g. check-in/out). See `docs/SEARCH-CONTEXT.md` when available.
 
+= How do I submit `[bec_search]` from one page to another? =
+
+Use the **`redirect_url`** attribute so the form posts (GET) to your results page, e.g. `[bec_search redirect_url="/availability-results/"]`. The same **`bec_*`** query parameters are appended. If **`redirect_url`** is omitted, submissions go to the **units archive** (or **`home_url`** if the archive link is unavailable).
+
 == Changelog ==
 
 = 0.1.26 =
-* Version bump to 0.1.26.
+* **Shortcodes**: **`[bec_search]`** accepts optional **`redirect_url`**; default target is the unit archive so homepage searches can land on a dedicated results page.
 
 = 0.1.25 =
 * **Frontend — Elementor (`PublicAssets`)**: Enqueue BEC CSS/JS when shortcodes live in **`_elementor_data`** or embedded **Library** templates (`template_id` / `import_template_id`), including Elementor Pro **Theme Builder** documents. Hooks **`wp_enqueue_scripts` (priority 20)** and **`elementor/frontend/before_enqueue_scripts`**; filters **`bec_public_assets_probe_post_ids`**, **`bec_elementor_theme_builder_locations_to_scan`**.

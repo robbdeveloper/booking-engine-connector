@@ -46,8 +46,9 @@ final class ShortcodeRegistry
 	{
 		$a = \shortcode_atts(
 			[
-				'context' => 'shortcode',
-				'form_id' => 'bec-search-form-sc',
+				'context'      => 'shortcode',
+				'form_id'      => 'bec-search-form-sc',
+				'redirect_url' => '',
 			],
 			\is_array($atts) ? $atts : [],
 			'bec_search'
@@ -57,15 +58,43 @@ final class ShortcodeRegistry
 			return FallbackRenderer::render();
 		}
 
+		$action = self::resolveSearchFormActionForShortcode((string) $a['redirect_url']);
+
 		\ob_start();
 		SearchForm::render(
 			[
 				'context' => (string) $a['context'],
 				'form_id' => (string) $a['form_id'],
+				'action'  => $action,
 			]
 		);
 
 		return (string) \ob_get_clean();
+	}
+
+	/**
+	 * Destination URL for `[bec_search]` GET submissions (`bec_*` query args).
+	 *
+	 * @param string $redirectUrl Optional absolute URL, `https://…`, or root-relative path from shortcode `redirect_url`.
+	 */
+	private static function resolveSearchFormActionForShortcode(string $redirectUrl): string
+	{
+		$fallbackArchive = static function (): string {
+			$link = \get_post_type_archive_link(UnitPostType::getSlug());
+
+			return $link !== false ? (string) $link : \home_url('/');
+		};
+
+		$raw = \trim($redirectUrl);
+		if ($raw !== '') {
+			// Uses default allowed protocols; keeps root-relative paths (e.g. `/results/`).
+			$clean = \esc_url($raw);
+			if ($clean !== '') {
+				return $clean;
+			}
+		}
+
+		return $fallbackArchive();
 	}
 
 	public static function renderDates(): string

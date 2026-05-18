@@ -3,6 +3,7 @@
 ## 0.1.26 — 2026-05-18
 
 - Version bump to 0.1.26.
+- **Shortcodes (`ShortcodeRegistry`)**: **`[bec_search]`** supports optional **`redirect_url`**; when unset, the form **`action`** defaults to the **unit archive** (fallback **`home_url`**), so e.g. a homepage search can submit **`bec_*`** params to another page.
 
 ## 0.1.25 — 2026-05-22
 
