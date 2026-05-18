@@ -19,7 +19,7 @@ msgstr ""
 #. Plugin Name of the plugin
 #: booking-engine-connector.php includes/Admin/AdminMenu.php:107
 msgid "Booking Engine Connector"
-msgstr "Connettore del motore di prenotazione"
+msgstr "Connettore del Booking Engine"
 
 #. Plugin URI of the plugin
 #: booking-engine-connector.php
@@ -32,7 +32,7 @@ msgid ""
 "Connects WordPress to external booking engines (Kross Booking and others) "
 "with sync, search context, and checkout links."
 msgstr ""
-"Collega WordPress a motori di prenotazione esterni (Kross Booking e altri) "
+"Collega WordPress a Booking Engines esterni (Kross Booking e altri) "
 "con collegamenti di sincronizzazione, contesto di ricerca e pagamento."
 
 #. Author of the plugin
@@ -47,7 +47,7 @@ msgstr "https://robbdev.com"
 
 #: includes/Admin/AdminMenu.php:32 includes/Admin/AdminMenu.php:33
 msgid "Booking Engine"
-msgstr "Motore di prenotazione"
+msgstr "Booking Engine"
 
 #: includes/Admin/AdminMenu.php:43 includes/Admin/AdminMenu.php:44
 msgid "Dashboard"
@@ -321,7 +321,7 @@ msgstr "Cassa (Kross)"
 
 #: includes/Admin/Settings/FallbackPage.php:62
 msgid "Booking engine base URL"
-msgstr "URL di base del motore di prenotazione"
+msgstr "URL di base del Booking Engine"
 
 #: includes/Admin/Settings/FallbackPage.php:64
 msgid ""
@@ -330,7 +330,7 @@ msgid ""
 "guests) are sent as query string (GET) or as POST fields, depending on the "
 "option below."
 msgstr ""
-"URL completo al punto di ingresso del tuo motore di prenotazione Kross. "
+"URL completo al punto di ingresso del tuo Booking Engine Kross. "
 "Lascia vuoto per nascondere i collegamenti di pagamento finché non vengono "
 "configurati. I parametri (hotel, tipo di camera, date, ospiti) vengono "
 "inviati come stringa di query (GET) o come campi POST, a seconda "
@@ -338,7 +338,7 @@ msgstr ""
 
 #: includes/Admin/Settings/FallbackPage.php:70
 msgid "How to open the booking engine"
-msgstr "Come aprire il motore di prenotazione"
+msgstr "Come aprire il Booking Engine"
 
 #: includes/Admin/Settings/FallbackPage.php:72
 msgid "GET — append parameters to the URL"
@@ -660,7 +660,7 @@ msgstr ""
 
 #: includes/Admin/SyncAdmin.php:164
 msgid "Kross booking engines"
-msgstr "Motori di prenotazione Kross"
+msgstr "Booking Engines Kross"
 
 #: includes/Admin/SyncAdmin.php:165
 msgid ""
@@ -679,11 +679,11 @@ msgstr ""
 
 #: includes/Admin/SyncAdmin.php:175
 msgid "Booking engines"
-msgstr "Motori di prenotazione"
+msgstr "Booking Engines"
 
 #: includes/Admin/SyncAdmin.php:177
 msgid "Refresh booking engines list from Kross"
-msgstr "Aggiorna l'elenco dei motori di prenotazione di Kross"
+msgstr "Aggiorna l'elenco dei Booking Engines di Kross"
 
 #: includes/Admin/SyncAdmin.php:181
 msgid ""
@@ -702,7 +702,7 @@ msgstr ""
 #: includes/Admin/SyncAdmin.php:192
 msgid "Kross booking engine slugs to include in sync"
 msgstr ""
-"Slug del motore di prenotazione Kross da includere nella sincronizzazione"
+"Slug del Booking Engine Kross da includere nella sincronizzazione"
 
 #: includes/Admin/SyncAdmin.php:216
 msgid "Gallery image filenames"
@@ -819,7 +819,7 @@ msgid ""
 "Booking engine discovery is available only while Kross is the active "
 "provider."
 msgstr ""
-"La scoperta del motore di prenotazione è disponibile solo mentre Kross è il "
+"La scoperta del Booking Engine è disponibile solo mentre Kross è il "
 "fornitore attivo."
 
 #: includes/Admin/SyncAdmin.php:585
@@ -828,7 +828,7 @@ msgid ""
 "engines."
 msgstr ""
 "Completa le credenziali Kross nella pagina Connessione prima di aggiornare i"
-" motori di prenotazione."
+" Booking Engines."
 
 #. translators: %d number of distinct booking-engine slugs cached after
 #. refresh
@@ -837,17 +837,17 @@ msgstr ""
 msgid "Booking engines list refreshed. %d slug cached."
 msgid_plural "Booking engines list refreshed. %d slugs cached."
 msgstr[0] ""
-"Elenco dei motori di prenotazione aggiornato. %d slug memorizzato nella "
+"Elenco dei Booking Engines aggiornato. %d slug memorizzato nella "
 "cache."
 msgstr[1] ""
-"Elenco dei motori di prenotazione aggiornato. %d slug memorizzati nella "
+"Elenco dei Booking Engines aggiornato. %d slug memorizzati nella "
 "cache."
 
 #. translators: %s error detail
 #: includes/Admin/SyncAdmin.php:641
 #, php-format
 msgid "Could not refresh booking engines: %s"
-msgstr "Impossibile aggiornare i motori di prenotazione: %s"
+msgstr "Impossibile aggiornare i Booking Engines: %s"
 
 #: includes/Admin/SyncAdmin.php:662
 msgid "Sync settings saved."
@@ -872,7 +872,7 @@ msgstr "Prenota ora"
 #: includes/Core/Activator.php:22
 msgid "Booking Engine Connector requires PHP 8.0 or newer."
 msgstr ""
-"Il connettore del motore di prenotazione richiede PHP 8.0 o successivo."
+"Il connettore del Booking Engine richiede PHP 8.0 o successivo."
 
 #: includes/Core/Activator.php:23
 msgid "Plugin activation error"
@@ -1083,7 +1083,7 @@ msgstr "Elenco delle unità"
 
 #: includes/PostTypes/UnitPostType.php:333
 msgid "Booking engine — synced data"
-msgstr "Motore di prenotazione: dati sincronizzati"
+msgstr "Booking Engine: dati sincronizzati"
 
 #: includes/PostTypes/UnitPostType.php:360
 #: includes/PostTypes/UnitPostType.php:449
@@ -1103,7 +1103,7 @@ msgid ""
 "Read-only fields from the booking engine sync. Use the JSON below to see "
 "every key returned for this unit (e.g. for templates and shortcodes)."
 msgstr ""
-"Campi di sola lettura dalla sincronizzazione del motore di prenotazione. "
+"Campi di sola lettura dalla sincronizzazione del Booking Engine. "
 "Utilizza il JSON riportato di seguito per visualizzare tutte le chiavi "
 "restituite per questa unità (ad esempio per modelli e codici brevi)."
 
@@ -1601,7 +1601,7 @@ msgstr "Se necessario, utilizzare i decimali (ad esempio 1,5)."
 #: includes/Sync/SyncCron.php:72
 #, php-format
 msgid "Every %d hours (Booking Engine)"
-msgstr "Ogni %d ore (motore di prenotazione)"
+msgstr "Ogni %d ore (Booking Engine)"
 
 #. translators: 1: created count, 2: updated, 3: skipped
 #: includes/Sync/SyncProgressReporter.php:106
@@ -1707,7 +1707,7 @@ msgstr "(senza nome)"
 
 #: includes/Sync/UnitSyncFieldRegistry.php:242
 msgid "Booking engine — unit fields"
-msgstr "Motore di prenotazione: campi unitari"
+msgstr "Booking Engine: campi unitari"
 
 #: includes/Sync/UnitSyncFieldRegistry.php:260
 msgid ""
