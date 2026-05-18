@@ -4,7 +4,7 @@ Tags: booking, kross, hospitality, availability
 Requires at least: 6.4
 Tested up to: 6.7
 Requires PHP: 8.0
-Stable tag: 0.1.18
+Stable tag: 0.1.19
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
@@ -31,6 +31,12 @@ PHP 8.0+ and WordPress 6.4+ are required (see header above).
 Search context uses **GET query parameters** prefixed with `bec_` (e.g. check-in/out). See `docs/SEARCH-CONTEXT.md` when available.
 
 == Changelog ==
+
+= 0.1.19 =
+* **i18n**: Plugin `languages/` with POT template plus Italian **`it_IT`** PO/MO; maintainer workflow in **`languages/README.txt`**.
+* **Frontend**: Expanded **`becSearchForm`** strings (datepicker labels, separators, placeholders); Moment locale tied to **`determine_locale`** with map + **`bec_moment_locale`** filter; **`public-search-daterange.js`** consumes localized config.
+* **Admin sync**: Localized **`admin-sync-progress.js`** error and result summary strings.
+* **Quotes & fallback**: User-facing **`QuoteService`** provider errors generic + translatable (details in **`WP_Error`** data); fallback link text defaults empty with gettext **`Contact us`** when unset (see **`CHANGELOG.md`**).
 
 = 0.1.18 =
 * **Styling pipeline**: Plugin default `:root` tokens enqueue on `bec-public`; shared theme variables and Extra CSS enqueue **after** search + booking-summary presets (`bec-styling-overrides`) so overrides win (see `CHANGELOG.md`).

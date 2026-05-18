@@ -1,5 +1,13 @@
 # Changelog
 
+## 0.1.19 — 2026-05-18
+
+- **Internationalization — catalogs (`languages/`)**: Added **`languages/booking-engine-connector.pot`**, **`booking-engine-connector-it_IT.po`** / **`.mo`**, and **`languages/README.txt`** (how to regenerate the POT with WP‑CLI, merge POs with `msgmerge`, compile MOs).
+- **Frontend — search & date picker (`PublicAssets`, `public-search-daterange.js`)**: Extended **`becSearchForm`** localization with **`customRangeLabel`**, **`dateRangeSeparator`**, gettext **`datePlaceholder`**, clearer **`/* translators: */`** notes on guest-count strings; daterangepicker reads those keys (English fallbacks only if stripped). Moment locale resolves via **`determine_locale()`** (fallback **`get_locale()`**), expanded WordPress locale → Moment slug map (e.g. **`it_IT`** → **`it`**), optional **`bec_moment_locale`** filter.
+- **Admin — Sync UI (`SyncAdmin`, `admin-sync-progress.js`)**: **`wp_localize_script`** supplies translated strings for generic sync failure, the **created / updated / skipped** summary (PHP `sprintf`-style placeholders rendered in JS), and the unexpected-response network error message.
+- **Quotes (`QuoteService`)**: Provider failures expose a **generic translatable user message** instead of raw API text; **`technical`** retains the exception message on the `WP_Error` for filters/logs.
+- **Fallback (`Activator`, `FallbackRenderer`, `FallbackPage`)**: Default **fallback link text** is stored empty on new installs; empty means **`Contact us`** through gettext at render time. Fallback settings screen explains leaving the link text blank for locale-aware wording.
+
 ## 0.1.18 — 2026-05-17
 
 - **Frontend — styling cascade (`PublicAssets`)**: Default **`--bec-*`** values output early as `:root { … }` on **`bec-public`**. Shared theme variables (“Design system”), search extra CSS, and summary extra CSS output **after** the search preset + booking-summary preset styles via a synthetic **`bec-styling-overrides`** handle with proper dependencies, so preset rules no longer mute admin/user tokens.
