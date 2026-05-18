@@ -4,7 +4,7 @@ Tags: booking, kross, hospitality, availability
 Requires at least: 6.4
 Tested up to: 6.7
 Requires PHP: 8.0
-Stable tag: 0.1.26
+Stable tag: 0.1.27
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
@@ -35,6 +35,9 @@ Search context uses **GET query parameters** prefixed with `bec_` (e.g. check-in
 Use the **`redirect_url`** attribute so the form posts (GET) to your results page, e.g. `[bec_search redirect_url="/availability-results/"]`. The same **`bec_*`** query parameters are appended. If **`redirect_url`** is omitted, submissions go to the **units archive** (or **`home_url`** if the archive link is unavailable).
 
 == Changelog ==
+
+= 0.1.27 =
+* Version bump to 0.1.27.
 
 = 0.1.26 =
 * **Shortcodes**: **`[bec_search]`** accepts optional **`redirect_url`**; default target is the unit archive so homepage searches can land on a dedicated results page.
