@@ -30,7 +30,6 @@
 	gap: 0;
 	padding: 0;
 	background: var(--bec-color-bg);
-	border: var(--bec-border-width) solid var(--bec-color-border);
 	border-radius: var(--bec-radius-field);
 	box-shadow: var(--bec-shadow-bar);
 	overflow: hidden;
