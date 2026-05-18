@@ -11,6 +11,9 @@ use BookingEngineConnector\Styling\StylingSettings;
 /**
  * Enqueues public base CSS (`public.css`), per-preset bundles under `assets/styling/`,
  * vendor daterangepicker (enhanced layout only), and scripts.
+ *
+ * Shortcode / UI detection includes block editor posts, Elementor document meta (`_elementor_data`),
+ * embedded Library templates (`template_id`), Elementor Pro Theme Builder locations, and common widgets.
  */
 final class PublicAssets
 {
@@ -30,7 +33,8 @@ final class PublicAssets
 
 	public static function register(): void
 	{
-		\add_action('wp_enqueue_scripts', [self::class, 'enqueue']);
+		\add_action('wp_enqueue_scripts', [self::class, 'enqueue'], 20);
+		\add_action('elementor/frontend/before_enqueue_scripts', [self::class, 'enqueue'], 5);
 	}
 
 	public static function enqueue(): void
@@ -39,6 +43,11 @@ final class PublicAssets
 			return;
 		}
 
+		self::performEnqueue();
+	}
+
+	private static function performEnqueue(): void
+	{
 		\wp_enqueue_style(
 			'bec-public',
 			\BEC_PLUGIN_URL . 'assets/public.css',
@@ -256,10 +265,15 @@ final class PublicAssets
 			return true;
 		}
 
-		if (\is_singular()) {
-			$post = \get_post();
-			if ($post instanceof \WP_Post && self::storedContentNeedsPublicAssets($post->post_content)) {
-				return true;
+		if (! \is_admin() && ! \is_feed() && ! \is_embed()) {
+			foreach (self::collectFrontendProbePostIds() as $probeId) {
+				if ($probeId < 1) {
+					continue;
+				}
+				$visited = [];
+				if (self::postAndElementorDependenciesNeedPublicAssets($probeId, $visited)) {
+					return true;
+				}
 			}
 		}
 
@@ -268,6 +282,276 @@ final class PublicAssets
 		}
 
 		return (bool) \apply_filters('bec_enqueue_public_assets', false);
+	}
+
+	/**
+	 * Post IDs whose post content and Elementor meta should be scanned on this request.
+	 *
+	 * @return list<int>
+	 */
+	private static function collectFrontendProbePostIds(): array
+	{
+		$ids = [];
+		$qid = (int) \get_queried_object_id();
+		if ($qid > 0) {
+			$ids[] = $qid;
+		}
+
+		$mainDoc = self::elementorTryGetMainDocumentPostId();
+		if ($mainDoc > 0) {
+			$ids[] = $mainDoc;
+		}
+
+		$ids = \array_merge($ids, self::elementorThemeBuilderTemplatePostIds());
+
+		$ids = \array_values(\array_unique(\array_filter(\array_map('intval', $ids))));
+
+		/**
+		 * Post IDs whose stored post content and Elementor meta should be scanned for BEC shortcodes.
+		 *
+		 * @param list<int> $ids  Candidate IDs (queried object, Elementor document, Theme Builder templates).
+		 * @param int       $qid  Main queried object ID (`get_queried_object_id()`).
+		 */
+		$filtered = \apply_filters('bec_public_assets_probe_post_ids', $ids, $qid);
+
+		return \is_array($filtered)
+			? \array_values(\array_unique(\array_filter(\array_map('intval', $filtered))))
+			: $ids;
+	}
+
+	private static function elementorTryGetMainDocumentPostId(): int
+	{
+		if (! \class_exists('\Elementor\Plugin')) {
+			return 0;
+		}
+		try {
+			$plugin = \Elementor\Plugin::instance();
+			$documents = $plugin->documents;
+			if (! $documents || ! \method_exists($documents, 'get_current')) {
+				return 0;
+			}
+			$current = $documents->get_current();
+			if (! $current) {
+				return 0;
+			}
+			if (\method_exists($current, 'get_main_id')) {
+				return (int) $current->get_main_id();
+			}
+			if (\method_exists($current, 'get_post')) {
+				$p = $current->get_post();
+
+				return $p instanceof \WP_Post ? (int) $p->ID : 0;
+			}
+		} catch (\Throwable $e) {
+			return 0;
+		}
+
+		return 0;
+	}
+
+	/**
+	 * Elementor Pro Theme Builder documents active for standard locations (header, footer, single, …).
+	 *
+	 * @return list<int>
+	 */
+	private static function elementorThemeBuilderTemplatePostIds(): array
+	{
+		if (! \class_exists('\ElementorPro\Plugin')) {
+			return [];
+		}
+		try {
+			$pro = \ElementorPro\Plugin::instance();
+			if (! \is_object($pro) || ! \method_exists($pro, 'modules_manager')) {
+				return [];
+			}
+			$mm = $pro->modules_manager;
+			if (! \is_object($mm) || ! \method_exists($mm, 'get_modules')) {
+				return [];
+			}
+			/** @var mixed $tb */
+			$tb = $mm->get_modules('theme-builder');
+			if (! \is_object($tb) || ! \method_exists($tb, 'get_conditions_manager')) {
+				return [];
+			}
+			$cm = $tb->get_conditions_manager();
+			if (! \is_object($cm) || ! \method_exists($cm, 'get_documents_for_location')) {
+				return [];
+			}
+
+			$locations = [
+				'header',
+				'footer',
+				'single',
+				'archive',
+				'search',
+				'error404',
+			];
+			if (\class_exists('WooCommerce')) {
+				$locations[] = 'product';
+				$locations[] = 'product_archive';
+			}
+
+			$locations = (array) \apply_filters('bec_elementor_theme_builder_locations_to_scan', $locations);
+
+			$out = [];
+			foreach ($locations as $location) {
+				$loc = \is_string($location) ? \trim($location) : '';
+				if ($loc === '') {
+					continue;
+				}
+				$docs = $cm->get_documents_for_location($loc);
+				if (! \is_array($docs)) {
+					continue;
+				}
+				foreach ($docs as $doc) {
+					$pid = self::elementorDocumentLikeToPostId($doc);
+					if ($pid > 0) {
+						$out[] = $pid;
+					}
+				}
+			}
+
+			return \array_values(\array_unique(\array_filter($out)));
+		} catch (\Throwable $e) {
+			return [];
+		}
+	}
+
+	/**
+	 * @param mixed $document Elementor document object, or numeric ID, depending on version.
+	 */
+	private static function elementorDocumentLikeToPostId($document): int
+	{
+		if (\is_numeric($document)) {
+			return (int) $document;
+		}
+		if (! \is_object($document)) {
+			return 0;
+		}
+		if (\method_exists($document, 'get_post')) {
+			$p = $document->get_post();
+
+			return $p instanceof \WP_Post ? (int) $p->ID : 0;
+		}
+		if (\method_exists($document, 'get_id')) {
+			return (int) $document->get_id();
+		}
+
+		return 0;
+	}
+
+	/**
+	 * @param array<int> $visitedPostIds Cycle guard (includes $postId before recursing into children).
+	 */
+	private static function postAndElementorDependenciesNeedPublicAssets(int $postId, array &$visitedPostIds): bool
+	{
+		if ($postId < 1 || \in_array($postId, $visitedPostIds, true)) {
+			return false;
+		}
+		$visitedPostIds[] = $postId;
+
+		$post = \get_post($postId);
+		if (! $post instanceof \WP_Post || $post->post_status === 'trash') {
+			return false;
+		}
+
+		if (self::storedContentNeedsPublicAssets($post->post_content)) {
+			return true;
+		}
+
+		$meta = \get_post_meta($postId, '_elementor_data', true);
+		if ($meta === '' || $meta === false || $meta === null) {
+			return false;
+		}
+
+		if (\is_string($meta) && self::stringContainsTrackedShortcode($meta)) {
+			return true;
+		}
+
+		$tree = self::parseElementorDataMeta($meta);
+		if ($tree === null) {
+			return false;
+		}
+
+		return self::elementorDecodedTreeNeedsPublicAssets($tree, $visitedPostIds);
+	}
+
+	/**
+	 * @param mixed $meta Raw `_elementor_data` post meta.
+	 */
+	private static function parseElementorDataMeta($meta): ?array
+	{
+		if (\is_array($meta)) {
+			return $meta;
+		}
+		if (! \is_string($meta) || $meta === '') {
+			return null;
+		}
+		$decoded = \json_decode($meta, true);
+		if (\JSON_ERROR_NONE === \json_last_error() && \is_array($decoded)) {
+			return $decoded;
+		}
+		if (\function_exists('is_serialized') && \is_serialized($meta, false)) {
+			$un = @\unserialize($meta, ['allowed_classes' => false]);
+			if (\is_array($un)) {
+				return $un;
+			}
+		}
+
+		return null;
+	}
+
+	/**
+	 * @param mixed                   $node
+	 * @param array<int>              $visitedPostIds
+	 */
+	private static function elementorDecodedTreeNeedsPublicAssets($node, array &$visitedPostIds): bool
+	{
+		if (! \is_array($node)) {
+			return false;
+		}
+
+		foreach ($node as $key => $value) {
+			if (($key === 'template_id' || $key === 'import_template_id') && $value !== '' && $value !== null) {
+				$tid = self::coerceElementorTemplatePostId($value);
+				if ($tid > 0 && self::postAndElementorDependenciesNeedPublicAssets($tid, $visitedPostIds)) {
+					return true;
+				}
+			}
+
+			if (\is_string($value) && $value !== '' && self::stringContainsTrackedShortcode($value)) {
+				return true;
+			}
+
+			if (\is_array($value) && self::elementorDecodedTreeNeedsPublicAssets($value, $visitedPostIds)) {
+				return true;
+			}
+		}
+
+		return false;
+	}
+
+	/**
+	 * @param mixed $value Settings value or responsive map from Elementor JSON.
+	 */
+	private static function coerceElementorTemplatePostId($value): int
+	{
+		if (\is_int($value) || \is_float($value)) {
+			return $value > 0 ? (int) $value : 0;
+		}
+		if (\is_string($value) && \is_numeric(\trim($value))) {
+			return (int) \trim($value);
+		}
+		if (\is_array($value)) {
+			foreach ($value as $inner) {
+				$tid = self::coerceElementorTemplatePostId($inner);
+				if ($tid > 0) {
+					return $tid;
+				}
+			}
+		}
+
+		return 0;
 	}
 
 	/**
