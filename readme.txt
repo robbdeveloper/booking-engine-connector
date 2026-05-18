@@ -4,7 +4,7 @@ Tags: booking, kross, hospitality, availability
 Requires at least: 6.4
 Tested up to: 6.7
 Requires PHP: 8.0
-Stable tag: 0.1.19
+Stable tag: 0.1.20
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
@@ -31,6 +31,12 @@ PHP 8.0+ and WordPress 6.4+ are required (see header above).
 Search context uses **GET query parameters** prefixed with `bec_` (e.g. check-in/out). See `docs/SEARCH-CONTEXT.md` when available.
 
 == Changelog ==
+
+= 0.1.20 =
+* **Unit categories**: Optional hierarchical taxonomy **`bec_unit_category`** — enable + URL slug on **Booking Engine ▸ Units — permalinks** (defaults off on existing installs); localized labels from synced **`names`** term meta and **`single_term_title`** on archives when enabled.
+* **Sync**: **`UnitCategorySync`** assigns terms after **`bec_after_unit_sync`** using **`bec_sync_unit_category`**; term meta stores provider slug, external ID, JSON names, normalized descriptor snapshot, last sync time.
+* **Kross**: Fetches **`/v5/rooms/get-room-types-categories`** when categories are enabled; enriches room-type rows with **`unit_category`** from **`id_room_type_category`** (`bec_kross_room_type_categories_payload`, **`bec_kross_room_type_categories`**, **`bec_kross_room_type_category_from_row`**).
+* **Rewrites**: One-time flush runs at **`init`** priority **100** (**`UnitPostType::maybeFlushRewrites`**) so rules include both units and unit categories after registration.
 
 = 0.1.19 =
 * **i18n**: Plugin `languages/` with POT template plus Italian **`it_IT`** PO/MO; maintainer workflow in **`languages/README.txt`**.

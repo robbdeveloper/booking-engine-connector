@@ -1,5 +1,14 @@
 # Changelog
 
+## 0.1.20 — 2026-05-19
+
+- **Unit categories (`bec_unit_category`)**: Optional hierarchical taxonomy for synced inventory categories — **`UnitCategoryTaxonomy`** registers after units with configurable public slug (default **`unit-category`**), **`bec_unit_category_enabled`** / **`bec_unit_category_permalink_slug`** options, filters **`bec_unit_category_enabled`**, **`bec_unit_category_rewrite_slug`**, **`bec_unit_category_taxonomy_args`**. Disabled installs skip public rewrites and taxonomy UI while keeping stored terms (activation defaults categories **off**).
+- **Admin — Units (`UnitPermalinkPage`)**: Checkbox + slug field alongside existing unit permalink settings; saves nonce-checked options and **`flush_rewrite_rules(false)`**.
+- **Sync (`UnitCategorySync`)**: Hooks **`bec_after_unit_sync`**; filter **`bec_sync_unit_category`**; finds/creates term by **`bec_provider_slug`** + **`bec_external_id`** meta; stable initial slug **`{name}-{external_id}`** without changing slug after creation; **`wp_set_object_terms`** assigns one category per unit when a descriptor exists; no-op when disabled or missing data (existing assignments preserved).
+- **Term meta / labels**: **`bec_category_names`** (localized map JSON), **`bec_category_normalized`**, **`bec_last_sync_at`**; **`resolveLocalizedLabelForTerm()`** and related helpers match Kross-style locale fallbacks; **`single_term_title`** uses the resolved label when the feature is enabled.
+- **Kross (`KrossProvider`)**: When categories are enabled, calls **`get-room-types-categories`** (JSON body POST as with other logical GET v5 endpoints); filters **`bec_kross_room_type_categories_payload`**, **`bec_kross_room_type_categories`**, **`bec_kross_room_type_category_from_row`**; normalizes **`id_room_type_category`** / **`name_room_type_category`** / **`names`** and attaches **`unit_category`** on each normalized room-type row (sync payload / inspector include it).
+- **Rewrites (`UnitPostType`)**: **`maybeFlushRewrites()`** on **`init` priority 100** replaces flushing inside **`onInit` (5)** so **`bec_needs_rewrite_flush`** runs after taxonomy registration (**priority 6**), keeping unit + category rules in sync.
+
 ## 0.1.19 — 2026-05-18
 
 - **Internationalization — catalogs (`languages/`)**: Added **`languages/booking-engine-connector.pot`**, **`booking-engine-connector-it_IT.po`** / **`.mo`**, and **`languages/README.txt`** (how to regenerate the POT with WP‑CLI, merge POs with `msgmerge`, compile MOs).
