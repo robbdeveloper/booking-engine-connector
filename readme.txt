@@ -4,7 +4,7 @@ Tags: booking, kross, hospitality, availability
 Requires at least: 6.4
 Tested up to: 6.7
 Requires PHP: 8.0
-Stable tag: 0.1.17
+Stable tag: 0.1.18
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
@@ -31,6 +31,12 @@ PHP 8.0+ and WordPress 6.4+ are required (see header above).
 Search context uses **GET query parameters** prefixed with `bec_` (e.g. check-in/out). See `docs/SEARCH-CONTEXT.md` when available.
 
 == Changelog ==
+
+= 0.1.18 =
+* **Styling pipeline**: Plugin default `:root` tokens enqueue on `bec-public`; shared theme variables and Extra CSS enqueue **after** search + booking-summary presets (`bec-styling-overrides`) so overrides win (see `CHANGELOG.md`).
+* **Admin — Styling**: Short semantic design-token block; legacy full-default fingerprints normalize in the textarea; plain saves apply on `:root` in late CSS for **portaled** pickers; optional CodeMirror for CSS fields.
+* **UI**: Booking summary default preset — incomplete/stale-quote states, mobile bar/drawer, embedded search/readouts; enhanced search — mobile sheet transitions, `closeAll` can keep the date range; primary buttons/radii follow `--bec-color-primary` / `--bec-radius-*` tokens (`assets/styling/*.css`, `public-search*.js`).
+* **Admin — units**: Duplicate `bec_sync_payload` debug strip removed from **Unit — core fields** (use **Booking engine — synced data**).
 
 = 0.1.17 =
 * **Enhanced search (mobile)**: Date range picker uses a bottom sheet with scrollable calendars and a pinned **Cancel / Apply** footer; **`bec-drp-is-open`** avoids the footer showing before the popup opens. See `CHANGELOG.md`.
