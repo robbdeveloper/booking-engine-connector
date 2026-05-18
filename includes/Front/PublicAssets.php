@@ -14,6 +14,20 @@ use BookingEngineConnector\Styling\StylingSettings;
  */
 final class PublicAssets
 {
+	/**
+	 * Shortcodes whose output expects {@see enqueue()} CSS/JS on the front.
+	 * Excludes `bec_version` (plain text) and `bec_unit_url` (bare URL for attributes).
+	 */
+	private const SHORTCODES_NEEDING_PUBLIC_ASSETS = [
+		'bec_search',
+		'bec_booking_summary',
+		'bec_dates',
+		'bec_checkout',
+		'bec_quote',
+		'bec_fallback',
+		'bec_unit_info',
+	];
+
 	public static function register(): void
 	{
 		\add_action('wp_enqueue_scripts', [self::class, 'enqueue']);
@@ -244,14 +258,145 @@ final class PublicAssets
 
 		if (\is_singular()) {
 			$post = \get_post();
-			if ($post instanceof \WP_Post && (
-				\has_shortcode($post->post_content, 'bec_search')
-				|| \has_shortcode($post->post_content, 'bec_booking_summary')
-			)) {
+			if ($post instanceof \WP_Post && self::storedContentNeedsPublicAssets($post->post_content)) {
 				return true;
 			}
 		}
 
+		if (self::widgetOptionContentNeedsPublicAssets()) {
+			return true;
+		}
+
 		return (bool) \apply_filters('bec_enqueue_public_assets', false);
+	}
+
+	/**
+	 * @return list<string>
+	 */
+	private static function shortcodesRequiringPublicAssets(): array
+	{
+		$tags = \apply_filters('bec_shortcodes_requiring_public_assets', self::SHORTCODES_NEEDING_PUBLIC_ASSETS);
+		if (! \is_array($tags)) {
+			return self::SHORTCODES_NEEDING_PUBLIC_ASSETS;
+		}
+
+		$out = [];
+		foreach ($tags as $t) {
+			$t = \trim((string) $t);
+			if ($t !== '') {
+				$out[] = $t;
+			}
+		}
+
+		return $out !== [] ? \array_values(\array_unique($out)) : self::SHORTCODES_NEEDING_PUBLIC_ASSETS;
+	}
+
+	private static function stringContainsTrackedShortcode(string $haystack): bool
+	{
+		if ($haystack === '') {
+			return false;
+		}
+		foreach (self::shortcodesRequiringPublicAssets() as $tag) {
+			if (\has_shortcode($haystack, $tag)) {
+				return true;
+			}
+		}
+
+		return false;
+	}
+
+	/**
+	 * Detect BEC shortcodes in stored content, including block editor reusable blocks (`core/block` ref).
+	 *
+	 * @param array<int> $visitedReusableIds Post IDs already followed for synched/reusable blocks (cycle guard).
+	 */
+	private static function storedContentNeedsPublicAssets(string $content, array $visitedReusableIds = []): bool
+	{
+		if (self::stringContainsTrackedShortcode($content)) {
+			return true;
+		}
+
+		if (! \function_exists('has_blocks') || ! \function_exists('parse_blocks') || ! \has_blocks($content)) {
+			return false;
+		}
+
+		return self::blocksTreeContainsTrackedShortcode(\parse_blocks($content), $visitedReusableIds);
+	}
+
+	/**
+	 * @param array<int, array<string, mixed>> $blocks
+	 * @param array<int>                       $visitedReusableIds
+	 */
+	private static function blocksTreeContainsTrackedShortcode(array $blocks, array $visitedReusableIds): bool
+	{
+		foreach ($blocks as $block) {
+			if (! \is_array($block)) {
+				continue;
+			}
+
+			if (($block['blockName'] ?? null) === 'core/block' && isset($block['attrs']) && \is_array($block['attrs'])) {
+				$ref = isset($block['attrs']['ref']) ? (int) $block['attrs']['ref'] : 0;
+				if ($ref > 0 && ! \in_array($ref, $visitedReusableIds, true)) {
+					$nextVisited   = $visitedReusableIds;
+					$nextVisited[] = $ref;
+					$refPost       = \get_post($ref);
+					if ($refPost instanceof \WP_Post && $refPost->post_status === 'publish' && $refPost->post_content !== '') {
+						if (self::storedContentNeedsPublicAssets((string) $refPost->post_content, $nextVisited)) {
+							return true;
+						}
+					}
+				}
+			}
+
+			$inner = $block['innerHTML'] ?? '';
+			if (\is_string($inner) && $inner !== '' && self::stringContainsTrackedShortcode($inner)) {
+				return true;
+			}
+
+			$innerChunks = $block['innerContent'] ?? null;
+			if (\is_array($innerChunks)) {
+				foreach ($innerChunks as $chunk) {
+					if (\is_string($chunk) && $chunk !== '' && self::stringContainsTrackedShortcode($chunk)) {
+						return true;
+					}
+				}
+			}
+
+			$innerBlocks = $block['innerBlocks'] ?? null;
+			if (\is_array($innerBlocks) && $innerBlocks !== [] && self::blocksTreeContainsTrackedShortcode($innerBlocks, $visitedReusableIds)) {
+				return true;
+			}
+		}
+
+		return false;
+	}
+
+	private static function widgetOptionContentNeedsPublicAssets(): bool
+	{
+		foreach (['widget_block', 'widget_text', 'widget_custom_html'] as $option) {
+			$raw = \get_option($option, null);
+			if (! \is_array($raw)) {
+				continue;
+			}
+			foreach ($raw as $key => $instance) {
+				if ($key === '_multiwidget' || ! \is_array($instance)) {
+					continue;
+				}
+				$pieces = [];
+				if (isset($instance['content']) && \is_string($instance['content'])) {
+					$pieces[] = $instance['content'];
+				}
+				if (isset($instance['text']) && \is_string($instance['text'])) {
+					$pieces[] = $instance['text'];
+				}
+				foreach ($pieces as $chunk) {
+					if ($chunk !== '' && self::storedContentNeedsPublicAssets($chunk)) {
+						return true;
+					}
+				}
+			}
+		}
+
+		return false;
 	}
 }
