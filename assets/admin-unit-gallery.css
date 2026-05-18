@@ -1,0 +1,66 @@
+/* Unit edit — bec_core_gallery thumbnails → media modal */
+
+.bec-unit-gallery-field {
+	max-width: 100%;
+}
+
+.bec-unit-gallery-grid {
+	display: flex;
+	flex-wrap: wrap;
+	gap: 8px;
+	list-style: none;
+	margin: 0.5em 0 0;
+	padding: 0;
+}
+
+.bec-unit-gallery-item {
+	margin: 0;
+}
+
+/* Clickable thumbnail: unstyled button */
+.bec-unit-gallery-open {
+	display: block;
+	margin: 0;
+	padding: 0;
+	border: 1px solid #c3c4c7;
+	border-radius: 2px;
+	background: #fff;
+	cursor: pointer;
+	line-height: 0;
+	box-shadow: 0 1px 1px rgba(0, 0, 0, 0.04);
+}
+
+.bec-unit-gallery-open:hover,
+.bec-unit-gallery-open:focus {
+	border-color: #2271b1;
+	box-shadow: 0 0 0 1px #2271b1;
+	outline: none;
+}
+
+.bec-unit-gallery-open .bec-unit-gallery-thumb-img {
+	display: block;
+	width: 80px;
+	height: auto;
+	vertical-align: middle;
+}
+
+.bec-unit-gallery-missing {
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	width: 80px;
+	height: 80px;
+	border: 1px dashed #c3c4c7;
+	border-radius: 2px;
+	background: #f6f7f7;
+	color: #787c82;
+	font-size: 11px;
+	text-align: center;
+	padding: 4px;
+	box-sizing: border-box;
+}
+
+.bec-unit-gallery-missing-label {
+	line-height: 1.2;
+	word-break: break-word;
+}

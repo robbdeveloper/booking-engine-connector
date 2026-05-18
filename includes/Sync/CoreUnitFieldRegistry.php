@@ -27,6 +27,7 @@ final class CoreUnitFieldRegistry
 		add_action('init', [self::class, 'onInit'], 10);
 		add_action('add_meta_boxes', [self::class, 'addMetaBox']);
 		add_action('save_post', [self::class, 'onSavePost'], 10, 2);
+		add_action('admin_enqueue_scripts', [self::class, 'enqueueUnitGalleryAssets']);
 	}
 
 	public static function onInit(): void
@@ -455,21 +456,7 @@ final class CoreUnitFieldRegistry
 					) . '</p>';
 					break;
 				case 'gallery_json':
-					$display = '';
-					if (is_string($val) && $val !== '') {
-						$display = $val;
-					} elseif (is_array($val)) {
-						$prettyFlags = JsonExtensionFlags::prettyPrint() | SyncPayloadEncoder::metaEncodeFlags(false);
-						$enc         = wp_json_encode($val, $prettyFlags);
-						$display     = $enc !== false ? $enc : '';
-					}
-					echo '<textarea class="large-text code" rows="4" id="bec_core_' . esc_attr($metaKey) . '" name="' . esc_attr($name) . '" spellcheck="false">';
-					echo esc_textarea($display);
-					echo '</textarea>';
-					echo '<p class="description">' . esc_html__(
-						'JSON array of Media Library attachment IDs, e.g. [12,34]. On sync, providers may import remote URLs into attachments automatically.',
-						'booking-engine-connector'
-					) . '</p>';
+					self::renderGalleryField($post, $metaKey, $name, $val);
 					break;
 				case 'number':
 				case 'bathrooms':
@@ -492,6 +479,136 @@ final class CoreUnitFieldRegistry
 		echo '</tbody></table>';
 
 		//UnitPostType::renderRemoteRowJsonPanel($post);
+	}
+
+	public static function enqueueUnitGalleryAssets(string $hook): void
+	{
+		if ($hook !== 'post.php' && $hook !== 'post-new.php') {
+			return;
+		}
+		if (! function_exists('get_current_screen')) {
+			return;
+		}
+		$screen = get_current_screen();
+		if (! $screen || $screen->post_type !== UnitPostType::getSlug()) {
+			return;
+		}
+
+		$postId = isset($_GET['post']) ? (int) $_GET['post'] : 0; // phpcs:ignore WordPress.Security.NonceVerification.Recommended -- read-only for frame context.
+
+		wp_enqueue_media(['post' => $postId]);
+
+		wp_enqueue_style(
+			'bec-admin-unit-gallery',
+			BEC_PLUGIN_URL . 'assets/admin-unit-gallery.css',
+			[],
+			BEC_VERSION
+		);
+
+		wp_enqueue_script(
+			'bec-admin-unit-gallery',
+			BEC_PLUGIN_URL . 'assets/admin-unit-gallery.js',
+			['jquery', 'media-editor'],
+			BEC_VERSION,
+			true
+		);
+
+		wp_localize_script(
+			'bec-admin-unit-gallery',
+			'becUnitGallery',
+			[
+				'i18n' => [
+					'frameTitle'   => __('Attachment details', 'booking-engine-connector'),
+					'frameButton'  => __('Close', 'booking-engine-connector'),
+				],
+			]
+		);
+	}
+
+	/**
+	 * @param mixed $val Stored meta for bec_core_gallery.
+	 */
+	private static function renderGalleryField(\WP_Post $post, string $metaKey, string $name, $val): void
+	{
+		unset($post);
+
+		$decodedIds = self::decodeGalleryIdListFromMeta($val);
+		$normalized = self::sanitizeValue('gallery_json', $decodedIds);
+		/** @var list<int> $idList */
+		$idList = [];
+		if (is_string($normalized) && $normalized !== '') {
+			$fromJson = json_decode($normalized, true);
+			if (is_array($fromJson)) {
+				foreach ($fromJson as $n) {
+					if (is_numeric($n)) {
+						$i = (int) $n;
+						if ($i > 0) {
+							$idList[] = $i;
+						}
+					}
+				}
+			}
+		}
+
+		$fieldId = 'bec_core_' . $metaKey;
+
+		echo '<div class="bec-unit-gallery-field" data-bec-unit-gallery-root>';
+
+		echo '<input type="hidden" id="' . esc_attr($fieldId) . '" name="' . esc_attr($name) . '" value="' . esc_attr(is_string($normalized) ? $normalized : '') . '" autocomplete="off" />';
+
+		if ($idList === []) {
+			echo '<p class="description">' . esc_html__(
+				'No images yet. Gallery images are filled by sync (attachment IDs in post meta).',
+				'booking-engine-connector'
+			) . '</p>';
+		} else {
+			echo '<ul class="bec-unit-gallery-grid">';
+			foreach ($idList as $attachmentId) {
+				self::renderGalleryThumbCell($attachmentId);
+			}
+			echo '</ul>';
+		}
+
+		echo '</div>';
+	}
+
+	private static function renderGalleryThumbCell(int $attachmentId): void
+	{
+		$attachment = get_post($attachmentId);
+		$isImage    = $attachment && wp_attachment_is_image($attachment);
+
+		echo '<li class="bec-unit-gallery-item" data-attachment-id="' . esc_attr((string) $attachmentId) . '">';
+
+		if (! $isImage) {
+			echo '<div class="bec-unit-gallery-missing" title="' . esc_attr(sprintf(
+				/* translators: %d: attachment post ID */
+				__('Missing image attachment #%d', 'booking-engine-connector'),
+				$attachmentId
+			)) . '"><span class="bec-unit-gallery-missing-label">' . esc_html(sprintf(
+				/* translators: %d: attachment post ID */
+				__('Attachment %d', 'booking-engine-connector'),
+				$attachmentId
+			)) . '</span></div>';
+			echo '</li>';
+
+			return;
+		}
+
+		$thumb = wp_get_attachment_image(
+			$attachmentId,
+			'thumbnail',
+			false,
+			['class' => 'bec-unit-gallery-thumb-img']
+		);
+
+		echo '<button type="button" class="bec-unit-gallery-open">';
+		echo $thumb;
+		echo '<span class="screen-reader-text">' . esc_html__(
+			'Open attachment details',
+			'booking-engine-connector'
+		) . '</span>';
+		echo '</button>';
+		echo '</li>';
 	}
 
 	/**

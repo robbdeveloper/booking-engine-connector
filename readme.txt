@@ -4,7 +4,7 @@ Tags: booking, kross, hospitality, availability
 Requires at least: 6.4
 Tested up to: 6.7
 Requires PHP: 8.0
-Stable tag: 0.1.22
+Stable tag: 0.1.23
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
@@ -31,6 +31,10 @@ PHP 8.0+ and WordPress 6.4+ are required (see header above).
 Search context uses **GET query parameters** prefixed with `bec_` (e.g. check-in/out). See `docs/SEARCH-CONTEXT.md` when available.
 
 == Changelog ==
+
+= 0.1.23 =
+* **Admin — Unit gallery**: On the **bec_unit** edit screen, **Gallery** (meta **bec_core_gallery**) shows **thumbnails only**; click opens the **Media Library** modal for that attachment (e.g. alt text). Meta stays a JSON array of attachment IDs; **`assets/admin-unit-gallery.js`** and **`admin-unit-gallery.css`** load on unit edit screens only.
+* **i18n**: POT / Italian updates for the unit gallery UI strings.
 
 = 0.1.22 =
 * **Sync — scalable manual run**: Admin **Run sync now** uses short **`bec_sync_start_all`** / **`bec_sync_step_all`** requests with durable **`SyncManualBatchState`**, refreshable **`SyncLock`** (cron `c` vs manual `m:user:run`), and **stale-lock recovery** so interrupted runs do not block new ones indefinitely. **`RemoteGalleryImporter`** supports **batched, resumable** gallery imports with **atomic finalize**; manual unit sync can **defer** remote gallery downloads until after metadata is saved. Legacy **`bec_sync_run_all`** remains for compatibility.

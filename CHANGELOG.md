@@ -1,5 +1,10 @@
 # Changelog
 
+## 0.1.23 — 2026-05-20
+
+- **Admin — Unit editor (`CoreUnitFieldRegistry`)**: **`bec_core_gallery`** on **`bec_unit`** uses a **thumbnail grid** only; click opens the **Media Library** attachment modal (metadata including alt text). Same JSON **attachment-ID** meta; **`assets/admin-unit-gallery.js`** / **`admin-unit-gallery.css`** enqueued only on unit edit screens.
+- **i18n**: POT / **`it_IT`** updates for the unit gallery UI.
+
 ## 0.1.22 — 2026-05-19
 
 - **Sync — scalable manual run**: **`wp_ajax_bec_sync_start_all`** / **`bec_sync_step_all`** replace a single long **`bec_sync_run_all`** round-trip. **`SyncManualBatchState`** (non-autoloaded options) holds remote rows, cursor, counters, deferred gallery queue, and importer resume blobs. **`SyncLock`** distinguishes **cron** (`c`) vs **manual** (`m:{user}:{run}`), **refreshes TTL** on each step, and **reclaims** same-user locks when batch state is missing or idle past **`bec_sync_manual_lock_abandon_seconds`** (default 30 minutes). **`RemoteGalleryImporter`**: worker state + **`importFromRemotePayloadResumable()`**; **`syncGalleryFull`** delegates to batched download/finalize. **`CoreUnitFieldRegistry`**: **`deferGallery`** keeps existing **`bec_core_gallery`** until deferred imports finish. **`SyncService`**: **`normalizeRemoteUnitRows()`**, **`upsertRemoteRowForManualBatch()`**, **`syncAll($progress, $manualRunId)`**; cron still uses **`acquireCron()`**. **`assets/admin-sync-progress.js`**: start → step loop + progress poll. Filters **`bec_sync_manual_may_preempt_cron_lock`**, **`bec_sync_manual_gallery_batch_size`**, **`bec_sync_manual_lock_abandon_seconds`**.

@@ -87,7 +87,7 @@ final class CoreUnitMetaKeys
 			],
 			CoreUnitSemantic::GALLERY => [
 				'meta_key' => 'bec_core_gallery',
-				'label'    => \__('Gallery (attachment IDs, JSON array)', 'booking-engine-connector'),
+				'label'    => \__('Gallery', 'booking-engine-connector'),
 				'type'     => 'gallery_json',
 			],
 		];
