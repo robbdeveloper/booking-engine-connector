@@ -4,7 +4,7 @@ Tags: booking, kross, hospitality, availability
 Requires at least: 6.4
 Tested up to: 6.7
 Requires PHP: 8.0
-Stable tag: 0.1.20
+Stable tag: 0.1.21
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
@@ -31,6 +31,11 @@ PHP 8.0+ and WordPress 6.4+ are required (see header above).
 Search context uses **GET query parameters** prefixed with `bec_` (e.g. check-in/out). See `docs/SEARCH-CONTEXT.md` when available.
 
 == Changelog ==
+
+= 0.1.21 =
+* **Sync**: Manual AJAX sync raises runtime limits where supported and returns a structured JSON error for unexpected failures instead of only the generic browser response message.
+* **Gallery import**: Downloads missing unit images in per-unit batches, preserves gallery order, and avoids `.tmp` sideload names by preferring the remote image extension or detected MIME type.
+* **Kross images**: More tolerant image URL extraction for alternate payload fields such as `images_full`, `gallery`, `photos`, `image_url`, `full_url`, `src`, and nested `urls`.
 
 = 0.1.20 =
 * **Unit categories**: Optional hierarchical taxonomy **`bec_unit_category`** — enable + URL slug on **Booking Engine ▸ Units — permalinks** (defaults off on existing installs); localized labels from synced **`names`** term meta and **`single_term_title`** on archives when enabled.

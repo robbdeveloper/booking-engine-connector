@@ -463,7 +463,18 @@ final class SyncAdmin
 
 		\check_ajax_referer('bec_sync_all', 'sync_nonce');
 
-		$result = self::executeFullSyncAndStoreResult();
+		try {
+			$result = self::executeFullSyncAndStoreResult();
+		} catch (\Throwable $e) {
+			$message = self::formatUnexpectedSyncFailureMessage($e);
+			$progress = self::progressFromRequest();
+			if ($progress !== null) {
+				$progress->fail($message);
+			}
+
+			\wp_send_json_error([ 'message' => $message ], 500);
+			return;
+		}
 
 		\wp_send_json_success(['result' => $result]);
 	}
@@ -669,17 +680,48 @@ final class SyncAdmin
 	 */
 	private static function executeFullSyncAndStoreResult(): array
 	{
-		$runRaw = isset($_POST['bec_sync_run_id']) ? (string) \wp_unslash((string) $_POST['bec_sync_run_id']) : '';
-		$progress = null;
-		if (SyncProgressReporter::isValidRunId($runRaw)) {
-			$progress = new SyncProgressReporter((int) \get_current_user_id(), $runRaw);
-		}
+		self::prepareLongRunningSync();
 
+		$progress = self::progressFromRequest();
 		$service = new SyncService();
 		$result  = $service->syncAll($progress);
 		\set_transient(self::resultTransientKey(), $result, 120);
 
 		return $result;
+	}
+
+	private static function prepareLongRunningSync(): void
+	{
+		if (\function_exists('wp_raise_memory_limit')) {
+			\wp_raise_memory_limit('admin');
+		}
+
+		if (\function_exists('ignore_user_abort')) {
+			@\ignore_user_abort(true);
+		}
+
+		if (\function_exists('set_time_limit')) {
+			@\set_time_limit(0);
+		}
+	}
+
+	private static function progressFromRequest(): ?SyncProgressReporter
+	{
+		$runRaw = isset($_POST['bec_sync_run_id']) ? (string) \wp_unslash((string) $_POST['bec_sync_run_id']) : '';
+		if (! SyncProgressReporter::isValidRunId($runRaw)) {
+			return null;
+		}
+
+		return new SyncProgressReporter((int) \get_current_user_id(), $runRaw);
+	}
+
+	private static function formatUnexpectedSyncFailureMessage(\Throwable $e): string
+	{
+		return \sprintf(
+			/* translators: %s error detail */
+			\__('Sync failed unexpectedly: %s', 'booking-engine-connector'),
+			$e->getMessage()
+		);
 	}
 
 	private static function resultTransientKey(): string

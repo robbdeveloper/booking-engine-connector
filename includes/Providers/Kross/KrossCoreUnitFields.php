@@ -61,8 +61,8 @@ final class KrossCoreUnitFields
 	 */
 	private static function extractGalleryRemotePayload(array $raw): array
 	{
-		$images = $raw['images'] ?? null;
-		if (! is_array($images)) {
+		$images = self::imageRowsFromRaw($raw);
+		if ($images === []) {
 			return [
 				'items'         => [],
 				'urls'          => [],
@@ -73,10 +73,8 @@ final class KrossCoreUnitFields
 		$rows = [];
 		$seq  = 0;
 		foreach ($images as $img) {
-			if (! is_array($img)) {
-				continue;
-			}
-			$url = isset($img['url']) ? \trim((string) $img['url']) : '';
+			$imgRow = \is_array($img) ? $img : [];
+			$url = self::imageUrlFromDescriptor($img);
 			if ($url === '' || ( ! \str_starts_with($url, 'http://') && ! \str_starts_with($url, 'https://') )) {
 				continue;
 			}
@@ -85,16 +83,16 @@ final class KrossCoreUnitFields
 				continue;
 			}
 			$imageOrder = null;
-			if (isset($img['image_order']) && $img['image_order'] !== null && $img['image_order'] !== '' && \is_numeric($img['image_order'])) {
-				$imageOrder = (int) $img['image_order'];
+			if (isset($imgRow['image_order']) && $imgRow['image_order'] !== null && $imgRow['image_order'] !== '' && \is_numeric($imgRow['image_order'])) {
+				$imageOrder = (int) $imgRow['image_order'];
 			}
 			$rows[] = [
 				'url'           => $nurl,
 				'image_order'   => $imageOrder,
 				'seq'           => $seq,
 				// Only explicit truthy API values mark the featured image (`main: true`; not `null` / empty).
-				'main'          => \filter_var($img['main'] ?? false, FILTER_VALIDATE_BOOLEAN, FILTER_NULL_ON_FAILURE) ?? false,
-				'key'           => self::krossImageStableKey($img, $nurl),
+				'main'          => \filter_var($imgRow['main'] ?? false, FILTER_VALIDATE_BOOLEAN, FILTER_NULL_ON_FAILURE) ?? false,
+				'key'           => self::krossImageStableKey($imgRow, $nurl),
 			];
 			++$seq;
 		}
@@ -159,6 +157,57 @@ final class KrossCoreUnitFields
 			'urls'          => $urls,
 			'featured_url'  => $featured,
 		];
+	}
+
+	/**
+	 * @return list<mixed>
+	 */
+	private static function imageRowsFromRaw(array $raw): array
+	{
+		$candidates = ['images', 'images_full', 'room_type_images', 'gallery', 'photos', 'pictures'];
+		foreach ($candidates as $key) {
+			if (! isset($raw[ $key ]) || ! is_array($raw[ $key ])) {
+				continue;
+			}
+
+			return \array_values($raw[ $key ]);
+		}
+
+		return [];
+	}
+
+	private static function imageUrlFromDescriptor($img): string
+	{
+		if (\is_string($img)) {
+			return \trim($img);
+		}
+
+		if (! \is_array($img)) {
+			return '';
+		}
+
+		$candidates = ['url', 'image_url', 'full_url', 'url_image', 'image', 'src'];
+		foreach ($candidates as $key) {
+			if (isset($img[ $key ]) && \is_scalar($img[ $key ])) {
+				$url = \trim((string) $img[ $key ]);
+				if ($url !== '') {
+					return $url;
+				}
+			}
+		}
+
+		if (isset($img['urls']) && \is_array($img['urls'])) {
+			foreach (['original', 'full', 'large', 'medium', 'url'] as $key) {
+				if (isset($img['urls'][ $key ]) && \is_scalar($img['urls'][ $key ])) {
+					$url = \trim((string) $img['urls'][ $key ]);
+					if ($url !== '') {
+						return $url;
+					}
+				}
+			}
+		}
+
+		return '';
 	}
 
 	/**

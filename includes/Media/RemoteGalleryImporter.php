@@ -713,8 +713,9 @@ final class RemoteGalleryImporter
 
 		$oldIds  = self::readStoredGalleryIdsOnly($unitId);
 		$keyToId = self::keyToAttachmentIdMapForUnit($unitId);
-		$out     = [];
-		$urlOut  = [];
+		$outByIndex    = [];
+		$urlOutByIndex = [];
+		$pending       = [];
 		$index   = 0;
 
 		foreach ($items as $it) {
@@ -729,8 +730,8 @@ final class RemoteGalleryImporter
 					$key,
 					$url
 				);
-				$out[]    = $resolved;
-				$urlOut[] = $url;
+				$outByIndex[ $index ]    = $resolved;
+				$urlOutByIndex[ $index ] = $url;
 				continue;
 			}
 
@@ -742,21 +743,38 @@ final class RemoteGalleryImporter
 			);
 			if ($adopted !== null) {
 				$keyToId[ $key ] = $adopted;
-				$out[]           = $adopted;
-				$urlOut[]        = $url;
+				$outByIndex[ $index ]    = $adopted;
+				$urlOutByIndex[ $index ] = $url;
 				continue;
 			}
 
 			$fromLib = self::reuseLibraryAttachmentForGalleryUnit($unitId, $key, $url, $oldIds);
 			if ($fromLib !== null) {
 				$keyToId[ $key ] = $fromLib;
-				$out[]           = $fromLib;
-				$urlOut[]        = $url;
+				$outByIndex[ $index ]    = $fromLib;
+				$urlOutByIndex[ $index ] = $url;
 				continue;
 			}
 
-			$down = self::downloadUrlsToTempFiles([ $url ], $unitId);
-			$tmp  = $down[ $url ] ?? null;
+			$pending[] = [
+				'index' => $index,
+				'key'   => $key,
+				'url'   => $url,
+			];
+		}
+
+		$pendingUrls = [];
+		foreach ($pending as $row) {
+			$pendingUrls[] = (string) $row['url'];
+		}
+
+		$downloads = self::downloadUrlsToTempFiles($pendingUrls, $unitId);
+
+		foreach ($pending as $row) {
+			$index = (int) $row['index'];
+			$key   = (string) $row['key'];
+			$url   = (string) $row['url'];
+			$tmp   = $downloads[ $url ] ?? null;
 			if (! is_string($tmp) || $tmp === '' || ! is_readable($tmp) || \filesize($tmp) < 1) {
 				@\is_string($tmp) && @\unlink($tmp);
 				continue;
@@ -768,8 +786,8 @@ final class RemoteGalleryImporter
 				\update_post_meta($dupId, self::SOURCE_URL_META, $url);
 				\update_post_meta($dupId, self::GALLERY_IMAGE_KEY_META, $key);
 				\update_post_meta($dupId, self::GALLERY_UNIT_ID_META, (string) $unitId);
-				$out[]    = $dupId;
-				$urlOut[] = $url;
+				$outByIndex[ $index ]    = $dupId;
+				$urlOutByIndex[ $index ] = $url;
 				continue;
 			}
 
@@ -788,9 +806,14 @@ final class RemoteGalleryImporter
 			if ($bytesHash !== '') {
 				\update_post_meta($aid, self::GALLERY_FILE_HASH_META, $bytesHash);
 			}
-			$out[]    = $aid;
-			$urlOut[] = $url;
+			$outByIndex[ $index ]    = $aid;
+			$urlOutByIndex[ $index ] = $url;
 		}
+
+		\ksort($outByIndex, \SORT_NUMERIC);
+		\ksort($urlOutByIndex, \SORT_NUMERIC);
+		$out    = \array_values($outByIndex);
+		$urlOut = \array_values($urlOutByIndex);
 
 		self::applyFeaturedImage($unitId, $featuredUrl, $items, $out, $urlOut);
 		self::deleteRemovedFromPreviousSync($unitId, $out, false, $oldIds, $out);
@@ -1207,18 +1230,89 @@ final class RemoteGalleryImporter
 
 	private static function extensionFromPathOrUrl(string $pathOrTmp, string $url): string
 	{
-		$ext = \strtolower(\pathinfo($pathOrTmp, \PATHINFO_EXTENSION));
-		if ($ext !== '' && \strlen($ext) <= 5 && \preg_match('/^[a-z0-9]+$/', $ext) === 1) {
-			return '.' . $ext;
-		}
 		$path = (string) \parse_url($url, PHP_URL_PATH);
 		$base = $path !== '' ? \basename($path) : 'image.jpg';
 		$ext2 = \strtolower(\pathinfo($base, \PATHINFO_EXTENSION));
-		if ($ext2 !== '' && \strlen($ext2) <= 5) {
-			return '.' . $ext2;
+		$fromUrl = self::validImageExtension($ext2);
+		if ($fromUrl !== null) {
+			return $fromUrl;
+		}
+
+		$ext = \strtolower(\pathinfo($pathOrTmp, \PATHINFO_EXTENSION));
+		$fromPath = self::validImageExtension($ext);
+		if ($fromPath !== null) {
+			return $fromPath;
+		}
+
+		$fromMime = self::extensionFromImageMime($pathOrTmp);
+		if ($fromMime !== null) {
+			return $fromMime;
 		}
 
 		return '.jpg';
+	}
+
+	private static function extensionFromImageMime(string $path): ?string
+	{
+		if (! \is_readable($path)) {
+			return null;
+		}
+
+		$mime = '';
+		if (\function_exists('wp_get_image_mime')) {
+			$detected = \wp_get_image_mime($path);
+			$mime     = \is_string($detected) ? $detected : '';
+		}
+
+		if ($mime === '' && \function_exists('mime_content_type')) {
+			$detected = @\mime_content_type($path);
+			$mime     = \is_string($detected) ? $detected : '';
+		}
+
+		$map = [
+			'image/jpeg' => '.jpg',
+			'image/png'  => '.png',
+			'image/gif'  => '.gif',
+			'image/webp' => '.webp',
+			'image/avif' => '.avif',
+			'image/heic' => '.heic',
+			'image/heif' => '.heif',
+			'image/bmp'  => '.bmp',
+			'image/tiff' => '.tif',
+			'image/x-icon' => '.ico',
+		];
+
+		return $map[ $mime ] ?? null;
+	}
+
+	private static function validImageExtension(string $ext): ?string
+	{
+		$ext = \strtolower(\ltrim($ext, '.'));
+		if (
+			$ext === ''
+			|| \strlen($ext) > 5
+			|| \preg_match('/^[a-z0-9]+$/', $ext) !== 1
+		) {
+			return null;
+		}
+
+		$allowed = [
+			'jpg'  => true,
+			'jpeg' => true,
+			'jpe'  => true,
+			'png'  => true,
+			'gif'  => true,
+			'webp' => true,
+			'avif' => true,
+			'heic' => true,
+			'heif' => true,
+			'bmp'  => true,
+			'tif'  => true,
+			'tiff' => true,
+			'ico'  => true,
+		];
+
+		return isset($allowed[ $ext ]) ? '.' . $ext : null;
 	}
 
 	private static function isHttpUrl(string $url): bool

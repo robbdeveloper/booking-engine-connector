@@ -1,5 +1,12 @@
 # Changelog
 
+## 0.1.21 — 2026-05-18
+
+- **Sync — manual AJAX run**: Raises the admin sync request memory/time allowance, keeps the run alive after client disconnects when supported, and returns a structured JSON failure (`Sync failed unexpectedly: …`) instead of falling through to the generic browser “unexpected response” message.
+- **Gallery import**: Missing gallery images are downloaded in per-unit batches, then attached back in gallery order; image file names now prefer the remote URL extension or detected image MIME instead of a temporary `.tmp` extension that WordPress can reject during sideload.
+- **Kross image mapping**: Accepts additional image payload shapes such as `images_full`, `room_type_images`, `gallery`, `photos`, string URLs, common URL fields (`image_url`, `full_url`, `src`), and nested `urls` objects.
+- **Translations**: Updated POT / Italian PO/MO for the new sync failure message.
+
 ## 0.1.20 — 2026-05-19
 
 - **Unit categories (`bec_unit_category`)**: Optional hierarchical taxonomy for synced inventory categories — **`UnitCategoryTaxonomy`** registers after units with configurable public slug (default **`unit-category`**), **`bec_unit_category_enabled`** / **`bec_unit_category_permalink_slug`** options, filters **`bec_unit_category_enabled`**, **`bec_unit_category_rewrite_slug`**, **`bec_unit_category_taxonomy_args`**. Disabled installs skip public rewrites and taxonomy UI while keeping stored terms (activation defaults categories **off**).
