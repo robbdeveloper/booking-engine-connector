@@ -6,6 +6,7 @@ namespace BookingEngineConnector\Shortcodes;
 
 use BookingEngineConnector\Checkout\CheckoutCtaHtml;
 use BookingEngineConnector\Checkout\CheckoutUrlService;
+use BookingEngineConnector\Formatting\MoneyFormatter;
 use BookingEngineConnector\Fallback\FallbackRenderer;
 use BookingEngineConnector\Fallback\FallbackService;
 use BookingEngineConnector\PostTypes\UnitPostType;
@@ -157,12 +158,25 @@ final class ShortcodeRegistry
 		return '<div class="bec-shortcode-checkout">' . $cta . '</div>';
 	}
 
+	/**
+	 * Quote shortcode: price for the current search context on a unit.
+	 *
+	 * Attributes: unit_id, show_rates (auto|always|never),
+	 * currency_display (code|symbol), currency_position (before|after),
+	 * decimals (0–4), decimal_sep, thousands_sep, number_style (locale|eu|us).
+	 */
 	public static function renderQuote($atts = []): string
 	{
 		$a = \shortcode_atts(
 			[
-				'unit_id'    => '0',
-				'show_rates' => 'auto',
+				'unit_id'           => '0',
+				'show_rates'        => 'auto',
+				'currency_display'  => '',
+				'currency_position' => '',
+				'decimals'          => '',
+				'decimal_sep'       => '',
+				'thousands_sep'     => '',
+				'number_style'      => '',
 			],
 			\is_array($atts) ? $atts : [],
 			'bec_quote'
@@ -213,23 +227,85 @@ final class ShortcodeRegistry
 			}
 		}
 
-		$text = self::defaultQuoteShortcodeText($quote, $available, $ctx);
+		$formatOptions = self::quoteMoneyFormatOptionsFromAtts($a);
+
+		$text = self::defaultQuoteShortcodeText($quote, $available, $ctx, $formatOptions);
 		$text = (string) \apply_filters('bec_shortcode_quote_text', $text, $quote, $postId, $ctx);
 
 		$html = '<p class="bec-shortcode-quote">' . \esc_html($text) . '</p>';
 
 		if ($appendRatesList) {
-			$html .= self::renderQuoteRatesListHtml($quote);
+			$html .= self::renderQuoteRatesListHtml($quote, $formatOptions);
 		}
 
 		return (string) \apply_filters('bec_shortcode_quote_html', $html, $quote, $postId, $ctx);
 	}
 
 	/**
-	 * @param array<string, mixed> $quote
+	 * @param array<string, string> $a Shortcode attributes from renderQuote().
+	 * @return array<string, mixed>
 	 */
-	private static function defaultQuoteShortcodeText(array $quote, bool $available, SearchContext $ctx): string
+	private static function quoteMoneyFormatOptionsFromAtts(array $a): array
 	{
+		$builtin = [
+			'currency_display'  => 'code',
+			'currency_position' => 'after',
+			'decimals'          => 2,
+			'number_style'      => 'locale',
+		];
+
+		/** @var array<string, mixed> $filtered */
+		$filtered = (array) \apply_filters('bec_money_format_defaults', [], 'bec_quote');
+
+		$fromAtts = [];
+
+		$displayRaw = \strtolower(\trim((string) ($a['currency_display'] ?? '')));
+		if ($displayRaw !== '') {
+			$fromAtts['currency_display'] = $displayRaw === 'symbol' ? 'symbol' : 'code';
+		}
+
+		$positionRaw = \strtolower(\trim((string) ($a['currency_position'] ?? '')));
+		if ($positionRaw !== '') {
+			$fromAtts['currency_position'] = $positionRaw === 'before' ? 'before' : 'after';
+		}
+
+		$decimalsRaw = \trim((string) ($a['decimals'] ?? ''));
+		if ($decimalsRaw !== '' && \is_numeric($decimalsRaw)) {
+			$decimals = (int) $decimalsRaw;
+			if ($decimals < 0) {
+				$decimals = 0;
+			}
+			if ($decimals > 4) {
+				$decimals = 4;
+			}
+			$fromAtts['decimals'] = $decimals;
+		}
+
+		$styleRaw = \strtolower(\trim((string) ($a['number_style'] ?? '')));
+		if ($styleRaw === 'eu' || $styleRaw === 'us' || $styleRaw === 'locale') {
+			$fromAtts['number_style'] = $styleRaw;
+		}
+
+		$dec = \trim((string) ($a['decimal_sep'] ?? ''));
+		$tho = \trim((string) ($a['thousands_sep'] ?? ''));
+		if ($dec !== '' && $tho !== '') {
+			$fromAtts['decimal_sep']   = $dec;
+			$fromAtts['thousands_sep'] = $tho;
+		}
+
+		return \array_merge($builtin, $filtered, $fromAtts);
+	}
+
+	/**
+	 * @param array<string, mixed> $quote
+	 * @param array<string, mixed> $formatOptions
+	 */
+	private static function defaultQuoteShortcodeText(
+		array $quote,
+		bool $available,
+		SearchContext $ctx,
+		array $formatOptions
+	): string {
 		if (! $available) {
 			return \__('No availability for these dates.', 'booking-engine-connector');
 		}
@@ -239,37 +315,29 @@ final class ShortcodeRegistry
 			return \__('Available for your dates.', 'booking-engine-connector');
 		}
 
-		$formatted = \number_format_i18n((float) $priceAmount, 2);
-		$currency  = \trim((string) ($quote['price']['currency'] ?? ''));
-		$priceLine = $currency !== ''
-			? (string) \sprintf(
-				/* translators: 1: formatted amount, 2: currency code */
-				\__('%1$s %2$s', 'booking-engine-connector'),
-				$formatted,
-				$currency
-			)
-			: $formatted;
+		$currency = \trim((string) ($quote['price']['currency'] ?? ''));
+		$money    = MoneyFormatter::format((float) $priceAmount, $currency, $formatOptions);
 
 		$rates = $quote['rates'] ?? [];
 		$n     = \is_array($rates) ? \count($rates) : 0;
 		if ($n > 1 && $ctx->getRateId() === '') {
 			return \trim(
 				(string) \sprintf(
-					/* translators: 1: formatted amount, 2: currency code (may be empty) */
-					\__('From %1$s %2$s', 'booking-engine-connector'),
-					$formatted,
-					$currency
+					/* translators: %s: formatted price including currency when applicable */
+					\__('From %s', 'booking-engine-connector'),
+					$money
 				)
 			);
 		}
 
-		return $priceLine;
+		return $money;
 	}
 
 	/**
 	 * @param array<string, mixed> $quote
+	 * @param array<string, mixed> $formatOptions
 	 */
-	private static function renderQuoteRatesListHtml(array $quote): string
+	private static function renderQuoteRatesListHtml(array $quote, array $formatOptions): string
 	{
 		$rates = $quote['rates'] ?? [];
 		if (! \is_array($rates) || $rates === []) {
@@ -293,11 +361,7 @@ final class ShortcodeRegistry
 			$cur = isset($r['currency']) && $r['currency'] !== null ? (string) $r['currency'] : '';
 			$line = '';
 			if (\is_numeric($amt)) {
-				$line = \sprintf(
-					'%1$s %2$s',
-					\number_format_i18n((float) $amt, 2),
-					$cur
-				);
+				$line = MoneyFormatter::format((float) $amt, $cur, $formatOptions);
 			}
 			$classes = 'bec-shortcode-quote__rate';
 			if ($selId !== '' && $id === $selId) {

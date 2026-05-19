@@ -3,6 +3,7 @@
 ## 0.1.27 — 2026-05-19
 
 - Version bump to 0.1.27.
+- **Shortcodes (`[bec_quote]`)**: Configurable price display via attributes **`currency_display`** (`code`|`symbol`), **`currency_position`** (`before`|`after`), **`decimals`**, **`decimal_sep`**, **`thousands_sep`**, and **`number_style`** (`locale`|`eu`|`us`). New **`MoneyFormatter`** (`includes/Formatting/MoneyFormatter.php`). Filters **`bec_money_format_defaults`**, **`bec_currency_symbols`**, **`bec_format_money`**. Multi-rate “from” line uses a single formatted price string.
 
 ## 0.1.26 — 2026-05-18
 
