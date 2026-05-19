@@ -1910,6 +1910,10 @@ msgstr "Servizi (JSON)"
 msgid "Gallery"
 msgstr "Galleria"
 
+#: includes/Units/CoreUnitMetaKeys.php:95
+msgid "CIN (National Identification Code)"
+msgstr "CIN (Codice Identificativo Nazionale)"
+
 #: includes/Sync/CoreUnitFieldRegistry.php
 msgid "Attachment details"
 msgstr "Dettagli allegato"

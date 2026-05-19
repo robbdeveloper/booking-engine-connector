@@ -52,6 +52,9 @@ final class CoreUnitSemantic
 	 */
 	public const GALLERY = 'gallery';
 
+	/** Italian national identification code for accommodation units (Codice Identificativo Nazionale). */
+	public const CIN = 'cin';
+
 	/**
 	 * @return list<string>
 	 */
@@ -73,6 +76,7 @@ final class CoreUnitSemantic
 			self::SQM,
 			self::AMENITIES,
 			self::GALLERY,
+			self::CIN,
 		];
 	}
 }

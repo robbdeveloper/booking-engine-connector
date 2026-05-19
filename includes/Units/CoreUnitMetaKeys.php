@@ -90,6 +90,11 @@ final class CoreUnitMetaKeys
 				'label'    => \__('Gallery', 'booking-engine-connector'),
 				'type'     => 'gallery_json',
 			],
+			CoreUnitSemantic::CIN => [
+				'meta_key' => 'bec_core_cin',
+				'label'    => \__('CIN (National Identification Code)', 'booking-engine-connector'),
+				'type'     => 'string',
+			],
 		];
 	}
 

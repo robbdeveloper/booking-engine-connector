@@ -48,6 +48,7 @@ final class KrossCoreUnitFields
 			CoreUnitSemantic::SQM             => $r['size_sqm'] ?? '',
 			CoreUnitSemantic::AMENITIES       => $amenities,
 			CoreUnitSemantic::GALLERY         => self::extractGalleryRemotePayload($r),
+			CoreUnitSemantic::CIN             => self::scalarString($r['cin'] ?? null),
 		];
 	}
 

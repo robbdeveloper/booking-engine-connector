@@ -1696,6 +1696,10 @@ msgstr ""
 msgid "Gallery"
 msgstr ""
 
+#: includes/Units/CoreUnitMetaKeys.php:95
+msgid "CIN (National Identification Code)"
+msgstr ""
+
 #: includes/Sync/CoreUnitFieldRegistry.php
 msgid "Attachment details"
 msgstr ""
