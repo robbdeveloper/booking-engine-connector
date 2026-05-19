@@ -4,7 +4,7 @@ Tags: booking, kross, hospitality, availability
 Requires at least: 6.4
 Tested up to: 6.7
 Requires PHP: 8.0
-Stable tag: 0.1.29
+Stable tag: 0.1.30
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
@@ -36,9 +36,12 @@ Use the **`redirect_url`** attribute so the form posts (GET) to your results pag
 
 == Changelog ==
 
-= 0.1.29 =
+= 0.1.30 =
+* **Fix — amenities labels (`u0027`)**: Repair corrupted amenity labels on load; safer JSON meta save during sync and unit admin (single WordPress meta sanitize pass).
 * **Shortcodes (`[bec_unit_gallery]`)**: JSON array of gallery images from **`bec_core_gallery`** (`limit`, `offset`, `size`, `unit_id`, `default`). Filters **`bec_unit_gallery_attachment_ids`**, **`bec_unit_gallery_items`**, **`bec_unit_gallery_json`**.
 * **Elementor**: Dynamic tag **Unit gallery** (group **Booking Engine**) for Gallery widgets — **Image limit**, **Offset**, optional **Unit ID**; filters **`bec_unit_gallery_elementor_rows`**, **`bec_unit_gallery_elementor_value`**.
+
+= 0.1.29 =
 * **i18n**: Italian translation for `[bec_quote]` multi-rate “From %s” price label.
 
 = 0.1.28 =
