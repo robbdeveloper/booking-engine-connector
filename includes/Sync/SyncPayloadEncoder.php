@@ -10,9 +10,14 @@ use BookingEngineConnector\Providers\Kross\KrossBookingEngineSyncSettings;
  * Ensures the synced remote row can be stored as post meta JSON (Kross payloads can include
  * non-finite floats or edge cases that make {@see wp_json_encode()} return false).
  *
- * Uses {@see JSON_HEX_QUOTE} / {@see JSON_HEX_APOS} so literal quotes/apostrophes inside strings
- * do not rely on `\"` sequences that interact badly with WordPress meta {@see wp_slash()} /
- * {@see wp_unslash()} round-trips on some installs.
+ * Uses {@see JSON_HEX_QUOTE} / {@see JSON_HEX_APOS} so string values avoid `\"` / `\'` sequences.
+ * {@see update_metadata()} always {@see wp_unslash()}s values before {@see sanitize_meta()}; that
+ * breaks JSON that still contains backslash escapes and makes re-sanitize return empty (e.g.
+ * `bec_core_amenities`, `bec_sync_payload`). Hex escapes survive that unslash pass.
+ *
+ * Legacy `lu0027` label corruption came from admin form {@see wp_unslash()} before decode, not
+ * from sync encoding — see {@see AmenityItem::repairLabelString()} and the JSON field save path
+ * in {@see CoreUnitFieldRegistry::onSavePost()}.
  */
 final class SyncPayloadEncoder
 {

@@ -49,7 +49,6 @@ final class UnitSyncFieldRegistry
 		foreach ($defs as $def) {
 			$extract = $def->extract;
 			$value   = $extract( $row );
-			$value   = self::sanitizeValue( $def->type, $value );
 			update_post_meta( $postId, $def->metaKey, $value );
 		}
 	}
@@ -394,7 +393,7 @@ final class UnitSyncFieldRegistry
 			}
 
 			$raw = $posted[ $key ];
-			update_post_meta($postId, $key, self::sanitizeValue($def->type, $raw));
+			update_post_meta($postId, $key, $raw);
 		}
 	}
 }

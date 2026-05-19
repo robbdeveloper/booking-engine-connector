@@ -399,8 +399,7 @@ final class SyncService
 			\update_post_meta($newId, 'bec_sync_enabled', true);
 		}
 
-		$payloadJson = SyncPayloadEncoder::encode($row);
-		\update_post_meta($newId, 'bec_sync_payload', $payloadJson);
+		\update_post_meta($newId, 'bec_sync_payload', $row);
 
 		CoreUnitFieldRegistry::applyFromProviderRow($newId, $providerSlug, $row, $deferGallery);
 		UnitSyncFieldRegistry::applyFromRemoteRow($newId, $providerSlug, $row);

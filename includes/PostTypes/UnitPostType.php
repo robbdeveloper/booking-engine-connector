@@ -298,6 +298,12 @@ final class UnitPostType
 			return '';
 		}
 
+		if (is_array($value)) {
+			$encoded = wp_json_encode($value, SyncPayloadEncoder::metaEncodeFlags());
+
+			return $encoded !== false ? $encoded : '';
+		}
+
 		if (! is_string($value)) {
 			return '';
 		}

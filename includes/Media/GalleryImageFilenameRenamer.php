@@ -143,7 +143,7 @@ final class GalleryImageFilenameRenamer
 		}
 
 		if ($changed) {
-			\update_post_meta($unitId, 'bec_core_gallery', \wp_json_encode(\array_values($newGallery)));
+			\update_post_meta($unitId, 'bec_core_gallery', \array_values($newGallery));
 		}
 
 		return $out;

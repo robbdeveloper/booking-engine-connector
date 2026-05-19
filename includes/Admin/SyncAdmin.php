@@ -751,8 +751,7 @@ final class SyncAdmin
 		}
 
 		$metaKey = CoreUnitMetaKeys::definitions()[ CoreUnitSemantic::GALLERY ]['meta_key'];
-		$san     = CoreUnitFieldRegistry::sanitizeValue('gallery_json', $ids);
-		\update_post_meta($postId, $metaKey, $san);
+		\update_post_meta($postId, $metaKey, $ids);
 	}
 
 	public static function registerListHooks(): void

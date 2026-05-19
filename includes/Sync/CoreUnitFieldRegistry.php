@@ -73,8 +73,10 @@ final class CoreUnitFieldRegistry
 					$value = self::resolveGalleryForStorage($postId, $value);
 				}
 			}
-			$san = self::sanitizeValue($type, $value);
-			update_post_meta($postId, $metaKey, $san);
+			// Pass raw values: registered meta sanitize runs once inside update_post_meta.
+			// Pre-encoding JSON then updating corrupts payloads when update_metadata wp_unslash() runs
+			// before sanitize (breaks \" and \u0027 sequences).
+			update_post_meta($postId, $metaKey, $value);
 		}
 	}
 
@@ -644,18 +646,19 @@ final class CoreUnitFieldRegistry
 			return;
 		}
 
-		$posted = isset($_POST['bec_core_fields']) && is_array($_POST['bec_core_fields']) ? wp_unslash($_POST['bec_core_fields']) : [];
+		$postedRaw = isset($_POST['bec_core_fields']) && is_array($_POST['bec_core_fields']) ? $_POST['bec_core_fields'] : [];
 
 		foreach (CoreUnitMetaKeys::definitions() as $semantic => $conf) {
 			$metaKey = $conf['meta_key'];
 			$type    = $conf['type'];
 
-			if (! array_key_exists($metaKey, $posted)) {
+			if (! array_key_exists($metaKey, $postedRaw)) {
 				continue;
 			}
 
-			$raw = $posted[ $metaKey ];
-			update_post_meta($postId, $metaKey, self::sanitizeValue($type, $raw));
+			$raw = $postedRaw[ $metaKey ];
+			// Let update_metadata wp_unslash + registered sanitize run once (see applyFromProviderRow).
+			update_post_meta($postId, $metaKey, $raw);
 		}
 	}
 }

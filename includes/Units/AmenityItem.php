@@ -19,6 +19,25 @@ namespace BookingEngineConnector\Units;
 final class AmenityItem
 {
 	/**
+	 * Repairs amenity labels corrupted when {@see JSON_HEX_APOS} `\u0027` escapes lost a backslash
+	 * during WordPress meta slash handling (e.g. `lu0027` instead of `l'oceano`).
+	 */
+	public static function repairLabelString(string $text): string
+	{
+		if ($text === '') {
+			return $text;
+		}
+
+		$repaired = \str_replace(
+			[ '\\u0027', '\\u0022', 'u0027', 'u0022' ],
+			[ "'", '"', "'", '"' ],
+			$text
+		);
+
+		return $repaired;
+	}
+
+	/**
 	 * @param list<array<string, mixed>> $items
 	 * @return list<array{key: string, labels: array<string, string>, icon?: string, category?: string}>
 	 */
@@ -40,7 +59,7 @@ final class AmenityItem
 					if ($loc === '') {
 						continue;
 					}
-					$labels[ $loc ] = \sanitize_text_field((string) $text);
+					$labels[ $loc ] = \sanitize_text_field(self::repairLabelString((string) $text));
 				}
 			}
 			$row = [

@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace BookingEngineConnector\Providers\Kross;
 
 use BookingEngineConnector\Front\AmenitiesAssets;
+use BookingEngineConnector\Sync\SyncPayloadEncoder;
 use BookingEngineConnector\Units\AmenityItem;
 
 /**
@@ -218,7 +219,7 @@ final class KrossUnitInfoRenderers
 	private static function loadAmenityItems(array $syncPayload, int $postId): array
 	{
 		$fromMeta = (string) \get_post_meta($postId, 'bec_core_amenities', true);
-		$decoded  = $fromMeta !== '' ? \json_decode($fromMeta, true) : null;
+		$decoded  = $fromMeta !== '' ? SyncPayloadEncoder::decodeMetaJson($fromMeta) : null;
 		if (\is_array($decoded) && $decoded !== []) {
 			$norm = AmenityItem::normalizeList($decoded);
 			if ($norm !== []) {
@@ -332,13 +333,13 @@ final class KrossUnitInfoRenderers
 	private static function pickLabel(array $labels, string $locale): string
 	{
 		if (isset($labels[ $locale ]) && (string) $labels[ $locale ] !== '') {
-			return (string) $labels[ $locale ];
+			return AmenityItem::repairLabelString((string) $labels[ $locale ]);
 		}
 		if (isset($labels['en']) && (string) $labels['en'] !== '') {
-			return (string) $labels['en'];
+			return AmenityItem::repairLabelString((string) $labels['en']);
 		}
 		foreach ($labels as $text) {
-			$t = (string) $text;
+			$t = AmenityItem::repairLabelString((string) $text);
 			if ($t !== '') {
 				return $t;
 			}
