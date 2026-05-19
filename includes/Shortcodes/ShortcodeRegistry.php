@@ -18,6 +18,7 @@ use BookingEngineConnector\Providers\ProviderRegistry;
 use BookingEngineConnector\Search\SearchForm;
 use BookingEngineConnector\Shortcodes\BookingSummary\BookingSummaryRenderer;
 use BookingEngineConnector\Sync\SyncPayloadEncoder;
+use BookingEngineConnector\Units\UnitGalleryPresenter;
 
 /**
  * Public shortcodes (TASK-SHO-001).
@@ -38,6 +39,7 @@ final class ShortcodeRegistry
 		\add_shortcode('bec_unit_url', [self::class, 'renderUnitUrl']);
 		\add_shortcode('bec_unit_info', [self::class, 'renderUnitInfo']);
 		\add_shortcode('bec_unit_field', [self::class, 'renderUnitField']);
+		\add_shortcode('bec_unit_gallery', [self::class, 'renderUnitGallery']);
 		\add_shortcode('bec_booking_summary', [BookingSummaryRenderer::class, 'renderFromShortcode']);
 	}
 
@@ -677,6 +679,83 @@ final class ShortcodeRegistry
 		}
 
 		return \esc_html(self::scalarToShortcodeText($scalar));
+	}
+
+	/**
+	 * Unit gallery from canonical meta (`bec_core_gallery`) as JSON objects with image URLs.
+	 *
+	 * Attributes: unit_id, limit (default 6; 0 = all), offset, size (WP image size, default large), default (JSON, default []).
+	 *
+	 * Filters: bec_unit_gallery_attachment_ids, bec_unit_gallery_items, bec_unit_gallery_json.
+	 *
+	 * @param array<string, string>|string $atts
+	 */
+	public static function renderUnitGallery($atts = []): string
+	{
+		$raw = \is_array($atts) ? $atts : [];
+		$a   = \shortcode_atts(
+			[
+				'unit_id' => '0',
+				'limit'   => '6',
+				'offset'  => '0',
+				'size'    => 'large',
+				'default' => '[]',
+			],
+			$raw,
+			'bec_unit_gallery'
+		);
+
+		$defaultJson = self::normalizeGalleryDefaultJson((string) $a['default']);
+
+		$postId = UnitGalleryPresenter::resolveUnitPostId((int) $a['unit_id']);
+		if ($postId < 1) {
+			return \esc_html($defaultJson);
+		}
+
+		$limit  = \max(0, (int) $a['limit']);
+		$offset = \max(0, (int) $a['offset']);
+		$size   = \trim((string) $a['size']);
+
+		$context = $a;
+		$context['source'] = 'shortcode';
+
+		$items = UnitGalleryPresenter::galleryItems(
+			$postId,
+			$limit,
+			$offset,
+			$size !== '' ? $size : 'large',
+			$context
+		);
+
+		if ($items === []) {
+			return \esc_html($defaultJson);
+		}
+
+		$json = \wp_json_encode($items);
+		if (! \is_string($json)) {
+			return \esc_html($defaultJson);
+		}
+
+		$json = (string) \apply_filters('bec_unit_gallery_json', $json, $postId, $a);
+
+		return \esc_html($json);
+	}
+
+	private static function normalizeGalleryDefaultJson(string $default): string
+	{
+		$trimmed = \trim($default);
+		if ($trimmed === '') {
+			return '[]';
+		}
+
+		$decoded = \json_decode($trimmed, true);
+		if (\json_last_error() !== \JSON_ERROR_NONE) {
+			return '[]';
+		}
+
+		$encoded = \wp_json_encode($decoded);
+
+		return \is_string($encoded) ? $encoded : '[]';
 	}
 
 	private static function scalarToShortcodeText(string|int|float $scalar): string

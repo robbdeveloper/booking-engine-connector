@@ -37,6 +37,8 @@ Use the **`redirect_url`** attribute so the form posts (GET) to your results pag
 == Changelog ==
 
 = 0.1.29 =
+* **Shortcodes (`[bec_unit_gallery]`)**: JSON array of gallery images from **`bec_core_gallery`** (`limit`, `offset`, `size`, `unit_id`, `default`). Filters **`bec_unit_gallery_attachment_ids`**, **`bec_unit_gallery_items`**, **`bec_unit_gallery_json`**.
+* **Elementor**: Dynamic tag **Unit gallery** (group **Booking Engine**) for Gallery widgets — **Image limit**, **Offset**, optional **Unit ID**; filters **`bec_unit_gallery_elementor_rows`**, **`bec_unit_gallery_elementor_value`**.
 * **i18n**: Italian translation for `[bec_quote]` multi-rate “From %s” price label.
 
 = 0.1.28 =

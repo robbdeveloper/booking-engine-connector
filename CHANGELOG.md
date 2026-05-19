@@ -3,6 +3,8 @@
 ## 0.1.29 — 2026-05-19
 
 - Version bump to 0.1.29.
+- **Shortcodes (`[bec_unit_gallery]`)**: Provider-independent JSON gallery from canonical **`bec_core_gallery`** (attachment IDs). Attributes **`unit_id`**, **`limit`** (default `6`; `0` = full gallery), **`offset`**, **`size`** (WP image size, default `large`), **`default`** (JSON fallback, default `[]`). Each item includes **`id`**, **`url`**, **`alt`**, **`width`**, **`height`**. **`UnitGalleryReader`** / **`UnitGalleryItemResolver`** / **`UnitGalleryPresenter`** slice before URL resolution and batch-prime attachment caches. Filters **`bec_unit_gallery_attachment_ids`**, **`bec_unit_gallery_items`**, **`bec_unit_gallery_json`**. Does not enqueue public BEC assets.
+- **Elementor — dynamic tag (`Unit gallery`)**: Gallery-category tag under **Booking Engine** for Gallery / carousel widgets — reads the same **`bec_core_gallery`** meta with panel controls **Image limit** (default `6`, `0` = all), **Offset**, and optional **Unit ID** (empty = current `bec_unit` / loop item). Returns attachment rows for Elementor (`id` only). Filters **`bec_unit_gallery_elementor_rows`**, **`bec_unit_gallery_elementor_value`**. Requires Elementor (free or Pro).
 - **i18n**: Italian translation for `[bec_quote]` multi-rate “From %s” price label (`Da %s`).
 
 ## 0.1.28 — 2026-05-19
