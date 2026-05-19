@@ -6,6 +6,7 @@ namespace BookingEngineConnector\Shortcodes;
 
 use BookingEngineConnector\Checkout\CheckoutCtaHtml;
 use BookingEngineConnector\Checkout\CheckoutUrlService;
+use BookingEngineConnector\Formatting\DateFormatter;
 use BookingEngineConnector\Formatting\MoneyFormatter;
 use BookingEngineConnector\Fallback\FallbackRenderer;
 use BookingEngineConnector\Fallback\FallbackService;
@@ -98,8 +99,28 @@ final class ShortcodeRegistry
 		return $fallbackArchive();
 	}
 
-	public static function renderDates(): string
+	/**
+	 * Dates shortcode: check-in / check-out from the current search context.
+	 *
+	 * Attributes: date_format (PHP date_i18n format), preset (iso|short|medium|long|full),
+	 * label_style (arrow|from_to|from_to_lower), label (literal sprintf pattern overriding label_style).
+	 *
+	 * Filters: bec_date_format_defaults, bec_shortcode_dates_format, bec_shortcode_dates_text,
+	 * bec_shortcode_dates_html.
+	 */
+	public static function renderDates($atts = []): string
 	{
+		$a = \shortcode_atts(
+			[
+				'date_format' => '',
+				'preset'      => '',
+				'label_style' => '',
+				'label'       => '',
+			],
+			\is_array($atts) ? $atts : [],
+			'bec_dates'
+		);
+
 		$ctx = SearchContext::fromRequest();
 		if (! $ctx->isComplete()) {
 			return '';
@@ -110,14 +131,56 @@ final class ShortcodeRegistry
 			return '<p class="bec-shortcode-dates">' . \esc_html($fmt) . '</p>';
 		}
 
-		$out = \sprintf(
-			/* translators: 1: check-in date, 2: check-out date */
-			\esc_html__('%1$s → %2$s', 'booking-engine-connector'),
-			\esc_html($ctx->getCheckin()),
-			\esc_html($ctx->getCheckout())
+		$formatOptions = self::datesFormatOptionsFromAtts($a);
+		$text          = DateFormatter::formatRange(
+			$ctx->getCheckin(),
+			$ctx->getCheckout(),
+			$formatOptions
 		);
+		$text = (string) \apply_filters('bec_shortcode_dates_text', $text, $ctx, $formatOptions);
 
-		return '<p class="bec-shortcode-dates">' . $out . '</p>';
+		$html = '<p class="bec-shortcode-dates">' . \esc_html($text) . '</p>';
+
+		return (string) \apply_filters('bec_shortcode_dates_html', $html, $ctx, $formatOptions);
+	}
+
+	/**
+	 * @param array<string, string> $a Shortcode attributes from renderDates().
+	 * @return array<string, mixed>
+	 */
+	private static function datesFormatOptionsFromAtts(array $a): array
+	{
+		$builtin = [
+			'preset'      => 'iso',
+			'label_style' => 'arrow',
+		];
+
+		/** @var array<string, mixed> $filtered */
+		$filtered = (array) \apply_filters('bec_date_format_defaults', [], 'bec_dates');
+
+		$fromAtts = [];
+
+		$dateFormat = \trim((string) ($a['date_format'] ?? ''));
+		if ($dateFormat !== '') {
+			$fromAtts['date_format'] = $dateFormat;
+		}
+
+		$presetRaw = \sanitize_key(\strtolower(\trim((string) ($a['preset'] ?? ''))));
+		if ($presetRaw !== '') {
+			$fromAtts['preset'] = $presetRaw;
+		}
+
+		$labelStyleRaw = \sanitize_key(\strtolower(\trim((string) ($a['label_style'] ?? ''))));
+		if ($labelStyleRaw !== '') {
+			$fromAtts['label_style'] = $labelStyleRaw;
+		}
+
+		$label = \trim((string) ($a['label'] ?? ''));
+		if ($label !== '') {
+			$fromAtts['label'] = $label;
+		}
+
+		return \array_merge($builtin, $filtered, $fromAtts);
 	}
 
 	public static function renderCheckout($atts = []): string

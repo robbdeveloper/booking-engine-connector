@@ -1318,6 +1318,7 @@ msgid "Rates"
 msgstr ""
 
 #. translators: 1: from date, 2: to date
+#: includes/Formatting/DateFormatter.php:129
 #: includes/Shortcodes/BookingSummary/BookingSummaryRenderer.php:567
 #, php-format
 msgid "from %1$s to %2$s"
@@ -1404,9 +1405,15 @@ msgid "%1$s %2$s"
 msgstr ""
 
 #. translators: 1: check-in date, 2: check-out date
-#: includes/Shortcodes/ShortcodeRegistry.php:85
+#: includes/Formatting/DateFormatter.php:121
 #, php-format
 msgid "%1$s → %2$s"
+msgstr ""
+
+#. translators: 1: check-in date, 2: check-out date
+#: includes/Formatting/DateFormatter.php:125
+#, php-format
+msgid "From %1$s to %2$s"
 msgstr ""
 
 #. translators: 1: formatted amount, 2: currency code (may be empty)
