@@ -4,7 +4,7 @@ Tags: booking, kross, hospitality, availability
 Requires at least: 6.4
 Tested up to: 6.7
 Requires PHP: 8.0
-Stable tag: 0.1.27
+Stable tag: 0.1.28
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
@@ -35,6 +35,13 @@ Search context uses **GET query parameters** prefixed with `bec_` (e.g. check-in
 Use the **`redirect_url`** attribute so the form posts (GET) to your results page, e.g. `[bec_search redirect_url="/availability-results/"]`. The same **`bec_*`** query parameters are appended. If **`redirect_url`** is omitted, submissions go to the **units archive** (or **`home_url`** if the archive link is unavailable).
 
 == Changelog ==
+
+= 0.1.28 =
+* **Units (core fields)**: Sync Kross **CIN** (Italian national identification code) into **`bec_core_cin`**; editable in the unit admin meta box.
+* **Shortcodes (`[bec_quote]`)**: Configurable currency/number formatting (`currency_display`, `currency_position`, `decimals`, separators, `number_style`) via new **`MoneyFormatter`**.
+* **Shortcodes (`[bec_dates]`)**: Configurable date range display (`date_format`, `preset`, `label_style`, optional `label`) via new **`DateFormatter`**; default remains ISO dates with an arrow.
+* **Shortcodes (`[bec_unit_field]`)**: Output a scalar from the synced unit **`raw`** payload using a dot path (e.g. `field="cin"`, `field="custom_fields.custom_1.it"`); `type` is `string` (default) or `number`. Provider API **`getUnitFieldValue()`**; filters **`bec_unit_field_value`**, **`bec_kross_unit_field_value`**.
+* **i18n**: POT / Italian updates for CIN and date-format strings.
 
 = 0.1.27 =
 * Version bump to 0.1.27.

@@ -1,11 +1,17 @@
 # Changelog
 
+## 0.1.28 — 2026-05-19
+
+- Version bump to 0.1.28.
+- **Units (core fields) — CIN**: Sync Kross `cin` into canonical **`bec_core_cin`** (`CoreUnitSemantic::CIN`), editable in the unit admin meta box. Also readable via `[bec_unit_field field="cin"]` when not mapped to core meta.
+- **Shortcodes (`[bec_quote]`)**: Configurable price display via attributes **`currency_display`** (`code`|`symbol`), **`currency_position`** (`before`|`after`), **`decimals`**, **`decimal_sep`**, **`thousands_sep`**, and **`number_style`** (`locale`|`eu`|`us`). New **`MoneyFormatter`** (`includes/Formatting/MoneyFormatter.php`). Filters **`bec_money_format_defaults`**, **`bec_currency_symbols`**, **`bec_format_money`**. Multi-rate “from” line uses a single formatted price string.
+- **Shortcodes (`[bec_dates]`)**: Configurable date range display via **`date_format`**, **`preset`** (`iso`|`short`|`medium`|`long`|`full`), **`label_style`** (`arrow`|`from_to`|`from_to_lower`), and optional literal **`label`**. New **`DateFormatter`** (`includes/Formatting/DateFormatter.php`). Filters **`bec_date_format_defaults`**, **`bec_date_format_presets`**, **`bec_date_range_label_styles`**, **`bec_format_date`**, **`bec_format_date_range`**, **`bec_shortcode_dates_text`**, **`bec_shortcode_dates_html`**. Existing **`bec_shortcode_dates_format`** override unchanged. Default output remains ISO dates with an arrow.
+- **Shortcodes (`[bec_unit_field]`)**: Read a scalar from the synced unit payload (`bec_sync_payload` → provider `raw`) using a dot path under `raw`. Attributes **`field`** (required, e.g. `cin`, `custom_fields.custom_1.it`, `size_sqm`), **`type`** (`string` default, `number` for numeric fields), **`unit_id`**, **`default`**. Locale maps require an explicit locale segment (no auto fallback). Provider API: **`ProviderInterface::getUnitFieldValue()`**; Kross implementation in **`KrossUnitFieldResolver`**. Filters **`bec_unit_field_value`**, **`bec_kross_unit_field_value`**. Examples: `[bec_unit_field field="cin"]`, `[bec_unit_field field="custom_fields.custom_1.it"]`, `[bec_unit_field field="size_sqm" type="number"]`.
+- **i18n**: POT / **`it_IT`** updates for CIN label and date-format strings.
+
 ## 0.1.27 — 2026-05-19
 
 - Version bump to 0.1.27.
-- **Shortcodes (`[bec_unit_field]`)**: Read a scalar from the synced unit payload (`bec_sync_payload` → provider `raw`) using a dot path under `raw`. Attributes **`field`** (required, e.g. `cin`, `custom_fields.custom_1.it`, `size_sqm`), **`type`** (`string` default, `number` for numeric fields), **`unit_id`**, **`default`**. Locale maps require an explicit locale segment (no auto fallback). Provider API: **`ProviderInterface::getUnitFieldValue()`**; Kross implementation in **`KrossUnitFieldResolver`**. Filters **`bec_unit_field_value`**, **`bec_kross_unit_field_value`**. Examples: `[bec_unit_field field="cin"]`, `[bec_unit_field field="custom_fields.custom_1.it"]`, `[bec_unit_field field="size_sqm" type="number"]`.
-- **Shortcodes (`[bec_quote]`)**: Configurable price display via attributes **`currency_display`** (`code`|`symbol`), **`currency_position`** (`before`|`after`), **`decimals`**, **`decimal_sep`**, **`thousands_sep`**, and **`number_style`** (`locale`|`eu`|`us`). New **`MoneyFormatter`** (`includes/Formatting/MoneyFormatter.php`). Filters **`bec_money_format_defaults`**, **`bec_currency_symbols`**, **`bec_format_money`**. Multi-rate “from” line uses a single formatted price string.
-- **Shortcodes (`[bec_dates]`)**: Configurable date range display via **`date_format`**, **`preset`** (`iso`|`short`|`medium`|`long`|`full`), **`label_style`** (`arrow`|`from_to`|`from_to_lower`), and optional literal **`label`**. New **`DateFormatter`** (`includes/Formatting/DateFormatter.php`). Filters **`bec_date_format_defaults`**, **`bec_date_format_presets`**, **`bec_date_range_label_styles`**, **`bec_format_date`**, **`bec_format_date_range`**, **`bec_shortcode_dates_text`**, **`bec_shortcode_dates_html`**. Existing **`bec_shortcode_dates_format`** override unchanged. Default output remains ISO dates with an arrow.
 
 ## 0.1.26 — 2026-05-18
 
