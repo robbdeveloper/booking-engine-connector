@@ -4,7 +4,7 @@ Tags: booking, kross, hospitality, availability
 Requires at least: 6.4
 Tested up to: 6.7
 Requires PHP: 8.0
-Stable tag: 0.1.28
+Stable tag: 0.1.29
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
@@ -35,6 +35,9 @@ Search context uses **GET query parameters** prefixed with `bec_` (e.g. check-in
 Use the **`redirect_url`** attribute so the form posts (GET) to your results page, e.g. `[bec_search redirect_url="/availability-results/"]`. The same **`bec_*`** query parameters are appended. If **`redirect_url`** is omitted, submissions go to the **units archive** (or **`home_url`** if the archive link is unavailable).
 
 == Changelog ==
+
+= 0.1.29 =
+* **i18n**: Italian translation for `[bec_quote]` multi-rate “From %s” price label.
 
 = 0.1.28 =
 * **Units (core fields)**: Sync Kross **CIN** (Italian national identification code) into **`bec_core_cin`**; editable in the unit admin meta box.

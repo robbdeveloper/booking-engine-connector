@@ -1,5 +1,10 @@
 # Changelog
 
+## 0.1.29 — 2026-05-19
+
+- Version bump to 0.1.29.
+- **i18n**: Italian translation for `[bec_quote]` multi-rate “From %s” price label (`Da %s`).
+
 ## 0.1.28 — 2026-05-19
 
 - Version bump to 0.1.28.

@@ -2,7 +2,7 @@
 # This file is distributed under the GPL-2.0-or-later.
 msgid ""
 msgstr ""
-"Project-Id-Version: Booking Engine Connector 0.1.28\n"
+"Project-Id-Version: Booking Engine Connector 0.1.29\n"
 "Report-Msgid-Bugs-To: https://wordpress.org/support/plugin/booking-engine-"
 "connector\n"
 "POT-Creation-Date: 2026-05-20T00:00:00+00:00\n"
@@ -898,6 +898,12 @@ msgstr "Disponibile per le tue date."
 #: includes/Shortcodes/ShortcodeRegistry.php:205
 msgid "No availability for these dates."
 msgstr "Nessuna disponibilità per queste date."
+
+#. translators: %s: formatted price including currency when applicable
+#: includes/Shortcodes/ShortcodeRegistry.php:392
+#, php-format
+msgid "From %s"
+msgstr "Da %s"
 
 #: includes/Checkout/CheckoutCtaHtml.php:24
 #: includes/Providers/Kross/KrossProvider.php:448
