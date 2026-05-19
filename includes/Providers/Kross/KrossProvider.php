@@ -68,6 +68,16 @@ final class KrossProvider implements ProviderInterface, BulkQuoteProviderInterfa
 	}
 
 	/**
+	 * @param array<string, mixed> $syncPayload
+	 * @param array<string, string> $atts
+	 * @param array<string, mixed> $context
+	 */
+	public function getUnitFieldValue(array $syncPayload, string $field, array $atts, array $context): string|int|float|null
+	{
+		return KrossUnitFieldResolver::resolve($syncPayload, $field, $atts, $context);
+	}
+
+	/**
 	 * @param array<string, mixed> $row
 	 *
 	 * @return array<string, mixed>

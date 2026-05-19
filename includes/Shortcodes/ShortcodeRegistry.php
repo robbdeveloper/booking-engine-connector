@@ -13,6 +13,7 @@ use BookingEngineConnector\Fallback\FallbackService;
 use BookingEngineConnector\PostTypes\UnitPostType;
 use BookingEngineConnector\Search\QuoteService;
 use BookingEngineConnector\Search\SearchContext;
+use BookingEngineConnector\Providers\Kross\KrossUnitFieldResolver;
 use BookingEngineConnector\Providers\ProviderRegistry;
 use BookingEngineConnector\Search\SearchForm;
 use BookingEngineConnector\Shortcodes\BookingSummary\BookingSummaryRenderer;
@@ -36,6 +37,7 @@ final class ShortcodeRegistry
 		\add_shortcode('bec_fallback', [self::class, 'renderFallback']);
 		\add_shortcode('bec_unit_url', [self::class, 'renderUnitUrl']);
 		\add_shortcode('bec_unit_info', [self::class, 'renderUnitInfo']);
+		\add_shortcode('bec_unit_field', [self::class, 'renderUnitField']);
 		\add_shortcode('bec_booking_summary', [BookingSummaryRenderer::class, 'renderFromShortcode']);
 	}
 
@@ -571,5 +573,118 @@ final class ShortcodeRegistry
 		$html = (string) \apply_filters('bec_unit_info_output', $html, $key, $postId, $decoded, $context);
 
 		return $html;
+	}
+
+	/**
+	 * Scalar field from synced unit payload (`[bec_unit_field field="…"]`).
+	 *
+	 * Attributes: field (required dot path in provider raw payload, e.g. `cin`, `custom_fields.custom_1.it`),
+	 * type (`string` default, `number`), unit_id, default.
+	 *
+	 * Filter: bec_unit_field_value.
+	 *
+	 * @param array<string, string>|string $atts
+	 */
+	public static function renderUnitField($atts = []): string
+	{
+		$raw = \is_array($atts) ? $atts : [];
+		$a   = \shortcode_atts(
+			[
+				'field'   => '',
+				'type'    => KrossUnitFieldResolver::TYPE_STRING,
+				'unit_id' => '0',
+				'default' => '',
+			],
+			$raw,
+			'bec_unit_field'
+		);
+
+		$field = \trim((string) $a['field']);
+		$def   = (string) $a['default'];
+		$type  = KrossUnitFieldResolver::normalizeType((string) $a['type']);
+
+		if ($field === '') {
+			return $def === '' ? '' : \esc_html($def);
+		}
+
+		$postId = (int) $a['unit_id'];
+		if ($postId < 1) {
+			$postId = (int) \get_the_ID();
+		}
+		if ($postId < 1 || \get_post_type($postId) !== UnitPostType::getSlug()) {
+			return $def === '' ? '' : \esc_html($def);
+		}
+
+		$providerSlug = (string) \get_post_meta($postId, 'bec_provider_slug', true);
+		if ($providerSlug === '') {
+			$providerSlug = ProviderRegistry::getActiveSlug();
+		}
+
+		$json = (string) \get_post_meta($postId, 'bec_sync_payload', true);
+		if ($json === '') {
+			return $def === '' ? '' : \esc_html($def);
+		}
+
+		$decoded = SyncPayloadEncoder::decodeStored($json);
+		if ($decoded === null) {
+			return $def === '' ? '' : \esc_html($def);
+		}
+
+		$locale = \function_exists('determine_locale') ? \determine_locale() : \get_locale();
+		$locale = \str_replace('-', '_', (string) $locale);
+		$primary = \explode('_', $locale, 2)[0];
+		$locale2 = \strtolower(\substr($primary, 0, 2));
+		if ($locale2 === '' || ! \preg_match('/^[a-z]{2}$/', $locale2)) {
+			$locale2 = 'en';
+		}
+
+		$passThrough = [];
+		$reserved    = [ 'field' => true, 'type' => true, 'unit_id' => true, 'default' => true ];
+		foreach ($raw as $k => $v) {
+			if (isset($reserved[ $k ])) {
+				continue;
+			}
+			$passThrough[ (string) $k ] = \is_scalar($v) ? (string) $v : '';
+		}
+
+		$context = [
+			'provider' => $providerSlug,
+			'locale'   => $locale2,
+			'type'     => $type,
+		];
+
+		$provider = ProviderRegistry::getProvider($providerSlug);
+
+		try {
+			$value = $provider->getUnitFieldValue($decoded, $field, $passThrough, $context);
+		} catch (\Throwable $e) {
+			return $def === '' ? '' : \esc_html($def);
+		}
+
+		$value = \apply_filters(
+			'bec_unit_field_value',
+			$value,
+			$field,
+			$postId,
+			$decoded,
+			$context,
+			$passThrough
+		);
+
+		$scalar = KrossUnitFieldResolver::coerceScalar($value, $type);
+		if ($scalar === null) {
+			return $def === '' ? '' : \esc_html($def);
+		}
+
+		return \esc_html(self::scalarToShortcodeText($scalar));
+	}
+
+	private static function scalarToShortcodeText(string|int|float $scalar): string
+	{
+		if (\is_int($scalar) || \is_float($scalar)) {
+			return (string) $scalar;
+		}
+
+		return $scalar;
 	}
 }

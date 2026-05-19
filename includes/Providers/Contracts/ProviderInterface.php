@@ -94,4 +94,15 @@ interface ProviderInterface
 	 * @return array<string, callable>
 	 */
 	public function getUnitInfoRenderers(): array;
+
+	/**
+	 * Scalar field from synced unit payload for `[bec_unit_field]`.
+	 *
+	 * @param array<string, mixed> $syncPayload Decoded `bec_sync_payload` (normalised remote row, with `raw`).
+	 * @param array<string, string> $atts        Shortcode attributes (`field`, `type`, …).
+	 * @param array<string, mixed> $context      e.g. `provider`, `locale`, `type` (`string`|`number`).
+	 *
+	 * @return string|int|float|null Null when the field is missing or not a valid scalar for the requested type.
+	 */
+	public function getUnitFieldValue(array $syncPayload, string $field, array $atts, array $context): string|int|float|null;
 }
