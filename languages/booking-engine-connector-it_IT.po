@@ -2051,6 +2051,49 @@ msgstr "Crescente"
 msgid "Descending"
 msgstr "Decrescente"
 
+#: includes/Front/PublicAssets.php
+#: includes/UnitFilters/UnitFilterShortcodeRenderer.php
+msgid "Pick desired amenities"
+msgstr "Scegli i servizi desiderati"
+
+#. translators: 1: number of selected amenities, 2: total number of amenity choices (singular form).
+#: includes/Front/PublicAssets.php
+msgid "%1$d of %2$d selected"
+msgid_plural "%1$d of %2$d selected"
+msgstr[0] "%1$d di %2$d selezionato"
+msgstr[1] "%1$d di %2$d selezionati"
+
+#. translators: %s amenity label to remove from the multi-select chip (e.g. "Free Wi-Fi").
+#: includes/Front/PublicAssets.php
+msgid "Remove %s"
+msgstr "Rimuovi %s"
+
+#: includes/Front/PublicAssets.php
+#: includes/UnitFilters/UnitFilterShortcodeRenderer.php
+msgid "No amenities match your search."
+msgstr "Nessun servizio corrisponde alla tua ricerca."
+
+#: includes/UnitFilters/UnitFilterShortcodeRenderer.php
+msgid "Search amenities…"
+msgstr "Cerca servizi…"
+
+#: includes/UnitFilters/UnitFilterShortcodeRenderer.php
+msgid "Clear"
+msgstr "Cancella"
+
+#: includes/UnitFilters/UnitFilterShortcodeRenderer.php
+msgid "Done"
+msgstr "Fatto"
+
+#: includes/UnitFilters/UnitFilterShortcodeRenderer.php
+msgid "Close amenities picker"
+msgstr "Chiudi selettore servizi"
+
+#. translators: %s filter name, e.g. "Order", "Rooms".
+#: includes/UnitFilters/UnitFilterShortcodeRenderer.php
+msgid "Close %s picker"
+msgstr "Chiudi selettore %s"
+
 #: includes/Admin/AdminMenu.php
 #: includes/Admin/Settings/UnitFiltersPage.php
 msgid "Unit filters"

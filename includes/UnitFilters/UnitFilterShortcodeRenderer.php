@@ -12,6 +12,10 @@ use BookingEngineConnector\Taxonomies\UnitAmenityTaxonomy;
  */
 final class UnitFilterShortcodeRenderer
 {
+	private static int $amenitiesInstanceCount = 0;
+
+	private static int $pickerInstanceCount = 0;
+
 	/**
 	 * @param array<string, string> $atts
 	 */
@@ -192,79 +196,286 @@ final class UnitFilterShortcodeRenderer
 	private static function renderOrderField(UnitFilterRequest $request): void
 	{
 		$current = $request->getOrder();
-		echo '<div class="bec-unit-filters__field bec-unit-filters__field--order">';
-		echo '<label class="bec-unit-filters__label" for="bec_filter_order">' . \esc_html__(
-			'Order',
-			'booking-engine-connector'
-		) . '</label>';
-		echo '<select class="bec-unit-filters__control" name="' . \esc_attr(UnitFilterRequest::PARAM_ORDER) . '" id="bec_filter_order">';
-		echo '<option value="">' . \esc_html__('Any', 'booking-engine-connector') . '</option>';
-		echo '<option value="ASC" ' . \selected($current, 'ASC', false) . '>' . \esc_html__(
-			'Ascending',
-			'booking-engine-connector'
-		) . '</option>';
-		echo '<option value="DESC" ' . \selected($current, 'DESC', false) . '>' . \esc_html__(
-			'Descending',
-			'booking-engine-connector'
-		) . '</option>';
-		echo '</select></div>';
+		self::renderSelectPickerField(
+			'order',
+			'bec_filter_order',
+			UnitFilterRequest::PARAM_ORDER,
+			\__('Order', 'booking-engine-connector'),
+			$current,
+			[
+				[
+					'value' => '',
+					'label' => \__('Any', 'booking-engine-connector'),
+				],
+				[
+					'value' => 'ASC',
+					'label' => \__('Ascending', 'booking-engine-connector'),
+				],
+				[
+					'value' => 'DESC',
+					'label' => \__('Descending', 'booking-engine-connector'),
+				],
+			]
+		);
 	}
 
 	private static function renderRoomsField(UnitFilterRequest $request): void
 	{
 		$min = $request->getRoomsMin();
-		echo '<div class="bec-unit-filters__field bec-unit-filters__field--rooms">';
-		echo '<label class="bec-unit-filters__label" for="bec_filter_rooms_min">' . \esc_html__(
-			'Rooms',
-			'booking-engine-connector'
-		) . '</label>';
-		echo '<select class="bec-unit-filters__control" name="' . \esc_attr(UnitFilterRequest::PARAM_ROOMS_MIN) . '" id="bec_filter_rooms_min">';
-		echo '<option value="">' . \esc_html__('Any', 'booking-engine-connector') . '</option>';
+		$current = $min > 0 ? (string) $min : '';
+		$options = [
+			[
+				'value' => '',
+				'label' => \__('Any', 'booking-engine-connector'),
+			],
+		];
 		for ($i = 1; $i <= 10; $i++) {
-			echo '<option value="' . \esc_attr((string) $i) . '" ' . \selected($min, $i, false) . '>' . \esc_html((string) $i) . '+</option>';
+			$options[] = [
+				'value' => (string) $i,
+				'label' => (string) $i . '+',
+			];
 		}
-		echo '</select></div>';
+		self::renderSelectPickerField(
+			'rooms',
+			'bec_filter_rooms_min',
+			UnitFilterRequest::PARAM_ROOMS_MIN,
+			\__('Rooms', 'booking-engine-connector'),
+			$current,
+			$options
+		);
 	}
 
 	private static function renderBathroomsField(UnitFilterRequest $request): void
 	{
 		$min = $request->getBathroomsMin();
 		$minStr = $min > 0.0 ? UnitFilterRequest::formatBathroomsMin($min) : '';
-		echo '<div class="bec-unit-filters__field bec-unit-filters__field--bathrooms">';
-		echo '<label class="bec-unit-filters__label" for="bec_filter_bathrooms_min">' . \esc_html__(
-			'Bathrooms',
-			'booking-engine-connector'
-		) . '</label>';
-		echo '<select class="bec-unit-filters__control" name="' . \esc_attr(UnitFilterRequest::PARAM_BATHROOMS_MIN) . '" id="bec_filter_bathrooms_min">';
-		echo '<option value="">' . \esc_html__('Any', 'booking-engine-connector') . '</option>';
+		$options = [
+			[
+				'value' => '',
+				'label' => \__('Any', 'booking-engine-connector'),
+			],
+		];
 		foreach (['1', '1.5', '2', '2.5', '3', '4'] as $opt) {
-			$selected = $minStr === $opt || ($minStr !== '' && (float) $minStr === (float) $opt);
-			echo '<option value="' . \esc_attr($opt) . '" ' . \selected($selected, true, false) . '>' . \esc_html($opt) . '+</option>';
+			$options[] = [
+				'value' => $opt,
+				'label' => $opt . '+',
+			];
 		}
-		echo '</select></div>';
+		self::renderSelectPickerField(
+			'bathrooms',
+			'bec_filter_bathrooms_min',
+			UnitFilterRequest::PARAM_BATHROOMS_MIN,
+			\__('Bathrooms', 'booking-engine-connector'),
+			$minStr,
+			$options
+		);
 	}
 
 	/**
+	 * Single-select filter with popover UI (desktop value box + mobile trigger + bottom sheet).
+	 *
+	 * @param list<array{value: string, label: string}> $options
+	 */
+	private static function renderSelectPickerField(
+		string $fieldSlug,
+		string $selectId,
+		string $paramName,
+		string $labelText,
+		string $currentValue,
+		array $options
+	): void {
+		self::$pickerInstanceCount++;
+		$instanceId  = self::$pickerInstanceCount;
+		$labelId     = 'bec_picker_label_' . $instanceId;
+		$panelId     = 'bec_picker_panel_' . $instanceId;
+		$radioGroup  = 'bec_picker_rg_' . $instanceId;
+
+		$anyLabel     = \__('Any', 'booking-engine-connector');
+		$doneLabel    = \esc_html__('Done', 'booking-engine-connector');
+		$closeAria    = \esc_attr__(
+			/* translators: %s filter name, e.g. "Order", "Rooms". */
+			\sprintf(\__('Close %s picker', 'booking-engine-connector'), $labelText)
+		);
+
+		$displayLabel = $anyLabel;
+		foreach ($options as $opt) {
+			if ($opt['value'] === $currentValue) {
+				$displayLabel = $opt['label'];
+				break;
+			}
+		}
+
+		echo '<div class="bec-unit-filters__field bec-unit-filters__field--' . \esc_attr($fieldSlug) . ' bec-unit-filters__picker" data-bec-select-root>';
+		echo '<label class="bec-unit-filters__label" id="' . \esc_attr($labelId) . '" for="' . \esc_attr($selectId) . '">';
+		echo \esc_html($labelText);
+		echo '</label>';
+
+		echo '<div class="bec-unit-filters__picker-wrap">';
+
+		echo '<select class="bec-unit-filters__control bec-unit-filters__picker-native" name="' . \esc_attr($paramName) . '" id="' . \esc_attr($selectId) . '" data-bec-picker-native>';
+		foreach ($options as $opt) {
+			echo '<option value="' . \esc_attr($opt['value']) . '" ' . \selected($currentValue, $opt['value'], false) . '>';
+			echo \esc_html($opt['label']);
+			echo '</option>';
+		}
+		echo '</select>';
+
+		echo '<button type="button" class="bec-unit-filters__picker-trigger" data-bec-picker-trigger ';
+		echo 'aria-haspopup="dialog" aria-expanded="false" aria-controls="' . \esc_attr($panelId) . '">';
+		echo '<span class="bec-unit-filters__picker-trigger-text" data-bec-picker-trigger-text>';
+		echo \esc_html($displayLabel);
+		echo '</span>';
+		echo '<span class="bec-unit-filters__picker-trigger-caret" aria-hidden="true"></span>';
+		echo '</button>';
+
+		echo '<div class="bec-unit-filters__picker-value" data-bec-picker-value data-bec-picker-value-trigger ';
+		echo 'role="button" tabindex="0" aria-haspopup="dialog" aria-expanded="false" aria-controls="' . \esc_attr($panelId) . '">';
+		echo '<span class="bec-unit-filters__picker-value-text" data-bec-picker-value-text>';
+		echo \esc_html($displayLabel);
+		echo '</span>';
+		echo '<span class="bec-unit-filters__picker-value-caret" aria-hidden="true"></span>';
+		echo '</div>';
+
+		echo '<div class="bec-unit-filters__picker-backdrop" data-bec-picker-backdrop hidden></div>';
+
+		echo '<div class="bec-unit-filters__picker-panel" id="' . \esc_attr($panelId) . '" data-bec-picker-panel role="dialog" aria-modal="false" aria-labelledby="' . \esc_attr($labelId) . '">';
+
+		echo '<div class="bec-unit-filters__picker-panel-header">';
+		echo '<span class="bec-unit-filters__picker-panel-title">' . \esc_html($labelText) . '</span>';
+		echo '<button type="button" class="bec-unit-filters__picker-close" data-bec-picker-close aria-label="' . $closeAria . '">';
+		echo '<span aria-hidden="true">&times;</span>';
+		echo '</button>';
+		echo '</div>';
+
+		echo '<ul class="bec-unit-filters__picker-list" data-bec-picker-list role="listbox">';
+		foreach ($options as $opt) {
+			$value   = $opt['value'];
+			$label   = $opt['label'];
+			$inputId = $selectId . '_picker_' . $instanceId . '_' . \sanitize_html_class($value !== '' ? $value : 'any');
+			$checked = $currentValue === $value;
+
+			echo '<li class="bec-unit-filters__picker-option" data-bec-picker-option>';
+			echo '<label class="bec-unit-filters__picker-option-label" for="' . \esc_attr($inputId) . '">';
+			echo '<input type="radio" id="' . \esc_attr($inputId) . '" name="' . \esc_attr($radioGroup) . '" value="' . \esc_attr($value) . '" data-label="' . \esc_attr($label) . '" ' . \checked($checked, true, false) . ' />';
+			echo '<span class="bec-unit-filters__picker-option-box" aria-hidden="true"></span>';
+			echo '<span class="bec-unit-filters__picker-option-text">' . \esc_html($label) . '</span>';
+			echo '</label>';
+			echo '</li>';
+		}
+		echo '</ul>';
+
+		echo '<div class="bec-unit-filters__picker-panel-footer">';
+		echo '<button type="button" class="bec-unit-filters__picker-done" data-bec-picker-done>' . $doneLabel . '</button>';
+		echo '</div>';
+
+		echo '</div>';
+		echo '</div>';
+		echo '</div>';
+	}
+
+	/**
+	 * Renders the amenities facet as real checkboxes wrapped in enhancement-friendly markup:
+	 * a trigger button + selected chips + dropdown / mobile bottom sheet driven by
+	 * `assets/public-unit-filters.js`. No-JS clients still see and submit the bare checkbox list.
+	 *
 	 * @param list<array{key: string, label: string}> $choices
 	 */
 	private static function renderAmenitiesField(UnitFilterRequest $request, array $choices): void
 	{
 		$selected = \array_fill_keys($request->getAmenityKeys(), true);
-		echo '<fieldset class="bec-unit-filters__field bec-unit-filters__field--amenities">';
-		echo '<legend class="bec-unit-filters__label">' . \esc_html__(
-			'Amenities',
-			'booking-engine-connector'
-		) . '</legend>';
-		echo '<div class="bec-unit-filters__checkboxes">';
+
+		self::$amenitiesInstanceCount++;
+		$instanceId  = self::$amenitiesInstanceCount;
+		$legendId    = 'bec_amenities_legend_' . $instanceId;
+		$panelId     = 'bec_amenities_panel_' . $instanceId;
+		$selectedCount = 0;
 		foreach ($choices as $choice) {
-			$key = $choice['key'];
-			$checked = isset($selected[ $key ]);
-			echo '<label class="bec-unit-filters__checkbox">';
-			echo '<input type="checkbox" name="' . \esc_attr(UnitFilterRequest::PARAM_AMENITIES) . '[]" value="' . \esc_attr($key) . '" ' . \checked($checked, true, false) . ' /> ';
-			echo '<span class="bec-unit-filters__checkbox-text">' . \esc_html($choice['label']) . '</span>';
-			echo '</label>';
+			if (isset($selected[ $choice['key'] ])) {
+				$selectedCount++;
+			}
 		}
-		echo '</div></fieldset>';
+
+		$placeholderRaw    = \__('Pick desired amenities', 'booking-engine-connector');
+		$amenitiesLabelRaw = \__('Amenities', 'booking-engine-connector');
+		$clearLabel        = \esc_html__('Clear', 'booking-engine-connector');
+		$doneLabel         = \esc_html__('Done', 'booking-engine-connector');
+		$closeAriaLabel    = \esc_attr__('Close amenities picker', 'booking-engine-connector');
+		if ($selectedCount > 0) {
+			$triggerLabelRaw = \sprintf(
+				/* translators: 1: number of selected amenities, 2: total number of amenity choices. */
+				\_n(
+					'%1$d of %2$d selected',
+					'%1$d of %2$d selected',
+					$selectedCount,
+					'booking-engine-connector'
+				),
+				$selectedCount,
+				\count($choices)
+			);
+		} else {
+			$triggerLabelRaw = $placeholderRaw;
+		}
+
+		echo '<fieldset class="bec-unit-filters__field bec-unit-filters__field--amenities" data-bec-amenities-root aria-labelledby="' . \esc_attr($legendId) . '">';
+		echo '<legend class="bec-unit-filters__label" id="' . \esc_attr($legendId) . '">' . \esc_html($amenitiesLabelRaw) . '</legend>';
+
+		echo '<div class="bec-unit-filters__amenities">';
+
+		echo '<button type="button" class="bec-unit-filters__amenities-trigger" ';
+		echo 'data-bec-amenities-trigger ';
+		echo 'aria-haspopup="dialog" aria-expanded="false" aria-controls="' . \esc_attr($panelId) . '">';
+		echo '<span class="bec-unit-filters__amenities-trigger-text" data-bec-amenities-trigger-text>';
+		echo \esc_html($triggerLabelRaw);
+		echo '</span>';
+		echo '<span class="bec-unit-filters__amenities-trigger-caret" aria-hidden="true"></span>';
+		echo '</button>';
+
+		echo '<div class="bec-unit-filters__amenities-chips" data-bec-amenities-chips data-bec-amenities-chips-trigger ';
+		echo 'role="button" tabindex="0" aria-haspopup="dialog" aria-expanded="false" aria-controls="' . \esc_attr($panelId) . '">';
+		echo '<span class="bec-unit-filters__amenities-chips-placeholder" data-bec-amenities-chips-placeholder>';
+		echo \esc_html($placeholderRaw);
+		echo '</span>';
+		echo '<span class="bec-unit-filters__amenities-chips-caret" aria-hidden="true"></span>';
+		echo '</div>';
+
+		echo '<div class="bec-unit-filters__amenities-backdrop" data-bec-amenities-backdrop hidden></div>';
+
+		echo '<div class="bec-unit-filters__amenities-panel" id="' . \esc_attr($panelId) . '" data-bec-amenities-panel role="dialog" aria-modal="false" aria-labelledby="' . \esc_attr($legendId) . '">';
+
+		echo '<div class="bec-unit-filters__amenities-panel-header">';
+		echo '<span class="bec-unit-filters__amenities-panel-title">' . \esc_html($amenitiesLabelRaw) . '</span>';
+		echo '<button type="button" class="bec-unit-filters__amenities-clear" data-bec-amenities-clear>' . $clearLabel . '</button>';
+		echo '<button type="button" class="bec-unit-filters__amenities-close" data-bec-amenities-close aria-label="' . $closeAriaLabel . '">';
+		echo '<span aria-hidden="true">&times;</span>';
+		echo '</button>';
+		echo '</div>';
+
+		echo '<div class="bec-unit-filters__amenities-panel-chips" data-bec-amenities-panel-chips' . ($selectedCount === 0 ? ' hidden' : '') . '></div>';
+
+		echo '<ul class="bec-unit-filters__amenities-list" data-bec-amenities-list role="listbox" aria-multiselectable="true">';
+		foreach ($choices as $choice) {
+			$key     = $choice['key'];
+			$label   = $choice['label'];
+			$checked = isset($selected[ $key ]);
+			$inputId = 'bec_amenity_' . $instanceId . '_' . \sanitize_html_class($key);
+
+			echo '<li class="bec-unit-filters__amenities-option" data-bec-amenities-option>';
+			echo '<label class="bec-unit-filters__amenities-option-label" for="' . \esc_attr($inputId) . '">';
+			echo '<input type="checkbox" id="' . \esc_attr($inputId) . '" name="' . \esc_attr(UnitFilterRequest::PARAM_AMENITIES) . '[]" value="' . \esc_attr($key) . '" data-label="' . \esc_attr($label) . '" ' . \checked($checked, true, false) . ' />';
+			echo '<span class="bec-unit-filters__amenities-option-box" aria-hidden="true"></span>';
+			echo '<span class="bec-unit-filters__amenities-option-text">' . \esc_html($label) . '</span>';
+			echo '</label>';
+			echo '</li>';
+		}
+		echo '</ul>';
+
+		echo '<div class="bec-unit-filters__amenities-panel-footer">';
+		echo '<button type="button" class="bec-unit-filters__amenities-done" data-bec-amenities-done>' . $doneLabel . '</button>';
+		echo '</div>';
+
+		echo '</div>';
+		echo '</div>';
+		echo '</fieldset>';
 	}
 
 	/**
