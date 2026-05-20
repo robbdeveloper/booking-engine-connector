@@ -1,5 +1,12 @@
 # Changelog
 
+## 0.1.31 — 2026-05-20
+
+- **Shortcodes (`[bec_unit_filters]`)**: GET filter form for unit listings — sort order, minimum rooms/bathrooms, and amenities. Preserves search context (`bec_checkin`, `bec_checkout`, guests, etc.). Attributes: `filters`, `layout` (`inline`|`stacked`), `show_reset`, `amenities` (`selected` or comma-separated keys), `amenities_limit`, `action`. Filters **`bec_unit_filter_definitions`**, **`bec_unit_filters_preserve_query_keys`**, **`bec_unit_filter_query_applied`**.
+- **Unit filters — query integration**: Applies filters on Elementor Loop Grid Query IDs **`bec_available_only`** (default) and alias **`bec_filtered_units`**; availability pruning runs only when search context is complete. Native **`bec_unit`** archive main query supported via **`UnitFilterQueryHooks`**.
+- **Amenity index**: Hidden taxonomy **`bec_unit_amenity`** synced from **`bec_core_amenities`** on unit sync/admin save; batched backfill for existing units. Admin **Unit filters** page curates which amenities appear in the shortcode (order, optional labels). Styling tokens and extra CSS under **Booking Engine → Styling**.
+- **i18n**: POT / Italian updates for filter shortcode and admin strings.
+
 ## 0.1.30 — 2026-05-19
 
 - Version bump to 0.1.30.

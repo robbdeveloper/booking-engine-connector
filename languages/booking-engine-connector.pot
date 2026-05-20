@@ -2,7 +2,7 @@
 # This file is distributed under the GPL-2.0-or-later.
 msgid ""
 msgstr ""
-"Project-Id-Version: Booking Engine Connector 0.1.30\n"
+"Project-Id-Version: Booking Engine Connector 0.1.31\n"
 "Report-Msgid-Bugs-To: https://wordpress.org/support/plugin/booking-engine-connector\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -1801,4 +1801,91 @@ msgstr ""
 
 #: includes/Admin/SyncAdmin.php
 msgid "This action is disabled."
+msgstr ""
+
+#: includes/UnitFilters/UnitFilterRegistry.php
+msgid "Order"
+msgstr ""
+
+#: includes/UnitFilters/UnitFilterRegistry.php
+msgid "Rooms"
+msgstr ""
+
+#: includes/UnitFilters/UnitFilterRegistry.php
+msgid "Amenities"
+msgstr ""
+
+#: includes/UnitFilters/UnitFilterShortcodeRenderer.php
+msgid "Apply filters"
+msgstr ""
+
+#: includes/UnitFilters/UnitFilterShortcodeRenderer.php
+msgid "Reset filters"
+msgstr ""
+
+#: includes/UnitFilters/UnitFilterShortcodeRenderer.php
+msgid "Any"
+msgstr ""
+
+#: includes/UnitFilters/UnitFilterShortcodeRenderer.php
+msgid "Ascending"
+msgstr ""
+
+#: includes/UnitFilters/UnitFilterShortcodeRenderer.php
+msgid "Descending"
+msgstr ""
+
+#: includes/Admin/AdminMenu.php
+#: includes/Admin/Settings/UnitFiltersPage.php
+msgid "Unit filters"
+msgstr ""
+
+#: includes/Admin/Settings/UnitFiltersPage.php
+msgid "Choose which amenities appear in the [bec_unit_filters] shortcode. Styling for the filter form is under Booking Engine → Styling."
+msgstr ""
+
+#: includes/Admin/Settings/UnitFiltersPage.php
+msgid "Amenity index is still building in the background. Options may be incomplete until indexing finishes."
+msgstr ""
+
+#: includes/Admin/Settings/UnitFiltersPage.php
+msgid "Search amenities"
+msgstr ""
+
+#: includes/Admin/Settings/UnitFiltersPage.php
+msgid "Amenity"
+msgstr ""
+
+#: includes/Admin/Settings/UnitFiltersPage.php
+msgid "Category"
+msgstr ""
+
+#: includes/Admin/Settings/UnitFiltersPage.php
+msgid "Display label (optional)"
+msgstr ""
+
+#: includes/Admin/Settings/UnitFiltersPage.php
+msgid "No indexed amenities yet. Sync units from the booking engine first."
+msgstr ""
+
+#: includes/Admin/Settings/StylingPage.php
+msgid "Styles for [bec_unit_filters]. Enable which amenities appear under Booking Engine → Unit filters."
+msgstr ""
+
+#: includes/Admin/Settings/StylingPage.php
+msgid "Unit filters — extra CSS"
+msgstr ""
+
+#: includes/Admin/Settings/StylingPage.php
+msgid "Optional. Target .bec-unit-filters, .bec-unit-filters__field, .bec-unit-filters__checkboxes, .bec-unit-filters__actions."
+msgstr ""
+
+#: includes/Taxonomies/UnitAmenityTaxonomy.php
+msgctxt "taxonomy general name"
+msgid "Unit amenities"
+msgstr ""
+
+#: includes/Taxonomies/UnitAmenityTaxonomy.php
+msgctxt "taxonomy singular name"
+msgid "Unit amenity"
 msgstr ""

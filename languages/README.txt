@@ -38,7 +38,7 @@ source strings from POT (or from MO if a catalog is loaded).
 
 Italian: set Site Language to Italiano (`it_IT`) in Settings → General (or use Loco Translate /
 a shipped MO). Spot-check: Booking Engine admin screens, `[bec_search]`, `[bec_booking_summary]`,
-`[bec_quote]`, `[bec_fallback]`, checkout CTA labels, and the date picker buttons/month names
+`[bec_unit_filters]`, `[bec_quote]`, `[bec_fallback]`, checkout CTA labels, and the date picker buttons/month names
 (`includes/Front/PublicAssets.php` + bundled moment locale).
 
 WPML / Polylang: with a non-default language active, confirm gettext strings switch. For stored

@@ -8,6 +8,7 @@ use BookingEngineConnector\Admin\AdminMenu;
 use BookingEngineConnector\Admin\Settings\ConnectionPage;
 use BookingEngineConnector\Admin\Settings\FallbackPage;
 use BookingEngineConnector\Admin\Settings\StylingPage;
+use BookingEngineConnector\Admin\Settings\UnitFiltersPage;
 use BookingEngineConnector\Admin\Settings\UnitPermalinkPage;
 use BookingEngineConnector\Admin\SyncAdmin;
 use BookingEngineConnector\Elementor\AvailabilityQueryFilter;
@@ -25,7 +26,10 @@ use BookingEngineConnector\Sync\CoreUnitFieldRegistry;
 use BookingEngineConnector\Sync\SyncCron;
 use BookingEngineConnector\Sync\UnitCategorySync;
 use BookingEngineConnector\Sync\UnitSyncFieldRegistry;
+use BookingEngineConnector\Taxonomies\UnitAmenityTaxonomy;
 use BookingEngineConnector\Taxonomies\UnitCategoryTaxonomy;
+use BookingEngineConnector\UnitFilters\UnitAmenityIndexer;
+use BookingEngineConnector\UnitFilters\UnitFilterQueryHooks;
 
 /**
  * Main plugin bootstrap.
@@ -77,12 +81,16 @@ final class Plugin
 		StylingSettings::register();
 		ConnectionPage::register();
 		StylingPage::register();
+		UnitFiltersPage::register();
 		UnitPermalinkPage::register();
 		FallbackPage::register();
 		SyncCron::register();
 		SyncAdmin::register();
 		UnitPostType::register();
 		UnitCategoryTaxonomy::register();
+		UnitAmenityTaxonomy::register();
+		UnitAmenityIndexer::register();
+		UnitFilterQueryHooks::register();
 		CoreUnitFieldRegistry::register();
 		UnitSyncFieldRegistry::register();
 		UnitCategorySync::register();
