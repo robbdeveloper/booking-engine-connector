@@ -4,7 +4,7 @@ Tags: booking, kross, hospitality, availability
 Requires at least: 6.4
 Tested up to: 6.7
 Requires PHP: 8.0
-Stable tag: 0.1.30
+Stable tag: 0.1.31
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
@@ -34,7 +34,17 @@ Search context uses **GET query parameters** prefixed with `bec_` (e.g. check-in
 
 Use the **`redirect_url`** attribute so the form posts (GET) to your results page, e.g. `[bec_search redirect_url="/availability-results/"]`. The same **`bec_*`** query parameters are appended. If **`redirect_url`** is omitted, submissions go to the **units archive** (or **`home_url`** if the archive link is unavailable).
 
+= How do I filter units on a listing page? =
+
+Place **`[bec_unit_filters]`** above your unit loop (or on the unit archive). The form submits filter GET parameters (`bec_filter_order`, `bec_filter_rooms_min`, `bec_filter_bathrooms_min`, `bec_filter_amenities[]`) and keeps current search params. Pair with an Elementor Loop Grid using Query ID **`bec_available_only`** or **`bec_filtered_units`**. Choose which amenities appear under **Booking Engine → Unit filters**; tune appearance under **Styling → Unit filters**.
+
 == Changelog ==
+
+= 0.1.31 =
+* **Shortcodes (`[bec_unit_filters]`)**: Filter units by sort order, rooms, bathrooms, and amenities via sharable GET URLs; preserves search context. Elementor Query IDs **`bec_available_only`** / **`bec_filtered_units`**; native unit archive support.
+* **Admin**: **Unit filters** page to enable/order/relabel amenity checkboxes; amenity index taxonomy synced from **`bec_core_amenities`**.
+* **Styling**: Unit filter design tokens and optional extra CSS on the Styling screen.
+* **i18n**: Italian strings for the filter UI.
 
 = 0.1.30 =
 * **Fix — amenities labels (`u0027`)**: Repair corrupted amenity labels on load; safer JSON meta save during sync and unit admin (single WordPress meta sanitize pass).

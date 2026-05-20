@@ -19,6 +19,8 @@ final class StylingSettings
 
 	public const OPTION_SUMMARY_EXTRA_CSS = 'bec_styling_summary_extra_css';
 
+	public const OPTION_FILTERS_EXTRA_CSS = 'bec_styling_filters_extra_css';
+
 	public const OPTION_ACCORDION_INCLUSIONS = 'bec_styling_accordion_inclusions';
 
 	public const OPTION_ACCORDION_CONDITIONS = 'bec_styling_accordion_conditions';
@@ -252,6 +254,11 @@ CSS;
 		return (string) \get_option(self::OPTION_SUMMARY_EXTRA_CSS, '');
 	}
 
+	public static function getFiltersExtraCssRaw(): string
+	{
+		return (string) \get_option(self::OPTION_FILTERS_EXTRA_CSS, '');
+	}
+
 	/**
 	 * Short semantic tokens prefilled when the saved option is empty or matches bundled legacy defaults.
 	 *
@@ -444,6 +451,14 @@ CSS;
 --bec-fallback-radius: 2px;
 --bec-status-ok: var(--bec-color-success);
 --bec-status-muted: var(--bec-color-muted);
+
+/* Unit filters shortcode */
+--bec-filters-bg: var(--bec-color-surface);
+--bec-filters-border: var(--bec-color-border);
+--bec-filters-radius: var(--bec-radius-control);
+--bec-filters-color-text: var(--bec-color-text);
+--bec-filters-color-muted: var(--bec-color-muted);
+--bec-filters-gap: 0.75rem;
 CSS;
 	}
 
@@ -576,6 +591,11 @@ CSS;
 		return self::sanitizeCssBlock(self::getSummaryExtraCssRaw());
 	}
 
+	public static function getFiltersExtraCss(): string
+	{
+		return self::sanitizeCssBlock(self::getFiltersExtraCssRaw());
+	}
+
 	/**
 	 * CSS appended after all preset styles so admin overrides win.
 	 */
@@ -596,6 +616,11 @@ CSS;
 		$b = self::getSummaryExtraCss();
 		if ($b !== '') {
 			$chunks[] = $b;
+		}
+
+		$f = self::getFiltersExtraCss();
+		if ($f !== '') {
+			$chunks[] = $f;
 		}
 
 		return \trim(\implode("\n", \array_filter($chunks, static fn ( string $x ): bool => $x !== '' )));

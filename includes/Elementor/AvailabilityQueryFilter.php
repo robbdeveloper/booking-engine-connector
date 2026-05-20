@@ -8,6 +8,8 @@ use BookingEngineConnector\Fallback\FallbackService;
 use BookingEngineConnector\PostTypes\UnitPostType;
 use BookingEngineConnector\Search\QuoteService;
 use BookingEngineConnector\Search\SearchContext;
+use BookingEngineConnector\UnitFilters\UnitFilterQueryApplier;
+use BookingEngineConnector\UnitFilters\UnitFilterRequest;
 use WP_Query;
 
 /**
@@ -17,13 +19,14 @@ use WP_Query;
  * Usage:
  *   1. Edit a Loop Grid widget in Elementor.
  *   2. Open the "Query" section and set the "Query ID" field to
- *      `bec_available_only` (or the value returned by the
- *      `bec_elementor_availability_query_id` filter).
- *   3. The widget will hide unit cards that have no availability for the
- *      current `bec_checkin` / `bec_checkout` / occupancy URL params.
+ *      `bec_available_only`, `bec_filtered_units`, or another id from
+ *      `bec_elementor_unit_filter_query_ids`.
+ *   3. Unit filter GET params (`bec_filter_*`) always narrow the loop.
+ *      When search context is complete, units without availability for
+ *      `bec_checkin` / `bec_checkout` / occupancy are removed.
  *
- * When no search context is present (e.g. a landing page without search
- * params), the filter does not run and the grid renders normally.
+ * When no search context is present, only unit filters apply (if any);
+ * availability pruning is skipped.
  */
 final class AvailabilityQueryFilter
 {
@@ -33,17 +36,19 @@ final class AvailabilityQueryFilter
 	 */
 	public const DEFAULT_QUERY_ID = 'bec_available_only';
 
+	public const FILTERED_UNITS_QUERY_ID = 'bec_filtered_units';
+
 	/** @var int Re-entrancy guard (nested WP_Query must not recurse via Elementor's pre_get_posts). */
 	private static int $filterDepth = 0;
 
 	public static function register(): void
 	{
-		$queryId = self::getQueryId();
-		if ($queryId === '') {
-			return;
+		foreach (self::getUnitFilterQueryIds() as $queryId) {
+			if ($queryId === '') {
+				continue;
+			}
+			\add_action('elementor/query/' . $queryId, [self::class, 'filterByAvailability']);
 		}
-
-		\add_action('elementor/query/' . $queryId, [self::class, 'filterByAvailability']);
 	}
 
 	public static function getQueryId(): string
@@ -51,6 +56,32 @@ final class AvailabilityQueryFilter
 		$id = (string) \apply_filters('bec_elementor_availability_query_id', self::DEFAULT_QUERY_ID);
 
 		return \sanitize_key($id);
+	}
+
+	/**
+	 * Elementor Query IDs that apply unit filters and (when search is complete) availability.
+	 *
+	 * @return list<string>
+	 */
+	public static function getUnitFilterQueryIds(): array
+	{
+		$ids = [
+			self::getQueryId(),
+			self::FILTERED_UNITS_QUERY_ID,
+		];
+
+		/** @var list<string> $filtered */
+		$filtered = (array) \apply_filters('bec_elementor_unit_filter_query_ids', $ids);
+
+		$out = [];
+		foreach ($filtered as $id) {
+			$key = \sanitize_key((string) $id);
+			if ($key !== '' && ! \in_array($key, $out, true)) {
+				$out[] = $key;
+			}
+		}
+
+		return $out;
 	}
 
 	/**
@@ -73,6 +104,9 @@ final class AvailabilityQueryFilter
 
 		++self::$filterDepth;
 		try {
+			$filterRequest = UnitFilterRequest::fromRequest();
+			UnitFilterQueryApplier::apply($query, $filterRequest);
+
 			$ctx = SearchContext::fromRequest();
 			if (! $ctx->isComplete()) {
 				return;

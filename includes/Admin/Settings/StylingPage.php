@@ -82,6 +82,7 @@ final class StylingPage
 		$vars          = StylingSettings::getThemeVariablesCssForAdmin();
 		$searchExtra   = StylingSettings::getSearchExtraCssRaw();
 		$summaryExtra  = StylingSettings::getSummaryExtraCssRaw();
+		$filtersExtra  = StylingSettings::getFiltersExtraCssRaw();
 		$accIncl       = StylingSettings::isAccordionInclusionsEnabled();
 		$accCond       = StylingSettings::isAccordionConditionsEnabled();
 
@@ -165,6 +166,23 @@ final class StylingPage
 		) . '</p>';
 		echo '</td></tr></table>';
 
+		echo '<h2>' . \esc_html__('Unit filters', 'booking-engine-connector') . '</h2>';
+		echo '<p class="description">' . \esc_html__(
+			'Styles for [bec_unit_filters]. Enable which amenities appear under Booking Engine → Unit filters.',
+			'booking-engine-connector'
+		) . '</p>';
+		echo '<table class="form-table" role="presentation">';
+		echo '<tr><th scope="row"><label for="bec_styling_filters_extra_css">' . \esc_html__(
+			'Unit filters — extra CSS',
+			'booking-engine-connector'
+		) . '</label></th><td>';
+		echo '<div class="bec-styling-field"><textarea name="bec_styling_filters_extra_css" id="bec_styling_filters_extra_css" class="large-text code" rows="10">' . \esc_textarea($filtersExtra) . '</textarea></div>';
+		echo '<p class="description">' . \esc_html__(
+			'Optional. Target .bec-unit-filters, .bec-unit-filters__field, .bec-unit-filters__checkboxes, .bec-unit-filters__actions.',
+			'booking-engine-connector'
+		) . '</p>';
+		echo '</td></tr></table>';
+
 		echo '<p class="submit"><button type="submit" class="button button-primary">' . \esc_html__('Save changes', 'booking-engine-connector') . '</button></p>';
 		echo '</form></div>';
 	}
@@ -204,6 +222,9 @@ final class StylingPage
 
 		$be = isset($_POST['bec_styling_summary_extra_css']) ? \wp_unslash((string) $_POST['bec_styling_summary_extra_css']) : '';
 		\update_option(StylingSettings::OPTION_SUMMARY_EXTRA_CSS, StylingSettings::sanitizeCssBlock($be), false);
+
+		$fe = isset($_POST['bec_styling_filters_extra_css']) ? \wp_unslash((string) $_POST['bec_styling_filters_extra_css']) : '';
+		\update_option(StylingSettings::OPTION_FILTERS_EXTRA_CSS, StylingSettings::sanitizeCssBlock($fe), false);
 
 		\wp_safe_redirect(\add_query_arg(['page' => self::PAGE_SLUG, 'bec_saved' => '1'], \admin_url('admin.php')));
 		exit;

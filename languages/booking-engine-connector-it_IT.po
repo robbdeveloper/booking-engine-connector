@@ -1051,6 +1051,7 @@ msgid "View Unit"
 msgstr "Visualizza unità"
 
 #: includes/PostTypes/UnitPostType.php:111
+#: includes/Admin/Settings/UnitFiltersPage.php
 msgid "Units"
 msgstr "Unità"
 
@@ -1904,6 +1905,7 @@ msgid "Rooms (bedrooms)"
 msgstr "Camere (camere da letto)"
 
 #: includes/Units/CoreUnitMetaKeys.php:70
+#: includes/UnitFilters/UnitFilterRegistry.php
 msgid "Bathrooms"
 msgstr "Bagni"
 
@@ -2016,3 +2018,90 @@ msgstr "Blocco sincronizzazione rimosso."
 #: includes/Admin/SyncAdmin.php
 msgid "This action is disabled."
 msgstr "Questa azione è disabilitata."
+
+#: includes/UnitFilters/UnitFilterRegistry.php
+msgid "Order"
+msgstr "Ordine"
+
+#: includes/UnitFilters/UnitFilterRegistry.php
+msgid "Rooms"
+msgstr "Camere"
+
+#: includes/UnitFilters/UnitFilterRegistry.php
+msgid "Amenities"
+msgstr "Servizi"
+
+#: includes/UnitFilters/UnitFilterShortcodeRenderer.php
+msgid "Apply filters"
+msgstr "Applica filtri"
+
+#: includes/UnitFilters/UnitFilterShortcodeRenderer.php
+msgid "Reset filters"
+msgstr "Reimposta filtri"
+
+#: includes/UnitFilters/UnitFilterShortcodeRenderer.php
+msgid "Any"
+msgstr "Qualsiasi"
+
+#: includes/UnitFilters/UnitFilterShortcodeRenderer.php
+msgid "Ascending"
+msgstr "Crescente"
+
+#: includes/UnitFilters/UnitFilterShortcodeRenderer.php
+msgid "Descending"
+msgstr "Decrescente"
+
+#: includes/Admin/AdminMenu.php
+#: includes/Admin/Settings/UnitFiltersPage.php
+msgid "Unit filters"
+msgstr "Filtri unità"
+
+#: includes/Admin/Settings/UnitFiltersPage.php
+msgid "Choose which amenities appear in the [bec_unit_filters] shortcode. Styling for the filter form is under Booking Engine → Styling."
+msgstr "Scegli quali servizi mostrare nello shortcode [bec_unit_filters]. Lo stile del modulo è in Booking Engine → Stile."
+
+#: includes/Admin/Settings/UnitFiltersPage.php
+msgid "Amenity index is still building in the background. Options may be incomplete until indexing finishes."
+msgstr "L’indice dei servizi è ancora in costruzione in background. Le opzioni potrebbero essere incomplete fino al termine."
+
+#: includes/Admin/Settings/UnitFiltersPage.php
+msgid "Search amenities"
+msgstr "Cerca servizi"
+
+#: includes/Admin/Settings/UnitFiltersPage.php
+msgid "Amenity"
+msgstr "Servizio"
+
+#: includes/Admin/Settings/UnitFiltersPage.php
+msgid "Category"
+msgstr "Categoria"
+
+#: includes/Admin/Settings/UnitFiltersPage.php
+msgid "Display label (optional)"
+msgstr "Etichetta visualizzata (opzionale)"
+
+#: includes/Admin/Settings/UnitFiltersPage.php
+msgid "No indexed amenities yet. Sync units from the booking engine first."
+msgstr "Nessun servizio indicizzato. Sincronizza prima le unità dal motore prenotazioni."
+
+#: includes/Admin/Settings/StylingPage.php
+msgid "Styles for [bec_unit_filters]. Enable which amenities appear under Booking Engine → Unit filters."
+msgstr "Stile per [bec_unit_filters]. Abilita i servizi in Booking Engine → Filtri unità."
+
+#: includes/Admin/Settings/StylingPage.php
+msgid "Unit filters — extra CSS"
+msgstr "Filtri unità — CSS aggiuntivo"
+
+#: includes/Admin/Settings/StylingPage.php
+msgid "Optional. Target .bec-unit-filters, .bec-unit-filters__field, .bec-unit-filters__checkboxes, .bec-unit-filters__actions."
+msgstr "Opzionale. Selettori .bec-unit-filters, .bec-unit-filters__field, .bec-unit-filters__checkboxes, .bec-unit-filters__actions."
+
+#: includes/Taxonomies/UnitAmenityTaxonomy.php
+msgctxt "taxonomy general name"
+msgid "Unit amenities"
+msgstr "Servizi unità"
+
+#: includes/Taxonomies/UnitAmenityTaxonomy.php
+msgctxt "taxonomy singular name"
+msgid "Unit amenity"
+msgstr "Servizio unità"

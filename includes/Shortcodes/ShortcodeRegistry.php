@@ -18,6 +18,7 @@ use BookingEngineConnector\Providers\ProviderRegistry;
 use BookingEngineConnector\Search\SearchForm;
 use BookingEngineConnector\Shortcodes\BookingSummary\BookingSummaryRenderer;
 use BookingEngineConnector\Sync\SyncPayloadEncoder;
+use BookingEngineConnector\UnitFilters\UnitFilterShortcodeRenderer;
 use BookingEngineConnector\Units\UnitGalleryPresenter;
 
 /**
@@ -41,6 +42,19 @@ final class ShortcodeRegistry
 		\add_shortcode('bec_unit_field', [self::class, 'renderUnitField']);
 		\add_shortcode('bec_unit_gallery', [self::class, 'renderUnitGallery']);
 		\add_shortcode('bec_booking_summary', [BookingSummaryRenderer::class, 'renderFromShortcode']);
+		\add_shortcode('bec_unit_filters', [self::class, 'renderUnitFilters']);
+	}
+
+	/**
+	 * Unit listing filters (rooms, bathrooms, amenities, sort) via GET query args.
+	 *
+	 * Attributes: filters, layout (inline|stacked), show_reset, amenities, amenities_limit, action.
+	 */
+	public static function renderUnitFilters($atts = []): string
+	{
+		$raw = \is_array($atts) ? $atts : [];
+
+		return UnitFilterShortcodeRenderer::render($raw);
 	}
 
 	public static function renderVersion(): string

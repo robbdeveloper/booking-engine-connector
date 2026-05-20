@@ -78,6 +78,8 @@ final class CoreUnitFieldRegistry
 			// before sanitize (breaks \" and \u0027 sequences).
 			update_post_meta($postId, $metaKey, $value);
 		}
+
+		\do_action('bec_core_unit_fields_applied', $postId, $data);
 	}
 
 	/**
@@ -660,5 +662,18 @@ final class CoreUnitFieldRegistry
 			// Let update_metadata wp_unslash + registered sanitize run once (see applyFromProviderRow).
 			update_post_meta($postId, $metaKey, $raw);
 		}
+
+		$data = [];
+		$amenitiesKey = CoreUnitMetaKeys::metaKeyForSemantic(CoreUnitSemantic::AMENITIES);
+		if ($amenitiesKey !== null) {
+			$stored = \get_post_meta($postId, $amenitiesKey, true);
+			if (\is_string($stored) && $stored !== '') {
+				$decoded = \json_decode($stored, true);
+				if (\is_array($decoded)) {
+					$data[ CoreUnitSemantic::AMENITIES ] = $decoded;
+				}
+			}
+		}
+		\do_action('bec_core_unit_fields_applied', $postId, $data);
 	}
 }
