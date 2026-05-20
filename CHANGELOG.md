@@ -1,5 +1,10 @@
 # Changelog
 
+## 0.1.32 — 2026-05-20
+
+- **Unit filters UI (`[bec_unit_filters]`)**: Progressive-enhancement pickers for all filter fields. **Amenities** — multi-select with checkbox list, chip/value trigger on desktop, mobile bottom sheet, Clear retained. **Order / rooms / bathrooms** — single-select popovers with the same desktop dropdown and mobile drawer (no Clear; use **Any** or **Reset filters**). New **`assets/public-unit-filters.js`**; styles in **`public.css`** wired to global BEC tokens (including hover/focus on submit, Done, triggers, and list rows).
+- **Amenities panel**: Search input removed.
+
 ## 0.1.31 — 2026-05-20
 
 - **Shortcodes (`[bec_unit_filters]`)**: GET filter form for unit listings — sort order, minimum rooms/bathrooms, and amenities. Preserves search context (`bec_checkin`, `bec_checkout`, guests, etc.). Attributes: `filters`, `layout` (`inline`|`stacked`), `show_reset`, `amenities` (`selected` or comma-separated keys), `amenities_limit`, `action`. Filters **`bec_unit_filter_definitions`**, **`bec_unit_filters_preserve_query_keys`**, **`bec_unit_filter_query_applied`**.

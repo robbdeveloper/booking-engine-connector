@@ -4,7 +4,7 @@ Tags: booking, kross, hospitality, availability
 Requires at least: 6.4
 Tested up to: 6.7
 Requires PHP: 8.0
-Stable tag: 0.1.31
+Stable tag: 0.1.32
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
@@ -39,6 +39,11 @@ Use the **`redirect_url`** attribute so the form posts (GET) to your results pag
 Place **`[bec_unit_filters]`** above your unit loop (or on the unit archive). The form submits filter GET parameters (`bec_filter_order`, `bec_filter_rooms_min`, `bec_filter_bathrooms_min`, `bec_filter_amenities[]`) and keeps current search params. Pair with an Elementor Loop Grid using Query ID **`bec_available_only`** or **`bec_filtered_units`**. Choose which amenities appear under **Booking Engine → Unit filters**; tune appearance under **Styling → Unit filters**.
 
 == Changelog ==
+
+= 0.1.32 =
+* **Unit filters UI**: Amenities multi-select with chip trigger on desktop, compact trigger and bottom drawer on mobile; order, rooms, and bathrooms use the same popover pattern (no Clear on single-select pickers).
+* **Assets**: New **`public-unit-filters.js`**; filter styles in **`public.css`** using global BEC styling tokens (hover/focus on buttons and field openers).
+* **Amenities**: Search box removed from the amenities panel.
 
 = 0.1.31 =
 * **Shortcodes (`[bec_unit_filters]`)**: Filter units by sort order, rooms, bathrooms, and amenities via sharable GET URLs; preserves search context. Elementor Query IDs **`bec_available_only`** / **`bec_filtered_units`**; native unit archive support.
