@@ -203,6 +203,15 @@
 	color: var(--bec-filters-color-muted, var(--bec-color-muted, #6b7280));
 }
 
+.bec-unit-filters--hide-labels .bec-unit-filters__field {
+	gap: 0;
+}
+
+.bec-unit-filters--hide-labels .bec-unit-filters__picker-trigger:not(.bec-unit-filters__picker-trigger--selected) .bec-unit-filters__picker-trigger-text,
+.bec-unit-filters--hide-labels .bec-unit-filters__amenities-trigger:not(.bec-unit-filters__amenities-trigger--has-selection) .bec-unit-filters__amenities-trigger-text {
+	color: var(--bec-filters-color-muted, var(--bec-color-muted, #6b7280));
+}
+
 .bec-unit-filters__control {
 	padding: var(--bec-field-padding-y, 0.65rem) var(--bec-field-padding-x, 0.9rem);
 	border: var(--bec-border-width, 1px) solid var(--bec-filters-border, var(--bec-color-border, #e0e0e0));
@@ -382,7 +391,8 @@
 }
 
 .bec-unit-filters__amenities-clear:hover,
-.bec-unit-filters__amenities-clear:focus-visible {
+.bec-unit-filters__amenities-clear:focus-visible,
+.bec-unit-filters__amenities-clear:focus {
 	background: var(--bec-color-surface, #f9fafb);
 	border-color: var(--bec-filters-border, var(--bec-color-border, #e0e0e0));
 	color: var(--bec-color-accent, var(--bec-color-primary, #000));

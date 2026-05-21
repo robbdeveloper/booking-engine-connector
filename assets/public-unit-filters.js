@@ -66,7 +66,10 @@
 		root.setAttribute('data-bec-amenities-init', '1');
 
 		var cfg = getL10n();
-		var placeholder = cfg.strAmenitiesPlaceholder || 'Pick desired amenities';
+		var placeholder =
+			root.getAttribute('data-bec-amenities-placeholder') ||
+			cfg.strAmenitiesPlaceholder ||
+			'Pick desired amenities';
 		var selectedOneFmt = cfg.strAmenitiesSelectedOne || '%d of %d selected';
 		var selectedManyFmt = cfg.strAmenitiesSelectedMany || '%d of %d selected';
 
@@ -115,8 +118,10 @@
 			var n = getChecked().length;
 			if (n === 0) {
 				triggerText.textContent = placeholder;
+				root.classList.remove('bec-unit-filters__amenities-trigger--has-selection');
 				return;
 			}
+			root.classList.add('bec-unit-filters__amenities-trigger--has-selection');
 			var fmt = n === 1 ? selectedOneFmt : selectedManyFmt;
 			triggerText.textContent = formatInts(fmt, [n, totalCount]);
 		}
@@ -286,6 +291,7 @@
 
 		var cfg = getL10n();
 		var anyLabel = cfg.strFilterAny || 'Any';
+		var fieldPlaceholder = root.getAttribute('data-bec-picker-placeholder') || '';
 
 		var nativeSelect = root.querySelector('[data-bec-picker-native]');
 		var trigger = root.querySelector('[data-bec-picker-trigger]');
@@ -341,6 +347,9 @@
 		}
 
 		function labelForValue(value) {
+			if (value === '' && fieldPlaceholder) {
+				return fieldPlaceholder;
+			}
 			var match = radios.find(function (r) {
 				return r.value === value;
 			});
@@ -374,6 +383,13 @@
 					valueBox.classList.remove('bec-unit-filters__picker-value--selected');
 				} else {
 					valueBox.classList.add('bec-unit-filters__picker-value--selected');
+				}
+			}
+			if (trigger) {
+				if (getSelectedValue() === '') {
+					trigger.classList.remove('bec-unit-filters__picker-trigger--selected');
+				} else {
+					trigger.classList.add('bec-unit-filters__picker-trigger--selected');
 				}
 			}
 		}

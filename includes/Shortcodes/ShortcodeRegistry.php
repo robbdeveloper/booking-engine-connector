@@ -48,7 +48,7 @@ final class ShortcodeRegistry
 	/**
 	 * Unit listing filters (rooms, bathrooms, amenities, sort) via GET query args.
 	 *
-	 * Attributes: filters, layout (inline|stacked), show_reset, amenities, amenities_limit, action.
+	 * Attributes: filters, layout (inline|stacked), show_reset, hide_labels, amenities, amenities_limit, action.
 	 */
 	public static function renderUnitFilters($atts = []): string
 	{

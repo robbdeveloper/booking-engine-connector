@@ -38,6 +38,8 @@ Use the **`redirect_url`** attribute so the form posts (GET) to your results pag
 
 Place **`[bec_unit_filters]`** above your unit loop (or on the unit archive). The form submits filter GET parameters (`bec_filter_order`, `bec_filter_rooms_min`, `bec_filter_bathrooms_min`, `bec_filter_amenities[]`) and keeps current search params. Pair with an Elementor Loop Grid using Query ID **`bec_available_only`** or **`bec_filtered_units`**. Choose which amenities appear under **Booking Engine → Unit filters**; tune appearance under **Styling → Unit filters**.
 
+Shortcode attributes include **`layout`** (`inline` or `stacked`), **`show_reset`**, **`hide_labels`** (default `1`: labels hidden, filter name shown inside each control until a value is chosen; set `hide_labels="0"` to show labels above fields), **`filters`**, **`amenities`**, **`amenities_limit`**, and **`action`**.
+
 == Changelog ==
 
 = 0.1.32 =

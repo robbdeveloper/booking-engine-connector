@@ -16,6 +16,8 @@ final class UnitFilterShortcodeRenderer
 
 	private static int $pickerInstanceCount = 0;
 
+	private static bool $hideLabels = false;
+
 	/**
 	 * @param array<string, string> $atts
 	 */
@@ -29,6 +31,7 @@ final class UnitFilterShortcodeRenderer
 				'amenities'       => 'selected',
 				'amenities_limit' => '0',
 				'action'          => '',
+				'hide_labels'     => '1',
 			],
 			$atts,
 			'bec_unit_filters'
@@ -50,13 +53,17 @@ final class UnitFilterShortcodeRenderer
 			$layout = 'inline';
 		}
 
-		$showReset = self::isTruthy((string) $a['show_reset']);
-		$action    = self::resolveFormAction((string) $a['action']);
+		$showReset    = self::isTruthy((string) $a['show_reset']);
+		$action       = self::resolveFormAction((string) $a['action']);
 		$amenityLimit = \max(0, (int) $a['amenities_limit']);
+		self::$hideLabels = self::isTruthy((string) $a['hide_labels']);
 
 		\ob_start();
 
 		$classes = 'bec-unit-filters bec-unit-filters--' . $layout;
+		if (self::$hideLabels) {
+			$classes .= ' bec-unit-filters--hide-labels';
+		}
 		echo '<form class="' . \esc_attr($classes) . '" method="get" action="' . \esc_url($action) . '">';
 
 		self::renderPreservedHiddenFields($request);
@@ -297,16 +304,19 @@ final class UnitFilterShortcodeRenderer
 			\sprintf(\__('Close %s picker', 'booking-engine-connector'), $labelText)
 		);
 
-		$displayLabel = $anyLabel;
-		foreach ($options as $opt) {
-			if ($opt['value'] === $currentValue) {
-				$displayLabel = $opt['label'];
-				break;
-			}
+		$displayLabel = self::pickerDisplayLabel($labelText, $currentValue, $options, $anyLabel);
+		$labelClass   = 'bec-unit-filters__label';
+		if (self::$hideLabels) {
+			$labelClass .= ' screen-reader-text';
 		}
 
-		echo '<div class="bec-unit-filters__field bec-unit-filters__field--' . \esc_attr($fieldSlug) . ' bec-unit-filters__picker" data-bec-select-root>';
-		echo '<label class="bec-unit-filters__label" id="' . \esc_attr($labelId) . '" for="' . \esc_attr($selectId) . '">';
+		echo '<div class="bec-unit-filters__field bec-unit-filters__field--' . \esc_attr($fieldSlug) . ' bec-unit-filters__picker" data-bec-select-root';
+		if (self::$hideLabels) {
+			echo ' data-bec-picker-placeholder="' . \esc_attr($labelText) . '"';
+		}
+		echo '>';
+
+		echo '<label class="' . \esc_attr($labelClass) . '" id="' . \esc_attr($labelId) . '" for="' . \esc_attr($selectId) . '">';
 		echo \esc_html($labelText);
 		echo '</label>';
 
@@ -314,8 +324,12 @@ final class UnitFilterShortcodeRenderer
 
 		echo '<select class="bec-unit-filters__control bec-unit-filters__picker-native" name="' . \esc_attr($paramName) . '" id="' . \esc_attr($selectId) . '" data-bec-picker-native>';
 		foreach ($options as $opt) {
+			$optionLabel = $opt['label'];
+			if (self::$hideLabels && $opt['value'] === '') {
+				$optionLabel = $labelText;
+			}
 			echo '<option value="' . \esc_attr($opt['value']) . '" ' . \selected($currentValue, $opt['value'], false) . '>';
-			echo \esc_html($opt['label']);
+			echo \esc_html($optionLabel);
 			echo '</option>';
 		}
 		echo '</select>';
@@ -413,11 +427,21 @@ final class UnitFilterShortcodeRenderer
 				\count($choices)
 			);
 		} else {
-			$triggerLabelRaw = $placeholderRaw;
+			$triggerLabelRaw = self::$hideLabels ? $amenitiesLabelRaw : $placeholderRaw;
 		}
 
-		echo '<fieldset class="bec-unit-filters__field bec-unit-filters__field--amenities" data-bec-amenities-root aria-labelledby="' . \esc_attr($legendId) . '">';
-		echo '<legend class="bec-unit-filters__label" id="' . \esc_attr($legendId) . '">' . \esc_html($amenitiesLabelRaw) . '</legend>';
+		$legendClass = 'bec-unit-filters__label';
+		if (self::$hideLabels) {
+			$legendClass .= ' screen-reader-text';
+		}
+
+		echo '<fieldset class="bec-unit-filters__field bec-unit-filters__field--amenities" data-bec-amenities-root aria-labelledby="' . \esc_attr($legendId) . '"';
+		if (self::$hideLabels) {
+			echo ' data-bec-amenities-placeholder="' . \esc_attr($amenitiesLabelRaw) . '"';
+		}
+		echo '>';
+
+		echo '<legend class="' . \esc_attr($legendClass) . '" id="' . \esc_attr($legendId) . '">' . \esc_html($amenitiesLabelRaw) . '</legend>';
 
 		echo '<div class="bec-unit-filters__amenities">';
 
@@ -523,6 +547,28 @@ final class UnitFilterShortcodeRenderer
 		}
 
 		return $out;
+	}
+
+	/**
+	 * @param list<array{value: string, label: string}> $options
+	 */
+	private static function pickerDisplayLabel(
+		string $fieldLabel,
+		string $currentValue,
+		array $options,
+		string $anyLabel
+	): string {
+		if ($currentValue === '' && self::$hideLabels) {
+			return $fieldLabel;
+		}
+
+		foreach ($options as $opt) {
+			if ($opt['value'] === $currentValue) {
+				return $opt['label'];
+			}
+		}
+
+		return $anyLabel;
 	}
 
 	private static function labelForAmenityKey(string $key): string
