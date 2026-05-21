@@ -127,8 +127,6 @@ final class PublicAssets
 				2,
 				'booking-engine-connector'
 			),
-			/* translators: %s amenity label to remove from the multi-select chip (e.g. "Free Wi-Fi"). */
-			'strAmenitiesRemove'      => \__('Remove %s', 'booking-engine-connector'),
 		];
 
 		/**

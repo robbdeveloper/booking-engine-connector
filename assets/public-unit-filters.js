@@ -5,7 +5,7 @@
  * `UnitFilterShortcodeRenderer::renderAmenitiesField()`. Real `<input type="checkbox">`
  * controls are kept under the panel so GET filtering and no-JS fallback remain intact.
  *
- * Amenities — desktop: chips open the dropdown (no backdrop); mobile: trigger + bottom sheet.
+ * Amenities — desktop: trigger opens popover (no backdrop); mobile: trigger + bottom sheet.
  * Order / rooms / bathrooms — desktop: value box opens dropdown; mobile: trigger + bottom sheet.
  */
 (function () {
@@ -69,15 +69,11 @@
 		var placeholder = cfg.strAmenitiesPlaceholder || 'Pick desired amenities';
 		var selectedOneFmt = cfg.strAmenitiesSelectedOne || '%d of %d selected';
 		var selectedManyFmt = cfg.strAmenitiesSelectedMany || '%d of %d selected';
-		var removeAriaFmt = cfg.strAmenitiesRemove || 'Remove %s';
 
 		var trigger = root.querySelector('[data-bec-amenities-trigger]');
 		var triggerText = root.querySelector('[data-bec-amenities-trigger-text]');
 		var panel = root.querySelector('[data-bec-amenities-panel]');
 		var backdrop = root.querySelector('[data-bec-amenities-backdrop]');
-		var chipsOuter = root.querySelector('[data-bec-amenities-chips]');
-		var chipsPlaceholder = root.querySelector('[data-bec-amenities-chips-placeholder]');
-		var chipsPanel = root.querySelector('[data-bec-amenities-panel-chips]');
 		var list = root.querySelector('[data-bec-amenities-list]');
 		var clearBtn = root.querySelector('[data-bec-amenities-clear]');
 		var doneBtn = root.querySelector('[data-bec-amenities-done]');
@@ -98,29 +94,12 @@
 
 		root.classList.add(READY_CLASS);
 
-		function getOpeners() {
-			/** @type {HTMLElement[]} */
-			var openers = [trigger];
-			if (chipsOuter) {
-				openers.push(chipsOuter);
-			}
-			return openers;
-		}
-
 		function setExpanded(expanded) {
-			getOpeners().forEach(function (el) {
-				el.setAttribute('aria-expanded', expanded ? 'true' : 'false');
-			});
+			trigger.setAttribute('aria-expanded', expanded ? 'true' : 'false');
 		}
 
 		function focusOpener() {
-			if (isMobile(mqSheet)) {
-				trigger.focus();
-			} else if (chipsOuter) {
-				chipsOuter.focus();
-			} else {
-				trigger.focus();
-			}
+			trigger.focus();
 		}
 
 		function getChecked() {
@@ -142,109 +121,8 @@
 			triggerText.textContent = formatInts(fmt, [n, totalCount]);
 		}
 
-		/**
-		 * @param {HTMLElement} mount
-		 * @param {boolean}     inPanel
-		 */
-		function renderChips(mount, inPanel) {
-			if (!mount) {
-				return;
-			}
-
-			var placeholderEl = inPanel
-				? null
-				: mount.querySelector('[data-bec-amenities-chips-placeholder]');
-			var caretEl = inPanel ? null : mount.querySelector('.bec-unit-filters__amenities-chips-caret');
-
-			Array.prototype.slice
-				.call(mount.querySelectorAll('.bec-unit-filters__amenities-chip'))
-				.forEach(function (chip) {
-					chip.parentNode.removeChild(chip);
-				});
-
-			var checked = getChecked();
-
-			if (!inPanel && placeholderEl) {
-				if (checked.length === 0) {
-					placeholderEl.textContent = placeholder;
-					placeholderEl.removeAttribute('hidden');
-					mount.classList.remove('bec-unit-filters__amenities-chips--has-selection');
-				} else {
-					placeholderEl.setAttribute('hidden', '');
-					mount.classList.add('bec-unit-filters__amenities-chips--has-selection');
-				}
-			}
-
-			if (checked.length === 0) {
-				if (inPanel) {
-					mount.setAttribute('hidden', '');
-				}
-				return;
-			}
-
-			if (inPanel) {
-				mount.removeAttribute('hidden');
-			}
-
-			checked.forEach(function (cb) {
-				var label = cb.getAttribute('data-label') || cb.value || '';
-				var chip = document.createElement('span');
-				chip.className =
-					'bec-unit-filters__amenities-chip' +
-					(inPanel ? ' bec-unit-filters__amenities-chip--panel' : '');
-
-				var text = document.createElement('span');
-				text.className = 'bec-unit-filters__amenities-chip-text';
-				text.textContent = label;
-				chip.appendChild(text);
-
-				var remove = document.createElement('button');
-				remove.type = 'button';
-				remove.className = 'bec-unit-filters__amenities-chip-remove';
-				remove.setAttribute(
-					'aria-label',
-					removeAriaFmt.indexOf('%s') >= 0
-						? formatString(removeAriaFmt, label)
-						: 'Remove ' + label
-				);
-				remove.innerHTML = '<span aria-hidden="true">&times;</span>';
-				remove.addEventListener('click', function (ev) {
-					ev.preventDefault();
-					ev.stopPropagation();
-					cb.checked = false;
-					syncUi();
-				});
-				chip.appendChild(remove);
-
-				if (caretEl) {
-					mount.insertBefore(chip, caretEl);
-				} else {
-					mount.appendChild(chip);
-				}
-			});
-		}
-
 		function syncUi() {
 			updateTriggerLabel();
-			if (!isMobile(mqSheet)) {
-				renderChips(chipsOuter, false);
-			} else if (chipsOuter) {
-				Array.prototype.slice
-					.call(chipsOuter.querySelectorAll('.bec-unit-filters__amenities-chip'))
-					.forEach(function (chip) {
-						chip.parentNode.removeChild(chip);
-					});
-				if (chipsPlaceholder) {
-					chipsPlaceholder.setAttribute('hidden', '');
-				}
-				chipsOuter.classList.remove('bec-unit-filters__amenities-chips--has-selection');
-			}
-			if (chipsPanel) {
-				chipsPanel.setAttribute('hidden', '');
-				while (chipsPanel.firstChild) {
-					chipsPanel.removeChild(chipsPanel.firstChild);
-				}
-			}
 		}
 
 		function setBodyScrollLock(lock) {
@@ -302,34 +180,6 @@
 			ev.preventDefault();
 			togglePanel();
 		});
-
-		if (chipsOuter) {
-			chipsOuter.addEventListener('click', function (ev) {
-				if (isMobile(mqSheet)) {
-					return;
-				}
-				var t = ev.target;
-				if (
-					t instanceof HTMLElement &&
-					(t.closest('.bec-unit-filters__amenities-chip-remove') ||
-						t.closest('.bec-unit-filters__amenities-chip'))
-				) {
-					return;
-				}
-				ev.preventDefault();
-				togglePanel();
-			});
-
-			chipsOuter.addEventListener('keydown', function (ev) {
-				if (isMobile(mqSheet)) {
-					return;
-				}
-				if (ev.key === 'Enter' || ev.key === ' ') {
-					ev.preventDefault();
-					togglePanel();
-				}
-			});
-		}
 
 		if (backdrop) {
 			backdrop.addEventListener('click', function () {
@@ -414,7 +264,6 @@
 				setBackdropVisible(false);
 				setBodyScrollLock(false);
 			}
-			syncUi();
 		}
 
 		if (typeof mqSheet.addEventListener === 'function') {

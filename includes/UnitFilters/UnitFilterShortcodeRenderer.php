@@ -375,7 +375,7 @@ final class UnitFilterShortcodeRenderer
 
 	/**
 	 * Renders the amenities facet as real checkboxes wrapped in enhancement-friendly markup:
-	 * a trigger button + selected chips + dropdown / mobile bottom sheet driven by
+	 * a trigger button + desktop popover / mobile bottom sheet driven by
 	 * `assets/public-unit-filters.js`. No-JS clients still see and submit the bare checkbox list.
 	 *
 	 * @param list<array{key: string, label: string}> $choices
@@ -430,14 +430,6 @@ final class UnitFilterShortcodeRenderer
 		echo '<span class="bec-unit-filters__amenities-trigger-caret" aria-hidden="true"></span>';
 		echo '</button>';
 
-		echo '<div class="bec-unit-filters__amenities-chips" data-bec-amenities-chips data-bec-amenities-chips-trigger ';
-		echo 'role="button" tabindex="0" aria-haspopup="dialog" aria-expanded="false" aria-controls="' . \esc_attr($panelId) . '">';
-		echo '<span class="bec-unit-filters__amenities-chips-placeholder" data-bec-amenities-chips-placeholder>';
-		echo \esc_html($placeholderRaw);
-		echo '</span>';
-		echo '<span class="bec-unit-filters__amenities-chips-caret" aria-hidden="true"></span>';
-		echo '</div>';
-
 		echo '<div class="bec-unit-filters__amenities-backdrop" data-bec-amenities-backdrop hidden></div>';
 
 		echo '<div class="bec-unit-filters__amenities-panel" id="' . \esc_attr($panelId) . '" data-bec-amenities-panel role="dialog" aria-modal="false" aria-labelledby="' . \esc_attr($legendId) . '">';
@@ -449,8 +441,6 @@ final class UnitFilterShortcodeRenderer
 		echo '<span aria-hidden="true">&times;</span>';
 		echo '</button>';
 		echo '</div>';
-
-		echo '<div class="bec-unit-filters__amenities-panel-chips" data-bec-amenities-panel-chips' . ($selectedCount === 0 ? ' hidden' : '') . '></div>';
 
 		echo '<ul class="bec-unit-filters__amenities-list" data-bec-amenities-list role="listbox" aria-multiselectable="true">';
 		foreach ($choices as $choice) {
