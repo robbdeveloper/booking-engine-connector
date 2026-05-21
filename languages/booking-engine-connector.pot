@@ -2,7 +2,7 @@
 # This file is distributed under the GPL-2.0-or-later.
 msgid ""
 msgstr ""
-"Project-Id-Version: Booking Engine Connector 0.1.34\n"
+"Project-Id-Version: Booking Engine Connector 0.1.35\n"
 "Report-Msgid-Bugs-To: https://wordpress.org/support/plugin/booking-engine-connector\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -1666,6 +1666,14 @@ msgid "Longitude"
 msgstr ""
 
 #: includes/Units/CoreUnitMetaKeys.php:40
+msgid "Coordinates (lat, lng)"
+msgstr ""
+
+#: includes/Sync/CoreUnitFieldRegistry.php:475
+msgid "Derived from latitude and longitude on sync or save."
+msgstr ""
+
+#: includes/Units/CoreUnitMetaKeys.php:45
 msgid "Min. guests"
 msgstr ""
 

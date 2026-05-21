@@ -4,7 +4,7 @@ Tags: booking, kross, hospitality, availability
 Requires at least: 6.4
 Tested up to: 6.7
 Requires PHP: 8.0
-Stable tag: 0.1.34
+Stable tag: 0.1.35
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
@@ -49,6 +49,10 @@ Use **`[bec_available_units_count]`** anywhere on the results page (above an Ele
 Examples: **`[bec_available_units_count]`** (number only), **`[bec_available_units_count format="text"]`** (default “%d available units” copy), **`[bec_available_units_count hide_without_search="1"]`** (empty until search params are complete), **`[bec_available_units_count zero_text="No units found"]`**. Custom text: **`singular`** / **`plural`** with **`%d`**, optional **`class`** for styling.
 
 == Changelog ==
+
+= 0.1.35 =
+* **Units (core fields)**: Derived **`bec_core_lat_lng`** stores latitude and longitude as a comma-separated pair (`lat,lng`); updated on sync and when core fields are saved. Read-only in the unit admin meta box.
+* **Search (`[bec_search]`)**: **`popover_placement`** attribute (`auto`, `top`, `bottom`) controls where date and guest popovers open on desktop/tablet; filter **`bec_search_form_popover_placement`**.
 
 = 0.1.34 =
 * **Shortcodes (`[bec_unit_info key="amenities_grid"]`)**: New **`columns_mobile`** attribute (1–6, default `1`) for grid layout below 640px; desktop still uses **`columns`** (default `2`).

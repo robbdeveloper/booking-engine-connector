@@ -1,5 +1,11 @@
 # Changelog
 
+## 0.1.35 — 2026-05-21
+
+- **Units (core fields)**: Derived **`bec_core_lat_lng`** (`CoreUnitSemantic::LAT_LNG`) combines **`bec_core_lat`** and **`bec_core_lng`** as `lat,lng` on provider sync and admin save; read-only in the unit meta box.
+- **Search (`[bec_search]`)**: **`popover_placement`** attribute (`auto`, `top`, `bottom`) and filter **`bec_search_form_popover_placement`**; enhanced layout passes **`data-bec-popover-placement`** to **`public-search.js`** for desktop popover positioning.
+- **i18n**: POT / Italian updates for coordinates field strings.
+
 ## 0.1.34 — 2026-05-21
 
 - **Shortcodes (`[bec_unit_info key="amenities_grid"]`)**: New **`columns_mobile`** pass-through attribute (1–6, default `1`) sets grid columns below 640px; desktop layout still uses **`columns`** (default `2`). CSS variable **`--bec-amenities-cols-mobile`** in **`assets/public-amenities-kross.css`**.
