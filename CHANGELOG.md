@@ -1,5 +1,10 @@
 # Changelog
 
+## 0.1.33 — 2026-05-21
+
+- **Shortcodes (`[bec_available_units_count]`)**: Display the number of units matching current unit filters and (when search context is complete) provider availability—works on Elementor results pages, unit archives, and regular pages without relying on Loop Grid render order. Attributes: `format` (`number`|`text`), `hide_without_search`, `singular` / `plural` with `%d`, `zero_text`, `class`.
+- **Unit listings**: Shared **`UnitListingAvailability`** and **`UnitResultCountService`** helpers for Elementor availability filtering and the count shortcode (per-request caching).
+
 ## 0.1.32 — 2026-05-20
 
 - **Unit filters UI (`[bec_unit_filters]`)**: Progressive-enhancement pickers for all filter fields. **Amenities** — multi-select with checkbox list, chip/value trigger on desktop, mobile bottom sheet, Clear retained. **Order / rooms / bathrooms** — single-select popovers with the same desktop dropdown and mobile drawer (no Clear; use **Any** or **Reset filters**). New **`assets/public-unit-filters.js`**; styles in **`public.css`** wired to global BEC tokens (including hover/focus on submit, Done, triggers, and list rows).
