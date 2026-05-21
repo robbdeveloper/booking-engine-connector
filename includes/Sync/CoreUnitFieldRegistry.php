@@ -53,6 +53,10 @@ final class CoreUnitFieldRegistry
 		}
 
 		foreach (CoreUnitSemantic::all() as $sem) {
+			if ($sem === CoreUnitSemantic::LAT_LNG) {
+				continue;
+			}
+
 			if (! array_key_exists($sem, $data)) {
 				continue;
 			}
@@ -78,6 +82,8 @@ final class CoreUnitFieldRegistry
 			// before sanitize (breaks \" and \u0027 sequences).
 			update_post_meta($postId, $metaKey, $value);
 		}
+
+		self::syncLatLngCombined($postId);
 
 		\do_action('bec_core_unit_fields_applied', $postId, $data);
 	}
@@ -278,6 +284,7 @@ final class CoreUnitFieldRegistry
 	public static function sanitizeValue(string $type, $value)
 	{
 		switch ($type) {
+			case 'readonly':
 			case 'string':
 				if ($value === null) {
 					return '';
@@ -461,6 +468,13 @@ final class CoreUnitFieldRegistry
 					break;
 				case 'gallery_json':
 					self::renderGalleryField($post, $metaKey, $name, $val);
+					break;
+				case 'readonly':
+					echo '<input type="text" class="large-text" id="bec_core_' . esc_attr($metaKey) . '" value="' . esc_attr(is_scalar($val) ? (string) $val : '') . '" readonly="readonly" />';
+					echo '<p class="description">' . esc_html__(
+						'Derived from latitude and longitude on sync or save.',
+						'booking-engine-connector'
+					) . '</p>';
 					break;
 				case 'number':
 				case 'bathrooms':
@@ -663,6 +677,8 @@ final class CoreUnitFieldRegistry
 			update_post_meta($postId, $metaKey, $raw);
 		}
 
+		self::syncLatLngCombined($postId);
+
 		$data = [];
 		$amenitiesKey = CoreUnitMetaKeys::metaKeyForSemantic(CoreUnitSemantic::AMENITIES);
 		if ($amenitiesKey !== null) {
@@ -675,5 +691,19 @@ final class CoreUnitFieldRegistry
 			}
 		}
 		\do_action('bec_core_unit_fields_applied', $postId, $data);
+	}
+
+	private static function syncLatLngCombined(int $postId): void
+	{
+		$latKey      = CoreUnitMetaKeys::metaKeyForSemantic(CoreUnitSemantic::LAT);
+		$lngKey      = CoreUnitMetaKeys::metaKeyForSemantic(CoreUnitSemantic::LNG);
+		$combinedKey = CoreUnitMetaKeys::metaKeyForSemantic(CoreUnitSemantic::LAT_LNG);
+		if ($latKey === null || $lngKey === null || $combinedKey === null) {
+			return;
+		}
+
+		$lat = \trim((string) \get_post_meta($postId, $latKey, true));
+		$lng = \trim((string) \get_post_meta($postId, $lngKey, true));
+		\update_post_meta($postId, $combinedKey, CoreUnitMetaKeys::buildLatLngCombined($lat, $lng));
 	}
 }

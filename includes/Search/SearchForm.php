@@ -16,6 +16,10 @@ use BookingEngineConnector\Styling\StylingSettings;
  */
 final class SearchForm
 {
+	public const POPOVER_PLACEMENT_AUTO   = 'auto';
+	public const POPOVER_PLACEMENT_TOP    = 'top';
+	public const POPOVER_PLACEMENT_BOTTOM = 'bottom';
+
 	/**
 	 * @param array{
 	 *   context?: string,
@@ -23,6 +27,7 @@ final class SearchForm
 	 *   form_id?: string,
 	 *   html_class?: string,
 	 *   show_submit?: bool,
+	 *   popover_placement?: string,
 	 * } $args
 	 */
 	public static function render(array $args = []): void
@@ -140,6 +145,18 @@ final class SearchForm
 		$useEnhanced = $preset === StylingSettings::SEARCH_PRESET_ENHANCED;
 		$useEnhanced = (bool) \apply_filters('bec_search_form_use_enhanced_layout', $useEnhanced, $context, $ctx);
 
+		$popoverPlacement = self::POPOVER_PLACEMENT_AUTO;
+		if (isset($args['popover_placement'])) {
+			$popoverPlacement = self::normalizePopoverPlacement((string) $args['popover_placement']);
+		}
+		$popoverPlacement = (string) \apply_filters(
+			'bec_search_form_popover_placement',
+			$popoverPlacement,
+			$context,
+			$ctx
+		);
+		$popoverPlacement = self::normalizePopoverPlacement($popoverPlacement);
+
 		if ($useEnhanced) {
 			self::renderEnhanced(
 				$formId,
@@ -154,7 +171,8 @@ final class SearchForm
 				$adults,
 				$children,
 				$guestFieldMode,
-				$showSubmit
+				$showSubmit,
+				$popoverPlacement
 			);
 
 			return;
@@ -259,8 +277,11 @@ final class SearchForm
 		string $adults,
 		string $children,
 		string $guestFieldMode,
-		bool $showSubmit = true
+		bool $showSubmit = true,
+		string $popoverPlacement = self::POPOVER_PLACEMENT_AUTO
 	): void {
+		$popoverPlacement = self::normalizePopoverPlacement($popoverPlacement);
+
 		$labelCheckin  = isset($fields[SearchContext::PARAM_CHECKIN]['label'])
 			? (string) $fields[SearchContext::PARAM_CHECKIN]['label']
 			: \__('Check-in', 'booking-engine-connector');
@@ -302,7 +323,7 @@ final class SearchForm
 		$guestsLbl = \esc_attr(\__('Guests', 'booking-engine-connector'));
 
 		echo '<div class="' . \esc_attr($htmlClass) . '-wrap ' . \esc_attr($htmlClass) . '-wrap--enhanced">';
-		echo '<form class="' . \esc_attr($htmlClass) . ' ' . \esc_attr($htmlClass) . '--enhanced" id="' . \esc_attr($formId) . '" method="get" action="' . \esc_url($action) . '" data-bec-guest-mode="' . \esc_attr($guestFieldMode) . '">';
+		echo '<form class="' . \esc_attr($htmlClass) . ' ' . \esc_attr($htmlClass) . '--enhanced" id="' . \esc_attr($formId) . '" method="get" action="' . \esc_url($action) . '" data-bec-guest-mode="' . \esc_attr($guestFieldMode) . '" data-bec-popover-placement="' . \esc_attr($popoverPlacement) . '">';
 
 		if ($error instanceof \WP_Error) {
 			echo '<p class="bec-search-form__error" role="alert">' . \esc_html($error->get_error_message()) . '</p>';
@@ -414,5 +435,20 @@ final class SearchForm
 		echo '</form>';
 		echo '<div class="bec-search-form__backdrop" hidden aria-hidden="true"></div>';
 		echo '</div>';
+	}
+
+	/**
+	 * @return self::POPOVER_PLACEMENT_*
+	 */
+	public static function normalizePopoverPlacement(string $raw): string
+	{
+		$raw = \sanitize_key(\strtolower(\trim($raw)));
+		$allowed = [
+			self::POPOVER_PLACEMENT_AUTO,
+			self::POPOVER_PLACEMENT_TOP,
+			self::POPOVER_PLACEMENT_BOTTOM,
+		];
+
+		return \in_array($raw, $allowed, true) ? $raw : self::POPOVER_PLACEMENT_AUTO;
 	}
 }

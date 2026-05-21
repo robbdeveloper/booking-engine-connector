@@ -34,6 +34,8 @@ Search context uses **GET query parameters** prefixed with `bec_` (e.g. check-in
 
 Use the **`redirect_url`** attribute so the form posts (GET) to your results page, e.g. `[bec_search redirect_url="/availability-results/"]`. The same **`bec_*`** query parameters are appended. If **`redirect_url`** is omitted, submissions go to the **units archive** (or **`home_url`** if the archive link is unavailable).
 
+Use **`popover_placement`** to control where the date and guest popovers open relative to the search field on desktop/tablet: **`auto`** (default — opens below and flips above when there is not enough space), **`top`**, or **`bottom`**. On mobile, popovers still use the bottom sheet layout. Example: `[bec_search popover_placement="top"]`. You can also pass **`popover_placement`** to **`SearchForm::render()`** or filter **`bec_search_form_popover_placement`**.
+
 = How do I filter units on a listing page? =
 
 Place **`[bec_unit_filters]`** above your unit loop (or on the unit archive). The form submits filter GET parameters (`bec_filter_order`, `bec_filter_rooms_min`, `bec_filter_bathrooms_min`, `bec_filter_amenities[]`) and keeps current search params. Pair with an Elementor Loop Grid using Query ID **`bec_available_only`** or **`bec_filtered_units`**. Choose which amenities appear under **Booking Engine → Unit filters**; tune appearance under **Styling → Unit filters**.

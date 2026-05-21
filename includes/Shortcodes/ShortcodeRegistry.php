@@ -81,9 +81,10 @@ final class ShortcodeRegistry
 	{
 		$a = \shortcode_atts(
 			[
-				'context'      => 'shortcode',
-				'form_id'      => 'bec-search-form-sc',
-				'redirect_url' => '',
+				'context'           => 'shortcode',
+				'form_id'           => 'bec-search-form-sc',
+				'redirect_url'      => '',
+				'popover_placement' => SearchForm::POPOVER_PLACEMENT_AUTO,
 			],
 			\is_array($atts) ? $atts : [],
 			'bec_search'
@@ -98,9 +99,10 @@ final class ShortcodeRegistry
 		\ob_start();
 		SearchForm::render(
 			[
-				'context' => (string) $a['context'],
-				'form_id' => (string) $a['form_id'],
-				'action'  => $action,
+				'context'           => (string) $a['context'],
+				'form_id'           => (string) $a['form_id'],
+				'action'            => $action,
+				'popover_placement' => (string) $a['popover_placement'],
 			]
 		);
 

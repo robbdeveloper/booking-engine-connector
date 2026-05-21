@@ -19,6 +19,9 @@ final class CoreUnitSemantic
 
 	public const LNG = 'lng';
 
+	/** Comma-separated latitude and longitude (`lat,lng`) for maps and deep links. */
+	public const LAT_LNG = 'lat_lng';
+
 	public const OCC_MIN = 'occ_min';
 
 	public const OCC_MAX = 'occ_max';
@@ -65,6 +68,7 @@ final class CoreUnitSemantic
 			self::ADDRESS_FULL,
 			self::LAT,
 			self::LNG,
+			self::LAT_LNG,
 			self::OCC_MIN,
 			self::OCC_MAX,
 			self::CHECK_IN_FROM,
