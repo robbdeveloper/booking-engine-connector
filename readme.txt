@@ -4,7 +4,7 @@ Tags: booking, kross, hospitality, availability
 Requires at least: 6.4
 Tested up to: 6.7
 Requires PHP: 8.0
-Stable tag: 0.1.33
+Stable tag: 0.1.34
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
@@ -47,6 +47,13 @@ Use **`[bec_available_units_count]`** anywhere on the results page (above an Ele
 Examples: **`[bec_available_units_count]`** (number only), **`[bec_available_units_count format="text"]`** (default “%d available units” copy), **`[bec_available_units_count hide_without_search="1"]`** (empty until search params are complete), **`[bec_available_units_count zero_text="No units found"]`**. Custom text: **`singular`** / **`plural`** with **`%d`**, optional **`class`** for styling.
 
 == Changelog ==
+
+= 0.1.34 =
+* **Shortcodes (`[bec_unit_info key="amenities_grid"]`)**: New **`columns_mobile`** attribute (1–6, default `1`) for grid layout below 640px; desktop still uses **`columns`** (default `2`).
+* **Shortcodes (`[bec_unit_info key="bedroom_arrangements"]`)**: Section title hidden by default; set **`show_title="1"`** to show it.
+* **Shortcodes (`[bec_dates]`)**: Default display uses long date preset and “from … to …” label style (override with **`preset`** / **`label_style`**).
+* **Shortcodes (`[bec_quote]`)**: Default price formatting uses currency symbol after the amount and EU number style; rate list hidden unless **`show_rates="always"`** or **`show_rates="auto"`**.
+* **Booking summary**: Improved rate-select styling (background, spacing, typography).
 
 = 0.1.33 =
 * **Shortcodes (`[bec_available_units_count]`)**: Display the number of units matching current unit filters and (when search context is complete) provider availability—works on Elementor results pages, unit archives, and regular pages without relying on Loop Grid render order.

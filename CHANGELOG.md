@@ -1,5 +1,13 @@
 # Changelog
 
+## 0.1.34 — 2026-05-21
+
+- **Shortcodes (`[bec_unit_info key="amenities_grid"]`)**: New **`columns_mobile`** pass-through attribute (1–6, default `1`) sets grid columns below 640px; desktop layout still uses **`columns`** (default `2`). CSS variable **`--bec-amenities-cols-mobile`** in **`assets/public-amenities-kross.css`**.
+- **Shortcodes (`[bec_unit_info key="bedroom_arrangements"]`)**: Section title hidden by default; pass **`show_title="1"`** to display it (previously shown unless **`show_title="0"`**).
+- **Shortcodes (`[bec_dates]`)**: Built-in defaults changed to **`preset="long"`** and **`label_style="from_to"`** (was ISO dates with arrow).
+- **Shortcodes (`[bec_quote]`)**: Built-in defaults changed to currency **symbol** after amount, **`number_style="eu"`**, and **`show_rates="never"`**; multi-rate list only when **`show_rates="always"`** or legacy **`show_rates="auto"`**.
+- **Booking summary**: Rate-select control styling tweaks in **`assets/styling/booking-summary-default.css`**.
+
 ## 0.1.33 — 2026-05-21
 
 - **Shortcodes (`[bec_available_units_count]`)**: Display the number of units matching current unit filters and (when search context is complete) provider availability—works on Elementor results pages, unit archives, and regular pages without relying on Loop Grid render order. Attributes: `format` (`number`|`text`), `hide_without_search`, `singular` / `plural` with `%d`, `zero_text`, `class`.

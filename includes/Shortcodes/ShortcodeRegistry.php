@@ -184,8 +184,8 @@ final class ShortcodeRegistry
 	private static function datesFormatOptionsFromAtts(array $a): array
 	{
 		$builtin = [
-			'preset'      => 'iso',
-			'label_style' => 'arrow',
+			'preset'      => 'long',
+			'label_style' => 'from_to',
 		];
 
 		/** @var array<string, mixed> $filtered */
@@ -257,16 +257,17 @@ final class ShortcodeRegistry
 	/**
 	 * Quote shortcode: price for the current search context on a unit.
 	 *
-	 * Attributes: unit_id, show_rates (auto|always|never),
+	 * Attributes: unit_id, show_rates (never default|always|auto),
 	 * currency_display (code|symbol), currency_position (before|after),
 	 * decimals (0–4), decimal_sep, thousands_sep, number_style (locale|eu|us).
+	 * Defaults: symbol after the amount, EU number style (e.g. 1.234,56 €); optional rate list hidden (use show_rates).
 	 */
 	public static function renderQuote($atts = []): string
 	{
 		$a = \shortcode_atts(
 			[
 				'unit_id'           => '0',
-				'show_rates'        => 'auto',
+				'show_rates'        => 'never',
 				'currency_display'  => '',
 				'currency_position' => '',
 				'decimals'          => '',
@@ -315,10 +316,8 @@ final class ShortcodeRegistry
 		if ($available && $rateCount > 0) {
 			if ($showRatesMode === '1' || $showRatesMode === 'always' || $showRatesMode === 'yes' || $showRatesMode === 'true') {
 				$appendRatesList = true;
-			} elseif ($showRatesMode === '0' || $showRatesMode === 'never' || $showRatesMode === 'no' || $showRatesMode === 'false') {
-				$appendRatesList = false;
-			} else {
-				// auto (default): show all options when the API returned more than one rate
+			} elseif ($showRatesMode === 'auto') {
+				// Opt-in: list each rate only when explicitly requested (legacy behaviour)
 				$appendRatesList = $rateCount > 1;
 			}
 		}
@@ -344,10 +343,10 @@ final class ShortcodeRegistry
 	private static function quoteMoneyFormatOptionsFromAtts(array $a): array
 	{
 		$builtin = [
-			'currency_display'  => 'code',
+			'currency_display'  => 'symbol',
 			'currency_position' => 'after',
 			'decimals'          => 2,
-			'number_style'      => 'locale',
+			'number_style'      => 'eu',
 		];
 
 		/** @var array<string, mixed> $filtered */

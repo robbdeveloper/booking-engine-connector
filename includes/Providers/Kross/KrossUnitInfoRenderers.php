@@ -42,6 +42,7 @@ final class KrossUnitInfoRenderers
 	 * Optional pass-through attributes:
 	 * - `font_pack` — icon pack slug; default `font-1` (see filter `bec_amenities_font_packs`).
 	 * - `columns` — grid column count, 1–6 (default 2).
+	 * - `columns_mobile` — column count below 640px viewport, 1–6 (default 1).
 	 * - `limit` — max number of items (0 = all).
 	 * - `category` — if set, only items with this category (e.g. `amenity`). Legacy
 	 *   `mandatory_service` entries are never shown in this grid, even in old `bec_core_amenities` meta.
@@ -65,8 +66,11 @@ final class KrossUnitInfoRenderers
 			return '';
 		}
 
-		$columns = \max(1, \min(6, self::intAttr($atts, 'columns', 2)));
-		$style     = 'style="' . \esc_attr('--bec-amenities-cols: ' . $columns . ';') . '"';
+		$columns       = \max(1, \min(6, self::intAttr($atts, 'columns', 2)));
+		$columnsMobile = \max(1, \min(6, self::intAttr($atts, 'columns_mobile', 1)));
+		$style         = 'style="' . \esc_attr(
+			'--bec-amenities-cols: ' . $columns . '; --bec-amenities-cols-mobile: ' . $columnsMobile . ';'
+		) . '"';
 
 		$li = [];
 		foreach ($items as $row) {
@@ -112,7 +116,7 @@ final class KrossUnitInfoRenderers
 	 * - `font_pack` — icon pack slug; default `font-1` (see filter `bec_amenities_font_packs`).
 	 * - `columns` — grid column count, 1–6 (default 3).
 	 * - `title` — custom section title (overrides the default translatable “Sleeping arrangements” when non-empty).
-	 * - `show_title` — `0` to hide the section title; default is shown.
+	 * - `show_title` — `1` to show the section title; hidden by default.
 	 *
 	 * @param array<string, mixed>    $syncPayload
 	 * @param array<string, string>   $atts
@@ -170,7 +174,7 @@ final class KrossUnitInfoRenderers
 		$rootStyle = 'style="' . \esc_attr('--bec-bedrooms-cols: ' . $columns . ';') . '"';
 
 		$titleBlock = '';
-		if (self::boolAttr($atts, 'show_title', true)) {
+		if (self::boolAttr($atts, 'show_title', false)) {
 			$titleText = self::bedroomSectionTitle($atts);
 			if ($titleText !== '') {
 				$titleBlock = '<h3 class="bec-bedrooms__title">' . $titleText . '</h3>';
