@@ -1932,3 +1932,11 @@ msgstr ""
 msgctxt "taxonomy singular name"
 msgid "Unit amenity"
 msgstr ""
+
+#: includes/Shortcodes/AvailableUnitsCountShortcodeRenderer.php
+msgid "%d available unit"
+msgstr ""
+
+#: includes/Shortcodes/AvailableUnitsCountShortcodeRenderer.php
+msgid "%d available units"
+msgstr ""

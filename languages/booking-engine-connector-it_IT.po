@@ -2148,3 +2148,11 @@ msgstr "Servizi unità"
 msgctxt "taxonomy singular name"
 msgid "Unit amenity"
 msgstr "Servizio unità"
+
+#: includes/Shortcodes/AvailableUnitsCountShortcodeRenderer.php
+msgid "%d available unit"
+msgstr "%d unità disponibile"
+
+#: includes/Shortcodes/AvailableUnitsCountShortcodeRenderer.php
+msgid "%d available units"
+msgstr "%d unità disponibili"

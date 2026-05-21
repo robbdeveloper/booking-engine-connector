@@ -43,6 +43,21 @@ final class ShortcodeRegistry
 		\add_shortcode('bec_unit_gallery', [self::class, 'renderUnitGallery']);
 		\add_shortcode('bec_booking_summary', [BookingSummaryRenderer::class, 'renderFromShortcode']);
 		\add_shortcode('bec_unit_filters', [self::class, 'renderUnitFilters']);
+		\add_shortcode('bec_available_units_count', [self::class, 'renderAvailableUnitsCount']);
+	}
+
+	/**
+	 * Count of units matching current unit filters and (when search is complete) availability.
+	 *
+	 * Attributes: format (number|text), zero_text, singular, plural, hide_without_search, class.
+	 *
+	 * Filters: bec_available_units_count, bec_shortcode_available_units_count_html.
+	 */
+	public static function renderAvailableUnitsCount($atts = []): string
+	{
+		$raw = \is_array($atts) ? $atts : [];
+
+		return AvailableUnitsCountShortcodeRenderer::render($raw);
 	}
 
 	/**

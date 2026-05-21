@@ -40,7 +40,17 @@ Place **`[bec_unit_filters]`** above your unit loop (or on the unit archive). Th
 
 Shortcode attributes include **`layout`** (`inline` or `stacked`), **`show_reset`**, **`hide_labels`** (default `1`: labels hidden, filter name shown inside each control until a value is chosen; set `hide_labels="0"` to show labels above fields), **`filters`**, **`amenities`**, **`amenities_limit`**, and **`action`**.
 
+= How do I show how many units match the current search? =
+
+Use **`[bec_available_units_count]`** anywhere on the results page (above an Elementor Loop Grid, in a heading, or on the native unit archive). It counts published units that match **`bec_filter_*`** params and, when dates and guests are in the URL, units that are **available** for that search—the same rules as Loop Grid Query ID **`bec_available_only`** / **`bec_filtered_units`**.
+
+Examples: **`[bec_available_units_count]`** (number only), **`[bec_available_units_count format="text"]`** (default “%d available units” copy), **`[bec_available_units_count hide_without_search="1"]`** (empty until search params are complete), **`[bec_available_units_count zero_text="No units found"]`**. Custom text: **`singular`** / **`plural`** with **`%d`**, optional **`class`** for styling.
+
 == Changelog ==
+
+= 0.1.33 =
+* **Shortcodes (`[bec_available_units_count]`)**: Display the number of units matching current unit filters and (when search context is complete) provider availability—works on Elementor results pages, unit archives, and regular pages without relying on Loop Grid render order.
+* **Unit listings**: Shared **`UnitListingAvailability`** helpers for Elementor availability filtering and the count shortcode (per-request caching).
 
 = 0.1.32 =
 * **Unit filters UI**: Amenities multi-select with chip trigger on desktop, compact trigger and bottom drawer on mobile; order, rooms, and bathrooms use the same popover pattern (no Clear on single-select pickers).
