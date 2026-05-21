@@ -246,15 +246,21 @@
 	font-weight: 700;
 }
 
+.bec-booking-summary__rate-select{
+	margin-bottom: 1rem;
+}
+
 .bec-booking-summary__rate-select-title{
-	font-size: 0.85rem;
+	font-size: 1rem;
 	font-weight: 400;
+	margin-bottom: 0.5rem;
 }
 
 .bec-booking-summary__rate-list {
 	list-style: none;
-	margin: 0 0 0.75rem;
 	padding: 0;
+	background: rgba(255, 255, 255, 0.82);
+	background: color-mix(in srgb, var(--bec-color-background) 82%, var(--bec-bsummary-bg));
 	border: 1px solid var(--bec-drp-border);
 	border-radius: var(--bec-radius-readout);
 	overflow: hidden;
