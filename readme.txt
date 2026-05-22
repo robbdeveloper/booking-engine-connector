@@ -4,7 +4,7 @@ Tags: booking, kross, hospitality, availability
 Requires at least: 6.4
 Tested up to: 6.7
 Requires PHP: 8.0
-Stable tag: 0.1.36
+Stable tag: 0.1.37
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
@@ -51,6 +51,10 @@ Use **`[bec_available_units_count]`** anywhere on the results page (above an Ele
 Examples: **`[bec_available_units_count]`** (number only), **`[bec_available_units_count format="text"]`** (default “%d available units” copy), **`[bec_available_units_count hide_without_search="1"]`** (empty until search params are complete), **`[bec_available_units_count zero_text="No units found"]`**. Custom text: **`singular`** / **`plural`** with **`%d`**, optional **`class`** for styling.
 
 == Changelog ==
+
+= 0.1.37 =
+* **Search — mobile overlay**: Fix backdrop blur remaining after Apply on the guest drawer following date selection; shared overlay dismisses when any mobile drawer closes.
+* **Search — date range placement**: Desktop calendar popover with **`popover_placement="auto"`** opens above or below based on viewport space; guest popover uses the same rule.
 
 = 0.1.36 =
 * **Search (`[bec_search]`)** and **Booking summary (`[bec_booking_summary]`)**: **`daterange_format`** and **`daterange_preset`** control the calendar footer date readout; default preset **`medium`**. New **`MomentFormatMapper`** and filter **`bec_search_form_daterange_format`**.

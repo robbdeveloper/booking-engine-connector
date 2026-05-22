@@ -1,5 +1,10 @@
 # Changelog
 
+## 0.1.37 — 2026-05-22
+
+- **Search — mobile overlay (`public-search.js`, `public-search-daterange.js`)**: Fix shared **`.bec-search-form__backdrop`** staying visible after applying guest counts when the date picker hands off to the guest drawer. Backdrop is dismissed as soon as a mobile drawer starts closing; **`bec:search-overlay-closed`** keeps the date-range and guest scripts in sync. Guest-open detection checks the panel’s open state, not only **`aria-expanded`**. CSS **`[hidden]`** rule on the backdrop avoids theme overrides leaving the blur visible.
+- **Search — date range placement (`public-search-daterange.js`, `public-search.js`)**: With **`popover_placement="auto"`**, desktop calendar popover flips above/below based on viewport space (repositions on scroll/resize while open). Guest popover placement uses the same above/below rule without a secondary height flip.
+
 ## 0.1.36 — 2026-05-22
 
 - **Search (`[bec_search]`)** and **Booking summary (`[bec_booking_summary]`)**: **`daterange_format`** (PHP `date_i18n` format) and **`daterange_preset`** (`iso`|`short`|`medium`|`long`|`full`) configure the selected-date readout in the date range picker footer (`.drp-selected`, next to Cancel/Apply). New **`MomentFormatMapper`** (`includes/Formatting/MomentFormatMapper.php`) maps PHP presets/formats to Moment.js; enhanced search forms expose **`data-bec-daterange-format`**. Filters **`bec_search_form_daterange_format`**, **`bec_daterange_moment_format_presets`**, **`bec_php_date_format_to_moment`**. Default preset **`medium`** (e.g. `22 May 2026 – 25 May 2026`; use **`daterange_preset="iso"`** for ISO dates).
