@@ -162,7 +162,7 @@ final class SearchForm
 
 		$daterangeFormatOptions = [
 			'daterange_format'  => isset($args['daterange_format']) ? (string) $args['daterange_format'] : '',
-			'daterange_preset'  => isset($args['daterange_preset']) ? (string) $args['daterange_preset'] : 'iso',
+			'daterange_preset'  => isset($args['daterange_preset']) ? (string) $args['daterange_preset'] : 'medium',
 		];
 		$daterangeDisplayFormat = MomentFormatMapper::resolveDisplayFormat($daterangeFormatOptions);
 		$daterangeDisplayFormat = (string) \apply_filters(
@@ -296,7 +296,7 @@ final class SearchForm
 		string $guestFieldMode,
 		bool $showSubmit = true,
 		string $popoverPlacement = self::POPOVER_PLACEMENT_AUTO,
-		string $daterangeDisplayFormat = 'YYYY-MM-DD'
+		string $daterangeDisplayFormat = 'D MMM YYYY'
 	): void {
 		$popoverPlacement = self::normalizePopoverPlacement($popoverPlacement);
 

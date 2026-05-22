@@ -95,7 +95,7 @@ final class ShortcodeRegistry
 				'redirect_url'      => '',
 				'popover_placement' => SearchForm::POPOVER_PLACEMENT_AUTO,
 				'daterange_format'  => '',
-				'daterange_preset'  => 'iso',
+				'daterange_preset'  => 'medium',
 			],
 			\is_array($atts) ? $atts : [],
 			'bec_search'

@@ -56,7 +56,7 @@ final class MomentFormatMapper
 	{
 		$key = \sanitize_key(\strtolower(\trim($preset)));
 		if ($key === '') {
-			$key = 'iso';
+			$key = 'medium';
 		}
 
 		/** @var array<string, string> $presets */
@@ -66,14 +66,14 @@ final class MomentFormatMapper
 			return (string) $presets[ $key ];
 		}
 
-		return self::PRESET_MOMENT_FORMATS['iso'];
+		return self::PRESET_MOMENT_FORMATS['medium'];
 	}
 
 	public static function fromPhpFormat(string $phpFormat): string
 	{
 		$phpFormat = \trim($phpFormat);
 		if ($phpFormat === '') {
-			return self::PRESET_MOMENT_FORMATS['iso'];
+			return self::PRESET_MOMENT_FORMATS['medium'];
 		}
 
 		$len    = \strlen($phpFormat);
@@ -112,7 +112,7 @@ final class MomentFormatMapper
 	/**
 	 * @param array<string, mixed> $options
 	 *   - daterange_format: string|null — PHP date format for date_i18n(); wins over preset
-	 *   - daterange_preset: string — iso|short|medium|long|full (default iso)
+	 *   - daterange_preset: string — iso|short|medium|long|full (default medium)
 	 */
 	public static function resolveDisplayFormat(array $options): string
 	{
@@ -121,9 +121,9 @@ final class MomentFormatMapper
 			return self::fromPhpFormat($explicit);
 		}
 
-		$preset = \sanitize_key(\strtolower(\trim((string) ($options['daterange_preset'] ?? 'iso'))));
+		$preset = \sanitize_key(\strtolower(\trim((string) ($options['daterange_preset'] ?? 'medium'))));
 		if ($preset === '') {
-			$preset = 'iso';
+			$preset = 'medium';
 		}
 
 		return self::fromPreset($preset);

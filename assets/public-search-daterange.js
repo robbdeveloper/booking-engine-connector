@@ -35,7 +35,7 @@
 			return raw;
 		}
 		var cfg = getCfg();
-		return cfg.daterangeFormat || 'YYYY-MM-DD';
+		return cfg.daterangeFormat || 'D MMM YYYY';
 	}
 
 	function dispatchBecNativeInputChange($el) {

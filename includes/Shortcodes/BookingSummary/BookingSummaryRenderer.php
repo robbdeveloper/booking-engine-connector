@@ -67,7 +67,7 @@ final class BookingSummaryRenderer
 		$ctxArg      = (string) ( $a['context'] ?? 'bec_booking_summary' );
 		$searchFormDaterangeArgs = [
 			'daterange_format' => (string) ( $a['daterange_format'] ?? '' ),
-			'daterange_preset' => (string) ( $a['daterange_preset'] ?? 'iso' ),
+			'daterange_preset' => (string) ( $a['daterange_preset'] ?? 'medium' ),
 		];
 
 		$showEnquiry    = \in_array( \strtolower( (string) ( $a['show_enquiry'] ?? '1' ) ), [ '1', 'true', 'yes' ], true );
@@ -174,7 +174,7 @@ final class BookingSummaryRenderer
 				'show_enquiry'     => '1',
 				'enquiry_label'    => \__( 'Enquiry', 'booking-engine-connector' ),
 				'daterange_format' => '',
-				'daterange_preset' => 'iso',
+				'daterange_preset' => 'medium',
 			],
 			$atts,
 			'bec_booking_summary'
