@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace BookingEngineConnector\Search;
 
+use BookingEngineConnector\Formatting\MomentFormatMapper;
 use BookingEngineConnector\PostTypes\UnitPostType;
 use BookingEngineConnector\Providers\Contracts\SearchGuestFieldMode;
 use BookingEngineConnector\Providers\ProviderRegistry;
@@ -28,6 +29,8 @@ final class SearchForm
 	 *   html_class?: string,
 	 *   show_submit?: bool,
 	 *   popover_placement?: string,
+	 *   daterange_format?: string,
+	 *   daterange_preset?: string,
 	 * } $args
 	 */
 	public static function render(array $args = []): void
@@ -157,6 +160,19 @@ final class SearchForm
 		);
 		$popoverPlacement = self::normalizePopoverPlacement($popoverPlacement);
 
+		$daterangeFormatOptions = [
+			'daterange_format'  => isset($args['daterange_format']) ? (string) $args['daterange_format'] : '',
+			'daterange_preset'  => isset($args['daterange_preset']) ? (string) $args['daterange_preset'] : 'iso',
+		];
+		$daterangeDisplayFormat = MomentFormatMapper::resolveDisplayFormat($daterangeFormatOptions);
+		$daterangeDisplayFormat = (string) \apply_filters(
+			'bec_search_form_daterange_format',
+			$daterangeDisplayFormat,
+			$context,
+			$ctx,
+			$daterangeFormatOptions
+		);
+
 		if ($useEnhanced) {
 			self::renderEnhanced(
 				$formId,
@@ -172,7 +188,8 @@ final class SearchForm
 				$children,
 				$guestFieldMode,
 				$showSubmit,
-				$popoverPlacement
+				$popoverPlacement,
+				$daterangeDisplayFormat
 			);
 
 			return;
@@ -278,7 +295,8 @@ final class SearchForm
 		string $children,
 		string $guestFieldMode,
 		bool $showSubmit = true,
-		string $popoverPlacement = self::POPOVER_PLACEMENT_AUTO
+		string $popoverPlacement = self::POPOVER_PLACEMENT_AUTO,
+		string $daterangeDisplayFormat = 'YYYY-MM-DD'
 	): void {
 		$popoverPlacement = self::normalizePopoverPlacement($popoverPlacement);
 
@@ -323,7 +341,7 @@ final class SearchForm
 		$guestsLbl = \esc_attr(\__('Guests', 'booking-engine-connector'));
 
 		echo '<div class="' . \esc_attr($htmlClass) . '-wrap ' . \esc_attr($htmlClass) . '-wrap--enhanced">';
-		echo '<form class="' . \esc_attr($htmlClass) . ' ' . \esc_attr($htmlClass) . '--enhanced" id="' . \esc_attr($formId) . '" method="get" action="' . \esc_url($action) . '" data-bec-guest-mode="' . \esc_attr($guestFieldMode) . '" data-bec-popover-placement="' . \esc_attr($popoverPlacement) . '">';
+		echo '<form class="' . \esc_attr($htmlClass) . ' ' . \esc_attr($htmlClass) . '--enhanced" id="' . \esc_attr($formId) . '" method="get" action="' . \esc_url($action) . '" data-bec-guest-mode="' . \esc_attr($guestFieldMode) . '" data-bec-popover-placement="' . \esc_attr($popoverPlacement) . '" data-bec-daterange-format="' . \esc_attr($daterangeDisplayFormat) . '">';
 
 		if ($error instanceof \WP_Error) {
 			echo '<p class="bec-search-form__error" role="alert">' . \esc_html($error->get_error_message()) . '</p>';

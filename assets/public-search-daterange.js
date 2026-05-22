@@ -28,6 +28,16 @@
 	 * Bubble to native listeners on ancestors (e.g. booking summary’s root). jQuery’s
 	 * .trigger("change") does not always do that for handlers added with addEventListener.
 	 */
+	function getDaterangeDisplayFormat(form) {
+		var raw = form.getAttribute('data-bec-daterange-format') || '';
+		raw = String(raw).trim();
+		if (raw !== '') {
+			return raw;
+		}
+		var cfg = getCfg();
+		return cfg.daterangeFormat || 'YYYY-MM-DD';
+	}
+
 	function dispatchBecNativeInputChange($el) {
 		var el = $el && $el[0];
 		if (!el) {
@@ -149,7 +159,7 @@
 			parentEl: 'body',
 			maxSpan: { days: maxNights },
 			locale: {
-				format: 'YYYY-MM-DD',
+				format: getDaterangeDisplayFormat(form),
 				separator:
 					cfg.dateRangeSeparator !== undefined && cfg.dateRangeSeparator !== ''
 						? cfg.dateRangeSeparator
