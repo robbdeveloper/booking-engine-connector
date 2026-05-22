@@ -1,5 +1,11 @@
 # Changelog
 
+## 0.1.36 — 2026-05-22
+
+- **Search (`[bec_search]`)** and **Booking summary (`[bec_booking_summary]`)**: **`daterange_format`** (PHP `date_i18n` format) and **`daterange_preset`** (`iso`|`short`|`medium`|`long`|`full`) configure the selected-date readout in the date range picker footer (`.drp-selected`, next to Cancel/Apply). New **`MomentFormatMapper`** (`includes/Formatting/MomentFormatMapper.php`) maps PHP presets/formats to Moment.js; enhanced search forms expose **`data-bec-daterange-format`**. Filters **`bec_search_form_daterange_format`**, **`bec_daterange_moment_format_presets`**, **`bec_php_date_format_to_moment`**. Default preset **`medium`** (e.g. `22 May 2026 – 25 May 2026`; use **`daterange_preset="iso"`** for ISO dates).
+- **Search — date picker UI (`search-form-enhanced.css`)**: Mobile sheet footer uses a grid layout with centered selected dates and full-width Cancel/Apply buttons.
+- **Booking summary (`booking-summary-default.css`)**: Accordion expand/collapse chevrons use a rotated border marker with transition; rules scoped to **`.bec-booking-summary__accordion`** (removed generic **`details>summary`** styling).
+
 ## 0.1.35 — 2026-05-21
 
 - **Units (core fields)**: Derived **`bec_core_lat_lng`** (`CoreUnitSemantic::LAT_LNG`) combines **`bec_core_lat`** and **`bec_core_lng`** as `lat,lng` on provider sync and admin save; read-only in the unit meta box.
