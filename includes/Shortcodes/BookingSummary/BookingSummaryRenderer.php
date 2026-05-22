@@ -652,6 +652,7 @@ final class BookingSummaryRenderer
 		echo '<button type="button" class="bec-booking-summary__back" aria-label="' . \esc_attr__( 'Back', 'booking-engine-connector' ) . '">← ' . \esc_html__( 'Summary', 'booking-engine-connector' ) . '</button>';
 		echo '</div>';
 
+		echo '<div class="bec-booking-summary__drawer-body">';
 		if ( $st === 'available' ) {
 			self::printSearch( $ctxArg, $instanceId . '-m', $ctx, 'bec-booking-summary__search--drawer', $searchFormDaterangeArgs );
 			echo '<div class="bec-booking-summary__quote-results" data-bec-bsummary-quote-results>';
@@ -661,53 +662,39 @@ final class BookingSummaryRenderer
 			self::printAccordions( $vm );
 			self::printPriceBreakdown( $vm, $cur );
 			echo '</div>';
-			$hasCheckoutUrl = \is_array( $urlData ) && isset( $urlData['url'] ) && (string) $urlData['url'] !== '';
-			$retryFormId    = $hasCheckoutUrl ? $instanceId . '-m' : null;
-			self::renderActions(
-				$postId,
-				$ctx,
-				$showEnquiry,
-				$enquiryLabel,
-				$hasCheckoutUrl,
-				$hasCheckoutUrl ? null : $instanceId . '-m',
-				$urlData,
-				false,
-				$checkAvailabilityDisabled,
-				$retryFormId
-			);
 		} else {
-			//self::printMobileDrawerHero( $vm, $postId );
 			self::printSearch( $ctxArg, $instanceId . '-m', $ctx, 'bec-booking-summary__search--drawer', $searchFormDaterangeArgs );
-			self::printFallbackMessageInPanel(
-				$postId,
-				$ctx,
-				$showEnquiry,
-				$enquiryLabel,
-				$urlData,
-				$mode,
-				$vm,
-				$instanceId . '-m',
-				$checkAvailabilityDisabled
-			);
+			self::printFallbackContentInPanel( $postId, $ctx, $mode, $vm );
 		}
+		echo '</div>';
+
+		$hasCheckoutUrl = \is_array( $urlData ) && isset( $urlData['url'] ) && (string) $urlData['url'] !== '';
+		$retryFormId    = ( $st === 'available' && $hasCheckoutUrl ) ? $instanceId . '-m' : null;
+		self::renderActions(
+			$postId,
+			$ctx,
+			$showEnquiry,
+			$enquiryLabel,
+			$hasCheckoutUrl,
+			$hasCheckoutUrl ? null : $instanceId . '-m',
+			$urlData,
+			false,
+			$checkAvailabilityDisabled,
+			$retryFormId
+		);
 
 		echo '</div>'; // drawer
 		echo '</div>'; // mobile
 	}
 
 	/**
-	 * @param array<string, mixed>|\stdClass|mixed $urlData
+	 * @param array<string, mixed> $vm
 	 */
-	private static function printFallbackMessageInPanel(
+	private static function printFallbackContentInPanel(
 		int $postId,
 		SearchContext $ctx,
-		bool $showEnquiry,
-		string $enquiryLabel,
-		$urlData,
 		string $mode,
-		array $vm,
-		string $drawerSearchFormId,
-		bool $checkAvailabilityDisabled = false
+		array $vm
 	): void {
 		if ( $mode === 'fallback' ) {
 			echo '<div class="bec-booking-summary__drawer-fallback">';
@@ -722,18 +709,6 @@ final class BookingSummaryRenderer
 				echo '<p class="bec-booking-summary__message-text">' . \esc_html( self::getUnavailableMessageText( $postId, $ctx ) ) . '</p>';
 			}
 		}
-		$hasCheckoutUrl = \is_array( $urlData ) && isset( $urlData['url'] ) && (string) $urlData['url'] !== '';
-		self::renderActions(
-			$postId,
-			$ctx,
-			$showEnquiry,
-			$enquiryLabel,
-			$hasCheckoutUrl,
-			$hasCheckoutUrl ? null : $drawerSearchFormId,
-			$urlData,
-			false,
-			$checkAvailabilityDisabled
-		);
 	}
 
 	/**

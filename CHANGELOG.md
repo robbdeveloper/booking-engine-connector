@@ -1,5 +1,9 @@
 # Changelog
 
+## 0.1.38 — 2026-05-22
+
+- **Booking summary — mobile drawer (`BookingSummaryRenderer.php`, `booking-summary-default.css`)**: Slide-in panel uses a flex column layout with **`bec-booking-summary__drawer-body`** wrapping search through quote results (rates, accordions, breakdown). That middle section scrolls when content is taller than the viewport; the back header and bottom actions remain pinned. Replaces whole-drawer scroll and fixed action bar overlap on small screens.
+
 ## 0.1.37 — 2026-05-22
 
 - **Search — mobile overlay (`public-search.js`, `public-search-daterange.js`)**: Fix shared **`.bec-search-form__backdrop`** staying visible after applying guest counts when the date picker hands off to the guest drawer. Backdrop is dismissed as soon as a mobile drawer starts closing; **`bec:search-overlay-closed`** keeps the date-range and guest scripts in sync. Guest-open detection checks the panel’s open state, not only **`aria-expanded`**. CSS **`[hidden]`** rule on the backdrop avoids theme overrides leaving the blur visible.
