@@ -213,6 +213,51 @@
 		}
 		ensureDrpScrollWrap();
 
+		(function patchDrpViewportAutoDrops() {
+			if (!drp || typeof drp.move !== 'function') {
+				return;
+			}
+			var placementMode = getDaterangeDrops(form);
+			if (placementMode !== 'auto') {
+				return;
+			}
+			var origMove = drp.move.bind(drp);
+			var edgeMargin = 8;
+
+			function resolveViewportDrops() {
+				if (mqDrawer.matches) {
+					return;
+				}
+				var trigger = $btn[0];
+				if (!trigger) {
+					return;
+				}
+				var rect = trigger.getBoundingClientRect();
+				var vh = window.innerHeight;
+				var spaceBelow = vh - rect.bottom - edgeMargin;
+				var spaceAbove = rect.top - edgeMargin;
+				drp.drops = spaceBelow >= spaceAbove ? 'down' : 'up';
+			}
+
+			drp.move = function () {
+				resolveViewportDrops();
+				return origMove();
+			};
+
+			function onDrpScrollOrResize() {
+				if (drp.isShowing) {
+					drp.move();
+				}
+			}
+
+			$btn.on('show.daterangepicker.becViewportDrops', function () {
+				window.addEventListener('scroll', onDrpScrollOrResize, true);
+			});
+			$btn.on('hide.daterangepicker.becViewportDrops', function () {
+				window.removeEventListener('scroll', onDrpScrollOrResize, true);
+			});
+		})();
+
 		(function patchDrpMobileSheetHide() {
 			if (!drp || typeof drp.hide !== 'function') {
 				return;

@@ -283,14 +283,15 @@
 					top = 8;
 				}
 				guestPanel.classList.add('bec-search-form__panel--placement-top');
-			} else {
+			} else if (spaceBelow >= spaceAbove) {
 				top = topBelow;
 				guestPanel.classList.add('bec-search-form__panel--placement-bottom');
-				if (ph > 0 && spaceBelow < ph && spaceAbove >= ph) {
-					top = topAbove;
-					guestPanel.classList.remove('bec-search-form__panel--placement-bottom');
-					guestPanel.classList.add('bec-search-form__panel--placement-top');
+			} else {
+				top = topAbove;
+				if (ph > 0 && top < 8) {
+					top = 8;
 				}
+				guestPanel.classList.add('bec-search-form__panel--placement-top');
 			}
 			guestPanel.style.top = top + 'px';
 		}
