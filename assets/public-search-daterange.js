@@ -98,7 +98,29 @@
 
 		function isGuestPanelOpen() {
 			var gt = form.querySelector('.bec-search-form__control--guests .bec-search-form__trigger');
-			return !!(gt && gt.getAttribute('aria-expanded') === 'true');
+			if (!gt) {
+				return false;
+			}
+			var panelId = gt.getAttribute('aria-controls');
+			var panel = panelId ? document.getElementById(panelId) : null;
+			if (
+				panel instanceof HTMLElement &&
+				!panel.hidden &&
+				panel.classList.contains('bec-search-form__panel--open')
+			) {
+				return true;
+			}
+			return gt.getAttribute('aria-expanded') === 'true';
+		}
+
+		function hideMobileOverlay() {
+			if (!wrap || !backdrop || !mqDrawer.matches) {
+				return;
+			}
+			backdrop.hidden = true;
+			backdrop.setAttribute('aria-hidden', 'true');
+			wrap.classList.remove('bec-search-form-wrap--popover-open');
+			document.body.style.overflow = '';
 		}
 
 		function syncBackdropWithDaterange(showing) {
@@ -107,14 +129,15 @@
 			}
 			if (showing) {
 				backdrop.hidden = false;
+				backdrop.setAttribute('aria-hidden', 'false');
 				wrap.classList.add('bec-search-form-wrap--popover-open');
 				document.body.style.overflow = 'hidden';
 			} else if (!isGuestPanelOpen()) {
-				backdrop.hidden = true;
-				wrap.classList.remove('bec-search-form-wrap--popover-open');
-				document.body.style.overflow = '';
+				hideMobileOverlay();
 			}
 		}
+
+		form.addEventListener('bec:search-overlay-closed', hideMobileOverlay);
 
 		var cfg = getCfg();
 		var loc = cfg.momentLocale || 'en';

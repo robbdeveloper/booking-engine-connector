@@ -224,6 +224,23 @@
 			}
 		}
 
+		function hideMobileOverlay() {
+			if (!mqDrawer.matches) {
+				return;
+			}
+			if (backdrop) {
+				backdrop.hidden = true;
+				backdrop.setAttribute('aria-hidden', 'true');
+			}
+			if (wrap) {
+				wrap.classList.remove('bec-search-form-wrap--popover-open');
+			}
+			setBodyScrollLock(false);
+			try {
+				form.dispatchEvent(new CustomEvent('bec:search-overlay-closed'));
+			} catch (err) {}
+		}
+
 		function clearGuestPanelDesktopPosition() {
 			if (!guestPanel) {
 				return;
@@ -357,6 +374,18 @@
 				btn.setAttribute('aria-expanded', 'false');
 			});
 
+			/* Dismiss the shared mobile backdrop as soon as a drawer starts closing.
+			 * finalizeCloseUi may be skipped when a newer closeAll supersedes the animation,
+			 * and the daterange hide handler can leave the backdrop up while guest is open. */
+			var guestDrawerOpen =
+				guestPanel &&
+				mqDrawer.matches &&
+				!guestPanel.hidden &&
+				guestPanel.classList.contains('bec-search-form__panel--open');
+			if (openPanel || guestDrawerOpen) {
+				hideMobileOverlay();
+			}
+
 			var reduceSheetMotion =
 				typeof window.matchMedia === 'function' &&
 				window.matchMedia('(prefers-reduced-motion: reduce)').matches;
@@ -374,13 +403,7 @@
 					guestPanel.hidden = true;
 					guestPanel.classList.remove('bec-search-form__panel--open');
 				}
-				if (backdrop) {
-					backdrop.hidden = true;
-				}
-				if (wrap) {
-					wrap.classList.remove('bec-search-form-wrap--popover-open');
-				}
-				setBodyScrollLock(false);
+				hideMobileOverlay();
 				openTrigger = null;
 				openPanel = null;
 				onClosed();
@@ -424,6 +447,7 @@
 					panel.classList.remove('bec-search-form__panel--open');
 					if (backdrop) {
 						backdrop.hidden = false;
+						backdrop.setAttribute('aria-hidden', 'false');
 					}
 					if (wrap) {
 						wrap.classList.add('bec-search-form-wrap--popover-open');

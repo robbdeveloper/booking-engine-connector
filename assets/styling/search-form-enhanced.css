@@ -598,6 +598,10 @@
 	backdrop-filter: blur(2px);
 }
 
+.bec-search-form__backdrop[hidden] {
+	display: none !important;
+}
+
 .bec-search-form-wrap--popover-open {
 	overflow: clip;
 }
