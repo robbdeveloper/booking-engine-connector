@@ -9,9 +9,35 @@
 	}
 
 	/**
+	 * @param {HTMLFormElement} form
+	 * @returns {'auto'|'up'|'down'}
+	 */
+	function getDaterangeDrops(form) {
+		var raw = form.getAttribute('data-bec-popover-placement') || 'auto';
+		raw = String(raw).toLowerCase().trim();
+		if (raw === 'top') {
+			return 'up';
+		}
+		if (raw === 'bottom') {
+			return 'down';
+		}
+		return 'auto';
+	}
+
+	/**
 	 * Bubble to native listeners on ancestors (e.g. booking summary’s root). jQuery’s
 	 * .trigger("change") does not always do that for handlers added with addEventListener.
 	 */
+	function getDaterangeDisplayFormat(form) {
+		var raw = form.getAttribute('data-bec-daterange-format') || '';
+		raw = String(raw).trim();
+		if (raw !== '') {
+			return raw;
+		}
+		var cfg = getCfg();
+		return cfg.daterangeFormat || 'D MMM YYYY';
+	}
+
 	function dispatchBecNativeInputChange($el) {
 		var el = $el && $el[0];
 		if (!el) {
@@ -129,11 +155,11 @@
 			showDropdowns: false,
 			showCustomRangeLabel: false,
 			opens: 'center',
-			drops: 'down',
+			drops: getDaterangeDrops(form),
 			parentEl: 'body',
 			maxSpan: { days: maxNights },
 			locale: {
-				format: 'YYYY-MM-DD',
+				format: getDaterangeDisplayFormat(form),
 				separator:
 					cfg.dateRangeSeparator !== undefined && cfg.dateRangeSeparator !== ''
 						? cfg.dateRangeSeparator

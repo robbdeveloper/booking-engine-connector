@@ -2,7 +2,7 @@
 # This file is distributed under the GPL-2.0-or-later.
 msgid ""
 msgstr ""
-"Project-Id-Version: Booking Engine Connector 0.1.31\n"
+"Project-Id-Version: Booking Engine Connector 0.1.36\n"
 "Report-Msgid-Bugs-To: https://wordpress.org/support/plugin/booking-engine-connector\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -1666,6 +1666,14 @@ msgid "Longitude"
 msgstr ""
 
 #: includes/Units/CoreUnitMetaKeys.php:40
+msgid "Coordinates (lat, lng)"
+msgstr ""
+
+#: includes/Sync/CoreUnitFieldRegistry.php:475
+msgid "Derived from latitude and longitude on sync or save."
+msgstr ""
+
+#: includes/Units/CoreUnitMetaKeys.php:45
 msgid "Min. guests"
 msgstr ""
 
@@ -1835,6 +1843,49 @@ msgstr ""
 msgid "Descending"
 msgstr ""
 
+#: includes/Front/PublicAssets.php
+#: includes/UnitFilters/UnitFilterShortcodeRenderer.php
+msgid "Pick desired amenities"
+msgstr ""
+
+#. translators: 1: number of selected amenities, 2: total number of amenity choices (singular form).
+#: includes/Front/PublicAssets.php
+msgid "%1$d of %2$d selected"
+msgid_plural "%1$d of %2$d selected"
+msgstr[0] ""
+msgstr[1] ""
+
+#. translators: %s amenity label to remove from the multi-select chip (e.g. "Free Wi-Fi").
+#: includes/Front/PublicAssets.php
+msgid "Remove %s"
+msgstr ""
+
+#: includes/Front/PublicAssets.php
+#: includes/UnitFilters/UnitFilterShortcodeRenderer.php
+msgid "No amenities match your search."
+msgstr ""
+
+#: includes/UnitFilters/UnitFilterShortcodeRenderer.php
+msgid "Search amenities…"
+msgstr ""
+
+#: includes/UnitFilters/UnitFilterShortcodeRenderer.php
+msgid "Clear"
+msgstr ""
+
+#: includes/UnitFilters/UnitFilterShortcodeRenderer.php
+msgid "Done"
+msgstr ""
+
+#: includes/UnitFilters/UnitFilterShortcodeRenderer.php
+msgid "Close amenities picker"
+msgstr ""
+
+#. translators: %s filter name, e.g. "Order", "Rooms".
+#: includes/UnitFilters/UnitFilterShortcodeRenderer.php
+msgid "Close %s picker"
+msgstr ""
+
 #: includes/Admin/AdminMenu.php
 #: includes/Admin/Settings/UnitFiltersPage.php
 msgid "Unit filters"
@@ -1888,4 +1939,12 @@ msgstr ""
 #: includes/Taxonomies/UnitAmenityTaxonomy.php
 msgctxt "taxonomy singular name"
 msgid "Unit amenity"
+msgstr ""
+
+#: includes/Shortcodes/AvailableUnitsCountShortcodeRenderer.php
+msgid "%d available unit"
+msgstr ""
+
+#: includes/Shortcodes/AvailableUnitsCountShortcodeRenderer.php
+msgid "%d available units"
 msgstr ""

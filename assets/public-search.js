@@ -171,12 +171,27 @@
 
 	/**
 	 * @param {HTMLFormElement} form
+	 * @returns {'auto'|'top'|'bottom'}
+	 */
+	function getPopoverPlacement(form) {
+		var raw = form.getAttribute('data-bec-popover-placement') || 'auto';
+		raw = String(raw).toLowerCase().trim();
+		if (raw === 'top' || raw === 'bottom') {
+			return raw;
+		}
+		return 'auto';
+	}
+
+	/**
+	 * @param {HTMLFormElement} form
 	 */
 	function initEnhancedForm(form) {
 		if (!form || form.dataset.becSearchEnhanced === '1') {
 			return;
 		}
 		form.dataset.becSearchEnhanced = '1';
+
+		var popoverPlacement = getPopoverPlacement(form);
 
 		var guestControl = form.querySelector('.bec-search-form__control--guests');
 		var guestPanel = guestControl ? guestControl.querySelector('.bec-search-form__panel') : null;
@@ -214,6 +229,10 @@
 				return;
 			}
 			guestPanel.classList.remove('bec-search-form__panel--portal-desktop');
+			guestPanel.classList.remove(
+				'bec-search-form__panel--placement-top',
+				'bec-search-form__panel--placement-bottom'
+			);
 			guestPanel.style.top = '';
 			guestPanel.style.left = '';
 			guestPanel.style.width = '';
@@ -240,17 +259,40 @@
 			if (left < 8) {
 				left = 8;
 			}
-			var top = rect.bottom + gap;
 			guestPanel.classList.add('bec-search-form__panel--portal-desktop');
+			guestPanel.classList.remove(
+				'bec-search-form__panel--placement-top',
+				'bec-search-form__panel--placement-bottom'
+			);
 			guestPanel.style.left = left + 'px';
 			guestPanel.style.width = width + 'px';
-			guestPanel.style.top = top + 'px';
 			var ph = guestPanel.offsetHeight;
-			var spaceBelow = vh - top - 8;
-			if (ph > 0 && spaceBelow < ph && rect.top - gap - ph >= 8) {
-				top = rect.top - ph - gap;
-				guestPanel.style.top = top + 'px';
+			var topBelow = rect.bottom + gap;
+			var topAbove = rect.top - ph - gap;
+			var spaceBelow = vh - topBelow - 8;
+			var spaceAbove = rect.top - gap - 8;
+			var top;
+			var placement = popoverPlacement;
+
+			if (placement === 'bottom') {
+				top = topBelow;
+				guestPanel.classList.add('bec-search-form__panel--placement-bottom');
+			} else if (placement === 'top') {
+				top = topAbove;
+				if (ph > 0 && top < 8) {
+					top = 8;
+				}
+				guestPanel.classList.add('bec-search-form__panel--placement-top');
+			} else {
+				top = topBelow;
+				guestPanel.classList.add('bec-search-form__panel--placement-bottom');
+				if (ph > 0 && spaceBelow < ph && spaceAbove >= ph) {
+					top = topAbove;
+					guestPanel.classList.remove('bec-search-form__panel--placement-bottom');
+					guestPanel.classList.add('bec-search-form__panel--placement-top');
+				}
 			}
+			guestPanel.style.top = top + 'px';
 		}
 
 		function schedulePositionGuestPanelDesktop() {

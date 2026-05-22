@@ -17,6 +17,7 @@ use BookingEngineConnector\Providers\Kross\KrossUnitFieldResolver;
 use BookingEngineConnector\Providers\ProviderRegistry;
 use BookingEngineConnector\Search\SearchForm;
 use BookingEngineConnector\Shortcodes\BookingSummary\BookingSummaryRenderer;
+use BookingEngineConnector\Shortcodes\BookingSummary\BookingSummaryViewModelBuilder;
 use BookingEngineConnector\Sync\SyncPayloadEncoder;
 use BookingEngineConnector\UnitFilters\UnitFilterShortcodeRenderer;
 use BookingEngineConnector\Units\UnitGalleryPresenter;
@@ -43,12 +44,27 @@ final class ShortcodeRegistry
 		\add_shortcode('bec_unit_gallery', [self::class, 'renderUnitGallery']);
 		\add_shortcode('bec_booking_summary', [BookingSummaryRenderer::class, 'renderFromShortcode']);
 		\add_shortcode('bec_unit_filters', [self::class, 'renderUnitFilters']);
+		\add_shortcode('bec_available_units_count', [self::class, 'renderAvailableUnitsCount']);
+	}
+
+	/**
+	 * Count of units matching current unit filters and (when search is complete) availability.
+	 *
+	 * Attributes: format (number|text), zero_text, singular, plural, hide_without_search, class.
+	 *
+	 * Filters: bec_available_units_count, bec_shortcode_available_units_count_html.
+	 */
+	public static function renderAvailableUnitsCount($atts = []): string
+	{
+		$raw = \is_array($atts) ? $atts : [];
+
+		return AvailableUnitsCountShortcodeRenderer::render($raw);
 	}
 
 	/**
 	 * Unit listing filters (rooms, bathrooms, amenities, sort) via GET query args.
 	 *
-	 * Attributes: filters, layout (inline|stacked), show_reset, amenities, amenities_limit, action.
+	 * Attributes: filters, layout (inline|stacked), show_reset, hide_labels, amenities, amenities_limit, action.
 	 */
 	public static function renderUnitFilters($atts = []): string
 	{
@@ -62,13 +78,24 @@ final class ShortcodeRegistry
 		return \esc_html((string) \BEC_VERSION);
 	}
 
+	/**
+	 * Search form shortcode.
+	 *
+	 * Attributes: popover_placement (auto|top|bottom), daterange_format (PHP date_i18n format for the
+	 * calendar footer readout), daterange_preset (iso|short|medium|long|full when daterange_format is empty).
+	 *
+	 * Filters: bec_search_form_daterange_format, bec_search_form_popover_placement.
+	 */
 	public static function renderSearch($atts = []): string
 	{
 		$a = \shortcode_atts(
 			[
-				'context'      => 'shortcode',
-				'form_id'      => 'bec-search-form-sc',
-				'redirect_url' => '',
+				'context'           => 'shortcode',
+				'form_id'           => 'bec-search-form-sc',
+				'redirect_url'      => '',
+				'popover_placement' => SearchForm::POPOVER_PLACEMENT_AUTO,
+				'daterange_format'  => '',
+				'daterange_preset'  => 'medium',
 			],
 			\is_array($atts) ? $atts : [],
 			'bec_search'
@@ -83,9 +110,12 @@ final class ShortcodeRegistry
 		\ob_start();
 		SearchForm::render(
 			[
-				'context' => (string) $a['context'],
-				'form_id' => (string) $a['form_id'],
-				'action'  => $action,
+				'context'           => (string) $a['context'],
+				'form_id'           => (string) $a['form_id'],
+				'action'            => $action,
+				'popover_placement' => (string) $a['popover_placement'],
+				'daterange_format'  => (string) $a['daterange_format'],
+				'daterange_preset'  => (string) $a['daterange_preset'],
 			]
 		);
 
@@ -169,8 +199,8 @@ final class ShortcodeRegistry
 	private static function datesFormatOptionsFromAtts(array $a): array
 	{
 		$builtin = [
-			'preset'      => 'iso',
-			'label_style' => 'arrow',
+			'preset'      => 'long',
+			'label_style' => 'from_to',
 		];
 
 		/** @var array<string, mixed> $filtered */
@@ -242,16 +272,19 @@ final class ShortcodeRegistry
 	/**
 	 * Quote shortcode: price for the current search context on a unit.
 	 *
-	 * Attributes: unit_id, show_rates (auto|always|never),
+	 * Attributes: unit_id, show_rates (never default|always|auto),
+	 * price_mode (total|per_night),
 	 * currency_display (code|symbol), currency_position (before|after),
 	 * decimals (0–4), decimal_sep, thousands_sep, number_style (locale|eu|us).
+	 * Defaults: symbol after the amount, EU number style (e.g. 1.234,56 €); optional rate list hidden (use show_rates).
 	 */
 	public static function renderQuote($atts = []): string
 	{
 		$a = \shortcode_atts(
 			[
 				'unit_id'           => '0',
-				'show_rates'        => 'auto',
+				'show_rates'        => 'never',
+				'price_mode'        => 'total',
 				'currency_display'  => '',
 				'currency_position' => '',
 				'decimals'          => '',
@@ -300,23 +333,26 @@ final class ShortcodeRegistry
 		if ($available && $rateCount > 0) {
 			if ($showRatesMode === '1' || $showRatesMode === 'always' || $showRatesMode === 'yes' || $showRatesMode === 'true') {
 				$appendRatesList = true;
-			} elseif ($showRatesMode === '0' || $showRatesMode === 'never' || $showRatesMode === 'no' || $showRatesMode === 'false') {
-				$appendRatesList = false;
-			} else {
-				// auto (default): show all options when the API returned more than one rate
+			} elseif ($showRatesMode === 'auto') {
+				// Opt-in: list each rate only when explicitly requested (legacy behaviour)
 				$appendRatesList = $rateCount > 1;
 			}
 		}
 
 		$formatOptions = self::quoteMoneyFormatOptionsFromAtts($a);
+		$priceMode     = self::quotePriceModeFromAtts($a);
 
-		$text = self::defaultQuoteShortcodeText($quote, $available, $ctx, $formatOptions);
+		$text = self::defaultQuoteShortcodeText($quote, $available, $ctx, $formatOptions, $priceMode);
 		$text = (string) \apply_filters('bec_shortcode_quote_text', $text, $quote, $postId, $ctx);
 
-		$html = '<p class="bec-shortcode-quote">' . \esc_html($text) . '</p>';
+		$quoteClass = 'bec-shortcode-quote';
+		if ($priceMode === 'per_night') {
+			$quoteClass .= ' bec-shortcode-quote--per-night';
+		}
+		$html = '<p class="' . \esc_attr($quoteClass) . '">' . \esc_html($text) . '</p>';
 
 		if ($appendRatesList) {
-			$html .= self::renderQuoteRatesListHtml($quote, $formatOptions);
+			$html .= self::renderQuoteRatesListHtml($quote, $formatOptions, $ctx, $priceMode);
 		}
 
 		return (string) \apply_filters('bec_shortcode_quote_html', $html, $quote, $postId, $ctx);
@@ -329,10 +365,10 @@ final class ShortcodeRegistry
 	private static function quoteMoneyFormatOptionsFromAtts(array $a): array
 	{
 		$builtin = [
-			'currency_display'  => 'code',
+			'currency_display'  => 'symbol',
 			'currency_position' => 'after',
 			'decimals'          => 2,
-			'number_style'      => 'locale',
+			'number_style'      => 'eu',
 		];
 
 		/** @var array<string, mixed> $filtered */
@@ -378,6 +414,19 @@ final class ShortcodeRegistry
 	}
 
 	/**
+	 * @param array<string, string> $a Shortcode attributes from renderQuote().
+	 */
+	private static function quotePriceModeFromAtts(array $a): string
+	{
+		$raw = \strtolower(\trim((string) ($a['price_mode'] ?? '')));
+		if ($raw === 'per_night' || $raw === 'per-night' || $raw === 'night' || $raw === 'nightly') {
+			return 'per_night';
+		}
+
+		return 'total';
+	}
+
+	/**
 	 * @param array<string, mixed> $quote
 	 * @param array<string, mixed> $formatOptions
 	 */
@@ -385,7 +434,8 @@ final class ShortcodeRegistry
 		array $quote,
 		bool $available,
 		SearchContext $ctx,
-		array $formatOptions
+		array $formatOptions,
+		string $priceMode = 'total'
 	): string {
 		if (! $available) {
 			return \__('No availability for these dates.', 'booking-engine-connector');
@@ -397,7 +447,8 @@ final class ShortcodeRegistry
 		}
 
 		$currency = \trim((string) ($quote['price']['currency'] ?? ''));
-		$money    = MoneyFormatter::format((float) $priceAmount, $currency, $formatOptions);
+		$amount   = self::quoteDisplayAmount((float) $priceAmount, $priceMode, $ctx);
+		$money    = MoneyFormatter::format($amount, $currency, $formatOptions);
 
 		$rates = $quote['rates'] ?? [];
 		$n     = \is_array($rates) ? \count($rates) : 0;
@@ -414,12 +465,30 @@ final class ShortcodeRegistry
 		return $money;
 	}
 
+	private static function quoteDisplayAmount(float $amount, string $priceMode, SearchContext $ctx): float
+	{
+		if ($priceMode !== 'per_night') {
+			return $amount;
+		}
+
+		$nights = BookingSummaryViewModelBuilder::nightsBetween($ctx->getCheckin(), $ctx->getCheckout());
+		if ($nights < 1) {
+			return $amount;
+		}
+
+		return $amount / $nights;
+	}
+
 	/**
 	 * @param array<string, mixed> $quote
 	 * @param array<string, mixed> $formatOptions
 	 */
-	private static function renderQuoteRatesListHtml(array $quote, array $formatOptions): string
-	{
+	private static function renderQuoteRatesListHtml(
+		array $quote,
+		array $formatOptions,
+		SearchContext $ctx,
+		string $priceMode = 'total'
+	): string {
 		$rates = $quote['rates'] ?? [];
 		if (! \is_array($rates) || $rates === []) {
 			return '';
@@ -442,7 +511,8 @@ final class ShortcodeRegistry
 			$cur = isset($r['currency']) && $r['currency'] !== null ? (string) $r['currency'] : '';
 			$line = '';
 			if (\is_numeric($amt)) {
-				$line = MoneyFormatter::format((float) $amt, $cur, $formatOptions);
+				$displayAmt = self::quoteDisplayAmount((float) $amt, $priceMode, $ctx);
+				$line       = MoneyFormatter::format($displayAmt, $cur, $formatOptions);
 			}
 			$classes = 'bec-shortcode-quote__rate';
 			if ($selId !== '' && $id === $selId) {

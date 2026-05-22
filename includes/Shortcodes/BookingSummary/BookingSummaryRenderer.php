@@ -65,6 +65,10 @@ final class BookingSummaryRenderer
 			$rootClasses .= ' bec-booking-summary--preset-compact';
 		}
 		$ctxArg      = (string) ( $a['context'] ?? 'bec_booking_summary' );
+		$searchFormDaterangeArgs = [
+			'daterange_format' => (string) ( $a['daterange_format'] ?? '' ),
+			'daterange_preset' => (string) ( $a['daterange_preset'] ?? 'medium' ),
+		];
 
 		$showEnquiry    = \in_array( \strtolower( (string) ( $a['show_enquiry'] ?? '1' ) ), [ '1', 'true', 'yes' ], true );
 		$storedFallbackLink = (string) \get_option( FallbackSettings::OPTION_LINK_TEXT, '' );
@@ -92,14 +96,15 @@ final class BookingSummaryRenderer
 				$ctxArg,
 				$showEnquiry,
 				$enquiryLabel,
-				$slug
+				$slug,
+				$searchFormDaterangeArgs
 			);
 		} else {
 			$quote = QuoteService::getQuote( $postId, $ctx );
 			if ( $quote instanceof \WP_Error ) {
 				self::printRootOpen( $instanceId, $rootClasses, $postId, 'error' );
 				$vm = BookingSummaryViewModelBuilder::build( $postId, $ctx, $slug, $quote, $syncPayload, $taxNote );
-				self::renderErrorOrUnavailable( $vm, $postId, $ctx, $instanceId, $ctxArg, $showEnquiry, $enquiryLabel );
+				self::renderErrorOrUnavailable( $vm, $postId, $ctx, $instanceId, $ctxArg, $showEnquiry, $enquiryLabel, $searchFormDaterangeArgs );
 			} elseif ( FallbackService::shouldDisplay( $quote ) ) {
 				self::printRootOpen( $instanceId, $rootClasses, $postId, 'fallback' );
 				self::renderFallbackOnly();
@@ -113,7 +118,7 @@ final class BookingSummaryRenderer
 						$postId,
 						$st === 'error' ? 'error' : 'unavailable'
 					);
-					self::renderErrorOrUnavailable( $vm, $postId, $ctx, $instanceId, $ctxArg, $showEnquiry, $enquiryLabel );
+					self::renderErrorOrUnavailable( $vm, $postId, $ctx, $instanceId, $ctxArg, $showEnquiry, $enquiryLabel, $searchFormDaterangeArgs );
 				} else {
 					self::printRootOpen( $instanceId, $rootClasses, $postId, 'available' );
 					$rateStateMap = [];
@@ -141,7 +146,8 @@ final class BookingSummaryRenderer
 						$enquiryLabel,
 						$quote,
 						$rateStateMap,
-						$layout
+						$layout,
+						$searchFormDaterangeArgs
 					);
 				}
 			}
@@ -161,12 +167,14 @@ final class BookingSummaryRenderer
 		$atts = \is_array( $a ) ? $a : [];
 		$out  = \shortcode_atts(
 			[
-				'unit_id'        => '0',
-				'form_id'        => 'bec-booking-summary',
-				'context'        => 'bec_booking_summary',
-				'tax_note'       => '',
-				'show_enquiry'   => '1',
-				'enquiry_label'  => \__( 'Enquiry', 'booking-engine-connector' ),
+				'unit_id'          => '0',
+				'form_id'          => 'bec-booking-summary',
+				'context'          => 'bec_booking_summary',
+				'tax_note'         => '',
+				'show_enquiry'     => '1',
+				'enquiry_label'    => \__( 'Enquiry', 'booking-engine-connector' ),
+				'daterange_format' => '',
+				'daterange_preset' => 'medium',
 			],
 			$atts,
 			'bec_booking_summary'
@@ -259,12 +267,13 @@ final class BookingSummaryRenderer
 		string $instanceId,
 		string $ctxArg,
 		bool $showEnquiry,
-		string $enquiryLabel
+		string $enquiryLabel,
+		array $searchFormDaterangeArgs = []
 	): void {
 		$st = (string) ( $vm['state'] ?? 'unavailable' );
 		echo '<div class="bec-booking-summary__inner">';
 		self::printSummaryHead( $vm );
-		self::printSearch( $ctxArg, $instanceId, $ctx );
+		self::printSearch( $ctxArg, $instanceId, $ctx, '', $searchFormDaterangeArgs );
 		echo '<div class="bec-booking-summary__message bec-booking-summary__message--' . ( $st === 'error' ? 'error' : 'empty' ) . '">';
 		if ( $st === 'error' && isset( $vm['error'] ) && $vm['error'] instanceof \WP_Error ) {
 			echo '<p class="bec-booking-summary__message-text" role="alert">' . \esc_html( $vm['error']->get_error_message() ) . '</p>';
@@ -275,7 +284,7 @@ final class BookingSummaryRenderer
 		self::renderActions( $postId, $ctx, $showEnquiry, $enquiryLabel, false, $instanceId, null, true, true );
 		echo '</div>';
 		// phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
-		self::printMobileShell( $vm, $postId, $ctx, $ctxArg, $instanceId, $showEnquiry, $enquiryLabel, null, 'error-or-empty', true );
+		self::printMobileShell( $vm, $postId, $ctx, $ctxArg, $instanceId, $showEnquiry, $enquiryLabel, null, 'error-or-empty', true, $searchFormDaterangeArgs );
 	}
 
 	/**
@@ -295,11 +304,12 @@ final class BookingSummaryRenderer
 		string $ctxArg,
 		bool $showEnquiry,
 		string $enquiryLabel,
-		string $providerSlug
+		string $providerSlug,
+		array $searchFormDaterangeArgs = []
 	): void {
 		echo '<div class="bec-booking-summary__inner bec-booking-summary__inner--incomplete">';
 		self::printSummaryHead( [] );
-		self::printSearch( $ctxArg, $instanceId, $ctx, 'bec-booking-summary__search--incomplete' );
+		self::printSearch( $ctxArg, $instanceId, $ctx, 'bec-booking-summary__search--incomplete', $searchFormDaterangeArgs );
 		self::renderActions( $postId, $ctx, $showEnquiry, $enquiryLabel, false, $instanceId, null, true, true );
 		echo '</div>';
 		self::printMobileShell(
@@ -312,7 +322,8 @@ final class BookingSummaryRenderer
 			$enquiryLabel,
 			null,
 			'incomplete',
-			false
+			false,
+			$searchFormDaterangeArgs
 		);
 	}
 
@@ -332,7 +343,8 @@ final class BookingSummaryRenderer
 		string $enquiryLabel,
 		array $quote,
 		array $rateStateMap = [],
-		string $layoutPreset = ''
+		string $layoutPreset = '',
+		array $searchFormDaterangeArgs = []
 	): void {
 		if ( $layoutPreset === '' ) {
 			$layoutPreset = self::resolveLayoutPreset( $postId, $ctx );
@@ -361,7 +373,7 @@ final class BookingSummaryRenderer
 		if ( $isCompact ) {
 			$desktopSearchClass .= ' bec-booking-summary__search--preset-compact';
 		}
-		self::printSearch( $ctxArg, $instanceId, $ctx, $desktopSearchClass );
+		self::printSearch( $ctxArg, $instanceId, $ctx, $desktopSearchClass, $searchFormDaterangeArgs );
 
 		echo '<div class="bec-booking-summary__quote-results" data-bec-bsummary-quote-results>';
 		//self::printDatesGuestsBlock( $vm );
@@ -379,7 +391,7 @@ final class BookingSummaryRenderer
 
 		echo '</div>'; // inner
 
-		self::printMobileShell( $vm, $postId, $ctx, $ctxArg, $instanceId, $showEnquiry, $enquiryLabel, $urlData, 'available', $checkAvailDisabled );
+		self::printMobileShell( $vm, $postId, $ctx, $ctxArg, $instanceId, $showEnquiry, $enquiryLabel, $urlData, 'available', $checkAvailDisabled, $searchFormDaterangeArgs );
 
 		if ( $rateStateMap !== [] ) {
 			$defRate = (string) ( $vm['selected_rate_id'] ?? $ctx->getRateId() );
@@ -592,7 +604,8 @@ final class BookingSummaryRenderer
 		string $enquiryLabel,
 		$urlData,
 		string $mode,
-		bool $checkAvailabilityDisabled = false
+		bool $checkAvailabilityDisabled = false,
+		array $searchFormDaterangeArgs = []
 	): void {
 		$cur = (string) ( $vm['currency'] ?? '' );
 		$tot = isset( $vm['total'] ) && is_numeric( $vm['total'] ) ? (float) $vm['total'] : null;
@@ -640,7 +653,7 @@ final class BookingSummaryRenderer
 		echo '</div>';
 
 		if ( $st === 'available' ) {
-			self::printSearch( $ctxArg, $instanceId . '-m', $ctx, 'bec-booking-summary__search--drawer' );
+			self::printSearch( $ctxArg, $instanceId . '-m', $ctx, 'bec-booking-summary__search--drawer', $searchFormDaterangeArgs );
 			echo '<div class="bec-booking-summary__quote-results" data-bec-bsummary-quote-results>';
 			self::printMobileDrawerHero( $vm, $postId );
 			//self::printDatesGuestsBlock( $vm );
@@ -664,7 +677,7 @@ final class BookingSummaryRenderer
 			);
 		} else {
 			//self::printMobileDrawerHero( $vm, $postId );
-			self::printSearch( $ctxArg, $instanceId . '-m', $ctx, 'bec-booking-summary__search--drawer' );
+			self::printSearch( $ctxArg, $instanceId . '-m', $ctx, 'bec-booking-summary__search--drawer', $searchFormDaterangeArgs );
 			self::printFallbackMessageInPanel(
 				$postId,
 				$ctx,
@@ -749,15 +762,27 @@ final class BookingSummaryRenderer
 		return (string) \add_query_arg( $args, $base );
 	}
 
-	private static function printSearch( string $context, string $formId, SearchContext $ctx, string $extraClass = '' ): void {
+	/**
+	 * @param array<string, string> $daterangeArgs
+	 */
+	private static function printSearch(
+		string $context,
+		string $formId,
+		SearchContext $ctx,
+		string $extraClass = '',
+		array $daterangeArgs = []
+	): void {
 		\ob_start();
 		SearchForm::render(
-			[
-				'context'    => $context,
-				'form_id'    => $formId,
-				'html_class' => 'bec-search-form',
-				'show_submit' => false,
-			]
+			\array_merge(
+				[
+					'context'     => $context,
+					'form_id'     => $formId,
+					'html_class'  => 'bec-search-form',
+					'show_submit' => false,
+				],
+				$daterangeArgs
+			)
 		);
 		$form = (string) \ob_get_clean();
 		$wrapClass = 'bec-booking-summary__search';

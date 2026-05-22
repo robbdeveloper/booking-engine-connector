@@ -1,5 +1,35 @@
 # Changelog
 
+## 0.1.36 — 2026-05-22
+
+- **Search (`[bec_search]`)** and **Booking summary (`[bec_booking_summary]`)**: **`daterange_format`** (PHP `date_i18n` format) and **`daterange_preset`** (`iso`|`short`|`medium`|`long`|`full`) configure the selected-date readout in the date range picker footer (`.drp-selected`, next to Cancel/Apply). New **`MomentFormatMapper`** (`includes/Formatting/MomentFormatMapper.php`) maps PHP presets/formats to Moment.js; enhanced search forms expose **`data-bec-daterange-format`**. Filters **`bec_search_form_daterange_format`**, **`bec_daterange_moment_format_presets`**, **`bec_php_date_format_to_moment`**. Default preset **`medium`** (e.g. `22 May 2026 – 25 May 2026`; use **`daterange_preset="iso"`** for ISO dates).
+- **Search — date picker UI (`search-form-enhanced.css`)**: Mobile sheet footer uses a grid layout with centered selected dates and full-width Cancel/Apply buttons.
+- **Booking summary (`booking-summary-default.css`)**: Accordion expand/collapse chevrons use a rotated border marker with transition; rules scoped to **`.bec-booking-summary__accordion`** (removed generic **`details>summary`** styling).
+
+## 0.1.35 — 2026-05-21
+
+- **Units (core fields)**: Derived **`bec_core_lat_lng`** (`CoreUnitSemantic::LAT_LNG`) combines **`bec_core_lat`** and **`bec_core_lng`** as `lat,lng` on provider sync and admin save; read-only in the unit meta box.
+- **Search (`[bec_search]`)**: **`popover_placement`** attribute (`auto`, `top`, `bottom`) and filter **`bec_search_form_popover_placement`**; enhanced layout passes **`data-bec-popover-placement`** to **`public-search.js`** for desktop popover positioning.
+- **i18n**: POT / Italian updates for coordinates field strings.
+
+## 0.1.34 — 2026-05-21
+
+- **Shortcodes (`[bec_unit_info key="amenities_grid"]`)**: New **`columns_mobile`** pass-through attribute (1–6, default `1`) sets grid columns below 640px; desktop layout still uses **`columns`** (default `2`). CSS variable **`--bec-amenities-cols-mobile`** in **`assets/public-amenities-kross.css`**.
+- **Shortcodes (`[bec_unit_info key="bedroom_arrangements"]`)**: Section title hidden by default; pass **`show_title="1"`** to display it (previously shown unless **`show_title="0"`**).
+- **Shortcodes (`[bec_dates]`)**: Built-in defaults changed to **`preset="long"`** and **`label_style="from_to"`** (was ISO dates with arrow).
+- **Shortcodes (`[bec_quote]`)**: Built-in defaults changed to currency **symbol** after amount, **`number_style="eu"`**, and **`show_rates="never"`**; multi-rate list only when **`show_rates="always"`** or legacy **`show_rates="auto"`**.
+- **Booking summary**: Rate-select control styling tweaks in **`assets/styling/booking-summary-default.css`**.
+
+## 0.1.33 — 2026-05-21
+
+- **Shortcodes (`[bec_available_units_count]`)**: Display the number of units matching current unit filters and (when search context is complete) provider availability—works on Elementor results pages, unit archives, and regular pages without relying on Loop Grid render order. Attributes: `format` (`number`|`text`), `hide_without_search`, `singular` / `plural` with `%d`, `zero_text`, `class`.
+- **Unit listings**: Shared **`UnitListingAvailability`** and **`UnitResultCountService`** helpers for Elementor availability filtering and the count shortcode (per-request caching).
+
+## 0.1.32 — 2026-05-20
+
+- **Unit filters UI (`[bec_unit_filters]`)**: Progressive-enhancement pickers for all filter fields. **Amenities** — multi-select with checkbox list, chip/value trigger on desktop, mobile bottom sheet, Clear retained. **Order / rooms / bathrooms** — single-select popovers with the same desktop dropdown and mobile drawer (no Clear; use **Any** or **Reset filters**). New **`assets/public-unit-filters.js`**; styles in **`public.css`** wired to global BEC tokens (including hover/focus on submit, Done, triggers, and list rows).
+- **Amenities panel**: Search input removed.
+
 ## 0.1.31 — 2026-05-20
 
 - **Shortcodes (`[bec_unit_filters]`)**: GET filter form for unit listings — sort order, minimum rooms/bathrooms, and amenities. Preserves search context (`bec_checkin`, `bec_checkout`, guests, etc.). Attributes: `filters`, `layout` (`inline`|`stacked`), `show_reset`, `amenities` (`selected` or comma-separated keys), `amenities_limit`, `action`. Filters **`bec_unit_filter_definitions`**, **`bec_unit_filters_preserve_query_keys`**, **`bec_unit_filter_query_applied`**.

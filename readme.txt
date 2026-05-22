@@ -4,7 +4,7 @@ Tags: booking, kross, hospitality, availability
 Requires at least: 6.4
 Tested up to: 6.7
 Requires PHP: 8.0
-Stable tag: 0.1.31
+Stable tag: 0.1.36
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
@@ -34,11 +34,48 @@ Search context uses **GET query parameters** prefixed with `bec_` (e.g. check-in
 
 Use the **`redirect_url`** attribute so the form posts (GET) to your results page, e.g. `[bec_search redirect_url="/availability-results/"]`. The same **`bec_*`** query parameters are appended. If **`redirect_url`** is omitted, submissions go to the **units archive** (or **`home_url`** if the archive link is unavailable).
 
+Use **`popover_placement`** to control where the date and guest popovers open relative to the search field on desktop/tablet: **`auto`** (default — opens below and flips above when there is not enough space), **`top`**, or **`bottom`**. On mobile, popovers still use the bottom sheet layout. Example: `[bec_search popover_placement="top"]`. You can also pass **`popover_placement`** to **`SearchForm::render()`** or filter **`bec_search_form_popover_placement`**.
+
+Use **`daterange_format`** (PHP date format) or **`daterange_preset`** (`iso`, `short`, `medium`, `long`, `full`; default **`medium`**) on **`[bec_search]`** and **`[bec_booking_summary]`** to format the selected dates shown in the calendar footer before Cancel/Apply. Example: `[bec_search daterange_preset="long"]`.
+
 = How do I filter units on a listing page? =
 
 Place **`[bec_unit_filters]`** above your unit loop (or on the unit archive). The form submits filter GET parameters (`bec_filter_order`, `bec_filter_rooms_min`, `bec_filter_bathrooms_min`, `bec_filter_amenities[]`) and keeps current search params. Pair with an Elementor Loop Grid using Query ID **`bec_available_only`** or **`bec_filtered_units`**. Choose which amenities appear under **Booking Engine → Unit filters**; tune appearance under **Styling → Unit filters**.
 
+Shortcode attributes include **`layout`** (`inline` or `stacked`), **`show_reset`**, **`hide_labels`** (default `1`: labels hidden, filter name shown inside each control until a value is chosen; set `hide_labels="0"` to show labels above fields), **`filters`**, **`amenities`**, **`amenities_limit`**, and **`action`**.
+
+= How do I show how many units match the current search? =
+
+Use **`[bec_available_units_count]`** anywhere on the results page (above an Elementor Loop Grid, in a heading, or on the native unit archive). It counts published units that match **`bec_filter_*`** params and, when dates and guests are in the URL, units that are **available** for that search—the same rules as Loop Grid Query ID **`bec_available_only`** / **`bec_filtered_units`**.
+
+Examples: **`[bec_available_units_count]`** (number only), **`[bec_available_units_count format="text"]`** (default “%d available units” copy), **`[bec_available_units_count hide_without_search="1"]`** (empty until search params are complete), **`[bec_available_units_count zero_text="No units found"]`**. Custom text: **`singular`** / **`plural`** with **`%d`**, optional **`class`** for styling.
+
 == Changelog ==
+
+= 0.1.36 =
+* **Search (`[bec_search]`)** and **Booking summary (`[bec_booking_summary]`)**: **`daterange_format`** and **`daterange_preset`** control the calendar footer date readout; default preset **`medium`**. New **`MomentFormatMapper`** and filter **`bec_search_form_daterange_format`**.
+* **Search — date picker UI**: Mobile footer grid with centered selected dates and full-width Cancel/Apply buttons.
+* **Booking summary**: Accordion chevron styling scoped to booking summary accordions.
+
+= 0.1.35 =
+* **Units (core fields)**: Derived **`bec_core_lat_lng`** stores latitude and longitude as a comma-separated pair (`lat,lng`); updated on sync and when core fields are saved. Read-only in the unit admin meta box.
+* **Search (`[bec_search]`)**: **`popover_placement`** attribute (`auto`, `top`, `bottom`) controls where date and guest popovers open on desktop/tablet; filter **`bec_search_form_popover_placement`**.
+
+= 0.1.34 =
+* **Shortcodes (`[bec_unit_info key="amenities_grid"]`)**: New **`columns_mobile`** attribute (1–6, default `1`) for grid layout below 640px; desktop still uses **`columns`** (default `2`).
+* **Shortcodes (`[bec_unit_info key="bedroom_arrangements"]`)**: Section title hidden by default; set **`show_title="1"`** to show it.
+* **Shortcodes (`[bec_dates]`)**: Default display uses long date preset and “from … to …” label style (override with **`preset`** / **`label_style`**).
+* **Shortcodes (`[bec_quote]`)**: Default price formatting uses currency symbol after the amount and EU number style; rate list hidden unless **`show_rates="always"`** or **`show_rates="auto"`**.
+* **Booking summary**: Improved rate-select styling (background, spacing, typography).
+
+= 0.1.33 =
+* **Shortcodes (`[bec_available_units_count]`)**: Display the number of units matching current unit filters and (when search context is complete) provider availability—works on Elementor results pages, unit archives, and regular pages without relying on Loop Grid render order.
+* **Unit listings**: Shared **`UnitListingAvailability`** helpers for Elementor availability filtering and the count shortcode (per-request caching).
+
+= 0.1.32 =
+* **Unit filters UI**: Amenities multi-select with chip trigger on desktop, compact trigger and bottom drawer on mobile; order, rooms, and bathrooms use the same popover pattern (no Clear on single-select pickers).
+* **Assets**: New **`public-unit-filters.js`**; filter styles in **`public.css`** using global BEC styling tokens (hover/focus on buttons and field openers).
+* **Amenities**: Search box removed from the amenities panel.
 
 = 0.1.31 =
 * **Shortcodes (`[bec_unit_filters]`)**: Filter units by sort order, rooms, bathrooms, and amenities via sharable GET URLs; preserves search context. Elementor Query IDs **`bec_available_only`** / **`bec_filtered_units`**; native unit archive support.

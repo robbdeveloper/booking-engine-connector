@@ -31,7 +31,7 @@ final class AmenitiesAssets
 	 * that are not pre-detected in {@see onEnqueue()}.
 	 *
 	 * @param int $postId `bec_unit` post ID
-	 * @param array<string, string> $passThrough [bec_unit_info] atts; may include `font_pack`, `columns`, `limit`, `category`
+	 * @param array<string, string> $passThrough [bec_unit_info] atts; may include `font_pack`, `columns`, `columns_mobile`, `limit`, `category`
 	 */
 	public static function enqueueForKross(int $postId, array $passThrough = []): void
 	{

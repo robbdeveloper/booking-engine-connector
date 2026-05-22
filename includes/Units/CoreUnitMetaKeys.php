@@ -35,6 +35,11 @@ final class CoreUnitMetaKeys
 				'label'    => \__('Longitude', 'booking-engine-connector'),
 				'type'     => 'string',
 			],
+			CoreUnitSemantic::LAT_LNG => [
+				'meta_key' => 'bec_core_lat_lng',
+				'label'    => \__('Coordinates (lat, lng)', 'booking-engine-connector'),
+				'type'     => 'readonly',
+			],
 			CoreUnitSemantic::OCC_MIN => [
 				'meta_key' => 'bec_core_occ_min',
 				'label'    => \__('Min. guests', 'booking-engine-connector'),
@@ -103,5 +108,17 @@ final class CoreUnitMetaKeys
 		$defs = self::definitions();
 
 		return isset($defs[ $semantic ]['meta_key']) ? $defs[ $semantic ]['meta_key'] : null;
+	}
+
+	/** Comma-separated pair, or empty when either coordinate is missing. */
+	public static function buildLatLngCombined(string $lat, string $lng): string
+	{
+		$lat = \trim($lat);
+		$lng = \trim($lng);
+		if ($lat === '' || $lng === '') {
+			return '';
+		}
+
+		return $lat . ',' . $lng;
 	}
 }

@@ -1103,13 +1103,30 @@
 	.daterangepicker.bec-drp-is-open .drp-buttons {
 		flex-shrink: 0;
 		clear: none;
+		display: grid;
+		grid-template-columns: 1fr 1fr;
+		gap: var(--bec-panel-footer-gap);
 		margin: var(--bec-drp-mobile-footer-margin);
 		padding: var(--bec-drp-mobile-footer-padding);
 		border-top: 1px solid var(--bec-drp-border);
 		background-color: var(--bec-color-bg);
 		box-shadow: var(--bec-drp-mobile-footer-shadow);
-		text-align: right;
+		text-align: center;
 		z-index: 1;
+	}
+
+	.daterangepicker.bec-drp-is-open .drp-selected {
+		display: block;
+		width: 100%;
+		grid-column: 1 / -1;
+		margin: 0 0 var(--bec-panel-footer-gap);
+		padding-right: 0;
+		text-align: center;
+	}
+
+	.daterangepicker.bec-drp-is-open .drp-buttons .btn {
+		width: 100% !important;
+		margin: 0 !important;
 	}
 
 	.daterangepicker.bec-drp-is-open .drp-calendar.left,

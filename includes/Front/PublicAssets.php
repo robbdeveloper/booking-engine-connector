@@ -102,6 +102,42 @@ final class PublicAssets
 			true
 		);
 
+		\wp_enqueue_script(
+			'bec-public-unit-filters',
+			\BEC_PLUGIN_URL . 'assets/public-unit-filters.js',
+			[],
+			\BEC_VERSION,
+			true
+		);
+
+		$unitFiltersL10n = [
+			'strFilterAny'            => \__('Any', 'booking-engine-connector'),
+			'strAmenitiesPlaceholder' => \__('Pick desired amenities', 'booking-engine-connector'),
+			/* translators: 1: number of selected amenities, 2: total number of amenity choices. */
+			'strAmenitiesSelectedOne'  => \_n(
+				'%1$d of %2$d selected',
+				'%1$d of %2$d selected',
+				1,
+				'booking-engine-connector'
+			),
+			/* translators: 1: number of selected amenities, 2: total number of amenity choices. */
+			'strAmenitiesSelectedMany' => \_n(
+				'%1$d of %2$d selected',
+				'%1$d of %2$d selected',
+				2,
+				'booking-engine-connector'
+			),
+		];
+
+		/**
+		 * Localization payload for the unit filters frontend script (`bec-public-unit-filters`).
+		 *
+		 * @param array<string, string> $unitFiltersL10n Strings keyed by JS identifier.
+		 */
+		$unitFiltersL10n = (array) \apply_filters('bec_unit_filters_js_l10n', $unitFiltersL10n);
+
+		\wp_localize_script('bec-public-unit-filters', 'becUnitFilters', $unitFiltersL10n);
+
 		$ctx = SearchContext::fromRequest();
 
 		$l10n = [
