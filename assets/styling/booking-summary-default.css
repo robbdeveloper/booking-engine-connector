@@ -134,7 +134,7 @@
 }
 
 .bec-booking-summary__search .bec-search-form__date-day {
-	color: var(--bec-bsummary-color-primary);
+	color: var(--bec-bsummary-color-text);
 }
 
 .bec-booking-summary__search .bec-search-form__date-my,
@@ -209,7 +209,7 @@
 	display: block;
 	font-size: 1.2rem;
 	font-weight: 500;
-	color: var(--bec-bsummary-color-accent);
+	color: var(--bec-bsummary-color-primary);
 }
 
 .bec-booking-summary__head-sub {
@@ -296,7 +296,15 @@
 .bec-booking-summary__rate-name {
 	flex: 1 1 auto;
 	font-size: 1rem;
+	color: var(--bec-bsummary-color-text);
 }
+
+.bec-booking-summary__rate-item.is-selected .bec-booking-summary__rate-name,
+.bec-booking-summary__rate-item.is-selected .bec-booking-summary__rate-price{
+	color: var(--bec-bsummary-color-primary);
+}
+
+.bec-booking-summary__rate-name 
 .bec-booking-summary__rate-price { font-weight: 600; }
 
 .bec-booking-summary__accordions {
