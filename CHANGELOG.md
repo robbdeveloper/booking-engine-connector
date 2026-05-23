@@ -1,5 +1,9 @@
 # Changelog
 
+## 0.1.39 — 2026-05-23
+
+- **Booking summary (`booking-summary-default.css`)**: Color token alignment — search date day uses **`--bec-bsummary-color-text`**, headline uses **`--bec-bsummary-color-primary`** (was accent), rate names use text color with selected rate name/price highlighted in primary.
+
 ## 0.1.38 — 2026-05-22
 
 - **Booking summary — mobile drawer (`BookingSummaryRenderer.php`, `booking-summary-default.css`)**: Slide-in panel uses a flex column layout with **`bec-booking-summary__drawer-body`** wrapping search through quote results (rates, accordions, breakdown). That middle section scrolls when content is taller than the viewport; the back header and bottom actions remain pinned. Replaces whole-drawer scroll and fixed action bar overlap on small screens.
