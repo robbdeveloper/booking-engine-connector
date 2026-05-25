@@ -4,7 +4,7 @@ Tags: booking, kross, hospitality, availability
 Requires at least: 6.4
 Tested up to: 6.7
 Requires PHP: 8.0
-Stable tag: 0.1.39
+Stable tag: 0.1.40
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
@@ -51,6 +51,11 @@ Use **`[bec_available_units_count]`** anywhere on the results page (above an Ele
 Examples: **`[bec_available_units_count]`** (number only), **`[bec_available_units_count format="text"]`** (default “%d available units” copy), **`[bec_available_units_count hide_without_search="1"]`** (empty until search params are complete), **`[bec_available_units_count zero_text="No units found"]`**. Custom text: **`singular`** / **`plural`** with **`%d`**, optional **`class`** for styling.
 
 == Changelog ==
+
+= 0.1.40 =
+* **Units (core fields)**: New **`bec_core_city`** field synced from Kross **`city`**; editable in the unit admin meta box. City remains in **`bec_core_address_full`**.
+* **Search — guest popover**: Fix guest picker not opening on some Elementor pages (duplicate **`[bec_search]`** embeds or late DOM). Forms init on DOM ready, re-scan on Elementor frontend init, unique **`form_id`** per shortcode render, scoped guest panel lookup.
+* **i18n**: POT / Italian updates for the City field label.
 
 = 0.1.39 =
 * **Booking summary**: Align headline, search date, and rate list colors with booking-summary CSS tokens; selected rate name and price use the primary color.

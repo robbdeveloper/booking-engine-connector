@@ -1,5 +1,11 @@
 # Changelog
 
+## 0.1.40 — 2026-05-25
+
+- **Units (core fields) — City**: New canonical **`bec_core_city`** (`CoreUnitSemantic::CITY`) synced from Kross raw **`city`** on unit sync; editable in the unit admin meta box. City remains part of **`bec_core_address_full`** as before. Provider docblock updated for future providers.
+- **Search — guest popover (`public-search.js`, `ShortcodeRegistry.php`)**: Fix guest picker not opening on some Elementor pages when the same **`[bec_search]`** template appears more than once (e.g. Theme Builder header plus page content) or when the form HTML loads after the script. Enhanced forms now initialize on **`DOMContentLoaded`** and re-scan on **`elementor/frontend/init`**; each shortcode render gets a unique **`form_id`** via **`wp_unique_id()`**; guest panel lookup is scoped to the form instance instead of the first matching **`getElementById`**.
+- **i18n**: POT / Italian updates for the City field label.
+
 ## 0.1.39 — 2026-05-23
 
 - **Booking summary (`booking-summary-default.css`)**: Color token alignment — search date day uses **`--bec-bsummary-color-text`**, headline uses **`--bec-bsummary-color-primary`** (was accent), rate names use text color with selected rate name/price highlighted in primary.

@@ -2,21 +2,21 @@
 # This file is distributed under the GPL-2.0-or-later.
 msgid ""
 msgstr ""
-"Project-Id-Version: Booking Engine Connector 0.1.39\n"
+"Project-Id-Version: Booking Engine Connector 0.1.40\n"
 "Report-Msgid-Bugs-To: https://wordpress.org/support/plugin/booking-engine-connector\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"POT-Creation-Date: 2026-05-22T00:00:00+00:00\n"
+"POT-Creation-Date: 2026-05-25T17:18:48+00:00\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "X-Generator: WP-CLI 2.12.0\n"
 "X-Domain: booking-engine-connector\n"
 
 #. Plugin Name of the plugin
 #: booking-engine-connector.php
-#: includes/Admin/AdminMenu.php:107
+#: includes/Admin/AdminMenu.php:117
 msgid "Booking Engine Connector"
 msgstr ""
 
@@ -40,50 +40,58 @@ msgstr ""
 msgid "https://robbdev.com"
 msgstr ""
 
-#: includes/Admin/AdminMenu.php:32
 #: includes/Admin/AdminMenu.php:33
+#: includes/Admin/AdminMenu.php:34
+#: includes/Elementor/DynamicTagsRegistrar.php:32
 msgid "Booking Engine"
 msgstr ""
 
-#: includes/Admin/AdminMenu.php:43
 #: includes/Admin/AdminMenu.php:44
+#: includes/Admin/AdminMenu.php:45
 msgid "Dashboard"
 msgstr ""
 
-#: includes/Admin/AdminMenu.php:52
 #: includes/Admin/AdminMenu.php:53
+#: includes/Admin/AdminMenu.php:54
 #: includes/Admin/Settings/ConnectionPage.php:51
 msgid "Connection"
 msgstr ""
 
-#: includes/Admin/AdminMenu.php:61
 #: includes/Admin/AdminMenu.php:62
+#: includes/Admin/AdminMenu.php:63
 msgid "Styling"
 msgstr ""
 
-#: includes/Admin/AdminMenu.php:70
 #: includes/Admin/AdminMenu.php:71
+#: includes/Admin/AdminMenu.php:72
+#: includes/Admin/Settings/StylingPage.php:169
+#: includes/Admin/Settings/UnitFiltersPage.php:45
+msgid "Unit filters"
+msgstr ""
+
+#: includes/Admin/AdminMenu.php:80
+#: includes/Admin/AdminMenu.php:81
 msgid "Sync"
 msgstr ""
 
-#: includes/Admin/AdminMenu.php:79
-#: includes/Admin/AdminMenu.php:80
+#: includes/Admin/AdminMenu.php:89
+#: includes/Admin/AdminMenu.php:90
 #: includes/Admin/Settings/UnitPermalinkPage.php:46
 msgid "Units — permalinks"
 msgstr ""
 
-#: includes/Admin/AdminMenu.php:88
-#: includes/Admin/AdminMenu.php:89
+#: includes/Admin/AdminMenu.php:98
+#: includes/Admin/AdminMenu.php:99
 msgid "API Log"
 msgstr ""
 
-#: includes/Admin/AdminMenu.php:97
-#: includes/Admin/AdminMenu.php:98
+#: includes/Admin/AdminMenu.php:107
+#: includes/Admin/AdminMenu.php:108
 #: includes/Admin/Settings/FallbackPage.php:51
 msgid "Checkout & fallback"
 msgstr ""
 
-#: includes/Admin/AdminMenu.php:108
+#: includes/Admin/AdminMenu.php:118
 msgid "Configure connection, sync, and shortcodes from the submenus."
 msgstr ""
 
@@ -94,8 +102,8 @@ msgstr ""
 #: includes/Admin/ApiLogPage.php:71
 #: includes/Admin/ApiLogPage.php:92
 #: includes/Admin/Settings/ConnectionPage.php:61
-#: includes/PostTypes/UnitPostType.php:367
-#: includes/PostTypes/UnitPostType.php:456
+#: includes/PostTypes/UnitPostType.php:373
+#: includes/PostTypes/UnitPostType.php:462
 msgid "Provider"
 msgstr ""
 
@@ -264,7 +272,8 @@ msgid "Kross Booking"
 msgstr ""
 
 #: includes/Admin/Settings/FallbackPage.php:46
-#: includes/Admin/Settings/StylingPage.php:90
+#: includes/Admin/Settings/StylingPage.php:91
+#: includes/Admin/Settings/UnitFiltersPage.php:40
 #: includes/Admin/Settings/UnitPermalinkPage.php:41
 msgid "Settings saved."
 msgstr ""
@@ -371,87 +380,137 @@ msgid "When the quote request fails with one of these categories, show fallback 
 msgstr ""
 
 #: includes/Admin/Settings/FallbackPage.php:155
-#: includes/Admin/Settings/StylingPage.php:168
+#: includes/Admin/Settings/StylingPage.php:186
+#: includes/Admin/Settings/UnitFiltersPage.php:114
 #: includes/Admin/Settings/UnitPermalinkPage.php:99
 msgid "Save changes"
 msgstr ""
 
-#: includes/Admin/Settings/StylingPage.php:95
+#: includes/Admin/Settings/StylingPage.php:96
 msgid "Styling (shortcodes)"
 msgstr ""
 
-#: includes/Admin/Settings/StylingPage.php:96
+#: includes/Admin/Settings/StylingPage.php:97
 msgid "Tune the search form and booking summary with a small semantic token block (colors, font stack, radius scale). Detailed layout or vendor overrides (.daterangepicker, etc.) go in Extra CSS below. Preset layout CSS loads first; shared tokens and Extra CSS load last."
 msgstr ""
 
-#: includes/Admin/Settings/StylingPage.php:105
+#: includes/Admin/Settings/StylingPage.php:106
 msgid "Design system (shared tokens)"
 msgstr ""
 
-#: includes/Admin/Settings/StylingPage.php:106
+#: includes/Admin/Settings/StylingPage.php:107
 msgid "Edit the semantic tokens (--bec-font-family, --bec-color-*, --bec-radius-*). Plain properties are applied on :root in late CSS so they reach portaled pickers (calendar, guest sheet); they also affect the rest of the site for any other use of the same --bec-* names. Paste a full selector block anytime you need narrower scoping or finer control."
 msgstr ""
 
-#: includes/Admin/Settings/StylingPage.php:112
+#: includes/Admin/Settings/StylingPage.php:113
 msgid "Search bar"
 msgstr ""
 
-#: includes/Admin/Settings/StylingPage.php:114
-#: includes/Admin/Settings/StylingPage.php:140
+#: includes/Admin/Settings/StylingPage.php:115
+#: includes/Admin/Settings/StylingPage.php:141
 msgid "Layout style"
 msgstr ""
 
-#: includes/Admin/Settings/StylingPage.php:116
+#: includes/Admin/Settings/StylingPage.php:117
 msgid "Enhanced — date range + guest popover"
 msgstr ""
 
-#: includes/Admin/Settings/StylingPage.php:120
+#: includes/Admin/Settings/StylingPage.php:121
 msgid "Classic — separate fields"
 msgstr ""
 
-#: includes/Admin/Settings/StylingPage.php:125
+#: includes/Admin/Settings/StylingPage.php:126
 msgid "Applies to [bec_search] and embedded search inside [bec_booking_summary]."
 msgstr ""
 
-#: includes/Admin/Settings/StylingPage.php:130
+#: includes/Admin/Settings/StylingPage.php:131
 msgid "Search — extra CSS"
 msgstr ""
 
-#: includes/Admin/Settings/StylingPage.php:132
+#: includes/Admin/Settings/StylingPage.php:133
 msgid "Optional. Target classes such as .bec-search-form, .bec-search-form-wrap--enhanced, .daterangepicker."
 msgstr ""
 
-#: includes/Admin/Settings/StylingPage.php:138
-#: includes/Shortcodes/BookingSummary/BookingSummaryRenderer.php:636
+#: includes/Admin/Settings/StylingPage.php:139
+#: includes/Shortcodes/BookingSummary/BookingSummaryRenderer.php:649
 msgid "Booking summary"
 msgstr ""
 
-#: includes/Admin/Settings/StylingPage.php:142
+#: includes/Admin/Settings/StylingPage.php:143
 msgid "Default — search panel above summary content"
 msgstr ""
 
-#: includes/Admin/Settings/StylingPage.php:146
+#: includes/Admin/Settings/StylingPage.php:147
 msgid "Compact — search panel after summary blocks (desktop)"
 msgstr ""
 
-#: includes/Admin/Settings/StylingPage.php:153
+#: includes/Admin/Settings/StylingPage.php:154
 msgid "Rate details accordions"
 msgstr ""
 
-#: includes/Admin/Settings/StylingPage.php:155
+#: includes/Admin/Settings/StylingPage.php:156
 msgid "Show the inclusions accordion when the rate provides text."
 msgstr ""
 
-#: includes/Admin/Settings/StylingPage.php:157
+#: includes/Admin/Settings/StylingPage.php:158
 msgid "Show the conditions accordion when the rate provides text."
 msgstr ""
 
-#: includes/Admin/Settings/StylingPage.php:160
+#: includes/Admin/Settings/StylingPage.php:161
 msgid "Booking summary — extra CSS"
 msgstr ""
 
-#: includes/Admin/Settings/StylingPage.php:162
+#: includes/Admin/Settings/StylingPage.php:163
 msgid "Optional. Target .bec-booking-summary and inner BEM classes."
+msgstr ""
+
+#: includes/Admin/Settings/StylingPage.php:170
+msgid "Styles for [bec_unit_filters]. Enable which amenities appear under Booking Engine → Unit filters."
+msgstr ""
+
+#: includes/Admin/Settings/StylingPage.php:175
+msgid "Unit filters — extra CSS"
+msgstr ""
+
+#: includes/Admin/Settings/StylingPage.php:180
+msgid "Optional. Target .bec-unit-filters, .bec-unit-filters__field, .bec-unit-filters__checkboxes, .bec-unit-filters__actions."
+msgstr ""
+
+#: includes/Admin/Settings/UnitFiltersPage.php:46
+msgid "Choose which amenities appear in the [bec_unit_filters] shortcode. Styling for the filter form is under Booking Engine → Styling."
+msgstr ""
+
+#: includes/Admin/Settings/UnitFiltersPage.php:52
+msgid "Amenity index is still building in the background. Options may be incomplete until indexing finishes."
+msgstr ""
+
+#: includes/Admin/Settings/UnitFiltersPage.php:61
+msgid "Search amenities"
+msgstr ""
+
+#: includes/Admin/Settings/UnitFiltersPage.php:66
+msgid "Search"
+msgstr ""
+
+#: includes/Admin/Settings/UnitFiltersPage.php:76
+msgid "Amenity"
+msgstr ""
+
+#: includes/Admin/Settings/UnitFiltersPage.php:77
+msgid "Category"
+msgstr ""
+
+#: includes/Admin/Settings/UnitFiltersPage.php:78
+#: includes/PostTypes/UnitPostType.php:111
+msgid "Units"
+msgstr ""
+
+#: includes/Admin/Settings/UnitFiltersPage.php:79
+msgid "Display label (optional)"
+msgstr ""
+
+#: includes/Admin/Settings/UnitFiltersPage.php:83
+msgid "No indexed amenities yet. Sync units from the booking engine first."
 msgstr ""
 
 #: includes/Admin/Settings/UnitPermalinkPage.php:47
@@ -505,197 +564,319 @@ msgstr ""
 msgid "Category term URLs look like %1$s. Leave empty to use the default base “%2$s”. Disabling categories above removes public archives and the admin UI while keeping stored terms."
 msgstr ""
 
-#: includes/Admin/SyncAdmin.php:64
+#: includes/Admin/SyncAdmin.php:73
 msgid "Sync units"
 msgstr ""
 
 #. translators: 1: created count, 2: updated, 3: skipped
-#: includes/Admin/SyncAdmin.php:78
+#: includes/Admin/SyncAdmin.php:87
 #, php-format
 msgid "Last run: created %1$d, updated %2$d, skipped %3$d."
 msgstr ""
 
 #. translators: 1: unit post ID
-#: includes/Admin/SyncAdmin.php:98
+#: includes/Admin/SyncAdmin.php:107
 #, php-format
 msgid "Gallery file rename for unit #%1$d:"
 msgstr ""
 
 #. translators: 1: number of units processed
-#: includes/Admin/SyncAdmin.php:106
+#: includes/Admin/SyncAdmin.php:115
 #, php-format
 msgid "Gallery file rename across %1$d units:"
 msgstr ""
 
-#: includes/Admin/SyncAdmin.php:111
+#: includes/Admin/SyncAdmin.php:120
 msgid "Gallery file rename:"
 msgstr ""
 
 #. translators: 1: renamed, 2: copied, 3: skipped, 4: failed
-#: includes/Admin/SyncAdmin.php:117
+#: includes/Admin/SyncAdmin.php:126
 #, php-format
 msgid "renamed %1$d, copied %2$d, skipped %3$d, failed %4$d."
 msgstr ""
 
 #. translators: %s datetime
-#: includes/Admin/SyncAdmin.php:141
+#: includes/Admin/SyncAdmin.php:150
 #, php-format
 msgid "Last successful sync completion: %s"
 msgstr ""
 
-#: includes/Admin/SyncAdmin.php:146
+#: includes/Admin/SyncAdmin.php:155
 msgid "Scheduled sync uses WP-Cron; on low-traffic sites runs may be delayed until the next page view."
 msgstr ""
 
-#: includes/Admin/SyncAdmin.php:151
+#: includes/Admin/SyncAdmin.php:160
 msgid "Schedule"
 msgstr ""
 
-#: includes/Admin/SyncAdmin.php:152
+#: includes/Admin/SyncAdmin.php:161
 msgid "Interval (hours)"
 msgstr ""
 
-#: includes/Admin/SyncAdmin.php:154
+#: includes/Admin/SyncAdmin.php:163
 msgid "How often the scheduled sync runs (1–168)."
 msgstr ""
 
-#: includes/Admin/SyncAdmin.php:164
+#: includes/Admin/SyncAdmin.php:173
 msgid "Kross booking engines"
 msgstr ""
 
-#: includes/Admin/SyncAdmin.php:165
+#: includes/Admin/SyncAdmin.php:174
 msgid "Sync only units whose Kross payload includes the room’s enabled booking-engine slugs (`be_enabled`). Matching any selected slug includes the unit."
 msgstr ""
 
-#: includes/Admin/SyncAdmin.php:169
+#: includes/Admin/SyncAdmin.php:178
 msgid "Leave all unchecked to sync every Kross room type from this property."
 msgstr ""
 
-#: includes/Admin/SyncAdmin.php:175
+#: includes/Admin/SyncAdmin.php:184
 msgid "Booking engines"
 msgstr ""
 
-#: includes/Admin/SyncAdmin.php:177
+#: includes/Admin/SyncAdmin.php:186
 msgid "Refresh booking engines list from Kross"
 msgstr ""
 
-#: includes/Admin/SyncAdmin.php:181
+#: includes/Admin/SyncAdmin.php:190
 msgid "Merges all `be_enabled` values discovered from `/v5/rooms/get-room-types` into the checklist below."
 msgstr ""
 
-#: includes/Admin/SyncAdmin.php:187
+#: includes/Admin/SyncAdmin.php:196
 msgid "No engines cached yet — use Refresh to populate this list."
 msgstr ""
 
-#: includes/Admin/SyncAdmin.php:192
+#: includes/Admin/SyncAdmin.php:201
 msgid "Kross booking engine slugs to include in sync"
 msgstr ""
 
-#: includes/Admin/SyncAdmin.php:216
+#: includes/Admin/SyncAdmin.php:225
 msgid "Gallery image filenames"
 msgstr ""
 
-#: includes/Admin/SyncAdmin.php:217
+#: includes/Admin/SyncAdmin.php:226
 msgid "Synced unit images are saved with: prefix + unit name (slug) + suffix + order index + file extension. Leave prefix and suffix empty to use only the unit name."
 msgstr ""
 
-#: includes/Admin/SyncAdmin.php:222
+#: includes/Admin/SyncAdmin.php:231
 msgid "Filename prefix"
 msgstr ""
 
-#: includes/Admin/SyncAdmin.php:224
+#: includes/Admin/SyncAdmin.php:233
 msgid "Optional text prepended to each file base name (safe characters only)."
 msgstr ""
 
-#: includes/Admin/SyncAdmin.php:226
+#: includes/Admin/SyncAdmin.php:235
 msgid "Filename suffix (before index)"
 msgstr ""
 
-#: includes/Admin/SyncAdmin.php:228
+#: includes/Admin/SyncAdmin.php:237
 msgid "Placed after the unit name slug, before the numeric index (e.g. \"-room\")."
 msgstr ""
 
-#: includes/Admin/SyncAdmin.php:234
+#: includes/Admin/SyncAdmin.php:243
 msgid "Save sync settings"
 msgstr ""
 
-#: includes/Admin/SyncAdmin.php:240
+#: includes/Admin/SyncAdmin.php:249
 msgid "Run sync now"
 msgstr ""
 
-#: includes/Admin/SyncAdmin.php:244
+#: includes/Admin/SyncAdmin.php:252
+msgid "Sync lock"
+msgstr ""
+
+#: includes/Admin/SyncAdmin.php:254
+msgid "The sync lock prevents overlapping full syncs. If a run was interrupted you may see “Another sync is already running” until the lock expires or you clear it here."
+msgstr ""
+
+#: includes/Admin/SyncAdmin.php:258
+msgid "Current status:"
+msgstr ""
+
+#: includes/Admin/SyncAdmin.php:260
+msgid "Lock is set (a sync may be in progress or stale)."
+msgstr ""
+
+#: includes/Admin/SyncAdmin.php:261
+msgid "No lock is set."
+msgstr ""
+
+#: includes/Admin/SyncAdmin.php:264
+msgid "Clear the sync lock? Only do this if no sync is running. Active syncs may be affected."
+msgstr ""
+
+#: includes/Admin/SyncAdmin.php:271
+msgid "Clear sync lock"
+msgstr ""
+
+#: includes/Admin/SyncAdmin.php:278
 msgid "Sync progress"
 msgstr ""
 
-#: includes/Admin/SyncAdmin.php:249
+#: includes/Admin/SyncAdmin.php:283
 msgid "Gallery file names"
 msgstr ""
 
-#: includes/Admin/SyncAdmin.php:250
+#: includes/Admin/SyncAdmin.php:284
 msgid "Apply the current filename prefix/suffix settings to images already stored in each unit’s gallery. Images shared by more than one unit are copied for this unit so other units are not affected. This may take a while on large sites."
 msgstr ""
 
-#: includes/Admin/SyncAdmin.php:257
+#: includes/Admin/SyncAdmin.php:291
 msgid "Rename all unit gallery files"
 msgstr ""
 
-#: includes/Admin/SyncAdmin.php:285
+#: includes/Admin/SyncAdmin.php:319
 msgid "Sync failed."
 msgstr ""
 
 #. translators: 1: created posts, 2: updated posts, 3: skipped posts
-#: includes/Admin/SyncAdmin.php:290
+#: includes/Admin/SyncAdmin.php:324
 #, php-format
 msgid "Created %1$d, updated %2$d, skipped %3$d."
 msgstr ""
 
-#: includes/Admin/SyncAdmin.php:294
+#: includes/Admin/SyncAdmin.php:328
 msgid "Sync request failed or returned an unexpected response. Try again or disable JavaScript to use the standard sync."
 msgstr ""
 
-#. translators: %s error detail
-#: includes/Admin/SyncAdmin.php:721
-#, php-format
-msgid "Sync failed unexpectedly: %s"
-msgstr ""
-
-#: includes/Admin/SyncAdmin.php:306
-#: includes/Admin/SyncAdmin.php:354
-#: includes/Admin/SyncAdmin.php:459
-#: includes/Admin/SyncAdmin.php:474
-#: includes/Admin/SyncAdmin.php:488
-#: includes/Admin/SyncAdmin.php:517
-#: includes/Admin/SyncAdmin.php:533
-#: includes/Admin/SyncAdmin.php:556
+#: includes/Admin/SyncAdmin.php:340
+#: includes/Admin/SyncAdmin.php:380
+#: includes/Admin/SyncAdmin.php:486
+#: includes/Admin/SyncAdmin.php:769
+#: includes/Admin/SyncAdmin.php:874
+#: includes/Admin/SyncAdmin.php:900
+#: includes/Admin/SyncAdmin.php:914
+#: includes/Admin/SyncAdmin.php:937
+#: includes/Admin/SyncAdmin.php:966
+#: includes/Admin/SyncAdmin.php:982
+#: includes/Admin/SyncAdmin.php:1005
 msgid "Insufficient permissions."
 msgstr ""
 
-#: includes/Admin/SyncAdmin.php:331
+#: includes/Admin/SyncAdmin.php:365
 msgid "Waiting for sync to start…"
 msgstr ""
 
-#: includes/Admin/SyncAdmin.php:406
+#: includes/Admin/SyncAdmin.php:392
+#: includes/Admin/SyncAdmin.php:496
+msgid "Invalid sync run id."
+msgstr ""
+
+#: includes/Admin/SyncAdmin.php:402
+#: includes/Sync/SyncService.php:52
+msgid "Another sync is already running."
+msgstr ""
+
+#: includes/Admin/SyncAdmin.php:408
+#: includes/Sync/SyncService.php:30
+msgid "Starting sync…"
+msgstr ""
+
+#: includes/Admin/SyncAdmin.php:410
+msgid "Preparing batched sync (each step runs briefly so the browser does not time out)."
+msgstr ""
+
+#: includes/Admin/SyncAdmin.php:419
+#: includes/Sync/SyncService.php:76
+msgid "Provider credentials are incomplete."
+msgstr ""
+
+#: includes/Admin/SyncAdmin.php:463
+#: includes/Sync/SyncService.php:109
+msgid "No remote unit rows returned."
+msgstr ""
+
+#. translators: %d: number of remote rows to process
+#: includes/Admin/SyncAdmin.php:468
+#: includes/Sync/SyncService.php:114
+#, php-format
+msgid "%d remote unit row to process."
+msgid_plural "%d remote unit rows to process."
+msgstr[0] ""
+msgstr[1] ""
+
+#: includes/Admin/SyncAdmin.php:507
+msgid "Sync lock was lost or this run expired. Start a new sync."
+msgstr ""
+
+#: includes/Admin/SyncAdmin.php:523
+msgid "Sync batch state expired or was cleared. Start a new sync."
+msgstr ""
+
+#. translators: %d: WordPress post ID
+#: includes/Admin/SyncAdmin.php:562
+#, php-format
+msgid "Starting deferred gallery import for unit #%d…"
+msgstr ""
+
+#. translators: %d: WordPress post ID
+#: includes/Admin/SyncAdmin.php:600
+#, php-format
+msgid "Gallery import finished for unit #%d."
+msgstr ""
+
+#. translators: 1: current index, 2: total rows
+#: includes/Admin/SyncAdmin.php:638
+#: includes/Sync/SyncService.php:136
+#, php-format
+msgid "Row %1$d/%2$d: skipped (no external ID)."
+msgstr ""
+
+#. translators: 1: current index, 2: total rows, 3: unit title
+#: includes/Admin/SyncAdmin.php:649
+#: includes/Sync/SyncService.php:152
+#, php-format
+msgid "Processing %1$d/%2$d: %3$s"
+msgstr ""
+
+#. translators: %s: external id
+#: includes/Admin/SyncAdmin.php:664
+#: includes/Sync/SyncService.php:169
+#, php-format
+msgid "Created unit for external ID %s."
+msgstr ""
+
+#. translators: %s: external id
+#: includes/Admin/SyncAdmin.php:673
+#: includes/Sync/SyncService.php:180
+#, php-format
+msgid "Updated unit for external ID %s."
+msgstr ""
+
+#. translators: %s: external id
+#: includes/Admin/SyncAdmin.php:682
+#: includes/Sync/SyncService.php:191
+#, php-format
+msgid "Skipped external ID %s."
+msgstr ""
+
+#: includes/Admin/SyncAdmin.php:821
 msgid "Sync now"
 msgstr ""
 
-#: includes/Admin/SyncAdmin.php:412
+#: includes/Admin/SyncAdmin.php:827
 msgid "Rename gallery files"
 msgstr ""
 
-#: includes/Admin/SyncAdmin.php:423
+#: includes/Admin/SyncAdmin.php:838
 msgid "Sync with provider"
 msgstr ""
 
-#: includes/Admin/SyncAdmin.php:566
+#: includes/Admin/SyncAdmin.php:920
+msgid "This action is disabled."
+msgstr ""
+
+#: includes/Admin/SyncAdmin.php:1015
 msgid "Booking engine discovery is available only while Kross is the active provider."
 msgstr ""
 
-#: includes/Admin/SyncAdmin.php:585
+#: includes/Admin/SyncAdmin.php:1034
 msgid "Complete Kross credentials on the Connection page before refreshing booking engines."
 msgstr ""
 
 #. translators: %d number of distinct booking-engine slugs cached after refresh
-#: includes/Admin/SyncAdmin.php:611
+#: includes/Admin/SyncAdmin.php:1060
 #, php-format
 msgid "Booking engines list refreshed. %d slug cached."
 msgid_plural "Booking engines list refreshed. %d slugs cached."
@@ -703,34 +884,38 @@ msgstr[0] ""
 msgstr[1] ""
 
 #. translators: %s error detail
-#: includes/Admin/SyncAdmin.php:641
+#: includes/Admin/SyncAdmin.php:1090
 #, php-format
 msgid "Could not refresh booking engines: %s"
 msgstr ""
 
-#: includes/Admin/SyncAdmin.php:662
+#: includes/Admin/SyncAdmin.php:1111
 msgid "Sync settings saved."
 msgstr ""
 
+#: includes/Admin/SyncAdmin.php:1117
+msgid "Sync lock was cleared."
+msgstr ""
+
+#. translators: %s error detail
+#: includes/Admin/SyncAdmin.php:1168
+#, php-format
+msgid "Sync failed unexpectedly: %s"
+msgstr ""
+
 #: includes/Checkout/BookingCtaRenderer.php:32
-#: includes/Shortcodes/ShortcodeRegistry.php:210
+#: includes/Shortcodes/ShortcodeRegistry.php:452
 msgid "Available for your dates."
 msgstr ""
 
 #: includes/Checkout/BookingCtaRenderer.php:37
-#: includes/Shortcodes/ShortcodeRegistry.php:205
+#: includes/Shortcodes/ShortcodeRegistry.php:447
 msgid "No availability for these dates."
 msgstr ""
 
-#. translators: %s: formatted price including currency when applicable
-#: includes/Shortcodes/ShortcodeRegistry.php:392
-#, php-format
-msgid "From %s"
-msgstr ""
-
 #: includes/Checkout/CheckoutCtaHtml.php:24
-#: includes/Providers/Kross/KrossProvider.php:448
-#: includes/Providers/Kross/KrossProvider.php:453
+#: includes/Providers/Kross/KrossProvider.php:458
+#: includes/Providers/Kross/KrossProvider.php:463
 msgid "Book now"
 msgstr ""
 
@@ -746,9 +931,33 @@ msgstr ""
 msgid "Documentation"
 msgstr ""
 
+#: includes/Elementor/DynamicTags/UnitGalleryTag.php:26
+msgid "Unit gallery"
+msgstr ""
+
+#: includes/Elementor/DynamicTags/UnitGalleryTag.php:44
+msgid "Image limit"
+msgstr ""
+
+#: includes/Elementor/DynamicTags/UnitGalleryTag.php:49
+msgid "Maximum images to include. Use 0 for the full gallery."
+msgstr ""
+
+#: includes/Elementor/DynamicTags/UnitGalleryTag.php:56
+msgid "Offset"
+msgstr ""
+
+#: includes/Elementor/DynamicTags/UnitGalleryTag.php:67
+msgid "Unit ID"
+msgstr ""
+
+#: includes/Elementor/DynamicTags/UnitGalleryTag.php:72
+msgid "Leave empty to use the current post (single unit or loop item)."
+msgstr ""
+
 #. translators: Default fallback link label when none is saved in settings.
 #: includes/Fallback/FallbackRenderer.php:24
-#: includes/Shortcodes/BookingSummary/BookingSummaryRenderer.php:74
+#: includes/Shortcodes/BookingSummary/BookingSummaryRenderer.php:78
 msgid "Contact us"
 msgstr ""
 
@@ -756,33 +965,73 @@ msgstr ""
 msgid "Add fallback content or link in Booking Engine → Fallback."
 msgstr ""
 
+#: includes/Formatting/DateFormatter.php:121
+#, php-format
+msgid "%1$s → %2$s"
+msgstr ""
+
+#: includes/Formatting/DateFormatter.php:125
+#, php-format
+msgid "From %1$s to %2$s"
+msgstr ""
+
+#. translators: 1: from date, 2: to date
+#: includes/Formatting/DateFormatter.php:129
+#: includes/Shortcodes/BookingSummary/BookingSummaryRenderer.php:579
+#, php-format
+msgid "from %1$s to %2$s"
+msgstr ""
+
+#: includes/Front/PublicAssets.php:114
+#: includes/UnitFilters/UnitFilterShortcodeRenderer.php:215
+#: includes/UnitFilters/UnitFilterShortcodeRenderer.php:236
+#: includes/UnitFilters/UnitFilterShortcodeRenderer.php:262
+#: includes/UnitFilters/UnitFilterShortcodeRenderer.php:300
+msgid "Any"
+msgstr ""
+
+#: includes/Front/PublicAssets.php:115
+#: includes/UnitFilters/UnitFilterShortcodeRenderer.php:412
+msgid "Pick desired amenities"
+msgstr ""
+
+#. translators: 1: number of selected amenities, 2: total number of amenity choices.
+#: includes/Front/PublicAssets.php:117
+#: includes/Front/PublicAssets.php:124
+#: includes/UnitFilters/UnitFilterShortcodeRenderer.php:420
+#, php-format
+msgid "%1$d of %2$d selected"
+msgid_plural "%1$d of %2$d selected"
+msgstr[0] ""
+msgstr[1] ""
+
 #. translators: %d number of adults when only adults are counted (singular)
-#: includes/Front/PublicAssets.php:85
+#: includes/Front/PublicAssets.php:145
 #, php-format
 msgid "%d adult"
 msgstr ""
 
 #. translators: %d number of adults when only adults are counted (plural)
-#: includes/Front/PublicAssets.php:87
+#: includes/Front/PublicAssets.php:147
 #, php-format
 msgid "%d adults"
 msgstr ""
 
 #. translators: 1: adults count, 2: children count
-#: includes/Front/PublicAssets.php:89
+#: includes/Front/PublicAssets.php:149
 #, php-format
 msgid "%1$d adults · %2$d children"
 msgstr ""
 
 #. translators: %d total guest count (singular)
-#: includes/Front/PublicAssets.php:91
+#: includes/Front/PublicAssets.php:151
 #, php-format
 msgid "%d guest"
 msgstr ""
 
 #. translators: %d total guest count (plural)
 #. translators: %d: total number of guests
-#: includes/Front/PublicAssets.php:93
+#: includes/Front/PublicAssets.php:153
 #: includes/Shortcodes/BookingSummary/BookingSummaryViewModelBuilder.php:777
 #, php-format
 msgid "%d guests"
@@ -790,54 +1039,58 @@ msgstr ""
 
 #. translators: %d child index (display order starts at 1)
 #. translators: %d: child index (1-based)
-#: includes/Front/PublicAssets.php:95
-#: includes/Search/SearchForm.php:237
-#: includes/Search/SearchForm.php:378
+#: includes/Front/PublicAssets.php:155
+#: includes/Search/SearchForm.php:272
+#: includes/Search/SearchForm.php:417
 #, php-format
 msgid "Child %d age"
 msgstr ""
 
-#: includes/Front/PublicAssets.php:96
-#: includes/Search/SearchForm.php:386
+#: includes/Front/PublicAssets.php:156
+#: includes/Search/SearchForm.php:425
 msgid "Age"
 msgstr ""
 
-#: includes/Front/PublicAssets.php:105
-#: includes/Search/SearchForm.php:402
+#: includes/Front/PublicAssets.php:165
+#: includes/Search/SearchForm.php:441
 msgid "Apply"
 msgstr ""
 
-#: includes/Front/PublicAssets.php:106
-#: includes/Search/SearchForm.php:401
+#: includes/Front/PublicAssets.php:166
+#: includes/Search/SearchForm.php:440
 msgid "Cancel"
 msgstr ""
 
-#: includes/Front/PublicAssets.php:107
-#: includes/Search/SearchForm.php:83
-#: includes/Search/SearchForm.php:102
-#: includes/Search/SearchForm.php:266
+#: includes/Front/PublicAssets.php:167
+#: includes/Search/SearchForm.php:91
+#: includes/Search/SearchForm.php:110
+#: includes/Search/SearchForm.php:305
 msgid "Check-in"
 msgstr ""
 
-#: includes/Front/PublicAssets.php:108
-#: includes/Search/SearchForm.php:88
-#: includes/Search/SearchForm.php:107
-#: includes/Search/SearchForm.php:269
+#: includes/Front/PublicAssets.php:168
+#: includes/Search/SearchForm.php:96
+#: includes/Search/SearchForm.php:115
+#: includes/Search/SearchForm.php:308
 msgid "Check-out"
 msgstr ""
 
 #. translators: Label between displayed start/end dates where a range picker shows a textual range. Often an en dash with spaces.
-#: includes/Front/PublicAssets.php:110
+#: includes/Front/PublicAssets.php:170
 msgid " – "
 msgstr ""
 
-#: includes/Front/PublicAssets.php:111
+#: includes/Front/PublicAssets.php:171
 msgid "Custom"
 msgstr ""
 
 #. translators: Shown where check-in/out dates are not yet chosen (datepicker readout); use a short dash or “Select dates” style label.
-#: includes/Front/PublicAssets.php:113
+#: includes/Front/PublicAssets.php:173
 msgid "—"
+msgstr ""
+
+#: includes/Media/RemoteGalleryImporter.php:93
+msgid "Invalid gallery import state."
 msgstr ""
 
 #: includes/PostTypes/UnitPostType.php:102
@@ -878,10 +1131,6 @@ msgstr ""
 
 #: includes/PostTypes/UnitPostType.php:110
 msgid "View Unit"
-msgstr ""
-
-#: includes/PostTypes/UnitPostType.php:111
-msgid "Units"
 msgstr ""
 
 #: includes/PostTypes/UnitPostType.php:112
@@ -950,49 +1199,49 @@ msgctxt "Screen reader text for items list"
 msgid "Units list"
 msgstr ""
 
-#: includes/PostTypes/UnitPostType.php:339
+#: includes/PostTypes/UnitPostType.php:345
 msgid "Booking engine — synced data"
 msgstr ""
 
-#: includes/PostTypes/UnitPostType.php:366
-#: includes/PostTypes/UnitPostType.php:455
+#: includes/PostTypes/UnitPostType.php:372
+#: includes/PostTypes/UnitPostType.php:461
 msgid "External ID"
 msgstr ""
 
-#: includes/PostTypes/UnitPostType.php:368
+#: includes/PostTypes/UnitPostType.php:374
 msgid "Last sync (stored)"
 msgstr ""
 
-#: includes/PostTypes/UnitPostType.php:369
+#: includes/PostTypes/UnitPostType.php:375
 msgid "Sync enabled"
 msgstr ""
 
-#: includes/PostTypes/UnitPostType.php:372
+#: includes/PostTypes/UnitPostType.php:378
 msgid "Read-only fields from the booking engine sync. Use the JSON below to see every key returned for this unit (e.g. for templates and shortcodes)."
 msgstr ""
 
-#: includes/PostTypes/UnitPostType.php:383
+#: includes/PostTypes/UnitPostType.php:389
 msgid "Yes"
 msgstr ""
 
-#: includes/PostTypes/UnitPostType.php:383
+#: includes/PostTypes/UnitPostType.php:389
 msgid "No"
 msgstr ""
 
-#: includes/PostTypes/UnitPostType.php:407
+#: includes/PostTypes/UnitPostType.php:413
 msgid "Remote row (JSON)"
 msgstr ""
 
-#: includes/PostTypes/UnitPostType.php:410
+#: includes/PostTypes/UnitPostType.php:416
 msgid "No payload stored yet. After the next successful sync, the full remote row will appear here."
 msgstr ""
 
-#: includes/PostTypes/UnitPostType.php:457
+#: includes/PostTypes/UnitPostType.php:463
 msgid "Last sync"
 msgstr ""
 
 #. translators: Kross API field indicating which booking engine slugs enable this unit.
-#: includes/PostTypes/UnitPostType.php:461
+#: includes/PostTypes/UnitPostType.php:467
 msgid "Kross BE enabled"
 msgstr ""
 
@@ -1046,30 +1295,30 @@ msgstr ""
 msgid "Kross token response did not contain data.auth_token."
 msgstr ""
 
-#: includes/Providers/Kross/KrossProvider.php:168
+#: includes/Providers/Kross/KrossProvider.php:178
 msgid "Kross get-room-types request was not successful."
 msgstr ""
 
-#: includes/Providers/Kross/KrossProvider.php:201
+#: includes/Providers/Kross/KrossProvider.php:211
 msgid "Kross get-room-types-categories request was not successful."
 msgstr ""
 
-#: includes/Providers/Kross/KrossProvider.php:320
+#: includes/Providers/Kross/KrossProvider.php:330
 msgid "Search context must include check-in and check-out dates."
 msgstr ""
 
-#: includes/Providers/Kross/KrossProvider.php:368
+#: includes/Providers/Kross/KrossProvider.php:378
 msgid "Kross calendar/book request was not successful."
 msgstr ""
 
 #. translators: %d HTTP status
-#: includes/Providers/Kross/KrossProvider.php:540
+#: includes/Providers/Kross/KrossProvider.php:550
 #, php-format
 msgid "Kross API request failed (%d)."
 msgstr ""
 
 #. translators: %d Kross API error_code
-#: includes/Providers/Kross/KrossProvider.php:565
+#: includes/Providers/Kross/KrossProvider.php:575
 #, php-format
 msgid "(error_code %d)"
 msgstr ""
@@ -1087,96 +1336,96 @@ msgid "Kross error (RUID: %s)."
 msgstr ""
 
 #. translators: 1: number of beds, 2: bed type label
-#: includes/Providers/Kross/KrossUnitInfoRenderers.php:457
+#: includes/Providers/Kross/KrossUnitInfoRenderers.php:462
 #, php-format
 msgid "%1$s × %2$s"
 msgstr ""
 
-#: includes/Providers/Kross/KrossUnitInfoRenderers.php:580
-#: includes/Providers/Kross/KrossUnitInfoRenderers.php:582
-#: includes/Providers/Kross/KrossUnitInfoRenderers.php:617
+#: includes/Providers/Kross/KrossUnitInfoRenderers.php:585
+#: includes/Providers/Kross/KrossUnitInfoRenderers.php:587
+#: includes/Providers/Kross/KrossUnitInfoRenderers.php:622
 msgctxt "bed type in bedroom details"
 msgid "Queen bed"
 msgstr ""
 
-#: includes/Providers/Kross/KrossUnitInfoRenderers.php:584
-#: includes/Providers/Kross/KrossUnitInfoRenderers.php:619
+#: includes/Providers/Kross/KrossUnitInfoRenderers.php:589
+#: includes/Providers/Kross/KrossUnitInfoRenderers.php:624
 msgctxt "bed type in bedroom details"
 msgid "King bed"
 msgstr ""
 
-#: includes/Providers/Kross/KrossUnitInfoRenderers.php:586
-#: includes/Providers/Kross/KrossUnitInfoRenderers.php:621
+#: includes/Providers/Kross/KrossUnitInfoRenderers.php:591
+#: includes/Providers/Kross/KrossUnitInfoRenderers.php:626
 msgctxt "bed type in bedroom details"
 msgid "Single bed"
 msgstr ""
 
-#: includes/Providers/Kross/KrossUnitInfoRenderers.php:588
-#: includes/Providers/Kross/KrossUnitInfoRenderers.php:623
+#: includes/Providers/Kross/KrossUnitInfoRenderers.php:593
+#: includes/Providers/Kross/KrossUnitInfoRenderers.php:628
 msgctxt "bed type in bedroom details"
 msgid "Sofa bed"
 msgstr ""
 
-#: includes/Providers/Kross/KrossUnitInfoRenderers.php:590
-#: includes/Providers/Kross/KrossUnitInfoRenderers.php:625
+#: includes/Providers/Kross/KrossUnitInfoRenderers.php:595
+#: includes/Providers/Kross/KrossUnitInfoRenderers.php:630
 msgctxt "bed type in bedroom details"
 msgid "Bunk bed"
 msgstr ""
 
-#: includes/Providers/Kross/KrossUnitInfoRenderers.php:592
-#: includes/Providers/Kross/KrossUnitInfoRenderers.php:627
+#: includes/Providers/Kross/KrossUnitInfoRenderers.php:597
+#: includes/Providers/Kross/KrossUnitInfoRenderers.php:632
 msgctxt "bed type in bedroom details"
 msgid "Double beds"
 msgstr ""
 
-#: includes/Providers/Kross/KrossUnitInfoRenderers.php:594
-#: includes/Providers/Kross/KrossUnitInfoRenderers.php:629
+#: includes/Providers/Kross/KrossUnitInfoRenderers.php:599
+#: includes/Providers/Kross/KrossUnitInfoRenderers.php:634
 msgctxt "bed type in bedroom details"
 msgid "Toddler bed"
 msgstr ""
 
-#: includes/Providers/Kross/KrossUnitInfoRenderers.php:596
-#: includes/Providers/Kross/KrossUnitInfoRenderers.php:631
+#: includes/Providers/Kross/KrossUnitInfoRenderers.php:601
+#: includes/Providers/Kross/KrossUnitInfoRenderers.php:636
 msgctxt "bed type in bedroom details"
 msgid "Futon"
 msgstr ""
 
-#: includes/Providers/Kross/KrossUnitInfoRenderers.php:598
-#: includes/Providers/Kross/KrossUnitInfoRenderers.php:633
+#: includes/Providers/Kross/KrossUnitInfoRenderers.php:603
+#: includes/Providers/Kross/KrossUnitInfoRenderers.php:638
 msgctxt "bed type in bedroom details"
 msgid "Full bed"
 msgstr ""
 
-#: includes/Providers/Kross/KrossUnitInfoRenderers.php:600
-#: includes/Providers/Kross/KrossUnitInfoRenderers.php:635
+#: includes/Providers/Kross/KrossUnitInfoRenderers.php:605
+#: includes/Providers/Kross/KrossUnitInfoRenderers.php:640
 msgctxt "bed type in bedroom details"
 msgid "Water bed"
 msgstr ""
 
-#: includes/Providers/Kross/KrossUnitInfoRenderers.php:602
-#: includes/Providers/Kross/KrossUnitInfoRenderers.php:637
+#: includes/Providers/Kross/KrossUnitInfoRenderers.php:607
+#: includes/Providers/Kross/KrossUnitInfoRenderers.php:642
 msgctxt "bed type in bedroom details"
 msgid "Murphy bed"
 msgstr ""
 
-#: includes/Providers/Kross/KrossUnitInfoRenderers.php:604
-#: includes/Providers/Kross/KrossUnitInfoRenderers.php:639
+#: includes/Providers/Kross/KrossUnitInfoRenderers.php:609
+#: includes/Providers/Kross/KrossUnitInfoRenderers.php:644
 msgctxt "bed type in bedroom details"
 msgid "Wall bed"
 msgstr ""
 
-#: includes/Providers/Kross/KrossUnitInfoRenderers.php:669
+#: includes/Providers/Kross/KrossUnitInfoRenderers.php:674
 msgid "Sleeping arrangements"
 msgstr ""
 
 #. translators: %d: bedroom number (1-based)
-#: includes/Providers/Kross/KrossUnitInfoRenderers.php:680
+#: includes/Providers/Kross/KrossUnitInfoRenderers.php:685
 #, php-format
 msgid "Bedroom %d"
 msgstr ""
 
 #. translators: %d: room number (1-based)
-#: includes/Providers/Kross/KrossUnitInfoRenderers.php:689
+#: includes/Providers/Kross/KrossUnitInfoRenderers.php:694
 #, php-format
 msgid "Room %d"
 msgstr ""
@@ -1194,57 +1443,57 @@ msgstr ""
 msgid "We could not retrieve a price from the booking provider. Please try again."
 msgstr ""
 
-#: includes/Search/SearchForm.php:93
-#: includes/Search/SearchForm.php:278
-#: includes/Search/SearchForm.php:302
-#: includes/Search/SearchForm.php:339
+#: includes/Search/SearchForm.php:101
+#: includes/Search/SearchForm.php:317
+#: includes/Search/SearchForm.php:341
+#: includes/Search/SearchForm.php:378
 msgid "Guests"
 msgstr ""
 
-#: includes/Search/SearchForm.php:112
-#: includes/Search/SearchForm.php:272
+#: includes/Search/SearchForm.php:120
+#: includes/Search/SearchForm.php:311
 msgid "Adults"
 msgstr ""
 
-#: includes/Search/SearchForm.php:118
-#: includes/Search/SearchForm.php:275
+#: includes/Search/SearchForm.php:126
+#: includes/Search/SearchForm.php:314
 msgid "Children"
 msgstr ""
 
-#: includes/Search/SearchForm.php:218
-#: includes/Search/SearchForm.php:409
+#: includes/Search/SearchForm.php:253
+#: includes/Search/SearchForm.php:448
 msgid "Search availability"
 msgstr ""
 
-#: includes/Search/SearchForm.php:311
+#: includes/Search/SearchForm.php:350
 msgid "Search stays"
 msgstr ""
 
-#: includes/Search/SearchForm.php:313
+#: includes/Search/SearchForm.php:352
 msgid "Select dates"
 msgstr ""
 
-#: includes/Search/SearchForm.php:349
+#: includes/Search/SearchForm.php:388
 msgid "Decrease guests"
 msgstr ""
 
-#: includes/Search/SearchForm.php:351
+#: includes/Search/SearchForm.php:390
 msgid "Increase guests"
 msgstr ""
 
-#: includes/Search/SearchForm.php:357
+#: includes/Search/SearchForm.php:396
 msgid "Decrease adults"
 msgstr ""
 
-#: includes/Search/SearchForm.php:359
+#: includes/Search/SearchForm.php:398
 msgid "Increase adults"
 msgstr ""
 
-#: includes/Search/SearchForm.php:365
+#: includes/Search/SearchForm.php:404
 msgid "Decrease children"
 msgstr ""
 
-#: includes/Search/SearchForm.php:367
+#: includes/Search/SearchForm.php:406
 msgid "Increase children"
 msgstr ""
 
@@ -1278,9 +1527,19 @@ msgstr ""
 msgid "Please enter an age for each child."
 msgstr ""
 
+#: includes/Shortcodes/AvailableUnitsCountShortcodeRenderer.php:98
+#, php-format
+msgid "%d available unit"
+msgstr ""
+
+#: includes/Shortcodes/AvailableUnitsCountShortcodeRenderer.php:99
+#, php-format
+msgid "%d available units"
+msgstr ""
+
 #: includes/Shortcodes/BookingSummary/BookingSummaryRateStateBuilder.php:56
-#: includes/Shortcodes/BookingSummary/BookingSummaryRenderer.php:344
-#: includes/Shortcodes/BookingSummary/BookingSummaryRenderer.php:631
+#: includes/Shortcodes/BookingSummary/BookingSummaryRenderer.php:356
+#: includes/Shortcodes/BookingSummary/BookingSummaryRenderer.php:644
 msgid "Continue"
 msgstr ""
 
@@ -1288,69 +1547,62 @@ msgstr ""
 msgid "City tax not included"
 msgstr ""
 
-#: includes/Shortcodes/BookingSummary/BookingSummaryRenderer.php:76
-#: includes/Shortcodes/BookingSummary/BookingSummaryRenderer.php:169
+#: includes/Shortcodes/BookingSummary/BookingSummaryRenderer.php:80
+#: includes/Shortcodes/BookingSummary/BookingSummaryRenderer.php:175
 msgid "Enquiry"
 msgstr ""
 
-#: includes/Shortcodes/BookingSummary/BookingSummaryRenderer.php:205
-#: includes/Shortcodes/BookingSummary/BookingSummaryRenderer.php:639
+#: includes/Shortcodes/BookingSummary/BookingSummaryRenderer.php:213
+#: includes/Shortcodes/BookingSummary/BookingSummaryRenderer.php:652
 msgid "Summary"
 msgstr ""
 
-#: includes/Shortcodes/BookingSummary/BookingSummaryRenderer.php:219
-#: includes/Shortcodes/BookingSummary/BookingSummaryRenderer.php:620
+#: includes/Shortcodes/BookingSummary/BookingSummaryRenderer.php:227
+#: includes/Shortcodes/BookingSummary/BookingSummaryRenderer.php:633
 msgid "Check availability"
 msgstr ""
 
-#: includes/Shortcodes/BookingSummary/BookingSummaryRenderer.php:244
+#: includes/Shortcodes/BookingSummary/BookingSummaryRenderer.php:252
 msgid "No solution available for the dates and guests indicated."
 msgstr ""
 
-#: includes/Shortcodes/BookingSummary/BookingSummaryRenderer.php:412
+#: includes/Shortcodes/BookingSummary/BookingSummaryRenderer.php:424
 msgid "Search selection"
 msgstr ""
 
-#: includes/Shortcodes/BookingSummary/BookingSummaryRenderer.php:414
+#: includes/Shortcodes/BookingSummary/BookingSummaryRenderer.php:426
 msgid "Stay dates"
 msgstr ""
 
-#: includes/Shortcodes/BookingSummary/BookingSummaryRenderer.php:461
+#: includes/Shortcodes/BookingSummary/BookingSummaryRenderer.php:473
 msgid "Select rate"
 msgstr ""
 
-#: includes/Shortcodes/BookingSummary/BookingSummaryRenderer.php:462
+#: includes/Shortcodes/BookingSummary/BookingSummaryRenderer.php:474
 msgid "Rates"
 msgstr ""
 
-#. translators: 1: from date, 2: to date
-#: includes/Formatting/DateFormatter.php:129
-#: includes/Shortcodes/BookingSummary/BookingSummaryRenderer.php:567
-#, php-format
-msgid "from %1$s to %2$s"
-msgstr ""
-
 #. translators: %d: nights
-#: includes/Shortcodes/BookingSummary/BookingSummaryRenderer.php:575
+#: includes/Shortcodes/BookingSummary/BookingSummaryRenderer.php:587
 #, php-format
 msgid "%d night"
 msgid_plural "%d nights"
 msgstr[0] ""
 msgstr[1] ""
 
-#: includes/Shortcodes/BookingSummary/BookingSummaryRenderer.php:611
+#: includes/Shortcodes/BookingSummary/BookingSummaryRenderer.php:624
 msgid "View details"
 msgstr ""
 
-#: includes/Shortcodes/BookingSummary/BookingSummaryRenderer.php:615
+#: includes/Shortcodes/BookingSummary/BookingSummaryRenderer.php:628
 msgid "Booking on mobile"
 msgstr ""
 
-#: includes/Shortcodes/BookingSummary/BookingSummaryRenderer.php:626
+#: includes/Shortcodes/BookingSummary/BookingSummaryRenderer.php:639
 msgid "Current total"
 msgstr ""
 
-#: includes/Shortcodes/BookingSummary/BookingSummaryRenderer.php:639
+#: includes/Shortcodes/BookingSummary/BookingSummaryRenderer.php:652
 msgid "Back"
 msgstr ""
 
@@ -1403,49 +1655,63 @@ msgid "in rate"
 msgstr ""
 
 #. translators: 1: formatted amount, 2: currency code or symbol (e.g. EUR, €).
-#. translators: 1: formatted amount, 2: currency code
 #: includes/Shortcodes/BookingSummary/BookingSummaryViewModelBuilder.php:738
-#: includes/Shortcodes/ShortcodeRegistry.php:218
 #, php-format
 msgid "%1$s %2$s"
 msgstr ""
 
-#. translators: 1: check-in date, 2: check-out date
-#: includes/Formatting/DateFormatter.php:121
+#. translators: %s: formatted price including currency when applicable
+#: includes/Shortcodes/ShortcodeRegistry.php:465
 #, php-format
-msgid "%1$s → %2$s"
+msgid "From %s"
 msgstr ""
 
-#. translators: 1: check-in date, 2: check-out date
-#: includes/Formatting/DateFormatter.php:125
-#, php-format
-msgid "From %1$s to %2$s"
-msgstr ""
-
-#. translators: 1: formatted amount, 2: currency code (may be empty)
-#: includes/Shortcodes/ShortcodeRegistry.php:230
-#, php-format
-msgid "From %1$s %2$s"
-msgstr ""
-
-#: includes/Sync/CoreUnitFieldRegistry.php:349
+#: includes/Sync/CoreUnitFieldRegistry.php:406
 msgid "Unit — core fields (canonical)"
 msgstr ""
 
-#: includes/Sync/CoreUnitFieldRegistry.php:365
+#: includes/Sync/CoreUnitFieldRegistry.php:422
 msgid "Provider-independent fields used in themes and shortcodes. Sync overwrites these on each run unless disabled via filter."
 msgstr ""
 
-#: includes/Sync/CoreUnitFieldRegistry.php:407
+#: includes/Sync/CoreUnitFieldRegistry.php:464
 msgid "Array of items: key, labels per locale, optional icon. Override via bec_provider_amenities_from_row / bec_kross_amenities_from_raw."
 msgstr ""
 
-#: includes/Sync/CoreUnitFieldRegistry.php:424
-msgid "JSON array of Media Library attachment IDs, e.g. [12,34]. On sync, providers may import remote URLs into attachments automatically."
+#: includes/Sync/CoreUnitFieldRegistry.php:474
+msgid "Derived from latitude and longitude on sync or save."
 msgstr ""
 
-#: includes/Sync/CoreUnitFieldRegistry.php:433
+#: includes/Sync/CoreUnitFieldRegistry.php:483
 msgid "Use decimals if needed (e.g. 1.5)."
+msgstr ""
+
+#: includes/Sync/CoreUnitFieldRegistry.php:539
+msgid "Attachment details"
+msgstr ""
+
+#: includes/Sync/CoreUnitFieldRegistry.php:540
+msgid "Close"
+msgstr ""
+
+#: includes/Sync/CoreUnitFieldRegistry.php:578
+msgid "No images yet. Gallery images are filled by sync (attachment IDs in post meta)."
+msgstr ""
+
+#. translators: %d: attachment post ID
+#: includes/Sync/CoreUnitFieldRegistry.php:603
+#, php-format
+msgid "Missing image attachment #%d"
+msgstr ""
+
+#. translators: %d: attachment post ID
+#: includes/Sync/CoreUnitFieldRegistry.php:607
+#, php-format
+msgid "Attachment %d"
+msgstr ""
+
+#: includes/Sync/CoreUnitFieldRegistry.php:624
+msgid "Open attachment details"
 msgstr ""
 
 #. translators: %d hours
@@ -1464,96 +1730,42 @@ msgstr ""
 msgid "Sync finished."
 msgstr ""
 
-#: includes/Sync/SyncService.php:29
-msgid "Starting sync…"
-msgstr ""
-
-#: includes/Sync/SyncService.php:30
+#: includes/Sync/SyncService.php:31
 msgid "Acquiring sync lock…"
 msgstr ""
 
-#: includes/Sync/SyncService.php:38
-msgid "Another sync is already running."
-msgstr ""
-
-#: includes/Sync/SyncService.php:57
+#: includes/Sync/SyncService.php:71
 msgid "Lock acquired."
 msgstr ""
 
-#: includes/Sync/SyncService.php:62
-msgid "Provider credentials are incomplete."
-msgstr ""
-
-#: includes/Sync/SyncService.php:74
+#: includes/Sync/SyncService.php:88
 msgid "Fetching remote units…"
 msgstr ""
 
-#: includes/Sync/SyncService.php:102
-msgid "No remote unit rows returned."
-msgstr ""
-
-#. translators: %d: number of remote rows to process
-#: includes/Sync/SyncService.php:107
-#, php-format
-msgid "%d remote unit row to process."
-msgid_plural "%d remote unit rows to process."
-msgstr[0] ""
-msgstr[1] ""
-
-#. translators: 1: current index, 2: total rows
-#: includes/Sync/SyncService.php:127
-#, php-format
-msgid "Row %1$d/%2$d: skipped (no external ID)."
-msgstr ""
-
-#. translators: 1: current index, 2: total rows, 3: unit title
-#: includes/Sync/SyncService.php:143
-#, php-format
-msgid "Processing %1$d/%2$d: %3$s"
-msgstr ""
-
-#. translators: %s: external id
-#: includes/Sync/SyncService.php:159
-#, php-format
-msgid "Created unit for external ID %s."
-msgstr ""
-
-#. translators: %s: external id
-#: includes/Sync/SyncService.php:170
-#, php-format
-msgid "Updated unit for external ID %s."
-msgstr ""
-
-#. translators: %s: external id
-#: includes/Sync/SyncService.php:181
-#, php-format
-msgid "Skipped external ID %s."
-msgstr ""
-
-#: includes/Sync/SyncService.php:217
+#: includes/Sync/SyncService.php:231
 msgid "Invalid unit post."
 msgstr ""
 
-#: includes/Sync/SyncService.php:225
+#: includes/Sync/SyncService.php:239
 msgid "Unit has no external ID."
 msgstr ""
 
-#: includes/Sync/SyncService.php:236
+#: includes/Sync/SyncService.php:250
 msgid "Unit provider does not match the active provider."
 msgstr ""
 
-#: includes/Sync/SyncService.php:256
+#: includes/Sync/SyncService.php:270
 msgid "Remote unit not found for this external ID."
 msgstr ""
 
 #. translators: %s external id
-#: includes/Sync/SyncService.php:294
-#: includes/Sync/SyncService.php:385
+#: includes/Sync/SyncService.php:347
+#: includes/Sync/SyncService.php:491
 #, php-format
 msgid "Unit %s"
 msgstr ""
 
-#: includes/Sync/SyncService.php:388
+#: includes/Sync/SyncService.php:494
 msgid "(unnamed)"
 msgstr ""
 
@@ -1563,24 +1775,34 @@ msgstr ""
 msgid "Category %s"
 msgstr ""
 
-#: includes/Sync/UnitSyncFieldRegistry.php:242
+#: includes/Sync/UnitSyncFieldRegistry.php:241
 msgid "Booking engine — unit fields"
 msgstr ""
 
-#: includes/Sync/UnitSyncFieldRegistry.php:260
+#: includes/Sync/UnitSyncFieldRegistry.php:259
 msgid "Save the unit after sync so the provider is set; mapped fields appear per active provider."
 msgstr ""
 
-#: includes/Sync/UnitSyncFieldRegistry.php:270
+#: includes/Sync/UnitSyncFieldRegistry.php:269
 msgid "No extra provider-specific fields are registered. Use the filter bec_unit_sync_field_definitions (or implement getUnitSyncFieldDefinitions) for client-specific mappings. Core fields are in “Unit — core fields (canonical)”."
 msgstr ""
 
-#: includes/Sync/UnitSyncFieldRegistry.php:280
+#: includes/Sync/UnitSyncFieldRegistry.php:279
 msgid "Optional provider-specific meta (in addition to core fields). Values refresh on sync; you can override here for the site."
 msgstr ""
 
-#: includes/Sync/UnitSyncFieldRegistry.php:306
+#: includes/Sync/UnitSyncFieldRegistry.php:305
 msgid "Enabled"
+msgstr ""
+
+#: includes/Taxonomies/UnitAmenityTaxonomy.php:60
+msgctxt "taxonomy general name"
+msgid "Unit amenities"
+msgstr ""
+
+#: includes/Taxonomies/UnitAmenityTaxonomy.php:61
+msgctxt "taxonomy singular name"
+msgid "Unit amenity"
 msgstr ""
 
 #: includes/Taxonomies/UnitCategoryTaxonomy.php:104
@@ -1649,6 +1871,62 @@ msgstr ""
 msgid "← Back to unit categories"
 msgstr ""
 
+#: includes/UnitFilters/UnitFilterRegistry.php:41
+#: includes/UnitFilters/UnitFilterShortcodeRenderer.php:210
+msgid "Order"
+msgstr ""
+
+#: includes/UnitFilters/UnitFilterRegistry.php:46
+#: includes/UnitFilters/UnitFilterShortcodeRenderer.php:249
+msgid "Rooms"
+msgstr ""
+
+#: includes/UnitFilters/UnitFilterRegistry.php:52
+#: includes/UnitFilters/UnitFilterShortcodeRenderer.php:275
+#: includes/Units/CoreUnitMetaKeys.php:80
+msgid "Bathrooms"
+msgstr ""
+
+#: includes/UnitFilters/UnitFilterRegistry.php:58
+#: includes/UnitFilters/UnitFilterShortcodeRenderer.php:413
+msgid "Amenities"
+msgstr ""
+
+#: includes/UnitFilters/UnitFilterShortcodeRenderer.php:89
+msgid "Apply filters"
+msgstr ""
+
+#: includes/UnitFilters/UnitFilterShortcodeRenderer.php:94
+msgid "Reset filters"
+msgstr ""
+
+#: includes/UnitFilters/UnitFilterShortcodeRenderer.php:219
+msgid "Ascending"
+msgstr ""
+
+#: includes/UnitFilters/UnitFilterShortcodeRenderer.php:223
+msgid "Descending"
+msgstr ""
+
+#: includes/UnitFilters/UnitFilterShortcodeRenderer.php:301
+#: includes/UnitFilters/UnitFilterShortcodeRenderer.php:415
+msgid "Done"
+msgstr ""
+
+#. translators: %s filter name, e.g. "Order", "Rooms".
+#: includes/UnitFilters/UnitFilterShortcodeRenderer.php:304
+#, php-format
+msgid "Close %s picker"
+msgstr ""
+
+#: includes/UnitFilters/UnitFilterShortcodeRenderer.php:414
+msgid "Clear"
+msgstr ""
+
+#: includes/UnitFilters/UnitFilterShortcodeRenderer.php:416
+msgid "Close amenities picker"
+msgstr ""
+
 #: includes/Units/CoreUnitMetaKeys.php:20
 msgid "Unit name"
 msgstr ""
@@ -1665,290 +1943,54 @@ msgstr ""
 msgid "Latitude"
 msgstr ""
 
-#: includes/Units/CoreUnitMetaKeys.php:35
+#: includes/Units/CoreUnitMetaKeys.php:40
 msgid "Longitude"
 msgstr ""
 
-#: includes/Units/CoreUnitMetaKeys.php:40
+#: includes/Units/CoreUnitMetaKeys.php:45
 msgid "Coordinates (lat, lng)"
 msgstr ""
 
-#: includes/Sync/CoreUnitFieldRegistry.php:475
-msgid "Derived from latitude and longitude on sync or save."
-msgstr ""
-
-#: includes/Units/CoreUnitMetaKeys.php:45
+#: includes/Units/CoreUnitMetaKeys.php:50
 msgid "Min. guests"
 msgstr ""
 
-#: includes/Units/CoreUnitMetaKeys.php:45
+#: includes/Units/CoreUnitMetaKeys.php:55
 msgid "Max. guests"
 msgstr ""
 
-#: includes/Units/CoreUnitMetaKeys.php:50
+#: includes/Units/CoreUnitMetaKeys.php:60
 msgid "Check-in from"
 msgstr ""
 
-#: includes/Units/CoreUnitMetaKeys.php:55
+#: includes/Units/CoreUnitMetaKeys.php:65
 msgid "Check-in until"
 msgstr ""
 
-#: includes/Units/CoreUnitMetaKeys.php:60
+#: includes/Units/CoreUnitMetaKeys.php:70
 msgid "Check-out by"
 msgstr ""
 
-#: includes/Units/CoreUnitMetaKeys.php:65
+#: includes/Units/CoreUnitMetaKeys.php:75
 msgid "Rooms (bedrooms)"
 msgstr ""
 
-#: includes/Units/CoreUnitMetaKeys.php:70
-msgid "Bathrooms"
-msgstr ""
-
-#: includes/Units/CoreUnitMetaKeys.php:75
+#: includes/Units/CoreUnitMetaKeys.php:85
 msgid "Description"
 msgstr ""
 
-#: includes/Units/CoreUnitMetaKeys.php:80
+#: includes/Units/CoreUnitMetaKeys.php:90
 msgid "Size (m²)"
 msgstr ""
 
-#: includes/Units/CoreUnitMetaKeys.php:85
+#: includes/Units/CoreUnitMetaKeys.php:95
 msgid "Amenities (JSON)"
 msgstr ""
 
-#: includes/Units/CoreUnitMetaKeys.php:90
+#: includes/Units/CoreUnitMetaKeys.php:100
 msgid "Gallery"
 msgstr ""
 
-#: includes/Units/CoreUnitMetaKeys.php:95
+#: includes/Units/CoreUnitMetaKeys.php:105
 msgid "CIN (National Identification Code)"
-msgstr ""
-
-#: includes/Sync/CoreUnitFieldRegistry.php
-msgid "Attachment details"
-msgstr ""
-
-#: includes/Sync/CoreUnitFieldRegistry.php
-msgid "Close"
-msgstr ""
-
-#: includes/Sync/CoreUnitFieldRegistry.php
-msgid "Open attachment details"
-msgstr ""
-
-#: includes/Sync/CoreUnitFieldRegistry.php
-msgid "No images yet. Gallery images are filled by sync (attachment IDs in post meta)."
-msgstr ""
-
-#. translators: %d: attachment post ID
-#: includes/Sync/CoreUnitFieldRegistry.php
-msgid "Missing image attachment #%d"
-msgstr ""
-
-#. translators: %d: attachment post ID
-#: includes/Sync/CoreUnitFieldRegistry.php
-msgid "Attachment %d"
-msgstr ""
-
-#: includes/Admin/SyncAdmin.php
-msgid "Preparing batched sync (each step runs briefly so the browser does not time out)."
-msgstr ""
-
-#: includes/Admin/SyncAdmin.php
-msgid "Invalid sync run id."
-msgstr ""
-
-#: includes/Admin/SyncAdmin.php
-msgid "Sync lock was lost or this run expired. Start a new sync."
-msgstr ""
-
-#: includes/Admin/SyncAdmin.php
-msgid "Sync batch state expired or was cleared. Start a new sync."
-msgstr ""
-
-#: includes/Admin/SyncAdmin.php
-msgid "Starting deferred gallery import for unit #%d…"
-msgstr ""
-
-#: includes/Admin/SyncAdmin.php
-msgid "Gallery import finished for unit #%d."
-msgstr ""
-
-#: includes/Media/RemoteGalleryImporter.php
-msgid "Invalid gallery import state."
-msgstr ""
-
-#: includes/Admin/SyncAdmin.php
-msgid "Sync lock"
-msgstr ""
-
-#: includes/Admin/SyncAdmin.php
-msgid "The sync lock prevents overlapping full syncs. If a run was interrupted you may see “Another sync is already running” until the lock expires or you clear it here."
-msgstr ""
-
-#: includes/Admin/SyncAdmin.php
-msgid "Current status:"
-msgstr ""
-
-#: includes/Admin/SyncAdmin.php
-msgid "Lock is set (a sync may be in progress or stale)."
-msgstr ""
-
-#: includes/Admin/SyncAdmin.php
-msgid "No lock is set."
-msgstr ""
-
-#: includes/Admin/SyncAdmin.php
-msgid "Clear the sync lock? Only do this if no sync is running. Active syncs may be affected."
-msgstr ""
-
-#: includes/Admin/SyncAdmin.php
-msgid "Clear sync lock"
-msgstr ""
-
-#: includes/Admin/SyncAdmin.php
-msgid "Sync lock was cleared."
-msgstr ""
-
-#: includes/Admin/SyncAdmin.php
-msgid "This action is disabled."
-msgstr ""
-
-#: includes/UnitFilters/UnitFilterRegistry.php
-msgid "Order"
-msgstr ""
-
-#: includes/UnitFilters/UnitFilterRegistry.php
-msgid "Rooms"
-msgstr ""
-
-#: includes/UnitFilters/UnitFilterRegistry.php
-msgid "Amenities"
-msgstr ""
-
-#: includes/UnitFilters/UnitFilterShortcodeRenderer.php
-msgid "Apply filters"
-msgstr ""
-
-#: includes/UnitFilters/UnitFilterShortcodeRenderer.php
-msgid "Reset filters"
-msgstr ""
-
-#: includes/UnitFilters/UnitFilterShortcodeRenderer.php
-msgid "Any"
-msgstr ""
-
-#: includes/UnitFilters/UnitFilterShortcodeRenderer.php
-msgid "Ascending"
-msgstr ""
-
-#: includes/UnitFilters/UnitFilterShortcodeRenderer.php
-msgid "Descending"
-msgstr ""
-
-#: includes/Front/PublicAssets.php
-#: includes/UnitFilters/UnitFilterShortcodeRenderer.php
-msgid "Pick desired amenities"
-msgstr ""
-
-#. translators: 1: number of selected amenities, 2: total number of amenity choices (singular form).
-#: includes/Front/PublicAssets.php
-msgid "%1$d of %2$d selected"
-msgid_plural "%1$d of %2$d selected"
-msgstr[0] ""
-msgstr[1] ""
-
-#. translators: %s amenity label to remove from the multi-select chip (e.g. "Free Wi-Fi").
-#: includes/Front/PublicAssets.php
-msgid "Remove %s"
-msgstr ""
-
-#: includes/Front/PublicAssets.php
-#: includes/UnitFilters/UnitFilterShortcodeRenderer.php
-msgid "No amenities match your search."
-msgstr ""
-
-#: includes/UnitFilters/UnitFilterShortcodeRenderer.php
-msgid "Search amenities…"
-msgstr ""
-
-#: includes/UnitFilters/UnitFilterShortcodeRenderer.php
-msgid "Clear"
-msgstr ""
-
-#: includes/UnitFilters/UnitFilterShortcodeRenderer.php
-msgid "Done"
-msgstr ""
-
-#: includes/UnitFilters/UnitFilterShortcodeRenderer.php
-msgid "Close amenities picker"
-msgstr ""
-
-#. translators: %s filter name, e.g. "Order", "Rooms".
-#: includes/UnitFilters/UnitFilterShortcodeRenderer.php
-msgid "Close %s picker"
-msgstr ""
-
-#: includes/Admin/AdminMenu.php
-#: includes/Admin/Settings/UnitFiltersPage.php
-msgid "Unit filters"
-msgstr ""
-
-#: includes/Admin/Settings/UnitFiltersPage.php
-msgid "Choose which amenities appear in the [bec_unit_filters] shortcode. Styling for the filter form is under Booking Engine → Styling."
-msgstr ""
-
-#: includes/Admin/Settings/UnitFiltersPage.php
-msgid "Amenity index is still building in the background. Options may be incomplete until indexing finishes."
-msgstr ""
-
-#: includes/Admin/Settings/UnitFiltersPage.php
-msgid "Search amenities"
-msgstr ""
-
-#: includes/Admin/Settings/UnitFiltersPage.php
-msgid "Amenity"
-msgstr ""
-
-#: includes/Admin/Settings/UnitFiltersPage.php
-msgid "Category"
-msgstr ""
-
-#: includes/Admin/Settings/UnitFiltersPage.php
-msgid "Display label (optional)"
-msgstr ""
-
-#: includes/Admin/Settings/UnitFiltersPage.php
-msgid "No indexed amenities yet. Sync units from the booking engine first."
-msgstr ""
-
-#: includes/Admin/Settings/StylingPage.php
-msgid "Styles for [bec_unit_filters]. Enable which amenities appear under Booking Engine → Unit filters."
-msgstr ""
-
-#: includes/Admin/Settings/StylingPage.php
-msgid "Unit filters — extra CSS"
-msgstr ""
-
-#: includes/Admin/Settings/StylingPage.php
-msgid "Optional. Target .bec-unit-filters, .bec-unit-filters__field, .bec-unit-filters__checkboxes, .bec-unit-filters__actions."
-msgstr ""
-
-#: includes/Taxonomies/UnitAmenityTaxonomy.php
-msgctxt "taxonomy general name"
-msgid "Unit amenities"
-msgstr ""
-
-#: includes/Taxonomies/UnitAmenityTaxonomy.php
-msgctxt "taxonomy singular name"
-msgid "Unit amenity"
-msgstr ""
-
-#: includes/Shortcodes/AvailableUnitsCountShortcodeRenderer.php
-msgid "%d available unit"
-msgstr ""
-
-#: includes/Shortcodes/AvailableUnitsCountShortcodeRenderer.php
-msgid "%d available units"
 msgstr ""
