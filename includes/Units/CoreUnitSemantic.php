@@ -15,6 +15,9 @@ final class CoreUnitSemantic
 	/** Single formatted address line for display / geocoding (provider may compose from parts). */
 	public const ADDRESS_FULL = 'address_full';
 
+	/** City or locality name (separate from {@see ADDRESS_FULL} for filtering and display). */
+	public const CITY = 'city';
+
 	public const LAT = 'lat';
 
 	public const LNG = 'lng';
@@ -66,6 +69,7 @@ final class CoreUnitSemantic
 		return [
 			self::NAME,
 			self::ADDRESS_FULL,
+			self::CITY,
 			self::LAT,
 			self::LNG,
 			self::LAT_LNG,

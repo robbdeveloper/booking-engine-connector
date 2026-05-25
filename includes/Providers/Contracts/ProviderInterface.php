@@ -30,7 +30,7 @@ interface ProviderInterface
 	public function fetchRemoteUnits(): array;
 
 	/**
-	 * Canonical unit fields (name, address, geo, occupancy, check-in/out, rooms, bathrooms, description, m², amenities, gallery).
+	 * Canonical unit fields (name, address, city, geo, occupancy, check-in/out, rooms, bathrooms, description, m², amenities, gallery).
 	 * Keys must be {@see \BookingEngineConnector\Units\CoreUnitSemantic} constants.
 	 *
 	 * @param array<string, mixed> $row Normalised remote row (after {@see bec_sync_remote_unit}).

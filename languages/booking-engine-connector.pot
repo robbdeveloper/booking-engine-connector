@@ -1658,6 +1658,10 @@ msgid "Full address"
 msgstr ""
 
 #: includes/Units/CoreUnitMetaKeys.php:30
+msgid "City"
+msgstr ""
+
+#: includes/Units/CoreUnitMetaKeys.php:35
 msgid "Latitude"
 msgstr ""
 

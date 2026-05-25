@@ -1873,6 +1873,10 @@ msgid "Full address"
 msgstr "Indirizzo completo"
 
 #: includes/Units/CoreUnitMetaKeys.php:30
+msgid "City"
+msgstr "Città"
+
+#: includes/Units/CoreUnitMetaKeys.php:35
 msgid "Latitude"
 msgstr "Latitudine"
 

@@ -35,6 +35,7 @@ final class KrossCoreUnitFields
 		return [
 			CoreUnitSemantic::NAME            => $name,
 			CoreUnitSemantic::ADDRESS_FULL    => self::buildAddressFull($r),
+			CoreUnitSemantic::CITY            => self::scalarString($r['city'] ?? null),
 			CoreUnitSemantic::LAT             => self::scalarString($r['latitude'] ?? null),
 			CoreUnitSemantic::LNG             => self::scalarString($r['longitude'] ?? null),
 			CoreUnitSemantic::OCC_MIN         => $r['min_occupancy'] ?? '',

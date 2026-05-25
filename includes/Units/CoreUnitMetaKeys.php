@@ -25,6 +25,11 @@ final class CoreUnitMetaKeys
 				'label'    => \__('Full address', 'booking-engine-connector'),
 				'type'     => 'textarea',
 			],
+			CoreUnitSemantic::CITY => [
+				'meta_key' => 'bec_core_city',
+				'label'    => \__('City', 'booking-engine-connector'),
+				'type'     => 'string',
+			],
 			CoreUnitSemantic::LAT => [
 				'meta_key' => 'bec_core_lat',
 				'label'    => \__('Latitude', 'booking-engine-connector'),
