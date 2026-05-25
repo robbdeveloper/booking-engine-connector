@@ -355,6 +355,9 @@ final class ShortcodeRegistry
 		if ($priceMode === 'per_night') {
 			$quoteClass .= ' bec-shortcode-quote--per-night';
 		}
+		if (! $available) {
+			$quoteClass .= ' no-results';
+		}
 		$html = '<p class="' . \esc_attr($quoteClass) . '">' . \esc_html($text) . '</p>';
 
 		if ($appendRatesList) {

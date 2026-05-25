@@ -1,5 +1,9 @@
 # Changelog
 
+## 0.1.41 — 2026-05-25
+
+- **Shortcodes (`[bec_quote]`)**: When there is no availability for the selected dates, the quote `<p>` includes an additional **`no-results`** CSS class for styling.
+
 ## 0.1.40 — 2026-05-25
 
 - **Units (core fields) — City**: New canonical **`bec_core_city`** (`CoreUnitSemantic::CITY`) synced from Kross raw **`city`** on unit sync; editable in the unit admin meta box. City remains part of **`bec_core_address_full`** as before. Provider docblock updated for future providers.
