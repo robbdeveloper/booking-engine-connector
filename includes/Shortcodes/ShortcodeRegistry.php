@@ -107,11 +107,17 @@ final class ShortcodeRegistry
 
 		$action = self::resolveSearchFormActionForShortcode((string) $a['redirect_url']);
 
+		$formIdBase = \sanitize_html_class((string) $a['form_id']);
+		if ($formIdBase === '') {
+			$formIdBase = 'bec-search-form-sc';
+		}
+		$formId = \wp_unique_id($formIdBase);
+
 		\ob_start();
 		SearchForm::render(
 			[
 				'context'           => (string) $a['context'],
-				'form_id'           => (string) $a['form_id'],
+				'form_id'           => $formId,
 				'action'            => $action,
 				'popover_placement' => (string) $a['popover_placement'],
 				'daterange_format'  => (string) $a['daterange_format'],

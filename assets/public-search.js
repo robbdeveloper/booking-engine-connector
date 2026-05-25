@@ -434,9 +434,22 @@
 			}
 		}
 
-		function openPanelFor(trigger) {
+		function resolvePanelForTrigger(trigger) {
+			if (guestPanel && trigger === guestTrigger) {
+				return guestPanel;
+			}
 			var panelId = trigger.getAttribute('aria-controls');
-			var panel = panelId ? document.getElementById(panelId) : null;
+			if (!panelId) {
+				return null;
+			}
+			if (guestPanel && guestPanel.id === panelId) {
+				return guestPanel;
+			}
+			return document.getElementById(panelId);
+		}
+
+		function openPanelFor(trigger) {
+			var panel = resolvePanelForTrigger(trigger);
 			if (!panel) {
 				return;
 			}
@@ -480,8 +493,7 @@
 		}
 
 		function togglePanel(trigger) {
-			var panelId = trigger.getAttribute('aria-controls');
-			var panel = panelId ? document.getElementById(panelId) : null;
+			var panel = resolvePanelForTrigger(trigger);
 			if (!panel) {
 				return;
 			}
@@ -777,11 +789,24 @@
 		});
 	}
 
-	document.querySelectorAll('form.bec-search-form--enhanced').forEach(initEnhancedForm);
+	function initEnhancedFormsInDocument() {
+		document.querySelectorAll('form.bec-search-form--enhanced').forEach(initEnhancedForm);
+	}
+
+	function bootSearchFormScripts() {
+		initEnhancedFormsInDocument();
+		initClassicChildAgesInDocument();
+	}
 
 	if (document.readyState === 'loading') {
-		document.addEventListener('DOMContentLoaded', initClassicChildAgesInDocument);
+		document.addEventListener('DOMContentLoaded', bootSearchFormScripts);
 	} else {
-		initClassicChildAgesInDocument();
+		bootSearchFormScripts();
+	}
+
+	if (typeof window.jQuery !== 'undefined') {
+		window.jQuery(window).on('elementor/frontend/init', function () {
+			initEnhancedFormsInDocument();
+		});
 	}
 })();
