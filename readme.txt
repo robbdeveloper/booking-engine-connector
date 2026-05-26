@@ -4,7 +4,7 @@ Tags: booking, kross, hospitality, availability
 Requires at least: 6.4
 Tested up to: 6.7
 Requires PHP: 8.0
-Stable tag: 0.1.43
+Stable tag: 0.1.44
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
@@ -51,6 +51,9 @@ Use **`[bec_available_units_count]`** anywhere on the results page (above an Ele
 Examples: **`[bec_available_units_count]`** (number only), **`[bec_available_units_count format="text"]`** (default “%d available units” copy), **`[bec_available_units_count hide_without_search="1"]`** (empty until search params are complete), **`[bec_available_units_count zero_text="No units found"]`**. Custom text: **`singular`** / **`plural`** with **`%d`**, optional **`class`** for styling.
 
 == Changelog ==
+
+= 0.1.44 =
+* **Unit filters UI (`[bec_unit_filters]`)**: Theme-safe button styling for the amenities picker and **Apply filters** submit — scoped CSS resets so global theme button rules no longer leak into the filter form.
 
 = 0.1.43 =
 * **Admin redesign**: New **Dashboard** with setup/health status cards and quick actions. Reordered menu: **Connection**, **Frontend** (search guest fields and single-unit content injection — moved from Connection), **Sync & Import**, **Units**, **Listing Filters**, **Design**, **Checkout & Fallback**, **Tools & Logs**. Shared admin layout/styles (`assets/admin.css`); sync handlers, form IDs, and AJAX contracts unchanged.

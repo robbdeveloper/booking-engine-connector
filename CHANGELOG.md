@@ -1,5 +1,9 @@
 # Changelog
 
+## 0.1.44 — 2026-05-26
+
+- **Unit filters UI (`[bec_unit_filters]`)**: Scoped button resets in **`assets/public.css`** so theme global `button` / `[type=submit]` styles no longer override the amenities picker trigger, panel actions, and **Apply filters** submit control. Matches the search-form pattern (`.bec-unit-filters button.bec-unit-filters__*` selectors, shared `appearance` / `text-transform` reset).
+
 ## 0.1.43 — 2026-05-26
 
 - **Admin redesign**: **Dashboard** with status cards (provider, credentials, sync health, unit count, checkout/fallback) and quick-action links. Menu reordered and renamed: **Connection** (credentials only), new **Frontend** page (search guest/child-age modes and single-unit auto content — same option keys as before), **Sync & Import**, **Units** (permalinks + links to units/listing filters), **Listing Filters**, **Design**, **Checkout & Fallback**, **Tools & Logs**. Shared `AdminPageLayout` + `assets/admin.css` on all Booking Engine screens. Existing sync `admin_post_*` / `wp_ajax_*` hooks, form IDs (`bec-sync-all-form`, `bec-sync-progress`, etc.), and localized `becSyncProgress` JS contract preserved. Design screen CodeMirror now includes unit-filters extra CSS.
