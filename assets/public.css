@@ -267,7 +267,6 @@
 }
 
 .bec-unit-filters button.bec-unit-filters__amenities-trigger {
-	display: none;
 	align-items: center;
 	justify-content: space-between;
 	gap: 0.5rem;
@@ -1080,7 +1079,6 @@ body.bec-unit-filters__body-lock {
 .bec-unit-filters__reset:hover,
 .bec-unit-filters__reset:focus-visible,
 .bec-unit-filters__reset:focus {
-	background: var(--bec-color-surface, #f9fafb);
 	color: var(--bec-color-accent, var(--bec-color-primary, #000));
 	outline: none;
 }
