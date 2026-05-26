@@ -20,6 +20,7 @@ use BookingEngineConnector\Sync\SyncProgressReporter;
 use BookingEngineConnector\Sync\SyncService;
 use BookingEngineConnector\Units\CoreUnitMetaKeys;
 use BookingEngineConnector\Units\CoreUnitSemantic;
+use BookingEngineConnector\Admin\AdminPageLayout;
 
 /**
  * Sync settings page, bulk sync, row action, admin_post handlers.
@@ -69,8 +70,14 @@ final class SyncAdmin
 
 		$isKrossActive = ProviderRegistry::getActiveSlug() === 'kross';
 
-		echo '<div class="wrap">';
-		echo '<h1>' . \esc_html__('Sync units', 'booking-engine-connector') . '</h1>';
+		AdminPageLayout::wrapOpen(
+			\__('Sync & Import', 'booking-engine-connector'),
+			\__(
+				'Schedule automatic syncs, filter Kross booking engines, run manual imports, and manage gallery filenames.',
+				'booking-engine-connector'
+			),
+			'bec-sync-admin'
+		);
 
 		if ($isKrossActive) {
 			echo '<form id="bec-kross-booking-engine-refresh" method="post" action="' . \esc_url(\admin_url('admin-post.php')) . '" tabindex="-1" aria-hidden="true" style="position:absolute;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap;border-width:0;">';
@@ -145,23 +152,30 @@ final class SyncAdmin
 		}
 
 		if ($last !== '') {
-			echo '<p>' . \esc_html(\sprintf(
+			echo '<p class="description">' . \esc_html(\sprintf(
 				/* translators: %s datetime */
 				\__('Last successful sync completion: %s', 'booking-engine-connector'),
 				$last
 			)) . '</p>';
 		}
 
-		echo '<p class="description">' . \esc_html__('Scheduled sync uses WP-Cron; on low-traffic sites runs may be delayed until the next page view.', 'booking-engine-connector') . '</p>';
-
 		echo '<form method="post" action="' . \esc_url(\admin_url('admin-post.php')) . '">';
 		\wp_nonce_field('bec_sync_settings', 'bec_sync_settings_nonce');
 		echo '<input type="hidden" name="action" value="bec_sync_save_settings" />';
-		echo '<h2 class="title">' . \esc_html__('Schedule', 'booking-engine-connector') . '</h2>';
+
+		AdminPageLayout::cardOpen(
+			\__('Schedule', 'booking-engine-connector'),
+			\__(
+				'Scheduled sync uses WP-Cron; on low-traffic sites runs may be delayed until the next page view.',
+				'booking-engine-connector'
+			)
+		);
+
 		echo '<table class="form-table"><tr><th><label for="bec_sync_interval_hours">' . \esc_html__('Interval (hours)', 'booking-engine-connector') . '</label></th><td>';
 		echo '<input type="number" min="1" max="168" name="bec_sync_interval_hours" id="bec_sync_interval_hours" value="' . \esc_attr((string) $hours) . '" />';
 		echo '<p class="description">' . \esc_html__('How often the scheduled sync runs (1–168).', 'booking-engine-connector') . '</p>';
 		echo '</td></tr></table>';
+		AdminPageLayout::cardClose();
 
 		if ($isKrossActive) {
 			$selectedList   = KrossBookingEngineSyncSettings::getSelectedBookingEngines();
@@ -170,15 +184,13 @@ final class SyncAdmin
 			$displayEngines = \array_unique(\array_merge($cachedList, $selectedList));
 			\sort($displayEngines, \SORT_STRING);
 
-			echo '<h2 class="title">' . \esc_html__('Kross booking engines', 'booking-engine-connector') . '</h2>';
-			echo '<p class="description">' . \esc_html__(
-				'Sync only units whose Kross payload includes the room’s enabled booking-engine slugs (`be_enabled`). Matching any selected slug includes the unit.',
-				'booking-engine-connector'
-			) . '</p>';
-			echo '<p class="description">' . \esc_html__(
-				'Leave all unchecked to sync every Kross room type from this property.',
-				'booking-engine-connector'
-			) . '</p>';
+			AdminPageLayout::cardOpen(
+				\__('Kross booking engines', 'booking-engine-connector'),
+				\esc_html__(
+					'Sync only units whose Kross payload includes the room’s enabled booking-engine slugs (`be_enabled`). Matching any selected slug includes the unit. Leave all unchecked to sync every Kross room type from this property.',
+					'booking-engine-connector'
+				)
+			);
 
 			echo '<table class="form-table" role="presentation">';
 			echo '<tr><th scope="row">' . \esc_html__('Booking engines', 'booking-engine-connector') . '</th><td>';
@@ -220,13 +232,16 @@ final class SyncAdmin
 			}
 
 			echo '</td></tr></table>';
+			AdminPageLayout::cardClose();
 		}
 
-		echo '<h2 class="title">' . \esc_html__('Gallery image filenames', 'booking-engine-connector') . '</h2>';
-		echo '<p class="description">' . \esc_html__(
-			'Synced unit images are saved with: prefix + unit name (slug) + suffix + order index + file extension. Leave prefix and suffix empty to use only the unit name.',
-			'booking-engine-connector'
-		) . '</p>';
+		AdminPageLayout::cardOpen(
+			\__('Gallery image filenames', 'booking-engine-connector'),
+			\esc_html__(
+				'Synced unit images are saved with: prefix + unit name (slug) + suffix + order index + file extension. Leave prefix and suffix empty to use only the unit name.',
+				'booking-engine-connector'
+			)
+		);
 		echo '<table class="form-table" role="presentation">';
 		echo '<tr><th scope="row"><label for="bec_sync_gallery_image_prefix">' . \esc_html__('Filename prefix', 'booking-engine-connector') . '</label></th><td>';
 		echo '<input type="text" class="regular-text" name="bec_sync_gallery_image_prefix" id="bec_sync_gallery_image_prefix" value="' . \esc_attr($imgPrefix) . '" autocomplete="off" />';
@@ -239,22 +254,39 @@ final class SyncAdmin
 			'booking-engine-connector'
 		) . '</p>';
 		echo '</td></tr></table>';
+		AdminPageLayout::cardClose();
 
 		\submit_button(\__('Save sync settings', 'booking-engine-connector'));
 		echo '</form>';
 
-		echo '<hr /><form id="bec-sync-all-form" class="bec-sync-all-form" method="post" action="' . \esc_url(\admin_url('admin-post.php')) . '">';
+		AdminPageLayout::cardOpen(
+			\__('Run sync', 'booking-engine-connector'),
+			\esc_html__(
+				'Import or update all units from the active provider. JavaScript shows live progress; without JS the standard admin-post fallback still runs.',
+				'booking-engine-connector'
+			)
+		);
+		echo '<form id="bec-sync-all-form" class="bec-sync-all-form" method="post" action="' . \esc_url(\admin_url('admin-post.php')) . '">';
 		\wp_nonce_field('bec_sync_all', 'bec_sync_all_nonce');
 		echo '<input type="hidden" name="action" value="bec_sync_all" />';
 		\submit_button(\__('Run sync now', 'booking-engine-connector'), 'secondary', '', false, ['id' => 'bec-sync-all-submit']);
 		echo '</form>';
 
-		echo '<hr /><h2 class="title">' . \esc_html__('Sync lock', 'booking-engine-connector') . '</h2>';
+		echo '<div id="bec-sync-progress" class="bec-sync-progress" hidden style="margin-top:1em;padding:1em;max-width:56em;border:1px solid #c3c4c7;background:#fff;">';
+		echo '<h2 class="title" style="margin-top:0;">' . \esc_html__('Sync progress', 'booking-engine-connector') . '</h2>';
+		echo '<p id="bec-sync-progress-status" class="bec-sync-progress__status" style="margin:0.5em 0;font-weight:600;" aria-live="polite"></p>';
+		echo '<pre id="bec-sync-progress-log" class="bec-sync-progress__log" style="margin:0;max-height:20em;overflow:auto;white-space:pre-wrap;word-break:break-word;background:#f6f7f7;padding:0.75em;border:1px solid #dcdcde;font-size:12px;line-height:1.45;"></pre>';
+		echo '</div>';
+		AdminPageLayout::cardClose();
+
+		AdminPageLayout::cardOpen(
+			\__('Sync lock', 'booking-engine-connector'),
+			\esc_html__(
+				'The sync lock prevents overlapping full syncs. If a run was interrupted you may see “Another sync is already running” until the lock expires or you clear it here.',
+				'booking-engine-connector'
+			)
+		);
 		$locked = SyncLock::isLocked();
-		echo '<p class="description">' . \esc_html__(
-			'The sync lock prevents overlapping full syncs. If a run was interrupted you may see “Another sync is already running” until the lock expires or you clear it here.',
-			'booking-engine-connector'
-		) . '</p>';
 		echo '<p><strong>' . \esc_html__('Current status:', 'booking-engine-connector') . '</strong> ';
 		echo $locked
 			? \esc_html__('Lock is set (a sync may be in progress or stale).', 'booking-engine-connector')
@@ -273,25 +305,23 @@ final class SyncAdmin
 			'style' => 'border-color:#b32d2e;color:#b32d2e;',
 		]);
 		echo '</form>';
+		AdminPageLayout::cardClose();
 
-		echo '<div id="bec-sync-progress" class="bec-sync-progress" hidden style="margin-top:1em;padding:1em;max-width:56em;border:1px solid #c3c4c7;background:#fff;">';
-		echo '<h2 class="title" style="margin-top:0;">' . \esc_html__('Sync progress', 'booking-engine-connector') . '</h2>';
-		echo '<p id="bec-sync-progress-status" class="bec-sync-progress__status" style="margin:0.5em 0;font-weight:600;" aria-live="polite"></p>';
-		echo '<pre id="bec-sync-progress-log" class="bec-sync-progress__log" style="margin:0;max-height:20em;overflow:auto;white-space:pre-wrap;word-break:break-word;background:#f6f7f7;padding:0.75em;border:1px solid #dcdcde;font-size:12px;line-height:1.45;"></pre>';
-		echo '</div>';
-
-		echo '<hr /><h2 class="title">' . \esc_html__('Gallery file names', 'booking-engine-connector') . '</h2>';
-		echo '<p class="description">' . \esc_html__(
-			'Apply the current filename prefix/suffix settings to images already stored in each unit’s gallery. Images shared by more than one unit are copied for this unit so other units are not affected. This may take a while on large sites.',
-			'booking-engine-connector'
-		) . '</p>';
+		AdminPageLayout::cardOpen(
+			\__('Gallery file rename', 'booking-engine-connector'),
+			\esc_html__(
+				'Apply the current filename prefix/suffix settings to images already stored in each unit’s gallery. Images shared by more than one unit are copied for this unit so other units are not affected. This may take a while on large sites.',
+				'booking-engine-connector'
+			)
+		);
 		echo '<form method="post" action="' . \esc_url(\admin_url('admin-post.php')) . '">';
 		\wp_nonce_field('bec_rename_gallery_all', 'bec_rename_gallery_all_nonce');
 		echo '<input type="hidden" name="action" value="bec_rename_gallery_all" />';
 		\submit_button(\__('Rename all unit gallery files', 'booking-engine-connector'), 'secondary');
 		echo '</form>';
+		AdminPageLayout::cardClose();
 
-		echo '</div>';
+		AdminPageLayout::wrapClose();
 	}
 
 	public static function enqueueAdminAssets(string $hookSuffix): void

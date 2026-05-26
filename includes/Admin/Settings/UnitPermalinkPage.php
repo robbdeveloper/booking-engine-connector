@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace BookingEngineConnector\Admin\Settings;
 
 use BookingEngineConnector\Admin\AdminMenu;
+use BookingEngineConnector\Admin\AdminPageLayout;
 use BookingEngineConnector\PostTypes\UnitPostType;
 use BookingEngineConnector\Routing\UnitPermalinkSettings;
 use BookingEngineConnector\Taxonomies\UnitCategoryTaxonomy;
@@ -46,13 +47,15 @@ final class UnitPermalinkPage
 			$categoryExampleSlug
 		);
 
-		echo '<div class="wrap">';
-		if (isset($_GET['bec_saved']) && (string) \sanitize_text_field(\wp_unslash((string) $_GET['bec_saved'])) === '1') {
-			echo '<div class="notice notice-success is-dismissible"><p>' . \esc_html__(
-				'Settings saved.',
+		AdminPageLayout::wrapOpen(
+			\__('Units', 'booking-engine-connector'),
+			\__(
+				'Configure public URL slugs, archives, categories, and URL structures for synced units. The internal post type name in the database stays unchanged.',
 				'booking-engine-connector'
-			) . '</p></div>';
-		}
+			)
+		);
+
+		AdminPageLayout::renderSavedNotice();
 
 		if (isset($_GET['bec_error'])) {
 			$error = \sanitize_text_field(\wp_unslash((string) $_GET['bec_error']));
@@ -61,15 +64,33 @@ final class UnitPermalinkPage
 			}
 		}
 
-		echo '<h1>' . \esc_html__('Units — permalinks', 'booking-engine-connector') . '</h1>';
-		echo '<p class="description">' . \esc_html__(
-			'Set the URL slug used for unit archives and single-unit URLs. The internal post type name in the database stays unchanged.',
+		AdminPageLayout::cardOpen(
+			\__('Related screens', 'booking-engine-connector'),
+			\__('Manage synced content and listing filters from WordPress admin.', 'booking-engine-connector')
+		);
+		echo '<ul class="bec-admin-links">';
+		echo '<li><a href="' . \esc_url(\admin_url('edit.php?post_type=' . UnitPostType::getSlug())) . '">' . \esc_html__(
+			'View all units',
 			'booking-engine-connector'
-		) . '</p>';
+		) . '</a></li>';
+		echo '<li><a href="' . \esc_url(\admin_url('admin.php?page=' . UnitFiltersPage::PAGE_SLUG)) . '">' . \esc_html__(
+			'Listing filters — amenity curation for [bec_unit_filters]',
+			'booking-engine-connector'
+		) . '</a></li>';
+		echo '</ul>';
+		AdminPageLayout::cardClose();
 
 		echo '<form method="post" action="' . \esc_url(\admin_url('admin.php')) . '">';
 		echo '<input type="hidden" name="page" value="' . \esc_attr(self::PAGE_SLUG) . '" />';
 		\wp_nonce_field(self::NONCE_ACTION, 'bec_unit_permalink_nonce');
+
+		AdminPageLayout::cardOpen(
+			\__('Unit URLs', 'booking-engine-connector'),
+			\__(
+				'Changing slugs or URL structures updates rewrite rules on save. Test permalinks after major changes.',
+				'booking-engine-connector'
+			)
+		);
 
 		echo '<table class="form-table" role="presentation">';
 		echo '<tr><th scope="row"><label for="bec_unit_permalink_slug">' . \esc_html__('URL slug', 'booking-engine-connector') . '</label></th><td>';
@@ -99,6 +120,17 @@ final class UnitPermalinkPage
 		) . '</p>';
 		echo '</td></tr>';
 
+		echo '</table>';
+		AdminPageLayout::cardClose();
+
+		AdminPageLayout::cardOpen(
+			\__('Unit archive', 'booking-engine-connector'),
+			\__(
+				'When disabled, only single unit URLs are registered.',
+				'booking-engine-connector'
+			)
+		);
+		echo '<table class="form-table" role="presentation">';
 		echo '<tr><th scope="row">' . \esc_html__('Unit archive', 'booking-engine-connector') . '</th><td>';
 		echo '<label for="bec_unit_has_archive"><input type="checkbox" name="bec_unit_has_archive" id="bec_unit_has_archive" value="1" ' . \checked($hasArchive, true, false) . ' /> ';
 		echo \esc_html__('Enable the public archive page for units (listing URL at the slug above).', 'booking-engine-connector') . '</label>';
@@ -107,7 +139,17 @@ final class UnitPermalinkPage
 			'booking-engine-connector'
 		) . '</p>';
 		echo '</td></tr>';
+		echo '</table>';
+		AdminPageLayout::cardClose();
 
+		AdminPageLayout::cardOpen(
+			\__('Unit categories', 'booking-engine-connector'),
+			\__(
+				'Top-level category URLs can conflict with pages or posts that share the same slug. WordPress core content is preferred when a URL is ambiguous. Multilingual plugins (WPML, Polylang) continue to add language prefixes such as /it/ or /es/ automatically.',
+				'booking-engine-connector'
+			)
+		);
+		echo '<table class="form-table" role="presentation">';
 		echo '<tr><th scope="row">' . \esc_html__('Unit categories', 'booking-engine-connector') . '</th><td>';
 		echo '<label for="bec_unit_category_enabled"><input type="checkbox" name="bec_unit_category_enabled" id="bec_unit_category_enabled" value="1" ' . \checked($categoryEnabled, true, false) . ' /> ';
 		echo \esc_html__('Enable the Unit Category taxonomy (sync assigns categories from the booking engine when supported).', 'booking-engine-connector') . '</label>';
@@ -141,16 +183,15 @@ final class UnitPermalinkPage
 			\esc_html__('Example category archive URL: %s.', 'booking-engine-connector'),
 			'<code>' . \esc_html($examples['category']) . '</code>'
 		) . '</p>';
-		echo '<p class="description">' . \esc_html__(
-			'Top-level category URLs can conflict with pages or posts that share the same slug. WordPress core content is preferred when a URL is ambiguous. Multilingual plugins (WPML, Polylang) continue to add language prefixes such as /it/ or /es/ automatically.',
-			'booking-engine-connector'
-		) . '</p>';
 		echo '</td></tr>';
 
 		echo '</table>';
+		AdminPageLayout::cardClose();
 
 		echo '<p class="submit"><button type="submit" class="button button-primary">' . \esc_html__('Save changes', 'booking-engine-connector') . '</button></p>';
-		echo '</form></div>';
+		echo '</form>';
+
+		AdminPageLayout::wrapClose();
 	}
 
 	public static function handlePost(): void

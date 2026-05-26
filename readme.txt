@@ -4,7 +4,7 @@ Tags: booking, kross, hospitality, availability
 Requires at least: 6.4
 Tested up to: 6.7
 Requires PHP: 8.0
-Stable tag: 0.1.42
+Stable tag: 0.1.43
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
@@ -40,7 +40,7 @@ Use **`daterange_format`** (PHP date format) or **`daterange_preset`** (`iso`, `
 
 = How do I filter units on a listing page? =
 
-Place **`[bec_unit_filters]`** above your unit loop (or on the unit archive). The form submits filter GET parameters (`bec_filter_order`, `bec_filter_rooms_min`, `bec_filter_bathrooms_min`, `bec_filter_amenities[]`) and keeps current search params. Pair with an Elementor Loop Grid using Query ID **`bec_available_only`** or **`bec_filtered_units`**. Choose which amenities appear under **Booking Engine → Unit filters**; tune appearance under **Styling → Unit filters**.
+Place **`[bec_unit_filters]`** above your unit loop (or on the unit archive). The form submits filter GET parameters (`bec_filter_order`, `bec_filter_rooms_min`, `bec_filter_bathrooms_min`, `bec_filter_amenities[]`) and keeps current search params. Pair with an Elementor Loop Grid using Query ID **`bec_available_only`** or **`bec_filtered_units`**. Choose which amenities appear under **Booking Engine → Listing Filters**; tune appearance under **Design → Unit filters**.
 
 Shortcode attributes include **`layout`** (`inline` or `stacked`), **`show_reset`**, **`hide_labels`** (default `1`: labels hidden, filter name shown inside each control until a value is chosen; set `hide_labels="0"` to show labels above fields), **`filters`**, **`amenities`**, **`amenities_limit`**, and **`action`**.
 
@@ -51,6 +51,9 @@ Use **`[bec_available_units_count]`** anywhere on the results page (above an Ele
 Examples: **`[bec_available_units_count]`** (number only), **`[bec_available_units_count format="text"]`** (default “%d available units” copy), **`[bec_available_units_count hide_without_search="1"]`** (empty until search params are complete), **`[bec_available_units_count zero_text="No units found"]`**. Custom text: **`singular`** / **`plural`** with **`%d`**, optional **`class`** for styling.
 
 == Changelog ==
+
+= 0.1.43 =
+* **Admin redesign**: New **Dashboard** with setup/health status cards and quick actions. Reordered menu: **Connection**, **Frontend** (search guest fields and single-unit content injection — moved from Connection), **Sync & Import**, **Units**, **Listing Filters**, **Design**, **Checkout & Fallback**, **Tools & Logs**. Shared admin layout/styles (`assets/admin.css`); sync handlers, form IDs, and AJAX contracts unchanged.
 
 = 0.1.42 =
 * **Units — permalinks**: Admin-selectable URL structures for single units and unit category archives while keeping existing slug fields. Validation blocks ambiguous combinations; WPML/Polylang language prefixes are supported.

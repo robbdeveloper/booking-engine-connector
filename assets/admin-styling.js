@@ -8,6 +8,7 @@
 		'bec_styling_theme_variables',
 		'bec_styling_search_extra_css',
 		'bec_styling_summary_extra_css',
+		'bec_styling_filters_extra_css',
 	];
 
 	function boot() {

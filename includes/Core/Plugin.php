@@ -7,6 +7,7 @@ namespace BookingEngineConnector\Core;
 use BookingEngineConnector\Admin\AdminMenu;
 use BookingEngineConnector\Admin\Settings\ConnectionPage;
 use BookingEngineConnector\Admin\Settings\FallbackPage;
+use BookingEngineConnector\Admin\Settings\FrontendPage;
 use BookingEngineConnector\Admin\Settings\StylingPage;
 use BookingEngineConnector\Admin\Settings\UnitFiltersPage;
 use BookingEngineConnector\Admin\Settings\UnitPermalinkPage;
@@ -81,6 +82,7 @@ final class Plugin
 		AdminMenu::register();
 		StylingSettings::register();
 		ConnectionPage::register();
+		FrontendPage::register();
 		StylingPage::register();
 		UnitFiltersPage::register();
 		UnitPermalinkPage::register();

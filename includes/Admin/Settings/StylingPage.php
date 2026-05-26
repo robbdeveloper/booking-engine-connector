@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace BookingEngineConnector\Admin\Settings;
 
 use BookingEngineConnector\Admin\AdminMenu;
+use BookingEngineConnector\Admin\AdminPageLayout;
 use BookingEngineConnector\Styling\StylingSettings;
 
 /**
@@ -24,7 +25,15 @@ final class StylingPage
 
 	public static function enqueueAdminAssets(string $hookSuffix): void
 	{
-		if ($hookSuffix !== 'bec-dashboard_page_' . self::PAGE_SLUG) {
+		if (! AdminPageLayout::isBecAdminScreen($hookSuffix)) {
+			return;
+		}
+
+		$page = isset($_GET['page'])
+			? \sanitize_key(\wp_unslash((string) $_GET['page']))
+			: '';
+
+		if ($page !== self::PAGE_SLUG) {
 			return;
 		}
 
@@ -86,31 +95,38 @@ final class StylingPage
 		$accIncl       = StylingSettings::isAccordionInclusionsEnabled();
 		$accCond       = StylingSettings::isAccordionConditionsEnabled();
 
-		echo '<div class="wrap bec-styling-admin">';
-		if (isset($_GET['bec_saved']) && (string) \sanitize_text_field(\wp_unslash((string) $_GET['bec_saved'])) === '1') {
-			echo '<div class="notice notice-success is-dismissible"><p>' . \esc_html__(
-				'Settings saved.',
+		AdminPageLayout::wrapOpen(
+			\__('Design', 'booking-engine-connector'),
+			\__(
+				'Tune shortcode appearance with layout presets, shared design tokens, and optional extra CSS. Preset layout CSS loads first; shared tokens and Extra CSS load last.',
 				'booking-engine-connector'
-			) . '</p></div>';
-		}
-		echo '<h1>' . \esc_html__('Styling (shortcodes)', 'booking-engine-connector') . '</h1>';
-		echo '<p class="description">' . \esc_html__(
-			'Tune the search form and booking summary with a small semantic token block (colors, font stack, radius scale). Detailed layout or vendor overrides (.daterangepicker, etc.) go in Extra CSS below. Preset layout CSS loads first; shared tokens and Extra CSS load last.',
-			'booking-engine-connector'
-		) . '</p>';
+			),
+			'bec-styling-admin'
+		);
+
+		AdminPageLayout::renderSavedNotice();
 
 		echo '<form method="post" action="' . \esc_url(\admin_url('admin.php')) . '">';
 		echo '<input type="hidden" name="page" value="' . \esc_attr(self::PAGE_SLUG) . '" />';
 		\wp_nonce_field(self::NONCE_ACTION, 'bec_styling_nonce');
 
-		echo '<h2>' . \esc_html__('Design system (shared tokens)', 'booking-engine-connector') . '</h2>';
-		echo '<p class="description">' . \esc_html__(
-			'Edit the semantic tokens (--bec-font-family, --bec-color-*, --bec-radius-*). Plain properties are applied on :root in late CSS so they reach portaled pickers (calendar, guest sheet); they also affect the rest of the site for any other use of the same --bec-* names. Paste a full selector block anytime you need narrower scoping or finer control.',
-			'booking-engine-connector'
-		) . '</p>';
+		AdminPageLayout::cardOpen(
+			\__('Design system (shared tokens)', 'booking-engine-connector'),
+			\__(
+				'Edit semantic tokens (--bec-font-family, --bec-color-*, --bec-radius-*). Plain properties are applied on :root in late CSS so they reach portaled pickers; paste a full selector block for narrower scoping.',
+				'booking-engine-connector'
+			)
+		);
 		echo '<div class="bec-styling-field"><textarea name="bec_styling_theme_variables" id="bec_styling_theme_variables" class="large-text code" rows="14">' . \esc_textarea($vars) . '</textarea></div>';
+		AdminPageLayout::cardClose();
 
-		echo '<h2>' . \esc_html__('Search bar', 'booking-engine-connector') . '</h2>';
+		AdminPageLayout::cardOpen(
+			\__('Search bar', 'booking-engine-connector'),
+			\__(
+				'Applies to [bec_search] and embedded search inside [bec_booking_summary].',
+				'booking-engine-connector'
+			)
+		);
 		echo '<table class="form-table" role="presentation">';
 		echo '<tr><th scope="row"><label for="bec_styling_search_preset">' . \esc_html__('Layout style', 'booking-engine-connector') . '</label></th><td>';
 		echo '<select name="bec_styling_search_preset" id="bec_styling_search_preset">';
@@ -135,8 +151,12 @@ final class StylingPage
 			'booking-engine-connector'
 		) . '</p>';
 		echo '</td></tr></table>';
+		AdminPageLayout::cardClose();
 
-		echo '<h2>' . \esc_html__('Booking summary', 'booking-engine-connector') . '</h2>';
+		AdminPageLayout::cardOpen(
+			\__('Booking summary', 'booking-engine-connector'),
+			\__('Layout, rate-detail accordions, and optional extra CSS for [bec_booking_summary].', 'booking-engine-connector')
+		);
 		echo '<table class="form-table" role="presentation">';
 		echo '<tr><th scope="row"><label for="bec_styling_booking_summary_preset">' . \esc_html__('Layout style', 'booking-engine-connector') . '</label></th><td>';
 		echo '<select name="bec_styling_booking_summary_preset" id="bec_styling_booking_summary_preset">';
@@ -165,12 +185,15 @@ final class StylingPage
 			'booking-engine-connector'
 		) . '</p>';
 		echo '</td></tr></table>';
+		AdminPageLayout::cardClose();
 
-		echo '<h2>' . \esc_html__('Unit filters', 'booking-engine-connector') . '</h2>';
-		echo '<p class="description">' . \esc_html__(
-			'Styles for [bec_unit_filters]. Enable which amenities appear under Booking Engine → Unit filters.',
-			'booking-engine-connector'
-		) . '</p>';
+		AdminPageLayout::cardOpen(
+			\__('Unit filters', 'booking-engine-connector'),
+			\__(
+				'Styles for [bec_unit_filters]. Enable which amenities appear under Listing Filters.',
+				'booking-engine-connector'
+			)
+		);
 		echo '<table class="form-table" role="presentation">';
 		echo '<tr><th scope="row"><label for="bec_styling_filters_extra_css">' . \esc_html__(
 			'Unit filters — extra CSS',
@@ -182,9 +205,12 @@ final class StylingPage
 			'booking-engine-connector'
 		) . '</p>';
 		echo '</td></tr></table>';
+		AdminPageLayout::cardClose();
 
 		echo '<p class="submit"><button type="submit" class="button button-primary">' . \esc_html__('Save changes', 'booking-engine-connector') . '</button></p>';
-		echo '</form></div>';
+		echo '</form>';
+
+		AdminPageLayout::wrapClose();
 	}
 
 	public static function handlePost(): void

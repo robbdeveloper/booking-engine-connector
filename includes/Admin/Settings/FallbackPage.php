@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace BookingEngineConnector\Admin\Settings;
 
 use BookingEngineConnector\Admin\AdminMenu;
+use BookingEngineConnector\Admin\AdminPageLayout;
 use BookingEngineConnector\Fallback\FallbackSettings;
 use BookingEngineConnector\Integrations\Multilingual;
 use BookingEngineConnector\Providers\Contracts\ProviderErrorCategory;
@@ -41,24 +42,27 @@ final class FallbackPage
 
 		$triggers = \BookingEngineConnector\Fallback\FallbackService::getTriggerCategories();
 
-		echo '<div class="wrap">';
-		if (isset($_GET['bec_saved']) && (string) \sanitize_text_field(\wp_unslash((string) $_GET['bec_saved'])) === '1') {
-			echo '<div class="notice notice-success is-dismissible"><p>' . \esc_html__(
-				'Settings saved.',
+		AdminPageLayout::wrapOpen(
+			\__('Checkout & Fallback', 'booking-engine-connector'),
+			\__(
+				'Configure the external booking URL pattern and when to show contact fallback instead of online booking.',
 				'booking-engine-connector'
-			) . '</p></div>';
-		}
-		echo '<h1>' . \esc_html__('Checkout & fallback', 'booking-engine-connector') . '</h1>';
-		echo '<p class="description">' . \esc_html__(
-			'Configure the external booking URL pattern and when to show contact fallback instead of online booking.',
-			'booking-engine-connector'
-		) . '</p>';
+			)
+		);
+
+		AdminPageLayout::renderSavedNotice();
 
 		echo '<form method="post" action="' . \esc_url(\admin_url('admin.php')) . '">';
 		echo '<input type="hidden" name="page" value="' . \esc_attr(self::PAGE_SLUG) . '" />';
 		\wp_nonce_field(self::NONCE_ACTION, 'bec_fallback_nonce');
 
-		echo '<h2>' . \esc_html__('Checkout (Kross)', 'booking-engine-connector') . '</h2>';
+		AdminPageLayout::cardOpen(
+			\__('Checkout (Kross)', 'booking-engine-connector'),
+			\__(
+				'Full URL to your Kross booking engine entry point. Parameters (hotel, room type, dates, guests) are sent as query string (GET) or POST fields.',
+				'booking-engine-connector'
+			)
+		);
 		echo '<table class="form-table" role="presentation">';
 		echo '<tr><th scope="row"><label for="bec_kross_checkout_base_url">' . \esc_html__('Booking engine base URL', 'booking-engine-connector') . '</label></th><td>';
 		echo '<input type="url" class="large-text" name="bec_kross_checkout_base_url" id="bec_kross_checkout_base_url" value="' . \esc_attr($checkoutBase) . '" placeholder="https://" />';
@@ -84,8 +88,15 @@ final class FallbackPage
 			'booking-engine-connector'
 		) . '</p>';
 		echo '</td></tr></table>';
+		AdminPageLayout::cardClose();
 
-		echo '<h2>' . \esc_html__('Fallback', 'booking-engine-connector') . '</h2>';
+		AdminPageLayout::cardOpen(
+			\__('Fallback behavior', 'booking-engine-connector'),
+			\__(
+				'When rules match, show contact fallback instead of online booking or API error notices.',
+				'booking-engine-connector'
+			)
+		);
 		echo '<table class="form-table" role="presentation">';
 
 		echo '<tr><th scope="row">' . \esc_html__('Enable fallback', 'booking-engine-connector') . '</th><td>';
@@ -152,8 +163,12 @@ final class FallbackPage
 		echo '</td></tr>';
 
 		echo '</table>';
+		AdminPageLayout::cardClose();
+
 		echo '<p class="submit"><button type="submit" class="button button-primary">' . \esc_html__('Save changes', 'booking-engine-connector') . '</button></p>';
-		echo '</form></div>';
+		echo '</form>';
+
+		AdminPageLayout::wrapClose();
 	}
 
 	public static function handlePost(): void

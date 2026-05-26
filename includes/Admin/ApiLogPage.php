@@ -62,8 +62,21 @@ final class ApiLogPage
 			$providers = [];
 		}
 
-		echo '<div class="wrap">';
-		echo '<h1>' . \esc_html__('API request log', 'booking-engine-connector') . '</h1>';
+		AdminPageLayout::wrapOpen(
+			\__('Tools & Logs', 'booking-engine-connector'),
+			\__(
+				'Review recent provider API requests and filter by provider or HTTP status.',
+				'booking-engine-connector'
+			)
+		);
+
+		AdminPageLayout::cardOpen(
+			\__('API request log', 'booking-engine-connector'),
+			\__(
+				'Auth/token rows are omitted by default unless the bec_log_auth_requests filter is enabled.',
+				'booking-engine-connector'
+			)
+		);
 
 		echo '<form method="get" class="bec-api-log-filters">';
 		echo '<input type="hidden" name="page" value="bec-api-log" />';
@@ -82,8 +95,6 @@ final class ApiLogPage
 
 		\submit_button(\__('Filter', 'booking-engine-connector'), 'secondary', '', false);
 		echo '</form>';
-
-		echo '<p class="description">' . \esc_html__('Auth/token rows are omitted by default unless the bec_log_auth_requests filter is enabled.', 'booking-engine-connector') . '</p>';
 
 		echo '<table class="widefat striped"><thead><tr>';
 		$headers = [
@@ -120,6 +131,25 @@ final class ApiLogPage
 			}
 		}
 
-		echo '</tbody></table></div>';
+		echo '</tbody></table>';
+		AdminPageLayout::cardClose();
+
+		AdminPageLayout::cardOpen(
+			\__('Troubleshooting', 'booking-engine-connector'),
+			\__('Quick links when diagnosing connection or sync issues.', 'booking-engine-connector')
+		);
+		echo '<ul class="bec-admin-links">';
+		echo '<li><a href="' . \esc_url(\admin_url('admin.php?page=' . Settings\ConnectionPage::PAGE_SLUG)) . '">' . \esc_html__(
+			'Verify provider connection',
+			'booking-engine-connector'
+		) . '</a></li>';
+		echo '<li><a href="' . \esc_url(\admin_url('admin.php?page=' . SyncAdmin::PAGE_SLUG)) . '">' . \esc_html__(
+			'Open sync settings',
+			'booking-engine-connector'
+		) . '</a></li>';
+		echo '</ul>';
+		AdminPageLayout::cardClose();
+
+		AdminPageLayout::wrapClose();
 	}
 }

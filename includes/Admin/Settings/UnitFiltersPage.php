@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace BookingEngineConnector\Admin\Settings;
 
 use BookingEngineConnector\Admin\AdminMenu;
+use BookingEngineConnector\Admin\AdminPageLayout;
 use BookingEngineConnector\Taxonomies\UnitAmenityTaxonomy;
 use BookingEngineConnector\UnitFilters\UnitAmenityIndexer;
 use BookingEngineConnector\UnitFilters\UnitFilterSettings;
@@ -35,26 +36,31 @@ final class UnitFiltersPage
 			? \sanitize_text_field(\wp_unslash((string) $_GET['bec_amenity_search']))
 			: '';
 
-		echo '<div class="wrap bec-unit-filters-admin">';
-		if (isset($_GET['bec_saved']) && (string) \sanitize_text_field(\wp_unslash((string) $_GET['bec_saved'])) === '1') {
-			echo '<div class="notice notice-success is-dismissible"><p>' . \esc_html__(
-				'Settings saved.',
+		AdminPageLayout::wrapOpen(
+			\__('Listing Filters', 'booking-engine-connector'),
+			\__(
+				'Choose which indexed amenities appear in the [bec_unit_filters] shortcode. Styling for the filter form is under Design.',
 				'booking-engine-connector'
-			) . '</p></div>';
-		}
-		echo '<h1>' . \esc_html__('Unit filters', 'booking-engine-connector') . '</h1>';
-		echo '<p class="description">' . \esc_html__(
-			'Choose which amenities appear in the [bec_unit_filters] shortcode. Styling for the filter form is under Booking Engine → Styling.',
-			'booking-engine-connector'
-		) . '</p>';
+			),
+			'bec-unit-filters-admin'
+		);
+
+		AdminPageLayout::renderSavedNotice();
 
 		if (! UnitAmenityIndexer::isIndexComplete()) {
-			echo '<div class="notice notice-info"><p>' . \esc_html__(
-				'Amenity index is still building in the background. Options may be incomplete until indexing finishes.',
-				'booking-engine-connector'
-			) . '</p></div>';
+			AdminPageLayout::inlineNotice(
+				\__(
+					'Amenity index is still building in the background. Options may be incomplete until indexing finishes. Run a sync if the list stays empty.',
+					'booking-engine-connector'
+				),
+				'warning'
+			);
 		}
 
+		AdminPageLayout::cardOpen(
+			\__('Search amenities', 'booking-engine-connector'),
+			\__('Filter the table by amenity key or label.', 'booking-engine-connector')
+		);
 		echo '<form method="get" action="' . \esc_url(\admin_url('admin.php')) . '" class="bec-unit-filters-admin__search">';
 		echo '<input type="hidden" name="page" value="' . \esc_attr(self::PAGE_SLUG) . '" />';
 		echo '<p class="search-box">';
@@ -65,10 +71,19 @@ final class UnitFiltersPage
 		echo '<input type="search" id="bec_amenity_search" name="bec_amenity_search" value="' . \esc_attr($search) . '" />';
 		echo '<input type="submit" class="button" value="' . \esc_attr__('Search', 'booking-engine-connector') . '" />';
 		echo '</p></form>';
+		AdminPageLayout::cardClose();
 
 		echo '<form method="post" action="' . \esc_url(\admin_url('admin.php')) . '">';
 		echo '<input type="hidden" name="page" value="' . \esc_attr(self::PAGE_SLUG) . '" />';
 		\wp_nonce_field(self::NONCE_ACTION, 'bec_unit_filters_nonce');
+
+		AdminPageLayout::cardOpen(
+			\__('Amenities', 'booking-engine-connector'),
+			\__(
+				'Enable amenities for the filter shortcode and optionally override display labels. Unit counts reflect indexed taxonomy terms.',
+				'booking-engine-connector'
+			)
+		);
 
 		echo '<table class="widefat striped bec-unit-filters-admin__table">';
 		echo '<thead><tr>';
@@ -81,7 +96,7 @@ final class UnitFiltersPage
 
 		if ($terms === []) {
 			echo '<tr><td colspan="5">' . \esc_html__(
-				'No indexed amenities yet. Sync units from the booking engine first.',
+				'No indexed amenities yet. Sync units from the booking engine first, then return here to curate the filter list.',
 				'booking-engine-connector'
 			) . '</td></tr>';
 		}
@@ -110,6 +125,7 @@ final class UnitFiltersPage
 		}
 
 		echo '</tbody></table>';
+		AdminPageLayout::cardClose();
 
 		echo '<p class="submit"><button type="submit" class="button button-primary">' . \esc_html__(
 			'Save changes',
@@ -123,7 +139,7 @@ final class UnitFiltersPage
 		});
 		</script>';
 
-		echo '</div>';
+		AdminPageLayout::wrapClose();
 	}
 
 	public static function handlePost(): void
