@@ -193,6 +193,42 @@ final class AdminPageLayout
 		echo '<div class="' . \esc_attr($class) . '">' . \esc_html($message) . '</div>';
 	}
 
+	public static function tabsNavOpen(string $ariaLabel = ''): void
+	{
+		$label = $ariaLabel !== '' ? $ariaLabel : \__('Secondary menu', 'booking-engine-connector');
+
+		echo '<nav class="nav-tab-wrapper bec-admin-tabs" aria-label="' . \esc_attr($label) . '">';
+	}
+
+	public static function tabLink(string $href, string $label, bool $active): void
+	{
+		$class = 'nav-tab';
+		if ($active) {
+			$class .= ' nav-tab-active';
+		}
+
+		echo '<a class="' . \esc_attr($class) . '" href="' . \esc_url($href) . '">' . \esc_html($label) . '</a>';
+	}
+
+	public static function tabsNavClose(): void
+	{
+		echo '</nav>';
+	}
+
+	public static function tabPanelOpen(string $panelId, bool $active): void
+	{
+		echo '<div id="' . \esc_attr($panelId) . '" class="bec-admin-tab-panel" role="tabpanel"';
+		if (! $active) {
+			echo ' hidden';
+		}
+		echo '>';
+	}
+
+	public static function tabPanelClose(): void
+	{
+		echo '</div>';
+	}
+
 	public static function renderSavedNotice(): void
 	{
 		if (! isset($_GET['bec_saved'])) {

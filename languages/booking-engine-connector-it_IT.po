@@ -2404,8 +2404,8 @@ msgid "Run a sync after configuring credentials."
 msgstr "Esegui una sincronizzazione dopo aver configurato le credenziali."
 
 #: includes/Admin/AdminMenu.php:197 includes/Admin/ApiLogPage.php:146
-msgid "Open sync settings"
-msgstr "Apri impostazioni sincronizzazione"
+msgid "Open sync tools"
+msgstr "Apri strumenti sincronizzazione"
 
 #: includes/Admin/AdminMenu.php:202
 msgid "Not scheduled"
@@ -2632,6 +2632,18 @@ msgid ""
 msgstr ""
 "Pianifica sincronizzazioni automatiche, filtra i booking engine Kross, "
 "esegui importazioni manuali e gestisci i nomi file della galleria."
+
+#: includes/Admin/SyncAdmin.php:174
+msgid "Sync & Import sections"
+msgstr "Sezioni sincronizzazione e importazione"
+
+#: includes/Admin/SyncAdmin.php:178
+msgid "Settings"
+msgstr "Impostazioni"
+
+#: includes/Admin/SyncAdmin.php:183
+msgid "Tools"
+msgstr "Strumenti"
 
 #: includes/Admin/SyncAdmin.php:264
 msgid ""

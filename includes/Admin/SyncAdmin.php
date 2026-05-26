@@ -29,6 +29,23 @@ final class SyncAdmin
 {
 	public const PAGE_SLUG = 'bec-sync';
 
+	public const TAB_SETTINGS = 'settings';
+
+	public const TAB_TOOLS = 'tools';
+
+	/**
+	 * @param array<string, scalar|null> $extra
+	 */
+	public static function adminPageUrl(string $tab = self::TAB_SETTINGS, array $extra = []): string
+	{
+		$args = \array_merge(['page' => self::PAGE_SLUG], $extra);
+		if ($tab === self::TAB_TOOLS) {
+			$args['tab'] = self::TAB_TOOLS;
+		}
+
+		return \add_query_arg($args, \admin_url('admin.php'));
+	}
+
 	public static function register(): void
 	{
 		\add_action('admin_init', [self::class, 'registerListHooks']);
@@ -151,13 +168,24 @@ final class SyncAdmin
 			echo '<div class="' . \esc_attr($noticeClass) . '"><p>' . \esc_html((string) $krossRefreshResult['message']) . '</p></div>';
 		}
 
-		if ($last !== '') {
-			echo '<p class="description">' . \esc_html(\sprintf(
-				/* translators: %s datetime */
-				\__('Last successful sync completion: %s', 'booking-engine-connector'),
-				$last
-			)) . '</p>';
-		}
+		$activeTab = self::resolveActiveTab();
+
+		AdminPageLayout::tabsNavOpen(
+			\__('Sync & Import sections', 'booking-engine-connector')
+		);
+		AdminPageLayout::tabLink(
+			self::adminPageUrl(self::TAB_SETTINGS),
+			\__('Settings', 'booking-engine-connector'),
+			$activeTab === self::TAB_SETTINGS
+		);
+		AdminPageLayout::tabLink(
+			self::adminPageUrl(self::TAB_TOOLS),
+			\__('Tools', 'booking-engine-connector'),
+			$activeTab === self::TAB_TOOLS
+		);
+		AdminPageLayout::tabsNavClose();
+
+		AdminPageLayout::tabPanelOpen('bec-sync-tab-settings', $activeTab === self::TAB_SETTINGS);
 
 		echo '<form method="post" action="' . \esc_url(\admin_url('admin-post.php')) . '">';
 		\wp_nonce_field('bec_sync_settings', 'bec_sync_settings_nonce');
@@ -259,6 +287,18 @@ final class SyncAdmin
 		\submit_button(\__('Save sync settings', 'booking-engine-connector'));
 		echo '</form>';
 
+		AdminPageLayout::tabPanelClose();
+
+		AdminPageLayout::tabPanelOpen('bec-sync-tab-tools', $activeTab === self::TAB_TOOLS);
+
+		if ($last !== '') {
+			echo '<p class="description">' . \esc_html(\sprintf(
+				/* translators: %s datetime */
+				\__('Last successful sync completion: %s', 'booking-engine-connector'),
+				$last
+			)) . '</p>';
+		}
+
 		AdminPageLayout::cardOpen(
 			\__('Run sync', 'booking-engine-connector'),
 			\esc_html__(
@@ -321,7 +361,48 @@ final class SyncAdmin
 		echo '</form>';
 		AdminPageLayout::cardClose();
 
+		AdminPageLayout::tabPanelClose();
+
 		AdminPageLayout::wrapClose();
+	}
+
+	private static function resolveActiveTab(): string
+	{
+		if (isset($_GET['bec_sync_done']) || isset($_GET['bec_sync_lock_cleared'])) {
+			return self::TAB_TOOLS;
+		}
+
+		if (isset($_GET['bec_saved'])) {
+			return self::TAB_SETTINGS;
+		}
+
+		if (isset($_GET['tab'])) {
+			$tab = \sanitize_key(\wp_unslash((string) $_GET['tab']));
+			if ($tab === self::TAB_TOOLS || $tab === self::TAB_SETTINGS) {
+				return $tab;
+			}
+		}
+
+		return self::TAB_SETTINGS;
+	}
+
+	/**
+	 * @param array<string, scalar|null> $query
+	 */
+	private static function redirectToSyncPage(array $query = []): void
+	{
+		$tab = self::TAB_SETTINGS;
+		if (isset($query['tab'])) {
+			$tab = \sanitize_key((string) $query['tab']);
+			unset($query['tab']);
+		}
+
+		if ($tab !== self::TAB_TOOLS && $tab !== self::TAB_SETTINGS) {
+			$tab = self::TAB_SETTINGS;
+		}
+
+		\wp_safe_redirect(self::adminPageUrl($tab, $query));
+		exit;
 	}
 
 	public static function enqueueAdminAssets(string $hookSuffix): void
@@ -830,7 +911,14 @@ final class SyncAdmin
 			KrossBookingEngineSyncSettings::setSelectedBookingEngines($rawEngines);
 		}
 
-		\wp_safe_redirect(\add_query_arg(['page' => self::PAGE_SLUG, 'bec_saved' => '1'], \admin_url('admin.php')));
+		\wp_safe_redirect(\add_query_arg(
+			[
+				'page'      => self::PAGE_SLUG,
+				'bec_saved' => '1',
+				'tab'       => self::TAB_SETTINGS,
+			],
+			\admin_url('admin.php')
+		));
 		exit;
 	}
 
@@ -934,8 +1022,10 @@ final class SyncAdmin
 
 		self::executeFullSyncAndStoreResult();
 
-		\wp_safe_redirect(\admin_url('admin.php?page=' . self::PAGE_SLUG . '&bec_sync_done=1'));
-		exit;
+		self::redirectToSyncPage([
+			'bec_sync_done' => '1',
+			'tab'           => self::TAB_TOOLS,
+		]);
 	}
 
 	public static function handleClearRunningLock(): void
@@ -952,13 +1042,10 @@ final class SyncAdmin
 
 		SyncLock::forceReleaseAll();
 
-		\wp_safe_redirect(
-			\add_query_arg(
-				[ 'bec_sync_lock_cleared' => '1' ],
-				\admin_url('admin.php?page=' . self::PAGE_SLUG)
-			)
-		);
-		exit;
+		self::redirectToSyncPage([
+			'bec_sync_lock_cleared' => '1',
+			'tab'                   => self::TAB_TOOLS,
+		]);
 	}
 
 	public static function handleSyncUnit(): void
@@ -1002,8 +1089,7 @@ final class SyncAdmin
 		$payload = \array_merge(['scope' => 'all'], $result);
 		\set_transient(self::renameResultTransientKey(), $payload, 120);
 
-		\wp_safe_redirect(\admin_url('admin.php?page=' . self::PAGE_SLUG));
-		exit;
+		self::redirectToSyncPage(['tab' => self::TAB_TOOLS]);
 	}
 
 	public static function handleRenameUnitGallery(): void
@@ -1025,8 +1111,7 @@ final class SyncAdmin
 		);
 		\set_transient(self::renameResultTransientKey(), $payload, 120);
 
-		\wp_safe_redirect(\admin_url('admin.php?page=' . self::PAGE_SLUG));
-		exit;
+		self::redirectToSyncPage(['tab' => self::TAB_TOOLS]);
 	}
 
 	public static function handleKrossRefreshBookingEngines(): void
@@ -1127,7 +1212,7 @@ final class SyncAdmin
 
 	private static function redirectToSyncSettingsPage(): void
 	{
-		\wp_safe_redirect(\admin_url('admin.php?page=' . self::PAGE_SLUG));
+		self::redirectToSyncPage(['tab' => self::TAB_SETTINGS]);
 	}
 
 	public static function renderNotices(): void

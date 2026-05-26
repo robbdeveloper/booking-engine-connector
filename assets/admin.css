@@ -238,3 +238,11 @@
 	float: none;
 }
 
+.bec-admin-tabs {
+	margin: 0 0 1.25rem;
+}
+
+.bec-admin-tab-panel {
+	margin-top: 0;
+}
+

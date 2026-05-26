@@ -143,8 +143,8 @@ final class ApiLogPage
 			'Verify provider connection',
 			'booking-engine-connector'
 		) . '</a></li>';
-		echo '<li><a href="' . \esc_url(\admin_url('admin.php?page=' . SyncAdmin::PAGE_SLUG)) . '">' . \esc_html__(
-			'Open sync settings',
+		echo '<li><a href="' . \esc_url(SyncAdmin::adminPageUrl(SyncAdmin::TAB_TOOLS)) . '">' . \esc_html__(
+			'Open sync tools',
 			'booking-engine-connector'
 		) . '</a></li>';
 		echo '</ul>';

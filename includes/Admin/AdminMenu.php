@@ -193,8 +193,8 @@ final class AdminMenu
 			$lastSync === ''
 				? \__('Run a sync after configuring credentials.', 'booking-engine-connector')
 				: '',
-			\admin_url('admin.php?page=' . SyncAdmin::PAGE_SLUG),
-			\__('Open sync settings', 'booking-engine-connector')
+			SyncAdmin::adminPageUrl(SyncAdmin::TAB_TOOLS),
+			\__('Open sync tools', 'booking-engine-connector')
 		);
 
 		$nextLabel = $nextCron !== false
@@ -210,7 +210,7 @@ final class AdminMenu
 				\__('Every %d hours via WP-Cron.', 'booking-engine-connector'),
 				$hours
 			),
-			\admin_url('admin.php?page=' . SyncAdmin::PAGE_SLUG),
+			SyncAdmin::adminPageUrl(SyncAdmin::TAB_SETTINGS),
 			\__('Adjust schedule', 'booking-engine-connector')
 		);
 
@@ -226,7 +226,7 @@ final class AdminMenu
 				$locked ? 'warning' : 'success'
 			),
 			'',
-			\admin_url('admin.php?page=' . SyncAdmin::PAGE_SLUG),
+			SyncAdmin::adminPageUrl(SyncAdmin::TAB_TOOLS),
 			\__('Manage sync lock', 'booking-engine-connector')
 		);
 
@@ -289,7 +289,7 @@ final class AdminMenu
 			\__('Provider credentials and connection test.', 'booking-engine-connector')
 		);
 		AdminPageLayout::quickAction(
-			\admin_url('admin.php?page=' . SyncAdmin::PAGE_SLUG),
+			SyncAdmin::adminPageUrl(SyncAdmin::TAB_TOOLS),
 			\__('Run sync', 'booking-engine-connector'),
 			\__('Import or update units from the booking engine.', 'booking-engine-connector')
 		);
