@@ -6,6 +6,7 @@ namespace BookingEngineConnector\Admin\Settings;
 
 use BookingEngineConnector\Admin\AdminMenu;
 use BookingEngineConnector\PostTypes\UnitPostType;
+use BookingEngineConnector\Routing\UnitPermalinkSettings;
 use BookingEngineConnector\Taxonomies\UnitCategoryTaxonomy;
 
 /**
@@ -36,6 +37,15 @@ final class UnitPermalinkPage
 		$categorySlugStored = (string) \get_option(UnitCategoryTaxonomy::OPTION_PERMALINK_SLUG, '');
 		$categoryExampleSlug = UnitCategoryTaxonomy::resolvePermalinkSlug();
 
+		$unitStructure = UnitPermalinkSettings::resolveUnitStructure();
+		$categoryStructure = UnitPermalinkSettings::resolveCategoryStructure();
+		$examples = UnitPermalinkSettings::exampleUrls(
+			$unitStructure,
+			$categoryStructure,
+			$exampleSlug,
+			$categoryExampleSlug
+		);
+
 		echo '<div class="wrap">';
 		if (isset($_GET['bec_saved']) && (string) \sanitize_text_field(\wp_unslash((string) $_GET['bec_saved'])) === '1') {
 			echo '<div class="notice notice-success is-dismissible"><p>' . \esc_html__(
@@ -43,6 +53,14 @@ final class UnitPermalinkPage
 				'booking-engine-connector'
 			) . '</p></div>';
 		}
+
+		if (isset($_GET['bec_error'])) {
+			$error = \sanitize_text_field(\wp_unslash((string) $_GET['bec_error']));
+			if ($error !== '') {
+				echo '<div class="notice notice-error is-dismissible"><p>' . \esc_html($error) . '</p></div>';
+			}
+		}
+
 		echo '<h1>' . \esc_html__('Units — permalinks', 'booking-engine-connector') . '</h1>';
 		echo '<p class="description">' . \esc_html__(
 			'Set the URL slug used for unit archives and single-unit URLs. The internal post type name in the database stays unchanged.',
@@ -64,6 +82,23 @@ final class UnitPermalinkPage
 			'<code>' . \esc_html($sample) . '</code>'
 		) . '</p>';
 		echo '</td></tr>';
+
+		echo '<tr><th scope="row">' . \esc_html__('Unit URL structure', 'booking-engine-connector') . '</th><td>';
+		echo '<fieldset>';
+		foreach (UnitPermalinkSettings::unitStructureChoices() as $value => $label) {
+			echo '<label style="display:block;margin-bottom:0.5em;">';
+			echo '<input type="radio" name="bec_unit_url_structure" value="' . \esc_attr($value) . '" ' . \checked($unitStructure, $value, false) . ' /> ';
+			echo \esc_html($label);
+			echo '</label>';
+		}
+		echo '</fieldset>';
+		echo '<p class="description">' . \sprintf(
+			/* translators: %s: example unit URL */
+			\esc_html__('Example single unit URL: %s. Units without a category fall back to /{unit slug}/{unit name}.', 'booking-engine-connector'),
+			'<code>' . \esc_html($examples['unit']) . '</code>'
+		) . '</p>';
+		echo '</td></tr>';
+
 		echo '<tr><th scope="row">' . \esc_html__('Unit archive', 'booking-engine-connector') . '</th><td>';
 		echo '<label for="bec_unit_has_archive"><input type="checkbox" name="bec_unit_has_archive" id="bec_unit_has_archive" value="1" ' . \checked($hasArchive, true, false) . ' /> ';
 		echo \esc_html__('Enable the public archive page for units (listing URL at the slug above).', 'booking-engine-connector') . '</label>';
@@ -85,12 +120,30 @@ final class UnitPermalinkPage
 
 		echo '<tr><th scope="row"><label for="bec_unit_category_permalink_slug">' . \esc_html__('Category URL slug', 'booking-engine-connector') . '</label></th><td>';
 		echo '<input type="text" class="regular-text" name="bec_unit_category_permalink_slug" id="bec_unit_category_permalink_slug" value="' . \esc_attr($categorySlugStored) . '" autocomplete="off" placeholder="' . \esc_attr(UnitCategoryTaxonomy::DEFAULT_REWRITE_SLUG) . '" />';
-		$catSample = \trailingslashit($home) . $categoryExampleSlug . '/example-category/';
 		echo '<p class="description">' . \sprintf(
-			/* translators: 1: example term URL, 2: default slug */
-			\esc_html__('Category term URLs look like %1$s. Leave empty to use the default base “%2$s”. Disabling categories above removes public archives and the admin UI while keeping stored terms.', 'booking-engine-connector'),
-			'<code>' . \esc_html($catSample) . '</code>',
+			/* translators: 1: default slug */
+			\esc_html__('Used when category URLs include a dedicated base segment. Leave empty to use the default base “%s”.', 'booking-engine-connector'),
 			\esc_html(UnitCategoryTaxonomy::DEFAULT_REWRITE_SLUG)
+		) . '</p>';
+		echo '</td></tr>';
+
+		echo '<tr><th scope="row">' . \esc_html__('Category URL structure', 'booking-engine-connector') . '</th><td>';
+		echo '<fieldset>';
+		foreach (UnitPermalinkSettings::categoryStructureChoices() as $value => $label) {
+			echo '<label style="display:block;margin-bottom:0.5em;">';
+			echo '<input type="radio" name="bec_unit_category_url_structure" value="' . \esc_attr($value) . '" ' . \checked($categoryStructure, $value, false) . ' /> ';
+			echo \esc_html($label);
+			echo '</label>';
+		}
+		echo '</fieldset>';
+		echo '<p class="description">' . \sprintf(
+			/* translators: %s: example category URL */
+			\esc_html__('Example category archive URL: %s.', 'booking-engine-connector'),
+			'<code>' . \esc_html($examples['category']) . '</code>'
+		) . '</p>';
+		echo '<p class="description">' . \esc_html__(
+			'Top-level category URLs can conflict with pages or posts that share the same slug. WordPress core content is preferred when a URL is ambiguous. Multilingual plugins (WPML, Polylang) continue to add language prefixes such as /it/ or /es/ automatically.',
+			'booking-engine-connector'
 		) . '</p>';
 		echo '</td></tr>';
 
@@ -112,6 +165,38 @@ final class UnitPermalinkPage
 
 		\check_admin_referer(self::NONCE_ACTION, 'bec_unit_permalink_nonce');
 
+		$unitStructure = isset($_POST['bec_unit_url_structure'])
+			? \sanitize_key(\wp_unslash((string) $_POST['bec_unit_url_structure']))
+			: UnitPermalinkSettings::UNIT_BASE;
+		$categoryStructure = isset($_POST['bec_unit_category_url_structure'])
+			? \sanitize_key(\wp_unslash((string) $_POST['bec_unit_category_url_structure']))
+			: UnitPermalinkSettings::CAT_CATEGORY_BASE;
+
+		$unitChoices = array_keys(UnitPermalinkSettings::unitStructureChoices());
+		$categoryChoices = array_keys(UnitPermalinkSettings::categoryStructureChoices());
+		if (! in_array($unitStructure, $unitChoices, true)) {
+			$unitStructure = UnitPermalinkSettings::UNIT_BASE;
+		}
+		if (! in_array($categoryStructure, $categoryChoices, true)) {
+			$categoryStructure = UnitPermalinkSettings::CAT_CATEGORY_BASE;
+		}
+
+		$categoriesEnabled = isset($_POST['bec_unit_category_enabled']);
+
+		$errors = UnitPermalinkSettings::validationErrors($unitStructure, $categoryStructure, $categoriesEnabled);
+		if ($errors !== []) {
+			\wp_safe_redirect(
+				\add_query_arg(
+					[
+						'page'      => self::PAGE_SLUG,
+						'bec_error' => \rawurlencode($errors[0]),
+					],
+					\admin_url('admin.php')
+				)
+			);
+			exit;
+		}
+
 		$raw = isset($_POST['bec_unit_permalink_slug']) ? \wp_unslash((string) $_POST['bec_unit_permalink_slug']) : '';
 		$raw = trim($raw);
 		if ($raw === '') {
@@ -122,7 +207,7 @@ final class UnitPermalinkPage
 
 		\update_option(UnitPostType::OPTION_HAS_ARCHIVE, isset($_POST['bec_unit_has_archive']), false);
 
-		\update_option(UnitCategoryTaxonomy::OPTION_ENABLED, isset($_POST['bec_unit_category_enabled']), false);
+		\update_option(UnitCategoryTaxonomy::OPTION_ENABLED, $categoriesEnabled, false);
 
 		$rawCatSlug = isset($_POST['bec_unit_category_permalink_slug']) ? \wp_unslash((string) $_POST['bec_unit_category_permalink_slug']) : '';
 		$rawCatSlug = \trim($rawCatSlug);
@@ -131,6 +216,9 @@ final class UnitPermalinkPage
 		} else {
 			\update_option(UnitCategoryTaxonomy::OPTION_PERMALINK_SLUG, \sanitize_title($rawCatSlug), false);
 		}
+
+		\update_option(UnitPermalinkSettings::OPTION_UNIT_STRUCTURE, $unitStructure, false);
+		\update_option(UnitPermalinkSettings::OPTION_CATEGORY_STRUCTURE, $categoryStructure, false);
 
 		\flush_rewrite_rules(false);
 

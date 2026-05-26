@@ -123,13 +123,20 @@ final class UnitCategoryTaxonomy
 
 	private static function registerArchiveTitleFilters(): void
 	{
-		add_filter('single_term_title', [self::class, 'filterSingleTermTitle'], 10, 2);
+		add_filter('single_term_title', [self::class, 'filterSingleTermTitle'], 10, 1);
 	}
 
-	public static function filterSingleTermTitle(string $term_name, $term): string
+	public static function filterSingleTermTitle(string $term_name, $term = null): string
 	{
 		if (! self::isEnabled()) {
 			return $term_name;
+		}
+
+		if (! $term instanceof \WP_Term) {
+			$queried = get_queried_object();
+			if ($queried instanceof \WP_Term) {
+				$term = $queried;
+			}
 		}
 
 		if (! $term instanceof \WP_Term || $term->taxonomy !== self::TAXONOMY) {

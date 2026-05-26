@@ -1,5 +1,9 @@
 # Changelog
 
+## 0.1.42 — 2026-05-26
+
+- **Units — permalinks**: Selectable URL structures for single units (`/{unit slug}/{unit name}`, `/{unit slug}/{category}/{unit name}`, `/{category}/{unit name}`) and unit category archives (`/{category slug}/{term}`, `/{unit slug}/{term}`, `/{term}`). Existing unit and category slug fields are preserved. Admin validation blocks ambiguous combinations; top-level category URLs defer to WordPress core content when slugs collide. Compatible with WPML/Polylang language prefixes. Filters: `bec_unit_url_structure`, `bec_unit_category_url_structure`, `bec_unit_permalink_primary_term`, `bec_unit_permalink_slug_conflicts_with_core`.
+
 ## 0.1.41 — 2026-05-25
 
 - **Shortcodes (`[bec_quote]`)**: When there is no availability for the selected dates, the quote `<p>` includes an additional **`no-results`** CSS class for styling.

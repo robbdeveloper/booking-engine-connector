@@ -18,6 +18,7 @@ use BookingEngineConnector\Front\PublicAssets;
 use BookingEngineConnector\Integrations\Multilingual;
 use BookingEngineConnector\Front\PublicContentBlocks;
 use BookingEngineConnector\PostTypes\UnitPostType;
+use BookingEngineConnector\Routing\UnitPermalinkRouter;
 use BookingEngineConnector\Search\SearchSettings;
 use BookingEngineConnector\Search\SearchTemplateHooks;
 use BookingEngineConnector\Shortcodes\ShortcodeRegistry;
@@ -88,6 +89,7 @@ final class Plugin
 		SyncAdmin::register();
 		UnitPostType::register();
 		UnitCategoryTaxonomy::register();
+		UnitPermalinkRouter::register();
 		UnitAmenityTaxonomy::register();
 		UnitAmenityIndexer::register();
 		UnitFilterQueryHooks::register();

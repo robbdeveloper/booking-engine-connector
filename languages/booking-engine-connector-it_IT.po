@@ -2,7 +2,7 @@
 # This file is distributed under the GPL-2.0-or-later.
 msgid ""
 msgstr ""
-"Project-Id-Version: Booking Engine Connector 0.1.41\n"
+"Project-Id-Version: Booking Engine Connector 0.1.42\n"
 "Report-Msgid-Bugs-To: https://wordpress.org/support/plugin/booking-engine-"
 "connector\n"
 "POT-Creation-Date: 2026-05-25T17:18:48+00:00\n"
@@ -655,17 +655,43 @@ msgstr ""
 "per utilizzare lo slug predefinito \"bec_unit\"."
 
 #: includes/Admin/Settings/UnitPermalinkPage.php:67
+msgid "Unit URL structure"
+msgstr "Struttura URL unità"
+
+#: includes/Routing/UnitPermalinkSettings.php:43
+msgid "/{unit slug}/{unit name}"
+msgstr "/{slug unità}/{nome unità}"
+
+#: includes/Routing/UnitPermalinkSettings.php:44
+msgid "/{unit slug}/{category}/{unit name}"
+msgstr "/{slug unità}/{categoria}/{nome unità}"
+
+#: includes/Routing/UnitPermalinkSettings.php:45
+msgid "/{category}/{unit name}"
+msgstr "/{categoria}/{nome unità}"
+
+#. translators: %s: example unit URL
+#: includes/Admin/Settings/UnitPermalinkPage.php:91
+#, php-format
+msgid ""
+"Example single unit URL: %s. Units without a category fall back to /{unit "
+"slug}/{unit name}."
+msgstr ""
+"Esempio URL unità singola: %s. Le unità senza categoria usano /{slug "
+"unità}/{nome unità}."
+
+#: includes/Admin/Settings/UnitPermalinkPage.php:97
 msgid "Unit archive"
 msgstr "Archivio dell'Unità"
 
-#: includes/Admin/Settings/UnitPermalinkPage.php:69
+#: includes/Admin/Settings/UnitPermalinkPage.php:99
 msgid ""
 "Enable the public archive page for units (listing URL at the slug above)."
 msgstr ""
 "Abilita la pagina di archivio pubblico per le unità (elenco URL nello slug "
 "sopra)."
 
-#: includes/Admin/Settings/UnitPermalinkPage.php:70
+#: includes/Admin/Settings/UnitPermalinkPage.php:100
 msgid ""
 "When disabled, only single unit URLs are registered. Changing this updates "
 "rewrite rules."
@@ -673,12 +699,12 @@ msgstr ""
 "Se disabilitato, vengono registrati solo gli URL di singole unità. La "
 "modifica di questo aggiornamento riscrive le regole."
 
-#: includes/Admin/Settings/UnitPermalinkPage.php:76
+#: includes/Admin/Settings/UnitPermalinkPage.php:106
 #: includes/Taxonomies/UnitCategoryTaxonomy.php:119
 msgid "Unit categories"
 msgstr "Categorie unità"
 
-#: includes/Admin/Settings/UnitPermalinkPage.php:78
+#: includes/Admin/Settings/UnitPermalinkPage.php:108
 msgid ""
 "Enable the Unit Category taxonomy (sync assigns categories from the booking "
 "engine when supported)."
@@ -687,27 +713,91 @@ msgstr ""
 "categorie dal motore di prenotazione quando supportato)."
 
 #. translators: %s: internal taxonomy key (fixed in the database)
-#: includes/Admin/Settings/UnitPermalinkPage.php:81
+#: includes/Admin/Settings/UnitPermalinkPage.php:111
 #, php-format
 msgid "Internal taxonomy key (unchanged): %s"
 msgstr "Chiave della tassonomia interna (invariata): %s"
 
-#: includes/Admin/Settings/UnitPermalinkPage.php:86
+#: includes/Admin/Settings/UnitPermalinkPage.php:116
 msgid "Category URL slug"
 msgstr "Slug URL della categoria"
 
-#. translators: 1: example term URL, 2: default slug
-#: includes/Admin/Settings/UnitPermalinkPage.php:91
+#. translators: %s: default slug
+#: includes/Admin/Settings/UnitPermalinkPage.php:121
 #, php-format
 msgid ""
-"Category term URLs look like %1$s. Leave empty to use the default base "
-"“%2$s”. Disabling categories above removes public archives and the admin UI "
-"while keeping stored terms."
+"Used when category URLs include a dedicated base segment. Leave empty to use "
+"the default base “%s”."
 msgstr ""
-"Gli URL dei termini categoria hanno la forma %1$s. Lascia vuoto per usare la "
-"base predefinita «%2$s». Disattivando le categorie sopra vengono rimossi gli "
-"archivi pubblici e l'interfaccia di amministrazione, mantenendo i termini "
-"salvati."
+"Usato quando gli URL categoria includono un segmento base dedicato. Lascia "
+"vuoto per usare la base predefinita «%s»."
+
+#: includes/Admin/Settings/UnitPermalinkPage.php:125
+msgid "Category URL structure"
+msgstr "Struttura URL categoria"
+
+#: includes/Routing/UnitPermalinkSettings.php:55
+msgid "/{category slug}/{term name}"
+msgstr "/{slug categoria}/{nome termine}"
+
+#: includes/Routing/UnitPermalinkSettings.php:56
+msgid "/{unit slug}/{term name}"
+msgstr "/{slug unità}/{nome termine}"
+
+#: includes/Routing/UnitPermalinkSettings.php:57
+msgid "/{term name}"
+msgstr "/{nome termine}"
+
+#. translators: %s: example category URL
+#: includes/Admin/Settings/UnitPermalinkPage.php:139
+#, php-format
+msgid "Example category archive URL: %s."
+msgstr "Esempio URL archivio categoria: %s."
+
+#: includes/Admin/Settings/UnitPermalinkPage.php:143
+msgid ""
+"Top-level category URLs can conflict with pages or posts that share the same "
+"slug. WordPress core content is preferred when a URL is ambiguous. "
+"Multilingual plugins (WPML, Polylang) continue to add language prefixes "
+"such as /it/ or /es/ automatically."
+msgstr ""
+"Gli URL categoria di primo livello possono entrare in conflitto con pagine o "
+"post che condividono lo stesso slug. In caso di ambiguità ha priorità il "
+"contenuto WordPress. I plugin multilingua (WPML, Polylang) continuano ad "
+"aggiungere automaticamente prefissi lingua come /it/ o /es/."
+
+#: includes/Routing/UnitPermalinkSettings.php:138
+msgid ""
+"Category URLs under the unit slug cannot be used together with unit URLs in "
+"the “/{unit slug}/{unit name}” format, because both use two URL segments "
+"and cannot be distinguished."
+msgstr ""
+"Gli URL categoria sotto lo slug unità non possono essere usati insieme agli "
+"URL unità nel formato «/{slug unità}/{nome unità}», perché entrambi usano "
+"due segmenti URL e non sono distinguibili."
+
+#: includes/Routing/UnitPermalinkSettings.php:146
+msgid "The selected unit URL structure requires unit categories to be enabled."
+msgstr ""
+"La struttura URL unità selezionata richiede che le categorie unità siano "
+"abilitate."
+
+#: includes/Routing/UnitPermalinkSettings.php:153
+msgid ""
+"The selected category URL structure requires unit categories to be enabled."
+msgstr ""
+"La struttura URL categoria selezionata richiede che le categorie unità siano "
+"abilitate."
+
+#. translators: %s: comma-separated list of conflicting slugs
+#: includes/Routing/UnitPermalinkSettings.php:163
+#, php-format
+msgid ""
+"Top-level category URLs may conflict with existing content slugs: %s. "
+"Resolve these conflicts or choose a different structure."
+msgstr ""
+"Gli URL categoria di primo livello possono entrare in conflitto con slug di "
+"contenuto esistenti: %s. Risolvi i conflitti o scegli una struttura diversa."
 
 #: includes/Admin/SyncAdmin.php:73
 msgid "Sync units"
