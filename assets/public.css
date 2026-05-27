@@ -266,7 +266,8 @@
 	color: var(--bec-filters-color-text, var(--bec-color-text, #3d3d3d));
 }
 
-.bec-unit-filters button.bec-unit-filters__amenities-trigger {
+.bec-unit-filters button.bec-unit-filters__amenities-trigger,
+.bec-unit-filters .bec-unit-filters__picker-wrap > button {
 	align-items: center;
 	justify-content: space-between;
 	gap: 0.5rem;
@@ -303,7 +304,10 @@
 
 .bec-unit-filters button.bec-unit-filters__amenities-trigger:hover,
 .bec-unit-filters button.bec-unit-filters__amenities-trigger:focus-visible,
-.bec-unit-filters button.bec-unit-filters__amenities-trigger:focus {
+.bec-unit-filters button.bec-unit-filters__amenities-trigger:focus,
+.bec-unit-filters .bec-unit-filters__picker-wrap > button:hover,
+.bec-unit-filters .bec-unit-filters__picker-wrap > button:focus,
+.bec-unit-filters .bec-unit-filters__picker-wrap > button:focus-visible {
 	background: var(--bec-color-surface, #f9fafb);
 	background-color: var(--bec-color-surface, #f9fafb);
 	color: var(--bec-color-accent, var(--bec-color-primary, #000));
@@ -542,7 +546,8 @@
 	border-top: var(--bec-border-width, 1px) solid var(--bec-filters-border, var(--bec-color-border, #e0e0e0));
 }
 
-.bec-unit-filters button.bec-unit-filters__amenities-done {
+.bec-unit-filters button.bec-unit-filters__amenities-done,
+.bec-unit-filters button.bec-unit-filters__picker-done {
 	flex: 1 1 auto;
 	padding: var(--bec-field-padding-y, 0.65rem) var(--bec-field-padding-x, 0.9rem);
 	background: var(--bec-color-accent, var(--bec-color-primary, #000));
@@ -562,7 +567,10 @@
 
 .bec-unit-filters button.bec-unit-filters__amenities-done:hover,
 .bec-unit-filters button.bec-unit-filters__amenities-done:focus-visible,
-.bec-unit-filters button.bec-unit-filters__amenities-done:focus {
+.bec-unit-filters button.bec-unit-filters__amenities-done:focus,
+.bec-unit-filters button.bec-unit-filters__picker-done:hover,
+.bec-unit-filters button.bec-unit-filters__picker-done:focus,
+.bec-unit-filters button.bec-unit-filters__picker-done:focus-visible {
 	background: var(--bec-color-accent-text, var(--bec-color-primary-contrast, #fff));
 	background-color: var(--bec-color-accent-text, var(--bec-color-primary-contrast, #fff));
 	color: var(--bec-color-accent, var(--bec-color-primary, #000));
