@@ -1,5 +1,9 @@
 # Changelog
 
+## 0.2.0 — 2026-05-27
+
+- **i18n (Italian)**: Regenerate `languages/booking-engine-connector.pot` from current source and complete Italian translations for wp-admin (Dashboard, Connection, Frontend, Sync & Import, Units, Listing Filters, Design, Checkout & Fallback, Tools & Logs). Recompiled `booking-engine-connector-it_IT.mo`.
+
 ## 0.1.47 — 2026-05-27
 
 - **Booking summary (mobile)**: Portal the fixed bottom bar to `document.body` alongside the drawer and backdrop so the bar also escapes nested stacking contexts and z-index traps in theme/Elementor layouts.
