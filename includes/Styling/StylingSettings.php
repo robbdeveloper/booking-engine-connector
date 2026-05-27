@@ -184,6 +184,7 @@ final class StylingSettings
 --bec-bsummary-color-primary: #000000;
 --bec-bsummary-font: var(--bec-font-sans);
 --bec-bsummary-sh-bar: 0 -4px 20px rgba(0, 0, 0, 0.08);
+--bec-bsummary-drawer-z-index: 10040;
 --bec-bsummary-date-divider: rgba(107, 91, 69, 0.14);
 --bec-bsummary-loading-overlay: rgba(250, 248, 245, 0.72);
 --bec-bsummary-spinner-border: rgba(92, 77, 58, 0.2);

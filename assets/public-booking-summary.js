@@ -47,6 +47,135 @@
 		return out;
 	}
 
+	/**
+	 * Body-level mount for the portaled mobile drawer (after portalMobileDrawer).
+	 * @param {Element} root
+	 * @returns {Element | null}
+	 */
+	function getDrawerMount(root) {
+		if (!root || !root.id) {
+			return null;
+		}
+		var safeId =
+			typeof CSS !== 'undefined' && typeof CSS.escape === 'function'
+				? CSS.escape(root.id)
+				: root.id.replace(/"/g, '\\"');
+		return document.querySelector(
+			'.bec-booking-summary__drawer-mount[data-bec-bsummary-root-id="' + safeId + '"]'
+		);
+	}
+
+	/**
+	 * Move backdrop + drawer to document.body (mirrors guest popover mount pattern).
+	 * @param {Element} root
+	 * @returns {Element | null}
+	 */
+	function portalMobileDrawer(root) {
+		if (!root) {
+			return null;
+		}
+		var existing = getDrawerMount(root);
+		if (existing) {
+			return existing;
+		}
+		if (root.dataset.becBsummaryDrawerPortaled === '1') {
+			return getDrawerMount(root);
+		}
+
+		var mobile = root.querySelector('.bec-booking-summary__mobile');
+		if (!mobile) {
+			return null;
+		}
+		var backdrop = mobile.querySelector('.bec-booking-summary__backdrop');
+		var drawer = mobile.querySelector('.bec-booking-summary__drawer');
+		if (!drawer) {
+			return null;
+		}
+
+		var mount = document.createElement('div');
+		mount.className = 'bec-booking-summary bec-booking-summary__drawer-mount';
+		mount.classList.add('bec-booking-summary__mobile');
+		if (root.classList.contains('bec-booking-summary--preset-compact')) {
+			mount.classList.add('bec-booking-summary--preset-compact');
+		}
+		mount.setAttribute('data-bec-bsummary-drawer-mount', '');
+		mount.setAttribute('data-bec-bsummary-root-id', root.id);
+		mount.setAttribute('aria-hidden', 'true');
+
+		if (backdrop) {
+			mount.appendChild(backdrop);
+		}
+		mount.appendChild(drawer);
+		document.body.appendChild(mount);
+
+		root.dataset.becBsummaryDrawerPortaled = '1';
+		return mount;
+	}
+
+	/**
+	 * @param {Element} root
+	 * @param {string} selector
+	 * @returns {Element[]}
+	 */
+	function querySummaryAll(root, selector) {
+		var out = [];
+		var mount = getDrawerMount(root);
+		var nodes = root.querySelectorAll(selector);
+		var i;
+		for (i = 0; i < nodes.length; i++) {
+			out.push(nodes[i]);
+		}
+		if (mount) {
+			nodes = mount.querySelectorAll(selector);
+			for (i = 0; i < nodes.length; i++) {
+				out.push(nodes[i]);
+			}
+		}
+		return out;
+	}
+
+	/**
+	 * @param {Element} root
+	 * @param {Element | null} el
+	 * @returns {boolean}
+	 */
+	function summaryContains(root, el) {
+		if (!el) {
+			return false;
+		}
+		if (root.contains(el)) {
+			return true;
+		}
+		var mount = getDrawerMount(root);
+		return mount ? mount.contains(el) : false;
+	}
+
+	/**
+	 * @param {Element} root
+	 * @param {string} type
+	 * @param {EventListener} handler
+	 * @param {boolean | AddEventListenerOptions} [options]
+	 */
+	function bindSummaryDelegated(root, type, handler, options) {
+		root.addEventListener(type, handler, options);
+		var mount = getDrawerMount(root);
+		if (mount) {
+			mount.addEventListener(type, handler, options);
+		}
+	}
+
+	/**
+	 * @param {Element} root
+	 * @param {boolean} loading
+	 */
+	function setSummaryLoading(root, loading) {
+		root.classList.toggle('is-loading', loading);
+		var mount = getDrawerMount(root);
+		if (mount) {
+			mount.classList.toggle('is-loading', loading);
+		}
+	}
+
 	function findPanel(root, openBtn) {
 		var id = openBtn.getAttribute('aria-controls');
 		if (!id) {
@@ -63,12 +192,18 @@
 		if (!openBtn) {
 			return;
 		}
+
+		portalMobileDrawer(root);
+
 		var drawer = findPanel(root, openBtn);
 		if (!drawer) {
 			return;
 		}
-		var backdrop = root.querySelector('.bec-booking-summary__backdrop');
-		var backBtn = root.querySelector('.bec-booking-summary__back');
+		var mount = getDrawerMount(root);
+		var backdrop = mount
+			? mount.querySelector('.bec-booking-summary__backdrop')
+			: root.querySelector('.bec-booking-summary__backdrop');
+		var backBtn = drawer.querySelector('.bec-booking-summary__back');
 
 		function setInert(node, on) {
 			if (node) {
@@ -87,6 +222,9 @@
 				backdrop.hidden = false;
 				backdrop.setAttribute('aria-hidden', 'false');
 			}
+			if (mount) {
+				mount.setAttribute('aria-hidden', 'false');
+			}
 			document.body.classList.add('bec-booking-summary-body-lock');
 			drawer.classList.add('is-open');
 			drawer.setAttribute('aria-hidden', 'false');
@@ -101,6 +239,9 @@
 			if (backdrop) {
 				backdrop.hidden = true;
 				backdrop.setAttribute('aria-hidden', 'true');
+			}
+			if (mount) {
+				mount.setAttribute('aria-hidden', 'true');
 			}
 			document.body.classList.remove('bec-booking-summary-body-lock');
 			drawer.classList.remove('is-open');
@@ -131,9 +272,18 @@
 
 	function findRateLinkFromEventTarget(root, target) {
 		var el = target;
-		while (el && el !== root) {
+		while (el) {
 			if (el.nodeType === 1 && el.tagName === 'A' && el.className.indexOf('bec-booking-summary__rate-link') !== -1) {
-				return el;
+				if (summaryContains(root, el)) {
+					return el;
+				}
+			}
+			if (el === root) {
+				break;
+			}
+			var mount = getDrawerMount(root);
+			if (mount && el === mount) {
+				break;
 			}
 			el = el.parentElement;
 		}
@@ -141,7 +291,7 @@
 	}
 
 	function setAllHtml(root, selector, html) {
-		var list = root.querySelectorAll(selector);
+		var list = querySummaryAll(root, selector);
 		var i;
 		for (i = 0; i < list.length; i++) {
 			list[i].innerHTML = html;
@@ -158,7 +308,7 @@
 		setAllHtml(root, '[data-bec-bsummary-head]', headHtml);
 		setAllHtml(root, '[data-bec-bsummary-breakdown]', brHtml);
 
-		var accWraps = root.querySelectorAll('[data-bec-bsummary-accordions]');
+		var accWraps = querySummaryAll(root, '[data-bec-bsummary-accordions]');
 		var j;
 		for (j = 0; j < accWraps.length; j++) {
 			accWraps[j].innerHTML = accHtml;
@@ -172,7 +322,7 @@
 		setAllHtml(root, '[data-bec-bsummary-bar-amount]', barHtml);
 		setAllHtml(root, '[data-bec-bsummary-continue]', contHtml);
 
-		var links = root.querySelectorAll('a.bec-booking-summary__rate-link');
+		var links = querySummaryAll(root, 'a.bec-booking-summary__rate-link');
 		var k;
 		for (k = 0; k < links.length; k++) {
 			var link = links[k];
@@ -208,7 +358,7 @@
 		if (!root) {
 			return;
 		}
-		root.addEventListener('click', function (e) {
+		bindSummaryDelegated(root, 'click', function (e) {
 			var el = e.target;
 			if (!el) {
 				return;
@@ -220,7 +370,7 @@
 				return;
 			}
 			var btn = el.closest('[data-bec-submit-search-form]');
-			if (!btn || !root.contains(btn)) {
+			if (!btn || !summaryContains(root, btn)) {
 				return;
 			}
 			if (btn.hasAttribute('disabled')) {
@@ -232,7 +382,9 @@
 			}
 			// Prefer the form inside this summary: the root wrapper used to share the same id as
 			// the form, so document.getElementById pointed at a div and submission was skipped.
-			var form = root.querySelector('[data-bec-bsummary-search] form[id="' + fid.replace(/"/g, '') + '"]');
+			var safeId = fid.replace(/"/g, '');
+			var forms = querySummaryAll(root, '[data-bec-bsummary-search] form[id="' + safeId + '"]');
+			var form = forms.length ? forms[0] : null;
 			if (!form || form.tagName !== 'FORM') {
 				form = document.getElementById(fid);
 			}
@@ -241,7 +393,7 @@
 			}
 			e.preventDefault();
 			e.stopPropagation();
-			root.classList.add('is-loading');
+			setSummaryLoading(root, true);
 			// Use submit(), not requestSubmit(): the footer button is outside the form and
 			// requestSubmit() runs constraint validation (often failing on inputs in hidden
 			// guest popovers), which aborts navigation with no feedback.
@@ -336,7 +488,7 @@
 		} else {
 			enable = snap !== base;
 		}
-		var buttons = root.querySelectorAll('[data-bec-submit-search-form="' + formId + '"]');
+		var buttons = querySummaryAll(root, '[data-bec-submit-search-form="' + formId + '"]');
 		var i;
 		for (i = 0; i < buttons.length; i++) {
 			var btn = buttons[i];
@@ -351,7 +503,7 @@
 	}
 
 	function bsummaryFindForms(root) {
-		var wraps = root.querySelectorAll('[data-bec-bsummary-search] form');
+		var wraps = querySummaryAll(root, '[data-bec-bsummary-search] form');
 		var out = [];
 		var seen = {};
 		var i;
@@ -402,7 +554,11 @@
 
 	function bsummaryApplyQuoteStaleUi(root, isStale) {
 		root.classList.toggle('bec-booking-summary--quote-stale', isStale);
-		var retries = root.querySelectorAll('[data-bec-bsummary-check-retry]');
+		var mount = getDrawerMount(root);
+		if (mount) {
+			mount.classList.toggle('bec-booking-summary--quote-stale', isStale);
+		}
+		var retries = querySummaryAll(root, '[data-bec-bsummary-check-retry]');
 		var r;
 		for (r = 0; r < retries.length; r++) {
 			if (isStale) {
@@ -417,6 +573,7 @@
 		if (!root) {
 			return;
 		}
+
 		var baselines = {};
 
 		function captureBaselines() {
@@ -463,7 +620,7 @@
 				return;
 			}
 			var f = t.closest('form');
-			if (!f || !root.contains(f) || !f.closest('[data-bec-bsummary-search]')) {
+			if (!f || !summaryContains(root, f) || !f.closest('[data-bec-bsummary-search]')) {
 				return;
 			}
 			if (bsummaryUiState(root) === 'available') {
@@ -472,20 +629,21 @@
 			scheduleUpdate();
 		}
 
-		root.addEventListener('input', onFormFieldEvent);
-		root.addEventListener('change', onFormFieldEvent);
+		bindSummaryDelegated(root, 'input', onFormFieldEvent);
+		bindSummaryDelegated(root, 'change', onFormFieldEvent);
 
-		root.addEventListener(
+		bindSummaryDelegated(
+			root,
 			'submit',
 			function (e) {
 				var form = e.target;
-				if (!form || form.tagName !== 'FORM' || !root.contains(form)) {
+				if (!form || form.tagName !== 'FORM' || !summaryContains(root, form)) {
 					return;
 				}
 				if (!form.closest('[data-bec-bsummary-search]')) {
 					return;
 				}
-				root.classList.add('is-loading');
+				setSummaryLoading(root, true);
 			},
 			true
 		);
@@ -495,6 +653,7 @@
 		if (!root) {
 			return;
 		}
+
 		var st = root.querySelector('script[data-bec-bsummary-state], script.bec-booking-summary__state');
 		if (!st || !st.textContent) {
 			return;
@@ -510,7 +669,7 @@
 			return;
 		}
 
-		root.addEventListener('click', function (e) {
+		bindSummaryDelegated(root, 'click', function (e) {
 			var a = findRateLinkFromEventTarget(root, e.target);
 			if (!a) {
 				return;
@@ -529,12 +688,20 @@
 		});
 	}
 
+	function initBookingSummary(root) {
+		if (!root || root.dataset.becBookingSummaryInit === '1') {
+			return;
+		}
+		root.dataset.becBookingSummaryInit = '1';
+		initDrawer(root);
+		initBookingSummaryAvailabilityUi(root);
+		initSearchFormSubmit(root);
+		initRateSwitch(root);
+	}
+
 	var list = document.querySelectorAll('[data-bec-booking-summary]');
 	var n;
 	for (n = 0; n < list.length; n++) {
-		initDrawer(list[n]);
-		initBookingSummaryAvailabilityUi(list[n]);
-		initSearchFormSubmit(list[n]);
-		initRateSwitch(list[n]);
+		initBookingSummary(list[n]);
 	}
 })();

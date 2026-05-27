@@ -1,5 +1,9 @@
 # Changelog
 
+## 0.1.46 — 2026-05-27
+
+- **Booking summary (mobile)**: Portal the slide-in drawer and backdrop to `document.body` (mirrors guest/daterange popover mounts) so fixed positioning and z-index stack correctly inside nested theme/Elementor containers. New styling token `--bec-bsummary-drawer-z-index` (default `10040`, below popovers at `10050`). JS scope helpers keep rate switching, form sync, and check-availability behavior unchanged.
+
 ## 0.1.45 — 2026-05-27
 
 - **Unit filters UI (`assets/public.css`)**: Extend theme-safe button styling to generic picker controls (`.bec-unit-filters__picker-wrap > button`, `.bec-unit-filters__picker-done`) alongside the amenities picker. Remove stray hover/focus background on the **Reset filters** link.
