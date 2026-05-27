@@ -1,5 +1,9 @@
 # Changelog
 
+## 0.1.47 — 2026-05-27
+
+- **Booking summary (mobile)**: Portal the fixed bottom bar to `document.body` alongside the drawer and backdrop so the bar also escapes nested stacking contexts and z-index traps in theme/Elementor layouts.
+
 ## 0.1.46 — 2026-05-27
 
 - **Booking summary (mobile)**: Portal the slide-in drawer and backdrop to `document.body` (mirrors guest/daterange popover mounts) so fixed positioning and z-index stack correctly inside nested theme/Elementor containers. New styling token `--bec-bsummary-drawer-z-index` (default `10040`, below popovers at `10050`). JS scope helpers keep rate switching, form sync, and check-availability behavior unchanged.

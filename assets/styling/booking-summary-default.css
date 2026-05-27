@@ -610,8 +610,13 @@
 }
 
 .bec-booking-summary__drawer-mount .bec-booking-summary__backdrop,
-.bec-booking-summary__drawer-mount .bec-booking-summary__drawer.is-open {
+.bec-booking-summary__drawer-mount .bec-booking-summary__drawer.is-open,
+.bec-booking-summary__drawer-mount .bec-booking-summary__bar {
 	pointer-events: auto;
+}
+
+.bec-booking-summary > .bec-booking-summary__mobile:empty {
+	display: none;
 }
 
 .bec-booking-summary__drawer-mount.is-loading {

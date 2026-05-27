@@ -66,7 +66,7 @@
 	}
 
 	/**
-	 * Move backdrop + drawer to document.body (mirrors guest popover mount pattern).
+	 * Move mobile bar, backdrop, and drawer to document.body (mirrors guest popover mount pattern).
 	 * @param {Element} root
 	 * @returns {Element | null}
 	 */
@@ -86,9 +86,10 @@
 		if (!mobile) {
 			return null;
 		}
+		var bars = mobile.querySelectorAll('.bec-booking-summary__bar');
 		var backdrop = mobile.querySelector('.bec-booking-summary__backdrop');
 		var drawer = mobile.querySelector('.bec-booking-summary__drawer');
-		if (!drawer) {
+		if (!drawer && bars.length === 0) {
 			return null;
 		}
 
@@ -100,12 +101,17 @@
 		}
 		mount.setAttribute('data-bec-bsummary-drawer-mount', '');
 		mount.setAttribute('data-bec-bsummary-root-id', root.id);
-		mount.setAttribute('aria-hidden', 'true');
 
 		if (backdrop) {
 			mount.appendChild(backdrop);
 		}
-		mount.appendChild(drawer);
+		if (drawer) {
+			mount.appendChild(drawer);
+		}
+		var b;
+		for (b = 0; b < bars.length; b++) {
+			mount.appendChild(bars[b]);
+		}
 		document.body.appendChild(mount);
 
 		root.dataset.becBsummaryDrawerPortaled = '1';
@@ -188,12 +194,14 @@
 		if (!root) {
 			return;
 		}
-		var openBtn = root.querySelector('.bec-booking-summary__open-panel');
+
+		portalMobileDrawer(root);
+
+		var openBtns = querySummaryAll(root, '.bec-booking-summary__open-panel');
+		var openBtn = openBtns.length ? openBtns[0] : null;
 		if (!openBtn) {
 			return;
 		}
-
-		portalMobileDrawer(root);
 
 		var drawer = findPanel(root, openBtn);
 		if (!drawer) {
@@ -222,9 +230,6 @@
 				backdrop.hidden = false;
 				backdrop.setAttribute('aria-hidden', 'false');
 			}
-			if (mount) {
-				mount.setAttribute('aria-hidden', 'false');
-			}
 			document.body.classList.add('bec-booking-summary-body-lock');
 			drawer.classList.add('is-open');
 			drawer.setAttribute('aria-hidden', 'false');
@@ -239,9 +244,6 @@
 			if (backdrop) {
 				backdrop.hidden = true;
 				backdrop.setAttribute('aria-hidden', 'true');
-			}
-			if (mount) {
-				mount.setAttribute('aria-hidden', 'true');
 			}
 			document.body.classList.remove('bec-booking-summary-body-lock');
 			drawer.classList.remove('is-open');
