@@ -1,5 +1,9 @@
 # Changelog
 
+## 0.1.45 — 2026-05-27
+
+- **Unit filters UI (`assets/public.css`)**: Extend theme-safe button styling to generic picker controls (`.bec-unit-filters__picker-wrap > button`, `.bec-unit-filters__picker-done`) alongside the amenities picker. Remove stray hover/focus background on the **Reset filters** link.
+
 ## 0.1.44 — 2026-05-26
 
 - **Unit filters UI (`[bec_unit_filters]`)**: Scoped button resets in **`assets/public.css`** so theme global `button` / `[type=submit]` styles no longer override the amenities picker trigger, panel actions, and **Apply filters** submit control. Matches the search-form pattern (`.bec-unit-filters button.bec-unit-filters__*` selectors, shared `appearance` / `text-transform` reset).
