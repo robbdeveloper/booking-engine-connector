@@ -4,7 +4,7 @@ Tags: booking, kross, hospitality, availability
 Requires at least: 6.4
 Tested up to: 6.7
 Requires PHP: 8.0
-Stable tag: 0.2.1
+Stable tag: 0.2.2
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
@@ -46,13 +46,18 @@ Shortcode attributes include **`layout`** (`inline` or `stacked`), **`show_reset
 
 = How do I show how many units match the current search? =
 
-Use **`[bec_available_units_count]`** anywhere on the results page (above an Elementor Loop Grid, in a heading, or on the native unit archive). It counts published units that match **`bec_filter_*`** params and, when dates and guests are in the URL, units that are **available** for that search—the same rules as Loop Grid Query ID **`bec_available_only`** / **`bec_filtered_units`**.
+Use **`[bec_available_units_count]`** anywhere on the results page (above an Elementor Loop Grid, in a heading, or on the native unit archive). It counts published units that match the **current listing query** (e.g. unit category archive), **`bec_filter_*`** params and, when dates and guests are in the URL, units that are **available** for that search—the same rules as Loop Grid Query ID **`bec_available_only`** / **`bec_filtered_units`**.
 
-Examples: **`[bec_available_units_count]`** (number only), **`[bec_available_units_count format="text"]`** (default “%d available units” copy), **`[bec_available_units_count hide_without_search="1"]`** (empty until search params are complete), **`[bec_available_units_count zero_text="No units found"]`**. Custom text: **`singular`** / **`plural`** with **`%d`**, optional **`class`** for styling.
+Examples: **`[bec_available_units_count]`** (number only), **`[bec_available_units_count format="text"]`** (default “%d available units” copy), **`[bec_available_units_count hide_without_search="1"]`** (empty until search params are complete), **`[bec_available_units_count zero_text="No units found"]`**, **`[bec_available_units_count category="villas"]`** (count only units in that unit category term). Custom text: **`singular`** / **`plural`** with **`%d`**, optional **`class`** for styling.
 
 == Changelog ==
 
+= 0.2.2 =
+* **Shortcodes (`[bec_available_units_count]`)**: Count respects the current listing query (e.g. unit category archives) instead of always returning the site-wide total. Optional **`category`** attribute (term slug) scopes the count to a specific unit category.
+* **i18n**: Regenerated translation template and recompiled Italian MO.
+
 = 0.2.1 =
+* **Units — permalinks (`UnitPermalinkRouter`)**: Fix 404s on unit category archive pagination, feeds, and embed endpoints for custom URL formats (`/{unit slug}/{term}`, `/{term}`).
 * **Frontend — public assets (`PublicAssets`)**: Load shortcode CSS/JS wherever tracked shortcodes render — including Elementor Theme Builder taxonomy/archive templates — via runtime hooks (`do_shortcode_tag`, `elementor/frontend/before_get_builder_content`) and `ensureEnqueued()`. Pre-detection no longer treats taxonomy term IDs as post IDs; term descriptions are scanned for early enqueue.
 
 = 0.2.0 =

@@ -50,7 +50,7 @@ final class ShortcodeRegistry
 	/**
 	 * Count of units matching current unit filters and (when search is complete) availability.
 	 *
-	 * Attributes: format (number|text), zero_text, singular, plural, hide_without_search, class.
+	 * Attributes: format (number|text), zero_text, singular, plural, hide_without_search, category, class.
 	 *
 	 * Filters: bec_available_units_count, bec_shortcode_available_units_count_html.
 	 */

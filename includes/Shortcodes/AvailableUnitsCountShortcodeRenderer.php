@@ -24,6 +24,7 @@ final class AvailableUnitsCountShortcodeRenderer
 				'singular'            => '',
 				'plural'              => '',
 				'hide_without_search' => '0',
+				'category'            => '',
 				'class'               => '',
 			],
 			$atts,
@@ -42,7 +43,8 @@ final class AvailableUnitsCountShortcodeRenderer
 			$loopQuery = $wp_query;
 		}
 
-		$count = UnitResultCountService::getCount($loopQuery);
+		$categorySlug = \sanitize_title(\trim((string) $a['category']));
+		$count          = UnitResultCountService::getCount($loopQuery, $categorySlug);
 
 		$format = \sanitize_key(\strtolower(\trim((string) $a['format'])));
 		if ($format !== 'text') {

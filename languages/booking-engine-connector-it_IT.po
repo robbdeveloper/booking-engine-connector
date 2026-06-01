@@ -1,10 +1,10 @@
 msgid ""
 msgstr ""
-"Project-Id-Version: Booking Engine Connector 0.2.1\n"
+"Project-Id-Version: Booking Engine Connector 0.2.2\n"
 "Report-Msgid-Bugs-To: https://wordpress.org/support/plugin/booking-engine-"
 "connector\n"
-"POT-Creation-Date: 2026-05-27T11:43:49+00:00\n"
-"PO-Revision-Date: 2026-05-27 12:00+0000\n"
+"POT-Creation-Date: 2026-06-01T11:14:19+00:00\n"
+"PO-Revision-Date: 2026-06-01 13:14+0000\n"
 "Last-Translator: Booking Engine Connector\n"
 "Language-Team: Italian\n"
 "Language: it_IT\n"
@@ -1578,7 +1578,8 @@ msgstr "ID unità"
 
 #: includes/Elementor/DynamicTags/UnitGalleryTag.php:72
 msgid "Leave empty to use the current post (single unit or loop item)."
-msgstr "Lascia vuoto per usare il post corrente (unità singola o elemento del loop)."
+msgstr ""
+"Lascia vuoto per usare il post corrente (unità singola o elemento del loop)."
 
 #. translators: Default fallback link label when none is saved in settings.
 #: includes/Fallback/FallbackRenderer.php:24
@@ -1608,7 +1609,7 @@ msgstr "Dal %1$s al %2$s"
 msgid "from %1$s to %2$s"
 msgstr "da %1$s a %2$s"
 
-#: includes/Front/PublicAssets.php:114
+#: includes/Front/PublicAssets.php:164
 #: includes/UnitFilters/UnitFilterShortcodeRenderer.php:215
 #: includes/UnitFilters/UnitFilterShortcodeRenderer.php:236
 #: includes/UnitFilters/UnitFilterShortcodeRenderer.php:262
@@ -1616,13 +1617,13 @@ msgstr "da %1$s a %2$s"
 msgid "Any"
 msgstr "Qualsiasi"
 
-#: includes/Front/PublicAssets.php:115
+#: includes/Front/PublicAssets.php:165
 #: includes/UnitFilters/UnitFilterShortcodeRenderer.php:412
 msgid "Pick desired amenities"
 msgstr "Scegli i servizi desiderati"
 
 #. translators: 1: number of selected amenities, 2: total number of amenity choices.
-#: includes/Front/PublicAssets.php:117 includes/Front/PublicAssets.php:124
+#: includes/Front/PublicAssets.php:167 includes/Front/PublicAssets.php:174
 #: includes/UnitFilters/UnitFilterShortcodeRenderer.php:420
 #, php-format
 msgid "%1$d of %2$d selected"
@@ -1631,32 +1632,32 @@ msgstr[0] "%1$d di %2$d selezionato"
 msgstr[1] "%1$d di %2$d selezionati"
 
 #. translators: %d number of adults when only adults are counted (singular)
-#: includes/Front/PublicAssets.php:145
+#: includes/Front/PublicAssets.php:195
 #, php-format
 msgid "%d adult"
 msgstr "%d adulto"
 
 #. translators: %d number of adults when only adults are counted (plural)
-#: includes/Front/PublicAssets.php:147
+#: includes/Front/PublicAssets.php:197
 #, php-format
 msgid "%d adults"
 msgstr "%d adulti"
 
 #. translators: 1: adults count, 2: children count
-#: includes/Front/PublicAssets.php:149
+#: includes/Front/PublicAssets.php:199
 #, php-format
 msgid "%1$d adults · %2$d children"
 msgstr "%1$d adulti · %2$d bambini"
 
 #. translators: %d total guest count (singular)
-#: includes/Front/PublicAssets.php:151
+#: includes/Front/PublicAssets.php:201
 #, php-format
 msgid "%d guest"
 msgstr "%d ospite"
 
 #. translators: %d total guest count (plural)
 #. translators: %d: total number of guests
-#: includes/Front/PublicAssets.php:153
+#: includes/Front/PublicAssets.php:203
 #: includes/Shortcodes/BookingSummary/BookingSummaryViewModelBuilder.php:777
 #, php-format
 msgid "%d guests"
@@ -1664,45 +1665,45 @@ msgstr "%d ospiti"
 
 #. translators: %d child index (display order starts at 1)
 #. translators: %d: child index (1-based)
-#: includes/Front/PublicAssets.php:155 includes/Search/SearchForm.php:272
-#: includes/Search/SearchForm.php:417
+#: includes/Front/PublicAssets.php:205 includes/Search/SearchForm.php:275
+#: includes/Search/SearchForm.php:420
 #, php-format
 msgid "Child %d age"
 msgstr "Bambino %d età"
 
-#: includes/Front/PublicAssets.php:156 includes/Search/SearchForm.php:425
+#: includes/Front/PublicAssets.php:206 includes/Search/SearchForm.php:428
 msgid "Age"
 msgstr "Età"
 
-#: includes/Front/PublicAssets.php:165 includes/Search/SearchForm.php:441
+#: includes/Front/PublicAssets.php:215 includes/Search/SearchForm.php:444
 msgid "Apply"
 msgstr "Applica"
 
-#: includes/Front/PublicAssets.php:166 includes/Search/SearchForm.php:440
+#: includes/Front/PublicAssets.php:216 includes/Search/SearchForm.php:443
 msgid "Cancel"
 msgstr "Annulla"
 
-#: includes/Front/PublicAssets.php:167 includes/Search/SearchForm.php:91
-#: includes/Search/SearchForm.php:110 includes/Search/SearchForm.php:305
+#: includes/Front/PublicAssets.php:217 includes/Search/SearchForm.php:94
+#: includes/Search/SearchForm.php:113 includes/Search/SearchForm.php:308
 msgid "Check-in"
 msgstr "Check-in"
 
-#: includes/Front/PublicAssets.php:168 includes/Search/SearchForm.php:96
-#: includes/Search/SearchForm.php:115 includes/Search/SearchForm.php:308
+#: includes/Front/PublicAssets.php:218 includes/Search/SearchForm.php:99
+#: includes/Search/SearchForm.php:118 includes/Search/SearchForm.php:311
 msgid "Check-out"
 msgstr "Check-out"
 
 #. translators: Label between displayed start/end dates where a range picker shows a textual range. Often an en dash with spaces.
-#: includes/Front/PublicAssets.php:170
+#: includes/Front/PublicAssets.php:220
 msgid " – "
 msgstr " – "
 
-#: includes/Front/PublicAssets.php:171
+#: includes/Front/PublicAssets.php:221
 msgid "Custom"
 msgstr "Personalizzato"
 
 #. translators: Shown where check-in/out dates are not yet chosen (datepicker readout); use a short dash or “Select dates” style label.
-#: includes/Front/PublicAssets.php:173
+#: includes/Front/PublicAssets.php:223
 msgid "—"
 msgstr "—"
 
@@ -2131,52 +2132,52 @@ msgstr ""
 "Non siamo riusciti a recuperare un prezzo dal fornitore della prenotazione. "
 "Per favore riprova."
 
-#: includes/Search/SearchForm.php:101 includes/Search/SearchForm.php:317
-#: includes/Search/SearchForm.php:341 includes/Search/SearchForm.php:378
+#: includes/Search/SearchForm.php:104 includes/Search/SearchForm.php:320
+#: includes/Search/SearchForm.php:344 includes/Search/SearchForm.php:381
 msgid "Guests"
 msgstr "Ospiti"
 
-#: includes/Search/SearchForm.php:120 includes/Search/SearchForm.php:311
+#: includes/Search/SearchForm.php:123 includes/Search/SearchForm.php:314
 msgid "Adults"
 msgstr "Adulti"
 
-#: includes/Search/SearchForm.php:126 includes/Search/SearchForm.php:314
+#: includes/Search/SearchForm.php:129 includes/Search/SearchForm.php:317
 msgid "Children"
 msgstr "Bambini"
 
-#: includes/Search/SearchForm.php:253 includes/Search/SearchForm.php:448
+#: includes/Search/SearchForm.php:256 includes/Search/SearchForm.php:451
 msgid "Search availability"
 msgstr "Cerca disponibilità"
 
-#: includes/Search/SearchForm.php:350
+#: includes/Search/SearchForm.php:353
 msgid "Search stays"
 msgstr "La ricerca resta"
 
-#: includes/Search/SearchForm.php:352
+#: includes/Search/SearchForm.php:355
 msgid "Select dates"
 msgstr "Seleziona le date"
 
-#: includes/Search/SearchForm.php:388
+#: includes/Search/SearchForm.php:391
 msgid "Decrease guests"
 msgstr "Diminuire gli ospiti"
 
-#: includes/Search/SearchForm.php:390
+#: includes/Search/SearchForm.php:393
 msgid "Increase guests"
 msgstr "Aumenta gli ospiti"
 
-#: includes/Search/SearchForm.php:396
+#: includes/Search/SearchForm.php:399
 msgid "Decrease adults"
 msgstr "Diminuire gli adulti"
 
-#: includes/Search/SearchForm.php:398
+#: includes/Search/SearchForm.php:401
 msgid "Increase adults"
 msgstr "Aumentano gli adulti"
 
-#: includes/Search/SearchForm.php:404
+#: includes/Search/SearchForm.php:407
 msgid "Decrease children"
 msgstr "Diminuire i bambini"
 
-#: includes/Search/SearchForm.php:406
+#: includes/Search/SearchForm.php:409
 msgid "Increase children"
 msgstr "Aumentare i bambini"
 
@@ -2210,12 +2211,12 @@ msgstr "L'intervallo selezionato è troppo lungo (massimo %d notti)."
 msgid "Please enter an age for each child."
 msgstr "Inserisci un'età per ogni bambino."
 
-#: includes/Shortcodes/AvailableUnitsCountShortcodeRenderer.php:98
+#: includes/Shortcodes/AvailableUnitsCountShortcodeRenderer.php:100
 #, php-format
 msgid "%d available unit"
 msgstr "%d unità disponibile"
 
-#: includes/Shortcodes/AvailableUnitsCountShortcodeRenderer.php:99
+#: includes/Shortcodes/AvailableUnitsCountShortcodeRenderer.php:101
 #, php-format
 msgid "%d available units"
 msgstr "%d unità disponibili"

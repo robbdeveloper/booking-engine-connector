@@ -81,20 +81,83 @@ final class UnitPermalinkRouter
 		}
 
 		if ($catStruct === UnitPermalinkSettings::CAT_UNIT_BASE) {
+			$pathPattern = '^' . preg_quote($unitSlug, '/') . '/([^/]+)';
+			self::addCategoryArchiveEndpointRules(
+				$pathPattern,
+				UnitPermalinkSettings::CAT_UNIT_BASE,
+				'top'
+			);
 			add_rewrite_rule(
-				'^' . preg_quote($unitSlug, '/') . '/([^/]+)/?$',
+				$pathPattern . '/?$',
 				'index.php?bec_unit_category=$matches[1]&' . self::QUERY_BEC_ROUTED . '=' . UnitPermalinkSettings::CAT_UNIT_BASE,
 				'top'
 			);
 		}
 
 		if ($catStruct === UnitPermalinkSettings::CAT_BARE) {
+			$pathPattern = '^([^/]+)';
+			self::addCategoryArchiveEndpointRules(
+				$pathPattern,
+				UnitPermalinkSettings::CAT_BARE,
+				'bottom'
+			);
 			add_rewrite_rule(
-				'^([^/]+)/?$',
+				$pathPattern . '/?$',
 				'index.php?bec_unit_category=$matches[1]&' . self::QUERY_BEC_ROUTED . '=' . UnitPermalinkSettings::CAT_BARE,
 				'bottom'
 			);
 		}
+	}
+
+	/**
+	 * Register pagination, feed, and embed rewrite rules for custom category archive URL structures.
+	 */
+	private static function addCategoryArchiveEndpointRules(
+		string $pathPattern,
+		string $routedValue,
+		string $priority
+	): void {
+		global $wp_rewrite;
+
+		if (! $wp_rewrite instanceof \WP_Rewrite) {
+			return;
+		}
+
+		$feedNames = implode('|', array_map(
+			static fn (string $feed): string => preg_quote($feed, '/'),
+			array_map('strval', (array) $wp_rewrite->feeds)
+		));
+		if ($feedNames === '') {
+			$feedNames = 'feed|rdf|rss|rss2|atom';
+		}
+
+		$feedBase       = preg_quote((string) $wp_rewrite->feed_base, '/');
+		$paginationBase = preg_quote((string) $wp_rewrite->pagination_base, '/');
+		$baseQuery      = 'index.php?bec_unit_category=$matches[1]&' . self::QUERY_BEC_ROUTED . '=' . $routedValue;
+
+		add_rewrite_rule(
+			$pathPattern . '/' . $feedBase . '/(' . $feedNames . ')/?$',
+			$baseQuery . '&feed=$matches[2]',
+			$priority
+		);
+
+		add_rewrite_rule(
+			$pathPattern . '/(' . $feedNames . ')/?$',
+			$baseQuery . '&feed=$matches[2]',
+			$priority
+		);
+
+		add_rewrite_rule(
+			$pathPattern . '/embed/?$',
+			$baseQuery . '&embed=true',
+			$priority
+		);
+
+		add_rewrite_rule(
+			$pathPattern . '/' . $paginationBase . '/?([0-9]{1,})/?$',
+			$baseQuery . '&paged=$matches[2]',
+			$priority
+		);
 	}
 
 	/**
@@ -260,29 +323,136 @@ final class UnitPermalinkRouter
 			return;
 		}
 
-		$segments = self::requestPathSegments($wp);
-		if (count($segments) !== 1) {
+		$endpoint = self::resolveBareCategoryEndpointFromPath($wp);
+		if ($endpoint === null) {
 			return;
 		}
 
-		$termSlug = sanitize_title($segments[0]);
-		if ($termSlug === '') {
+		if (self::bareCategoryTermConflictsWithCoreContent($endpoint['term'])) {
 			return;
+		}
+
+		if (! self::termExistsBySlug($endpoint['term'])) {
+			return;
+		}
+
+		self::applyBareCategoryQueryVars($wp, $endpoint['term']);
+
+		if (isset($endpoint['paged'])) {
+			$wp->query_vars['paged'] = $endpoint['paged'];
+		}
+
+		if (isset($endpoint['feed'])) {
+			$wp->query_vars['feed'] = $endpoint['feed'];
+		}
+
+		if (! empty($endpoint['embed'])) {
+			$wp->query_vars['embed'] = 'true';
+		}
+	}
+
+	/**
+	 * Parse bare category archive paths that core rewrite rules may have claimed first.
+	 *
+	 * @return array{term:string,paged?:int,feed?:string,embed?:bool}|null
+	 */
+	private static function resolveBareCategoryEndpointFromPath(\WP $wp): ?array
+	{
+		global $wp_rewrite;
+
+		if (! $wp_rewrite instanceof \WP_Rewrite) {
+			return null;
+		}
+
+		$segments = self::requestPathSegments($wp);
+		$count    = count($segments);
+
+		if ($count === 1) {
+			$termSlug = $segments[0];
+			if ($termSlug === '') {
+				return null;
+			}
+
+			return ['term' => $termSlug];
+		}
+
+		if ($count === 2) {
+			$termSlug = $segments[0];
+			if ($termSlug === '') {
+				return null;
+			}
+
+			if ($segments[1] === 'embed') {
+				return [
+					'term'  => $termSlug,
+					'embed' => true,
+				];
+			}
+
+			$feedNames = array_map('sanitize_title', array_map('strval', (array) $wp_rewrite->feeds));
+			if (in_array($segments[1], $feedNames, true)) {
+				return [
+					'term' => $termSlug,
+					'feed' => $segments[1],
+				];
+			}
+
+			return null;
+		}
+
+		if ($count !== 3) {
+			return null;
+		}
+
+		$termSlug         = $segments[0];
+		$paginationBase   = sanitize_title((string) $wp_rewrite->pagination_base);
+		$feedBase         = sanitize_title((string) $wp_rewrite->feed_base);
+		$middleSegment    = $segments[1];
+		$trailingSegment  = $segments[2];
+
+		if ($termSlug === '') {
+			return null;
+		}
+
+		if ($middleSegment === $paginationBase && ctype_digit($trailingSegment)) {
+			$paged = (int) $trailingSegment;
+			if ($paged < 1) {
+				return null;
+			}
+
+			return [
+				'term'  => $termSlug,
+				'paged' => $paged,
+			];
+		}
+
+		$feedNames = array_map('sanitize_title', array_map('strval', (array) $wp_rewrite->feeds));
+		if ($middleSegment === $feedBase && in_array($trailingSegment, $feedNames, true)) {
+			return [
+				'term' => $termSlug,
+				'feed' => $trailingSegment,
+			];
+		}
+
+		return null;
+	}
+
+	private static function bareCategoryTermConflictsWithCoreContent(string $termSlug): bool
+	{
+		$termSlug = sanitize_title($termSlug);
+		if ($termSlug === '') {
+			return true;
 		}
 
 		if (get_page_by_path($termSlug, OBJECT, 'page') instanceof WP_Post) {
-			return;
+			return true;
 		}
 
 		if (get_page_by_path($termSlug, OBJECT, 'post') instanceof WP_Post) {
-			return;
+			return true;
 		}
 
-		if (! self::termExistsBySlug($termSlug)) {
-			return;
-		}
-
-		self::applyBareCategoryQueryVars($wp, $termSlug);
+		return false;
 	}
 
 	/**
@@ -389,14 +559,13 @@ final class UnitPermalinkRouter
 				return;
 			}
 
-			if ($routed === UnitPermalinkSettings::CAT_BARE && self::termExistsBySlug($termSlug)) {
+			if (
+				($routed === UnitPermalinkSettings::CAT_BARE || $routed === UnitPermalinkSettings::CAT_UNIT_BASE)
+				&& self::termExistsBySlug($termSlug)
+			) {
 				$query->set('taxonomy', UnitCategoryTaxonomy::TAXONOMY);
 				$query->set('term', $termSlug);
 
-				return;
-			}
-
-			if ($routed === UnitPermalinkSettings::CAT_UNIT_BASE && self::termExistsBySlug($termSlug)) {
 				return;
 			}
 

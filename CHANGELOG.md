@@ -1,7 +1,13 @@
 # Changelog
 
+## 0.2.2 — 2026-06-01
+
+- **Shortcodes (`[bec_available_units_count]`)**: Count respects the current listing query (e.g. unit category taxonomy archives) instead of always returning the site-wide unit total. Optional **`category`** attribute (term slug) scopes the count to a specific unit category on any page.
+- **i18n**: Regenerated `languages/booking-engine-connector.pot`, merged `booking-engine-connector-it_IT.po`, recompiled `booking-engine-connector-it_IT.mo`.
+
 ## 0.2.1 — 2026-06-01
 
+- **Units — permalinks (`UnitPermalinkRouter`)**: Fix 404s on unit category archives using `/{unit slug}/{term}` or `/{term}` URL formats when requesting pagination (`/page/N`), feeds, or embed endpoints. Custom rewrite rules now mirror WordPress core taxonomy archive endpoints. Bare `/{term}` pagination is also resolved in `parse_request` when core page rules claim the URL first.
 - **Frontend — public assets (`PublicAssets`)**: Fix missing CSS/JS for `[bec_search]`, `[bec_unit_filters]`, and other tracked shortcodes on taxonomy term archives and other contexts where pre-detection at `wp_enqueue_scripts` fails (notably Elementor Theme Builder templates). Add idempotent `ensureEnqueued()` with runtime hooks on `do_shortcode_tag` and `elementor/frontend/before_get_builder_content`; call from `SearchForm::render()` for `bec_render_search_form()`. Pre-detection: probe queried object ID only on singular views; scan taxonomy term descriptions for early head enqueue.
 
 ## 0.2.0 — 2026-05-27
