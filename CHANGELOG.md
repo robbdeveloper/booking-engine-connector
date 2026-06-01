@@ -1,5 +1,9 @@
 # Changelog
 
+## 0.2.1 — 2026-06-01
+
+- **Frontend — public assets (`PublicAssets`)**: Fix missing CSS/JS for `[bec_search]`, `[bec_unit_filters]`, and other tracked shortcodes on taxonomy term archives and other contexts where pre-detection at `wp_enqueue_scripts` fails (notably Elementor Theme Builder templates). Add idempotent `ensureEnqueued()` with runtime hooks on `do_shortcode_tag` and `elementor/frontend/before_get_builder_content`; call from `SearchForm::render()` for `bec_render_search_form()`. Pre-detection: probe queried object ID only on singular views; scan taxonomy term descriptions for early head enqueue.
+
 ## 0.2.0 — 2026-05-27
 
 - **i18n (Italian)**: Regenerate `languages/booking-engine-connector.pot` from current source and complete Italian translations for wp-admin (Dashboard, Connection, Frontend, Sync & Import, Units, Listing Filters, Design, Checkout & Fallback, Tools & Logs). Recompiled `booking-engine-connector-it_IT.mo`.

@@ -4,7 +4,7 @@ Tags: booking, kross, hospitality, availability
 Requires at least: 6.4
 Tested up to: 6.7
 Requires PHP: 8.0
-Stable tag: 0.2.0
+Stable tag: 0.2.1
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
@@ -51,6 +51,9 @@ Use **`[bec_available_units_count]`** anywhere on the results page (above an Ele
 Examples: **`[bec_available_units_count]`** (number only), **`[bec_available_units_count format="text"]`** (default “%d available units” copy), **`[bec_available_units_count hide_without_search="1"]`** (empty until search params are complete), **`[bec_available_units_count zero_text="No units found"]`**. Custom text: **`singular`** / **`plural`** with **`%d`**, optional **`class`** for styling.
 
 == Changelog ==
+
+= 0.2.1 =
+* **Frontend — public assets (`PublicAssets`)**: Load shortcode CSS/JS wherever tracked shortcodes render — including Elementor Theme Builder taxonomy/archive templates — via runtime hooks (`do_shortcode_tag`, `elementor/frontend/before_get_builder_content`) and `ensureEnqueued()`. Pre-detection no longer treats taxonomy term IDs as post IDs; term descriptions are scanned for early enqueue.
 
 = 0.2.0 =
 * **i18n (Italian)**: Regenerate the translation template and complete Italian admin strings for the Dashboard, settings pages, and related wp-admin UI.

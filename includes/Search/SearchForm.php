@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace BookingEngineConnector\Search;
 
+use BookingEngineConnector\Front\PublicAssets;
 use BookingEngineConnector\Formatting\MomentFormatMapper;
 use BookingEngineConnector\PostTypes\UnitPostType;
 use BookingEngineConnector\Providers\Contracts\SearchGuestFieldMode;
@@ -35,6 +36,8 @@ final class SearchForm
 	 */
 	public static function render(array $args = []): void
 	{
+		PublicAssets::ensureEnqueued();
+
 		$context   = isset($args['context']) ? (string) $args['context'] : 'default';
 		$action    = isset($args['action']) ? (string) $args['action'] : '';
 		$formId    = isset($args['form_id']) ? (string) $args['form_id'] : 'bec-search-form';

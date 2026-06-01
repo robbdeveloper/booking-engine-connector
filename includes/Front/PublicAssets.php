@@ -14,6 +14,8 @@ use BookingEngineConnector\Styling\StylingSettings;
  *
  * Shortcode / UI detection includes block editor posts, Elementor document meta (`_elementor_data`),
  * embedded Library templates (`template_id`), Elementor Pro Theme Builder locations, and common widgets.
+ * Runtime hooks (`do_shortcode_tag`, `elementor/frontend/before_get_builder_content`) enqueue when
+ * pre-detection at `wp_enqueue_scripts` misses (e.g. Elementor taxonomy archive templates).
  */
 final class PublicAssets
 {
@@ -32,10 +34,14 @@ final class PublicAssets
 		'bec_unit_filters',
 	];
 
+	private static bool $enqueued = false;
+
 	public static function register(): void
 	{
 		\add_action('wp_enqueue_scripts', [self::class, 'enqueue'], 20);
 		\add_action('elementor/frontend/before_enqueue_scripts', [self::class, 'enqueue'], 5);
+		\add_filter('do_shortcode_tag', [self::class, 'onShortcodeRendered'], 5, 4);
+		\add_action('elementor/frontend/before_get_builder_content', [self::class, 'onElementorBeforeGetBuilderContent'], 5, 1);
 	}
 
 	public static function enqueue(): void
@@ -44,7 +50,51 @@ final class PublicAssets
 			return;
 		}
 
+		self::ensureEnqueued();
+	}
+
+	/**
+	 * Idempotent enqueue for runtime detection (shortcodes, Elementor templates, theme helpers).
+	 */
+	public static function ensureEnqueued(): void
+	{
+		if (self::$enqueued) {
+			return;
+		}
+		self::$enqueued = true;
 		self::performEnqueue();
+	}
+
+	/**
+	 * @param mixed $output Shortcode output.
+	 * @param mixed $tag    Shortcode tag name.
+	 * @param mixed $attr   Shortcode attributes.
+	 * @param mixed $m      Regex match array.
+	 * @return mixed
+	 */
+	public static function onShortcodeRendered($output, $tag, $attr, $m)
+	{
+		$tag = \is_string($tag) ? \trim($tag) : '';
+		if ($tag !== '' && \in_array($tag, self::shortcodesRequiringPublicAssets(), true)) {
+			self::ensureEnqueued();
+		}
+
+		return $output;
+	}
+
+	/**
+	 * @param mixed $postId Elementor document post ID about to render.
+	 */
+	public static function onElementorBeforeGetBuilderContent($postId): void
+	{
+		$id = \is_numeric($postId) ? (int) $postId : 0;
+		if ($id < 1) {
+			return;
+		}
+		$visited = [];
+		if (self::postAndElementorDependenciesNeedPublicAssets($id, $visited)) {
+			self::ensureEnqueued();
+		}
 	}
 
 	private static function performEnqueue(): void
@@ -302,6 +352,13 @@ final class PublicAssets
 			return true;
 		}
 
+		if (\is_tax() || \is_category() || \is_tag()) {
+			$term = \get_queried_object();
+			if ($term instanceof \WP_Term && self::storedContentNeedsPublicAssets((string) $term->description)) {
+				return true;
+			}
+		}
+
 		if (! \is_admin() && ! \is_feed() && ! \is_embed()) {
 			foreach (self::collectFrontendProbePostIds() as $probeId) {
 				if ($probeId < 1) {
@@ -330,7 +387,7 @@ final class PublicAssets
 	{
 		$ids = [];
 		$qid = (int) \get_queried_object_id();
-		if ($qid > 0) {
+		if (\is_singular() && $qid > 0) {
 			$ids[] = $qid;
 		}
 
