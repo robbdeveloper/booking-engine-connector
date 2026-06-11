@@ -241,6 +241,217 @@ final class MultilingualBridge
 	}
 
 	/**
+	 * Whether active languages use a directory path prefix (e.g. /en/) rather than subdomain/domain.
+	 */
+	public static function usesDirectoryLanguageUrls(): bool
+	{
+		if (! self::isActive()) {
+			return false;
+		}
+
+		if (\defined('ICL_SITEPRESS_VERSION')) {
+			global $sitepress;
+			if (\is_object($sitepress) && \method_exists($sitepress, 'get_setting')) {
+				return (int) $sitepress->get_setting('language_negotiation_type', 1) === 1;
+			}
+		}
+
+		if (\function_exists('PLL')) {
+			$pll = \PLL();
+			if (\is_object($pll) && isset($pll->options['force_lang'])) {
+				return (int) $pll->options['force_lang'] === 1;
+			}
+		}
+
+		return self::getLanguagesWithPathPrefix() !== [];
+	}
+
+	/**
+	 * Path segment prefix for a language home URL relative to the default home path (e.g. "en", "pt-pt").
+	 */
+	public static function getPathPrefixForLanguage(string $lang): string
+	{
+		if (! self::isActive() || $lang === '') {
+			return '';
+		}
+
+		$homePath = self::normalizeUrlPath((string) \wp_parse_url(\home_url('/'), \PHP_URL_PATH));
+		$localizedPath = '';
+
+		if (\defined('ICL_SITEPRESS_VERSION')) {
+			$localized = \apply_filters('wpml_permalink', \home_url('/'), $lang);
+			if (\is_string($localized) && $localized !== '') {
+				$localizedPath = self::normalizeUrlPath((string) \wp_parse_url($localized, \PHP_URL_PATH));
+			}
+		} elseif (\function_exists('pll_home_url')) {
+			$localized = \pll_home_url($lang);
+			if (\is_string($localized) && $localized !== '') {
+				$localizedPath = self::normalizeUrlPath((string) \wp_parse_url($localized, \PHP_URL_PATH));
+			}
+		}
+
+		if ($localizedPath === '' || $localizedPath === $homePath) {
+			return '';
+		}
+
+		if (\str_starts_with($localizedPath, $homePath)) {
+			$relative = \ltrim(\substr($localizedPath, \strlen($homePath)), '/');
+		} else {
+			$relative = \ltrim($localizedPath, '/');
+		}
+
+		return \rtrim($relative, '/');
+	}
+
+	/**
+	 * @return list<string> Active language codes whose home URLs include a path prefix.
+	 */
+	public static function getLanguagesWithPathPrefix(): array
+	{
+		if (! self::isActive()) {
+			return [];
+		}
+
+		$languages = [];
+		foreach (self::getActiveLanguages() as $lang) {
+			if (self::getPathPrefixForLanguage($lang) !== '') {
+				$languages[] = $lang;
+			}
+		}
+
+		return $languages;
+	}
+
+	public static function isLanguageSlug(string $segment): bool
+	{
+		$segment = \sanitize_title($segment);
+		if ($segment === '') {
+			return false;
+		}
+
+		foreach (self::getActiveLanguages() as $lang) {
+			if (\sanitize_title($lang) === $segment) {
+				return true;
+			}
+		}
+
+		return false;
+	}
+
+	/**
+	 * Read the request language slug from main-query vars when present.
+	 *
+	 * @param array<string, mixed>|\WP_Query $query
+	 */
+	public static function getRequestLanguage($query = null): string
+	{
+		$lang = '';
+		if ($query instanceof \WP_Query) {
+			$lang = $query->get('lang');
+		} elseif (\is_array($query) && isset($query['lang'])) {
+			$lang = $query['lang'];
+		} elseif (isset($GLOBALS['wp']->query_vars['lang'])) {
+			$lang = $GLOBALS['wp']->query_vars['lang'];
+		}
+
+		if (\is_string($lang) && $lang !== '') {
+			return $lang;
+		}
+
+		return self::getCurrentLanguage();
+	}
+
+	public static function getCurrentLanguage(): string
+	{
+		if (\defined('ICL_SITEPRESS_VERSION')) {
+			$lang = \apply_filters('wpml_current_language', null);
+
+			return \is_string($lang) && $lang !== '' ? $lang : '';
+		}
+
+		if (\function_exists('pll_current_language')) {
+			$lang = \pll_current_language('slug');
+
+			return \is_string($lang) && $lang !== '' ? $lang : '';
+		}
+
+		return '';
+	}
+
+	public static function switchRequestLanguage(string $lang): void
+	{
+		if (! self::isActive() || $lang === '') {
+			return;
+		}
+
+		if (\defined('ICL_SITEPRESS_VERSION')) {
+			\do_action('wpml_switch_language', $lang);
+
+			return;
+		}
+
+		if (\function_exists('PLL') && \function_exists('pll_languages_list')) {
+			$pll = \PLL();
+			if (\is_object($pll) && isset($pll->model) && \method_exists($pll->model, 'get_language')) {
+				$language = $pll->model->get_language($lang);
+				if (\is_object($language)) {
+					$pll->curlang = $language;
+				}
+			}
+		}
+	}
+
+	public static function resolveUnitPostBySlug(string $slug, ?string $lang = null): ?\WP_Post
+	{
+		$slug = \sanitize_title($slug);
+		if ($slug === '') {
+			return null;
+		}
+
+		if ($lang !== null && $lang !== '') {
+			self::switchRequestLanguage($lang);
+		}
+
+		if (self::isActive()) {
+			$posts = \get_posts(
+				[
+					'name'             => $slug,
+					'post_type'        => UnitPostType::POST_TYPE,
+					'post_status'      => 'publish',
+					'posts_per_page'   => 10,
+					'suppress_filters' => true,
+				]
+			);
+
+			if (\is_array($posts)) {
+				foreach ($posts as $post) {
+					if (! $post instanceof \WP_Post) {
+						continue;
+					}
+
+					if ($lang === null || $lang === '' || self::getPostLanguage((int) $post->ID) === $lang) {
+						return $post;
+					}
+				}
+			}
+
+			return null;
+		}
+
+		$posts = \get_posts(
+			[
+				'name'             => $slug,
+				'post_type'        => UnitPostType::POST_TYPE,
+				'post_status'      => 'publish',
+				'posts_per_page'   => 1,
+				'suppress_filters' => false,
+			]
+		);
+
+		return isset($posts[0]) && $posts[0] instanceof \WP_Post ? $posts[0] : null;
+	}
+
+	/**
 	 * Apply WPML/Polylang language URL modes to a custom-built URL.
 	 */
 	public static function localizeUrl(string $url, ?string $lang = null, ?int $postId = null): string
@@ -304,6 +515,16 @@ final class MultilingualBridge
 		$parent = (int) \get_post_meta($postId, self::META_TRANSLATION_OF, true);
 
 		return $parent > 0 ? $parent : $postId;
+	}
+
+	private static function normalizeUrlPath(string $path): string
+	{
+		$path = \trim($path);
+		if ($path === '') {
+			return '/';
+		}
+
+		return '/' . \trim($path, '/') . '/';
 	}
 
 	private static function wpmlElementType(): string
