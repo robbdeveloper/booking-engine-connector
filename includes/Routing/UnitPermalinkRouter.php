@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace BookingEngineConnector\Routing;
 
+use BookingEngineConnector\Integrations\MultilingualBridge;
 use BookingEngineConnector\PostTypes\UnitPostType;
 use BookingEngineConnector\Taxonomies\UnitCategoryTaxonomy;
 use WP_Post;
@@ -197,18 +198,22 @@ final class UnitPermalinkRouter
 
 		if ($structure === UnitPermalinkSettings::UNIT_BASE_CATEGORY) {
 			if ($term instanceof WP_Term) {
-				return user_trailingslashit(home_url('/' . $unitSlug . '/' . $term->slug . '/' . $postSlug));
+				$url = user_trailingslashit(home_url('/' . $unitSlug . '/' . $term->slug . '/' . $postSlug));
+			} else {
+				$url = user_trailingslashit(home_url('/' . $unitSlug . '/' . $postSlug));
 			}
 
-			return user_trailingslashit(home_url('/' . $unitSlug . '/' . $postSlug));
+			return MultilingualBridge::localizeUrl($url, null, (int) $post->ID);
 		}
 
 		if ($structure === UnitPermalinkSettings::UNIT_CATEGORY_ONLY) {
 			if ($term instanceof WP_Term) {
-				return user_trailingslashit(home_url('/' . $term->slug . '/' . $postSlug));
+				$url = user_trailingslashit(home_url('/' . $term->slug . '/' . $postSlug));
+			} else {
+				$url = user_trailingslashit(home_url('/' . $unitSlug . '/' . $postSlug));
 			}
 
-			return user_trailingslashit(home_url('/' . $unitSlug . '/' . $postSlug));
+			return MultilingualBridge::localizeUrl($url, null, (int) $post->ID);
 		}
 
 		return (string) $postLink;
@@ -236,12 +241,15 @@ final class UnitPermalinkRouter
 
 		if ($structure === UnitPermalinkSettings::CAT_UNIT_BASE) {
 			$unitSlug = UnitPostType::getPermalinkSlug();
+			$url      = user_trailingslashit(home_url('/' . $unitSlug . '/' . $term->slug));
 
-			return user_trailingslashit(home_url('/' . $unitSlug . '/' . $term->slug));
+			return MultilingualBridge::localizeUrl($url, MultilingualBridge::getTermLanguage((int) $term->term_id));
 		}
 
 		if ($structure === UnitPermalinkSettings::CAT_BARE) {
-			return user_trailingslashit(home_url('/' . $term->slug));
+			$url = user_trailingslashit(home_url('/' . $term->slug));
+
+			return MultilingualBridge::localizeUrl($url, MultilingualBridge::getTermLanguage((int) $term->term_id));
 		}
 
 		return (string) $termlink;

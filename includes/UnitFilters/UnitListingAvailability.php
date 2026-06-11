@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace BookingEngineConnector\UnitFilters;
 
 use BookingEngineConnector\Fallback\FallbackService;
+use BookingEngineConnector\Integrations\MultilingualBridge;
 use BookingEngineConnector\PostTypes\UnitPostType;
 use BookingEngineConnector\Search\QuoteService;
 use BookingEngineConnector\Search\SearchContext;
@@ -70,11 +71,13 @@ final class UnitListingAvailability
 		$sql      = "SELECT DISTINCT p.ID
 			FROM {$wpdb->posts} AS p
 			INNER JOIN {$wpdb->postmeta} AS pm ON pm.post_id = p.ID
+			LEFT JOIN {$wpdb->postmeta} AS pm_tr ON pm_tr.post_id = p.ID AND pm_tr.meta_key = '" . \esc_sql(MultilingualBridge::META_TRANSLATION_OF) . "'
 			WHERE p.ID IN ({$inList})
 			AND p.post_type = '{$postType}'
 			AND p.post_status = 'publish'
 			AND pm.meta_key = 'bec_external_id'
-			AND pm.meta_value <> ''";
+			AND pm.meta_value <> ''
+			AND pm_tr.meta_id IS NULL";
 
 		$col = $wpdb->get_col($sql);
 		if (! \is_array($col)) {
@@ -101,6 +104,7 @@ final class UnitListingAvailability
 				'value'   => '',
 				'compare' => '!=',
 			],
+			MultilingualBridge::canonicalOnlyMetaQueryBranch(),
 		];
 
 		if (! \is_array($existing) || $existing === []) {

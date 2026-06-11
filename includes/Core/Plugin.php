@@ -17,6 +17,9 @@ use BookingEngineConnector\Elementor\DynamicTagsRegistrar;
 use BookingEngineConnector\Front\AmenitiesAssets;
 use BookingEngineConnector\Front\PublicAssets;
 use BookingEngineConnector\Integrations\Multilingual;
+use BookingEngineConnector\Integrations\MultilingualBridge;
+use BookingEngineConnector\Integrations\UnitTranslationSync;
+use BookingEngineConnector\Providers\Kross\KrossUnitTranslations;
 use BookingEngineConnector\Front\PublicContentBlocks;
 use BookingEngineConnector\PostTypes\UnitPostType;
 use BookingEngineConnector\Routing\UnitPermalinkRouter;
@@ -68,6 +71,9 @@ final class Plugin
 		);
 
 		Multilingual::register();
+		MultilingualBridge::register();
+		UnitTranslationSync::register();
+		KrossUnitTranslations::register();
 
 		PluginScreenLinks::register();
 		PluginUpdater::register();

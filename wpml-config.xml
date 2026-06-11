@@ -1,0 +1,41 @@
+<wpml-config>
+	<custom-types>
+		<custom-type translate="1">bec_unit</custom-type>
+	</custom-types>
+	<taxonomies>
+		<taxonomy translate="1">bec_unit_category</taxonomy>
+		<taxonomy translate="1">bec_unit_amenity</taxonomy>
+	</taxonomies>
+	<custom-fields>
+		<custom-field action="copy">bec_external_id</custom-field>
+		<custom-field action="copy">bec_provider_slug</custom-field>
+		<custom-field action="copy">bec_sync_enabled</custom-field>
+		<custom-field action="copy">bec_last_sync_at</custom-field>
+		<custom-field action="copy">bec_sync_payload</custom-field>
+		<custom-field action="copy">bec_translation_of</custom-field>
+		<custom-field action="copy">bec_translation_lang</custom-field>
+		<custom-field action="copy">bec_translation_post_ids</custom-field>
+		<custom-field action="translate">bec_core_name</custom-field>
+		<custom-field action="translate">bec_core_description</custom-field>
+		<custom-field action="copy">bec_core_address_full</custom-field>
+		<custom-field action="copy">bec_core_city</custom-field>
+		<custom-field action="copy">bec_core_lat</custom-field>
+		<custom-field action="copy">bec_core_lng</custom-field>
+		<custom-field action="copy">bec_core_lat_lng</custom-field>
+		<custom-field action="copy">bec_core_occ_min</custom-field>
+		<custom-field action="copy">bec_core_occ_max</custom-field>
+		<custom-field action="copy">bec_core_check_in_from</custom-field>
+		<custom-field action="copy">bec_core_check_in_to</custom-field>
+		<custom-field action="copy">bec_core_check_out_until</custom-field>
+		<custom-field action="copy">bec_core_rooms</custom-field>
+		<custom-field action="copy">bec_core_bathrooms</custom-field>
+		<custom-field action="copy">bec_core_sqm</custom-field>
+		<custom-field action="copy">bec_core_amenities</custom-field>
+		<custom-field action="copy">bec_core_gallery</custom-field>
+		<custom-field action="copy">bec_core_cin</custom-field>
+		<custom-field action="copy">bec_sync_gallery_source_hash</custom-field>
+		<custom-field action="copy">bec_sync_gallery_image_set_hash</custom-field>
+		<custom-field action="copy">bec_sync_gallery_image_order_hash</custom-field>
+		<custom-field action="copy">_thumbnail_id</custom-field>
+	</custom-fields>
+</wpml-config>

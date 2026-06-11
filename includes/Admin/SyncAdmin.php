@@ -863,6 +863,7 @@ final class SyncAdmin
 
 		$metaKey = CoreUnitMetaKeys::definitions()[ CoreUnitSemantic::GALLERY ]['meta_key'];
 		\update_post_meta($postId, $metaKey, $ids);
+		\do_action('bec_after_unit_gallery_sync', $postId, $ids);
 	}
 
 	public static function registerListHooks(): void

@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace BookingEngineConnector\Sync;
 
+use BookingEngineConnector\Integrations\MultilingualBridge;
 use BookingEngineConnector\PostTypes\UnitPostType;
 use BookingEngineConnector\Sync\CoreUnitFieldRegistry;
 use BookingEngineConnector\Sync\UnitSyncFieldRegistry;
@@ -225,6 +226,14 @@ final class SyncService
 	 */
 	public function syncPost(int $postId): void
 	{
+		$postId = MultilingualBridge::resolveCanonicalPostId($postId);
+		if ($postId < 1) {
+			throw new ProviderException(
+				\__('Invalid unit post.', 'booking-engine-connector'),
+				ProviderErrorCategory::VALIDATION
+			);
+		}
+
 		$post = \get_post($postId);
 		if (! $post || $post->post_type !== UnitPostType::getSlug()) {
 			throw new ProviderException(
@@ -512,12 +521,13 @@ final class SyncService
 
 		$q = new \WP_Query(
 			[
-				'post_type'      => UnitPostType::getSlug(),
-				'post_status'    => $statuses,
-				'posts_per_page' => 1,
-				'fields'         => 'ids',
-				'no_found_rows'  => true,
-				'meta_query'     => [
+				'post_type'        => UnitPostType::getSlug(),
+				'post_status'      => $statuses,
+				'posts_per_page'   => 1,
+				'fields'           => 'ids',
+				'no_found_rows'    => true,
+				'suppress_filters' => true,
+				'meta_query'       => [
 					'relation' => 'AND',
 					[
 						'key'   => 'bec_external_id',
@@ -527,6 +537,7 @@ final class SyncService
 						'key'   => 'bec_provider_slug',
 						'value' => $providerSlug,
 					],
+					MultilingualBridge::canonicalOnlyMetaQueryBranch(),
 				],
 			]
 		);

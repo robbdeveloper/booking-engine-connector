@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace BookingEngineConnector\Core;
 
 use BookingEngineConnector\Fallback\FallbackSettings;
+use BookingEngineConnector\Integrations\MultilingualBridge;
 use BookingEngineConnector\PostTypes\UnitPostType;
 use BookingEngineConnector\Routing\UnitPermalinkSettings;
 use BookingEngineConnector\Taxonomies\UnitCategoryTaxonomy;
@@ -58,6 +59,7 @@ final class Activator
 		\add_option(UnitCategoryTaxonomy::OPTION_PERMALINK_SLUG, '', '', false);
 		\add_option(UnitPermalinkSettings::OPTION_UNIT_STRUCTURE, UnitPermalinkSettings::UNIT_BASE, '', false);
 		\add_option(UnitPermalinkSettings::OPTION_CATEGORY_STRUCTURE, UnitPermalinkSettings::CAT_CATEGORY_BASE, '', false);
+		\add_option(MultilingualBridge::OPTION_SYNC_TRANSLATIONS_ENABLED, MultilingualBridge::isActive() ? 1 : 0, '', false);
 		UnitPostType::scheduleRewriteFlush();
 
 		\add_filter('cron_schedules', [SyncCron::class, 'registerSchedule']);

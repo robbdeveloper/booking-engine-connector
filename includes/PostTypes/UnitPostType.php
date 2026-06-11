@@ -242,6 +242,45 @@ final class UnitPostType
 				],
 			]
 		);
+
+		register_post_meta(
+			self::POST_TYPE,
+			'bec_translation_of',
+			[
+				'type'              => 'integer',
+				'single'            => true,
+				'show_in_rest'      => false,
+				'sanitize_callback' => 'absint',
+				'auth_callback'     => $auth,
+				'default'           => 0,
+			]
+		);
+
+		register_post_meta(
+			self::POST_TYPE,
+			'bec_translation_lang',
+			[
+				'type'              => 'string',
+				'single'            => true,
+				'show_in_rest'      => false,
+				'sanitize_callback' => 'sanitize_key',
+				'auth_callback'     => $auth,
+				'default'           => '',
+			]
+		);
+
+		register_post_meta(
+			self::POST_TYPE,
+			'bec_translation_post_ids',
+			[
+				'type'              => 'string',
+				'single'            => true,
+				'show_in_rest'      => false,
+				'sanitize_callback' => [self::class, 'sanitizeTranslationPostIds'],
+				'auth_callback'     => $auth,
+				'default'           => '',
+			]
+		);
 	}
 
 	/**
@@ -321,6 +360,48 @@ final class UnitPostType
 		}
 
 		$encoded = wp_json_encode($decoded, SyncPayloadEncoder::metaEncodeFlags());
+
+		return $encoded !== false ? $encoded : $value;
+	}
+
+	/**
+	 * @param mixed $value
+	 */
+	public static function sanitizeTranslationPostIds($value): string
+	{
+		if ($value === null || $value === '') {
+			return '';
+		}
+
+		if (is_array($value)) {
+			$map = [];
+			foreach ($value as $lang => $postId) {
+				$langKey = sanitize_key((string) $lang);
+				$id      = (int) $postId;
+				if ($langKey !== '' && $id > 0) {
+					$map[ $langKey ] = $id;
+				}
+			}
+			$encoded = wp_json_encode($map, JSON_UNESCAPED_UNICODE);
+
+			return $encoded !== false ? $encoded : '';
+		}
+
+		if (! is_string($value)) {
+			return '';
+		}
+
+		$value = trim($value);
+		if ($value === '') {
+			return '';
+		}
+
+		$decoded = json_decode($value, true);
+		if (! is_array($decoded)) {
+			return $value;
+		}
+
+		$encoded = wp_json_encode($decoded, JSON_UNESCAPED_UNICODE);
 
 		return $encoded !== false ? $encoded : $value;
 	}

@@ -7,6 +7,7 @@ namespace BookingEngineConnector\Admin\Settings;
 use BookingEngineConnector\Admin\AdminMenu;
 use BookingEngineConnector\Admin\AdminPageLayout;
 use BookingEngineConnector\Front\PublicContentSettings;
+use BookingEngineConnector\Integrations\MultilingualBridge;
 use BookingEngineConnector\Search\SearchSettings;
 
 /**
@@ -33,6 +34,7 @@ final class FrontendPage
 		$childAgesMode  = SearchSettings::getChildAgesModeOption();
 		$autoSearchForm = SearchSettings::isAutoAppendSearchFormOnSingleUnit();
 		$appendBooking  = PublicContentSettings::isAppendBookingBlocksToContentEnabled();
+		$syncTranslations = MultilingualBridge::isFeatureEnabled();
 
 		AdminPageLayout::wrapOpen(
 			\__('Frontend', 'booking-engine-connector'),
@@ -138,6 +140,33 @@ final class FrontendPage
 		echo '</table>';
 		AdminPageLayout::cardClose();
 
+		if (MultilingualBridge::isActive()) {
+			AdminPageLayout::cardOpen(
+				\__('Multilingual', 'booking-engine-connector'),
+				\__(
+					'When WPML or Polylang is active, synced units can automatically receive linked translation posts from provider locale maps.',
+					'booking-engine-connector'
+				)
+			);
+
+			echo '<table class="form-table" role="presentation">';
+			echo '<tr><th scope="row">' . \esc_html__('Translation sync', 'booking-engine-connector') . '</th><td>';
+			echo '<fieldset>';
+			echo '<label><input type="checkbox" name="bec_sync_translations_enabled" value="1" ' . \checked($syncTranslations, true, false) . ' /> ';
+			echo \esc_html__(
+				'Create and update linked translation posts on each unit sync',
+				'booking-engine-connector'
+			) . '</label>';
+			echo '<p class="description">' . \esc_html__(
+				'Uses Kross be_name and be_description locale maps when available. Title, description, and their core meta fields are language-specific; images, amenities, categories, and sync payload stay shared.',
+				'booking-engine-connector'
+			) . '</p>';
+			echo '</fieldset>';
+			echo '</td></tr>';
+			echo '</table>';
+			AdminPageLayout::cardClose();
+		}
+
 		echo '<p class="submit"><button type="submit" class="button button-primary">' . \esc_html__(
 			'Save frontend settings',
 			'booking-engine-connector'
@@ -192,6 +221,14 @@ final class FrontendPage
 			isset($_POST['bec_append_booking_blocks_to_content']) ? 1 : 0,
 			false
 		);
+
+		if (MultilingualBridge::isActive()) {
+			\update_option(
+				MultilingualBridge::OPTION_SYNC_TRANSLATIONS_ENABLED,
+				isset($_POST['bec_sync_translations_enabled']) ? 1 : 0,
+				false
+			);
+		}
 
 		self::setFlash('success', \__('Frontend settings saved.', 'booking-engine-connector'));
 		self::redirectBack();
