@@ -117,9 +117,9 @@ final class FallbackPage
 		echo '</td></tr>';
 
 		echo '<tr><th scope="row"><label for="bec_fallback_link_url">' . \esc_html__('Fallback link URL', 'booking-engine-connector') . '</label></th><td>';
-		echo '<input type="text" class="large-text" name="bec_fallback_link_url" id="bec_fallback_link_url" value="' . \esc_attr($linkUrl) . '" placeholder="/contact or ?subject=enquiry" />';
+		echo '<input type="text" class="large-text" name="bec_fallback_link_url" id="bec_fallback_link_url" value="' . \esc_attr($linkUrl) . '" placeholder="/contact, ?subject=enquiry, or #popup-hash" />';
 		echo '<p class="description">' . \esc_html__(
-			'Used when “Link only” is selected. Enter a full URL, a site path (e.g. /contact), or query parameters (e.g. ?subject=enquiry).',
+			'Used when “Link only” is selected. Enter a full URL, a site path (e.g. /contact), query parameters (e.g. ?subject=enquiry), or an encoded hash link (e.g. Elementor popup triggers).',
 			'booking-engine-connector'
 		) . '</p>';
 		echo '</td></tr>';

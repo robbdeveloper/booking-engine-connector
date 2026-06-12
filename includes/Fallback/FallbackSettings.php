@@ -32,13 +32,21 @@ final class FallbackSettings
 
 	public static function sanitizeLinkTarget(string $raw): string
 	{
-		return \trim(\sanitize_text_field($raw));
+		$raw = \trim($raw);
+		if ($raw === '') {
+			return '';
+		}
+
+		$raw = \wp_strip_all_tags($raw);
+		$raw = (string) \preg_replace('/[\r\n\t]/', '', $raw);
+
+		return self::isAllowedLinkTarget($raw) ? $raw : '';
 	}
 
 	public static function escapeLinkHref(string $target): string
 	{
 		$target = \trim($target);
-		if ($target === '') {
+		if ($target === '' || ! self::isAllowedLinkTarget($target)) {
 			return '';
 		}
 
@@ -52,6 +60,20 @@ final class FallbackSettings
 			$target = '?' . \ltrim($target, '?&');
 		}
 
-		return \esc_url($target);
+		if (\preg_match('#^[a-z][a-z0-9+.-]*:#i', $target)) {
+			return \esc_url($target);
+		}
+
+		// esc_url() rewrites encoded hash/query fragments (e.g. Elementor popup triggers).
+		return \esc_attr($target);
+	}
+
+	private static function isAllowedLinkTarget(string $target): bool
+	{
+		if ($target === '' || \preg_match('/[\x00-\x08\x0B\x0C\x0E-\x1F]/', $target) === 1) {
+			return false;
+		}
+
+		return ! \preg_match('#^\s*(javascript|data|vbscript):#i', $target);
 	}
 }
