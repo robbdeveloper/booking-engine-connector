@@ -1,5 +1,11 @@
 # Changelog
 
+## 0.2.4 — 2026-06-12
+
+- **Unit categories (`UnitCategorySync`)**: Harden canonical category lookup — exclude translation terms from provider-meta queries and SQL fallback; restrict term adoption to default-language (or unassigned) terms without conflicting provider meta. **`repairDuplicateCanonicalTerms()`** merges duplicate canonical provider category terms per `bec_provider_slug` + `bec_external_id`: reassign unit relationships, repoint linked translation terms, merge synced meta, delete duplicate canonicals only (never translation terms). Category registry priming via **`syncUniqueDescriptorsFromRows()`** now runs during single-unit sync as well as full sync.
+- **Category translation sync (`CategoryTranslationSync`)**: **`stripProviderLookupMeta()`** removes `bec_external_id`, `bec_provider_slug`, and `bec_translation_term_ids` from managed translation terms so they cannot appear as duplicate canonicals. **`cleanupExistingTranslationProviderMeta()`** heals legacy pollution on existing translation terms.
+- **WPML (`wpml-config.xml`)**: Removed copy rules for `bec_external_id`, `bec_provider_slug`, and plugin-owned translation-link term meta on translated category terms.
+
 ## 0.2.3 — 2026-06-12
 
 - **Multilingual (WPML / Polylang) — translation sync**: New **`MultilingualBridge`** adapter plus **`UnitTranslationSync`** and **`CategoryTranslationSync`**. After each unit or category sync, linked translation posts and terms are created or updated from provider locale maps (title, content, localized names). Canonical posts stay on the default language; translation metadata uses **`bec_translation_*`** meta. Admin toggle on **Booking Engine → Frontend** (`bec_sync_translations_enabled`, default on when multilingual is active). Filters: **`bec_sync_translations_enabled`**, **`bec_unit_translation_strings`**, **`bec_category_translation_strings`**, **`bec_unit_translation_shared_meta_keys`**. Trash/delete cascades to linked translations.

@@ -4,7 +4,7 @@ Tags: booking, kross, hospitality, availability
 Requires at least: 6.4
 Tested up to: 6.7
 Requires PHP: 8.0
-Stable tag: 0.2.3
+Stable tag: 0.2.4
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
@@ -51,6 +51,11 @@ Use **`[bec_available_units_count]`** anywhere on the results page (above an Ele
 Examples: **`[bec_available_units_count]`** (number only), **`[bec_available_units_count format="text"]`** (default “%d available units” copy), **`[bec_available_units_count hide_without_search="1"]`** (empty until search params are complete), **`[bec_available_units_count zero_text="No units found"]`**, **`[bec_available_units_count category="villas"]`** (count only units in that unit category term). Custom text: **`singular`** / **`plural`** with **`%d`**, optional **`class`** for styling.
 
 == Changelog ==
+
+= 0.2.4 =
+* **Unit categories (`UnitCategorySync`)**: Harden canonical category lookup so translation terms are never treated as provider canonicals; repair pass merges duplicate canonical terms per provider/external ID (reassigns units, repoints translation links, preserves synced meta). Adoption restricted to default-language terms. Category registry priming now runs during single-unit sync as well as full sync.
+* **Category translation sync (`CategoryTranslationSync`)**: Strip provider lookup meta from managed translation terms; cleanup pass heals legacy duplicates.
+* **WPML (`wpml-config.xml`)**: Stop copying provider lookup and translation-link term meta onto translated category terms.
 
 = 0.2.3 =
 * **Multilingual (WPML / Polylang)**: Auto-create and update linked translation posts and unit category terms from provider locale maps on sync (`MultilingualBridge`, `UnitTranslationSync`, `CategoryTranslationSync`). Toggle on **Frontend** settings. Kross supplies unit/category strings; language-prefixed permalinks for directory-based multilingual URLs.
