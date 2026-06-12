@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace BookingEngineConnector\Sync;
 
+use BookingEngineConnector\Integrations\CategoryTranslationSync;
 use BookingEngineConnector\Integrations\MultilingualBridge;
 use BookingEngineConnector\Taxonomies\UnitCategoryTaxonomy;
 
@@ -34,6 +35,9 @@ final class UnitCategorySync
 		self::$canonicalTermCache = [];
 
 		do_action('bec_before_category_registry_sync');
+
+		self::repairDuplicateCanonicalTerms($providerSlug);
+		CategoryTranslationSync::cleanupExistingTranslationProviderMeta();
 
 		/** @var array<string, array<string, mixed>> $unique */
 		$unique = [];
@@ -221,6 +225,7 @@ final class UnitCategorySync
 						'key'   => 'bec_external_id',
 						'value' => $externalId,
 					],
+					MultilingualBridge::canonicalOnlyTermMetaQueryBranch(),
 				],
 			]
 		);
@@ -243,6 +248,8 @@ final class UnitCategorySync
 			return [];
 		}
 
+		$translationMetaKey = MultilingualBridge::META_TRANSLATION_OF_TERM;
+
 		$sql = "
 			SELECT tm_provider.term_id
 			FROM {$wpdb->termmeta} tm_provider
@@ -255,6 +262,14 @@ final class UnitCategorySync
 				AND tm_provider.meta_value = %s
 				AND tm_external.meta_key = 'bec_external_id'
 				AND tm_external.meta_value = %s
+				AND NOT EXISTS (
+					SELECT 1
+					FROM {$wpdb->termmeta} tm_trans
+					WHERE tm_trans.term_id = tm_provider.term_id
+						AND tm_trans.meta_key = %s
+						AND tm_trans.meta_value != ''
+						AND tm_trans.meta_value != '0'
+				)
 		";
 
 		/** @var list<string>|null $raw */
@@ -263,7 +278,8 @@ final class UnitCategorySync
 				$sql,
 				UnitCategoryTaxonomy::getSlug(),
 				$providerSlug,
-				$externalId
+				$externalId,
+				$translationMetaKey
 			)
 		);
 
@@ -378,6 +394,16 @@ final class UnitCategorySync
 		$existingExternalId = (string) get_term_meta($termId, 'bec_external_id', true);
 		if ($existingExternalId !== '' && $existingExternalId !== $externalId) {
 			return false;
+		}
+
+		if (MultilingualBridge::isFeatureEnabled()) {
+			$defaultLang = MultilingualBridge::getDefaultLanguage();
+			if ($defaultLang !== '') {
+				$termLang = MultilingualBridge::getTermLanguage($termId);
+				if ($termLang !== '' && $termLang !== $defaultLang) {
+					return false;
+				}
+			}
 		}
 
 		return true;
@@ -576,5 +602,188 @@ final class UnitCategorySync
 	private static function cacheKey(string $providerSlug, string $externalId): string
 	{
 		return $providerSlug . '|' . $externalId;
+	}
+
+	/**
+	 * Merge duplicate canonical provider category terms into one winner per provider/external ID.
+	 */
+	public static function repairDuplicateCanonicalTerms(?string $providerSlug = null): void
+	{
+		if (! UnitCategoryTaxonomy::isEnabled()) {
+			return;
+		}
+
+		$taxonomy = UnitCategoryTaxonomy::getSlug();
+
+		$terms = get_terms(
+			[
+				'taxonomy'         => $taxonomy,
+				'hide_empty'       => false,
+				'fields'           => 'ids',
+				'suppress_filters' => true,
+				'meta_query'       => [
+					'relation' => 'AND',
+					[
+						'key'     => 'bec_provider_slug',
+						'compare' => 'EXISTS',
+					],
+					[
+						'key'     => 'bec_external_id',
+						'compare' => 'EXISTS',
+					],
+					MultilingualBridge::canonicalOnlyTermMetaQueryBranch(),
+				],
+			]
+		);
+
+		if (is_wp_error($terms) || ! is_array($terms) || $terms === []) {
+			return;
+		}
+
+		/** @var array<string, list<int>> $groups */
+		$groups = [];
+
+		foreach ($terms as $termId) {
+			$termId = (int) $termId;
+			if ($termId < 1 || self::isTranslationTerm($termId)) {
+				continue;
+			}
+
+			$storedProvider = (string) get_term_meta($termId, 'bec_provider_slug', true);
+			$storedExternal = (string) get_term_meta($termId, 'bec_external_id', true);
+			if ($storedProvider === '' || $storedExternal === '') {
+				continue;
+			}
+
+			if ($providerSlug !== null && $providerSlug !== '' && $storedProvider !== $providerSlug) {
+				continue;
+			}
+
+			$groupKey = $storedProvider . '|' . $storedExternal;
+			$groups[ $groupKey ][] = $termId;
+		}
+
+		foreach ($groups as $termIds) {
+			if (count($termIds) < 2) {
+				continue;
+			}
+
+			sort($termIds, SORT_NUMERIC);
+			$winnerId = $termIds[0];
+			$losers   = array_slice($termIds, 1);
+
+			foreach ($losers as $loserId) {
+				self::mergeCanonicalTermIntoWinner($winnerId, $loserId, $taxonomy);
+			}
+		}
+	}
+
+	private static function mergeCanonicalTermIntoWinner(int $winnerId, int $loserId, string $taxonomy): void
+	{
+		if ($loserId < 1 || $winnerId < 1 || $loserId === $winnerId) {
+			return;
+		}
+
+		if (self::isTranslationTerm($loserId)) {
+			return;
+		}
+
+		$objects = get_objects_in_term($loserId, $taxonomy);
+		if (is_array($objects) && ! is_wp_error($objects)) {
+			foreach ($objects as $objectId) {
+				$objectId = (int) $objectId;
+				if ($objectId < 1) {
+					continue;
+				}
+
+				$current = wp_get_object_terms($objectId, $taxonomy, ['fields' => 'ids']);
+				if (! is_array($current) || is_wp_error($current)) {
+					continue;
+				}
+
+				$updated = [];
+				$seen    = [];
+				foreach ($current as $termId) {
+					$termId = (int) $termId;
+					if ($termId < 1) {
+						continue;
+					}
+
+					$mappedId = $termId === $loserId ? $winnerId : $termId;
+					if (! isset($seen[ $mappedId ])) {
+						$updated[]           = $mappedId;
+						$seen[ $mappedId ] = true;
+					}
+				}
+
+				if ($updated !== []) {
+					wp_set_object_terms($objectId, $updated, $taxonomy, false);
+				}
+			}
+		}
+
+		self::repointTranslationTerms($winnerId, $loserId);
+
+		$storedMap = get_term_meta($loserId, MultilingualBridge::META_TRANSLATION_TERM_IDS, true);
+		if (is_array($storedMap) && $storedMap !== []) {
+			$winnerMap = get_term_meta($winnerId, MultilingualBridge::META_TRANSLATION_TERM_IDS, true);
+			if (! is_array($winnerMap)) {
+				$winnerMap = [];
+			}
+			foreach ($storedMap as $lang => $translationId) {
+				if (! isset($winnerMap[ $lang ]) || (int) $winnerMap[ $lang ] < 1) {
+					$winnerMap[ $lang ] = $translationId;
+				}
+			}
+			update_term_meta($winnerId, MultilingualBridge::META_TRANSLATION_TERM_IDS, $winnerMap);
+		}
+
+		foreach (['bec_category_names', 'bec_category_normalized', 'bec_last_sync_at'] as $metaKey) {
+			$winnerValue = get_term_meta($winnerId, $metaKey, true);
+			$loserValue  = get_term_meta($loserId, $metaKey, true);
+			if (($winnerValue === '' || $winnerValue === false) && $loserValue !== '' && $loserValue !== false) {
+				update_term_meta($winnerId, $metaKey, $loserValue);
+			}
+		}
+
+		wp_delete_term($loserId, $taxonomy);
+	}
+
+	private static function repointTranslationTerms(int $winnerId, int $loserId): void
+	{
+		$terms = get_terms(
+			[
+				'taxonomy'         => UnitCategoryTaxonomy::getSlug(),
+				'hide_empty'       => false,
+				'fields'           => 'ids',
+				'suppress_filters' => true,
+				'meta_query'       => [
+					[
+						'key'   => MultilingualBridge::META_TRANSLATION_OF_TERM,
+						'value' => $loserId,
+					],
+				],
+			]
+		);
+
+		if (! is_array($terms) || is_wp_error($terms)) {
+			return;
+		}
+
+		$defaultLang = MultilingualBridge::getDefaultLanguage();
+
+		foreach ($terms as $translationId) {
+			$translationId = (int) $translationId;
+			if ($translationId < 1) {
+				continue;
+			}
+
+			update_term_meta($translationId, MultilingualBridge::META_TRANSLATION_OF_TERM, $winnerId);
+
+			$lang = (string) get_term_meta($translationId, MultilingualBridge::META_TRANSLATION_TERM_LANG, true);
+			if ($lang !== '' && $defaultLang !== '') {
+				MultilingualBridge::linkTermTranslation($winnerId, $defaultLang, $translationId, $lang);
+			}
+		}
 	}
 }

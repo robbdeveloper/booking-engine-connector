@@ -27,6 +27,42 @@ final class CategoryTranslationSync
 	}
 
 	/**
+	 * Remove provider lookup meta from all managed translation category terms (heals legacy duplicates).
+	 */
+	public static function cleanupExistingTranslationProviderMeta(): void
+	{
+		if (! UnitCategoryTaxonomy::isEnabled()) {
+			return;
+		}
+
+		$terms = get_terms(
+			[
+				'taxonomy'         => UnitCategoryTaxonomy::getSlug(),
+				'hide_empty'       => false,
+				'fields'           => 'ids',
+				'suppress_filters' => true,
+				'meta_query'       => [
+					[
+						'key'     => MultilingualBridge::META_TRANSLATION_OF_TERM,
+						'compare' => 'EXISTS',
+					],
+				],
+			]
+		);
+
+		if (! is_array($terms) || is_wp_error($terms)) {
+			return;
+		}
+
+		foreach ($terms as $termId) {
+			$termId = (int) $termId;
+			if ($termId > 0) {
+				self::stripProviderLookupMeta($termId);
+			}
+		}
+	}
+
+	/**
 	 * @param array<string, mixed> $descriptor
 	 */
 	public static function onAfterCategorySync(int $canonicalTermId, string $providerSlug, array $descriptor): void
@@ -76,6 +112,7 @@ final class CategoryTranslationSync
 				$existingId = MultilingualBridge::getTranslatedTermId($canonicalTermId, $lang);
 				if ($existingId !== null) {
 					$translationMap[ $lang ] = $existingId;
+					self::stripProviderLookupMeta($existingId);
 				}
 				continue;
 			}
@@ -168,6 +205,7 @@ final class CategoryTranslationSync
 		update_term_meta($translationId, MultilingualBridge::META_TRANSLATION_TERM_LANG, $lang);
 
 		self::copySharedTermMeta($canonicalTermId, $translationId);
+		self::stripProviderLookupMeta($translationId);
 
 		MultilingualBridge::setTermLanguage($translationId, $lang);
 		MultilingualBridge::linkTermTranslation($canonicalTermId, $defaultLang, $translationId, $lang);
@@ -280,6 +318,16 @@ final class CategoryTranslationSync
 				update_term_meta($translationTermId, $metaKey, $value);
 			}
 		}
+	}
+
+	/**
+	 * Translation terms must not carry provider lookup meta or they appear as duplicate canonicals.
+	 */
+	private static function stripProviderLookupMeta(int $translationTermId): void
+	{
+		delete_term_meta($translationTermId, 'bec_external_id');
+		delete_term_meta($translationTermId, 'bec_provider_slug');
+		delete_term_meta($translationTermId, MultilingualBridge::META_TRANSLATION_TERM_IDS);
 	}
 
 	/**

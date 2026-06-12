@@ -283,6 +283,8 @@ final class SyncService
 			);
 		}
 
+		UnitCategorySync::syncUniqueDescriptorsFromRows($slug, [$match]);
+
 		$this->upsertFromRemoteRow($externalId, $slug, $match, $postId, false);
 	}
 
