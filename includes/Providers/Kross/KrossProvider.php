@@ -24,6 +24,9 @@ final class KrossProvider implements ProviderInterface, BulkQuoteProviderInterfa
 
 	private KrossApiClient $api;
 
+	/** @var array<string, array<string, mixed>> */
+	private array $lastCategoryDescriptorMap = [];
+
 	public function __construct(
 		?HttpClient $http = null,
 		?KrossAuthenticator $authenticator = null,
@@ -151,6 +154,8 @@ final class KrossProvider implements ProviderInterface, BulkQuoteProviderInterfa
 			$categoryMap = $this->fetchRoomTypeCategoriesMap();
 		}
 
+		$this->lastCategoryDescriptorMap = $categoryMap;
+
 		$payload = (array) \apply_filters(
 			'bec_kross_room_types_payload',
 			[
@@ -186,6 +191,16 @@ final class KrossProvider implements ProviderInterface, BulkQuoteProviderInterfa
 		$rows = $this->normalizeRoomTypesList($data, $categoryMap);
 
 		return [ $decoded, $rows ];
+	}
+
+	/**
+	 * Category descriptors from the most recent {@see fetchRemoteUnits()} call.
+	 *
+	 * @return array<string, array<string, mixed>>
+	 */
+	public function getCategoryDescriptorMap(): array
+	{
+		return $this->lastCategoryDescriptorMap;
 	}
 
 	/**

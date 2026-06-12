@@ -12,15 +12,24 @@ use BookingEngineConnector\Taxonomies\UnitCategoryTaxonomy;
  */
 final class CategoryTranslationSync
 {
+	/** @var array<string, true> canonicalTermId|lang */
+	private static array $syncedTranslationKeys = [];
+
 	public static function register(): void
 	{
-		\add_action('bec_after_unit_sync', [self::class, 'onAfterUnitSync'], 15, 3);
+		add_action('bec_after_category_sync', [self::class, 'onAfterCategorySync'], 10, 3);
+		add_action('bec_before_category_registry_sync', [self::class, 'resetSyncState'], 10, 0);
+	}
+
+	public static function resetSyncState(): void
+	{
+		self::$syncedTranslationKeys = [];
 	}
 
 	/**
-	 * @param array<string, mixed> $row
+	 * @param array<string, mixed> $descriptor
 	 */
-	public static function onAfterUnitSync(int $postId, string $providerSlug, array $row): void
+	public static function onAfterCategorySync(int $canonicalTermId, string $providerSlug, array $descriptor): void
 	{
 		if (! MultilingualBridge::isFeatureEnabled()) {
 			return;
@@ -30,23 +39,12 @@ final class CategoryTranslationSync
 			return;
 		}
 
-		if ((int) \get_post_meta($postId, MultilingualBridge::META_TRANSLATION_OF, true) > 0) {
+		if ($canonicalTermId < 1 || UnitCategorySync::isTranslationTerm($canonicalTermId)) {
 			return;
 		}
 
-		$descriptor = $row['unit_category'] ?? null;
-		if (! \is_array($descriptor)) {
-			return;
-		}
-
-		/** @var array<string, mixed> $descriptor */
 		$externalId = (string) ($descriptor['external_id'] ?? '');
 		if ($externalId === '') {
-			return;
-		}
-
-		$canonicalTermId = UnitCategorySync::findCanonicalTermIdForProviderCategory($providerSlug, $externalId, $descriptor);
-		if ($canonicalTermId === null) {
 			return;
 		}
 
@@ -61,8 +59,8 @@ final class CategoryTranslationSync
 		}
 
 		/** @var array<string, string> $strings */
-		$strings = \apply_filters('bec_category_translation_strings', [], $descriptor, $providerSlug, $canonicalTermId);
-		if (! \is_array($strings)) {
+		$strings = apply_filters('bec_category_translation_strings', [], $descriptor, $providerSlug, $canonicalTermId);
+		if (! is_array($strings)) {
 			$strings = [];
 		}
 
@@ -73,7 +71,7 @@ final class CategoryTranslationSync
 				continue;
 			}
 
-			$name = isset($strings[ $lang ]) ? \trim((string) $strings[ $lang ]) : '';
+			$name = isset($strings[ $lang ]) ? trim((string) $strings[ $lang ]) : '';
 			if ($name === '') {
 				$existingId = MultilingualBridge::getTranslatedTermId($canonicalTermId, $lang);
 				if ($existingId !== null) {
@@ -96,7 +94,7 @@ final class CategoryTranslationSync
 		}
 
 		if ($translationMap !== []) {
-			\update_term_meta($canonicalTermId, MultilingualBridge::META_TRANSLATION_TERM_IDS, $translationMap);
+			update_term_meta($canonicalTermId, MultilingualBridge::META_TRANSLATION_TERM_IDS, $translationMap);
 		}
 	}
 
@@ -111,13 +109,20 @@ final class CategoryTranslationSync
 		array $descriptor,
 		string $externalId
 	): int {
+		$dedupeKey = $canonicalTermId . '|' . $lang;
+		if (isset(self::$syncedTranslationKeys[ $dedupeKey ])) {
+			$existingId = self::findExistingTranslationTermId($canonicalTermId, $lang, $name, $descriptor, $externalId);
+
+			return $existingId ?? 0;
+		}
+
 		$existingId = self::findExistingTranslationTermId($canonicalTermId, $lang, $name, $descriptor, $externalId);
 
-		$slug = UnitCategorySync::buildSlugForDescriptor($descriptor, $externalId, $name);
+		$slug     = UnitCategorySync::buildSlugForDescriptor($descriptor, $externalId, $name);
 		$taxonomy = UnitCategoryTaxonomy::getSlug();
 
 		if ($existingId !== null && $existingId > 0) {
-			$result = \wp_update_term(
+			$result = wp_update_term(
 				$existingId,
 				$taxonomy,
 				[
@@ -125,25 +130,25 @@ final class CategoryTranslationSync
 					'slug' => $slug,
 				]
 			);
-			if (\is_wp_error($result)) {
+			if (is_wp_error($result)) {
 				return 0;
 			}
 			$translationId = $existingId;
 		} else {
-			$result = \wp_insert_term(
+			$result = wp_insert_term(
 				$name,
 				$taxonomy,
 				[
 					'slug' => $slug,
 				]
 			);
-			if (\is_wp_error($result)) {
+			if (is_wp_error($result)) {
 				$adoptedId = self::findAdoptableTranslationTermBySlug($slug, $lang, $canonicalTermId, $externalId);
 				if ($adoptedId === null) {
 					return 0;
 				}
 				$translationId = $adoptedId;
-				\wp_update_term(
+				wp_update_term(
 					$translationId,
 					$taxonomy,
 					[
@@ -159,13 +164,15 @@ final class CategoryTranslationSync
 			}
 		}
 
-		\update_term_meta($translationId, MultilingualBridge::META_TRANSLATION_OF_TERM, $canonicalTermId);
-		\update_term_meta($translationId, MultilingualBridge::META_TRANSLATION_TERM_LANG, $lang);
+		update_term_meta($translationId, MultilingualBridge::META_TRANSLATION_OF_TERM, $canonicalTermId);
+		update_term_meta($translationId, MultilingualBridge::META_TRANSLATION_TERM_LANG, $lang);
 
 		self::copySharedTermMeta($canonicalTermId, $translationId);
 
 		MultilingualBridge::setTermLanguage($translationId, $lang);
 		MultilingualBridge::linkTermTranslation($canonicalTermId, $defaultLang, $translationId, $lang);
+
+		self::$syncedTranslationKeys[ $dedupeKey ] = true;
 
 		return $translationId;
 	}
@@ -185,15 +192,15 @@ final class CategoryTranslationSync
 			return $existingId;
 		}
 
-		$storedMap = \get_term_meta($canonicalTermId, MultilingualBridge::META_TRANSLATION_TERM_IDS, true);
-		if (\is_array($storedMap) && isset($storedMap[ $lang ])) {
+		$storedMap = get_term_meta($canonicalTermId, MultilingualBridge::META_TRANSLATION_TERM_IDS, true);
+		if (is_array($storedMap) && isset($storedMap[ $lang ])) {
 			$candidate = (int) $storedMap[ $lang ];
 			if ($candidate > 0 && $candidate !== $canonicalTermId) {
 				return $candidate;
 			}
 		}
 
-		$terms = \get_terms(
+		$terms = get_terms(
 			[
 				'taxonomy'         => UnitCategoryTaxonomy::getSlug(),
 				'hide_empty'       => false,
@@ -213,7 +220,7 @@ final class CategoryTranslationSync
 			]
 		);
 
-		if (\is_array($terms) && ! \is_wp_error($terms)) {
+		if (is_array($terms) && ! is_wp_error($terms)) {
 			foreach ($terms as $termId) {
 				$termId = (int) $termId;
 				if ($termId > 0 && $termId !== $canonicalTermId) {
@@ -233,7 +240,7 @@ final class CategoryTranslationSync
 		int $canonicalTermId,
 		string $externalId
 	): ?int {
-		$term = \get_term_by('slug', $slug, UnitCategoryTaxonomy::getSlug());
+		$term = get_term_by('slug', $slug, UnitCategoryTaxonomy::getSlug());
 		if (! $term instanceof \WP_Term) {
 			return null;
 		}
@@ -243,12 +250,12 @@ final class CategoryTranslationSync
 			return null;
 		}
 
-		$translationOf = (int) \get_term_meta($termId, MultilingualBridge::META_TRANSLATION_OF_TERM, true);
+		$translationOf = (int) get_term_meta($termId, MultilingualBridge::META_TRANSLATION_OF_TERM, true);
 		if ($translationOf > 0 && $translationOf !== $canonicalTermId) {
 			return null;
 		}
 
-		$existingExternalId = (string) \get_term_meta($termId, 'bec_external_id', true);
+		$existingExternalId = (string) get_term_meta($termId, 'bec_external_id', true);
 		if ($existingExternalId !== '' && $existingExternalId !== $externalId) {
 			return null;
 		}
@@ -266,11 +273,11 @@ final class CategoryTranslationSync
 	private static function copySharedTermMeta(int $canonicalTermId, int $translationTermId): void
 	{
 		foreach (self::sharedTermMetaKeys() as $metaKey) {
-			$value = \get_term_meta($canonicalTermId, $metaKey, true);
+			$value = get_term_meta($canonicalTermId, $metaKey, true);
 			if ($value === '' || $value === false) {
-				\delete_term_meta($translationTermId, $metaKey);
+				delete_term_meta($translationTermId, $metaKey);
 			} else {
-				\update_term_meta($translationTermId, $metaKey, $value);
+				update_term_meta($translationTermId, $metaKey, $value);
 			}
 		}
 	}
@@ -287,8 +294,8 @@ final class CategoryTranslationSync
 		];
 
 		/** @var list<string> $filtered */
-		$filtered = \apply_filters('bec_category_translation_shared_term_meta_keys', $keys);
+		$filtered = apply_filters('bec_category_translation_shared_term_meta_keys', $keys);
 
-		return \is_array($filtered) ? \array_values(\array_unique(\array_map('strval', $filtered))) : $keys;
+		return is_array($filtered) ? array_values(array_unique(array_map('strval', $filtered))) : $keys;
 	}
 }

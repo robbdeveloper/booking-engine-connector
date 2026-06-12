@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace BookingEngineConnector\Providers\Kross;
 
 use BookingEngineConnector\Integrations\MultilingualBridge;
+use BookingEngineConnector\Providers\ProviderRegistry;
 use BookingEngineConnector\Taxonomies\UnitCategoryTaxonomy;
 
 /**
@@ -15,6 +16,43 @@ final class KrossCategoryTranslations
 	public static function register(): void
 	{
 		\add_filter('bec_category_translation_strings', [self::class, 'filterTranslationStrings'], 10, 4);
+		\add_filter('bec_sync_provider_category_descriptors', [self::class, 'filterProviderCategoryDescriptors'], 10, 3);
+	}
+
+	/**
+	 * @param array<string, array<string, mixed>> $unique
+	 * @param list<array<string, mixed>>          $rows
+	 *
+	 * @return array<string, array<string, mixed>>
+	 */
+	public static function filterProviderCategoryDescriptors(array $unique, string $providerSlug, array $rows): array
+	{
+		unset($rows);
+
+		if ($providerSlug !== 'kross' || ! UnitCategoryTaxonomy::isEnabled()) {
+			return $unique;
+		}
+
+		$provider = ProviderRegistry::getProvider('kross');
+		if (! $provider instanceof KrossProvider) {
+			return $unique;
+		}
+
+		foreach ($provider->getCategoryDescriptorMap() as $externalId => $descriptor) {
+			if (! \is_array($descriptor)) {
+				continue;
+			}
+
+			$id = (string) $externalId;
+			if ($id === '') {
+				continue;
+			}
+
+			/** @var array<string, mixed> $descriptor */
+			$unique[ $id ] = $descriptor;
+		}
+
+		return $unique;
 	}
 
 	/**

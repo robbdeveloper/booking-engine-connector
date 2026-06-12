@@ -103,6 +103,8 @@ final class SyncService
 
 			$rowList = $this->normalizeRemoteUnitRows($remote);
 
+			UnitCategorySync::syncUniqueDescriptorsFromRows($slug, $rowList);
+
 			$total = \count($rowList);
 			if ($progress !== null) {
 				$progress->setCounters(0, $total);

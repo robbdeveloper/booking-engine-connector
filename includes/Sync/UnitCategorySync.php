@@ -12,9 +12,108 @@ use BookingEngineConnector\Taxonomies\UnitCategoryTaxonomy;
  */
 final class UnitCategorySync
 {
+	/** @var array<string, int> providerSlug|externalId => canonical term ID (request cache) */
+	private static array $canonicalTermCache = [];
+
 	public static function register(): void
 	{
 		add_action('bec_after_unit_sync', [self::class, 'onAfterUnitSync'], 10, 3);
+	}
+
+	/**
+	 * Prime canonical category terms once per sync batch (one term per provider category ID).
+	 *
+	 * @param list<array<string, mixed>> $rows
+	 */
+	public static function syncUniqueDescriptorsFromRows(string $providerSlug, array $rows): void
+	{
+		if (! UnitCategoryTaxonomy::isEnabled()) {
+			return;
+		}
+
+		self::$canonicalTermCache = [];
+
+		do_action('bec_before_category_registry_sync');
+
+		/** @var array<string, array<string, mixed>> $unique */
+		$unique = [];
+
+		foreach ($rows as $row) {
+			if (! is_array($row)) {
+				continue;
+			}
+
+			$descriptor = $row['unit_category'] ?? null;
+			if (! is_array($descriptor)) {
+				continue;
+			}
+
+			/** @var array<string, mixed> $descriptor */
+			$externalId = (string) ($descriptor['external_id'] ?? '');
+			if ($externalId === '') {
+				continue;
+			}
+
+			$unique[ $externalId ] = $descriptor;
+		}
+
+		/** @var array<string, array<string, mixed>> $unique */
+		$unique = apply_filters('bec_sync_provider_category_descriptors', $unique, $providerSlug, $rows);
+
+		foreach ($unique as $descriptor) {
+			if (! is_array($descriptor)) {
+				continue;
+			}
+
+			/** @var array<string, mixed> $descriptor */
+			self::syncDescriptor($providerSlug, $descriptor);
+		}
+	}
+
+	/**
+	 * @param array<string, mixed> $descriptor
+	 */
+	public static function syncDescriptor(string $providerSlug, array $descriptor): ?int
+	{
+		if (! UnitCategoryTaxonomy::isEnabled()) {
+			return null;
+		}
+
+		/** @var array<string, mixed> $descriptor */
+		$descriptor = apply_filters('bec_sync_unit_category', $descriptor, [], $providerSlug, 0);
+
+		$externalId = (string) ($descriptor['external_id'] ?? '');
+		if ($externalId === '') {
+			return null;
+		}
+
+		$cacheKey = self::cacheKey($providerSlug, $externalId);
+		if (isset(self::$canonicalTermCache[ $cacheKey ])) {
+			return self::$canonicalTermCache[ $cacheKey ];
+		}
+
+		$termId = self::findCanonicalTermIdForProviderCategory($providerSlug, $externalId, $descriptor);
+
+		if ($termId === null) {
+			$termId = self::createTermForDescriptor($descriptor, $providerSlug, $externalId);
+		} else {
+			self::updateTermFromDescriptor($termId, $descriptor, $providerSlug, $externalId);
+		}
+
+		if ($termId === null) {
+			return null;
+		}
+
+		self::$canonicalTermCache[ $cacheKey ] = $termId;
+
+		/**
+		 * @param int                  $termId Canonical category term ID.
+		 * @param string               $providerSlug
+		 * @param array<string, mixed> $descriptor
+		 */
+		do_action('bec_after_category_sync', $termId, $providerSlug, $descriptor);
+
+		return $termId;
 	}
 
 	/**
@@ -41,15 +140,13 @@ final class UnitCategorySync
 			return;
 		}
 
-		$termId = self::findTermIdForProviderCategory($providerSlug, $externalId, $descriptor);
+		$termId = self::resolveCanonicalTermId($providerSlug, $externalId, $descriptor);
+		if ($termId === null) {
+			$termId = self::syncDescriptor($providerSlug, $descriptor);
+		}
 
 		if ($termId === null) {
-			$termId = self::createTermForDescriptor($descriptor, $providerSlug, $externalId);
-			if ($termId === null) {
-				return;
-			}
-		} else {
-			self::updateTermFromDescriptor($termId, $descriptor, $providerSlug, $externalId);
+			return;
 		}
 
 		wp_set_object_terms($postId, [$termId], UnitCategoryTaxonomy::getSlug(), false);
@@ -58,9 +155,19 @@ final class UnitCategorySync
 	/**
 	 * @param array<string, mixed>|null $descriptor
 	 */
-	private static function findTermIdForProviderCategory(string $providerSlug, string $externalId, ?array $descriptor = null): ?int
+	private static function resolveCanonicalTermId(string $providerSlug, string $externalId, ?array $descriptor = null): ?int
 	{
-		return self::findCanonicalTermIdForProviderCategory($providerSlug, $externalId, $descriptor);
+		$cacheKey = self::cacheKey($providerSlug, $externalId);
+		if (isset(self::$canonicalTermCache[ $cacheKey ])) {
+			return self::$canonicalTermCache[ $cacheKey ];
+		}
+
+		$termId = self::findCanonicalTermIdForProviderCategory($providerSlug, $externalId, $descriptor);
+		if ($termId !== null) {
+			self::$canonicalTermCache[ $cacheKey ] = $termId;
+		}
+
+		return $termId;
 	}
 
 	/**
@@ -84,6 +191,19 @@ final class UnitCategorySync
 	 * @return list<int>
 	 */
 	private static function findTermIdsByProviderMeta(string $providerSlug, string $externalId): array
+	{
+		$fromQuery = self::findTermIdsByProviderMetaQuery($providerSlug, $externalId);
+		if ($fromQuery !== []) {
+			return $fromQuery;
+		}
+
+		return self::findTermIdsByProviderMetaDb($providerSlug, $externalId);
+	}
+
+	/**
+	 * @return list<int>
+	 */
+	private static function findTermIdsByProviderMetaQuery(string $providerSlug, string $externalId): array
 	{
 		$terms = get_terms(
 			[
@@ -109,8 +229,61 @@ final class UnitCategorySync
 			return [];
 		}
 
+		return self::normalizeTermIdList($terms);
+	}
+
+	/**
+	 * @return list<int>
+	 */
+	private static function findTermIdsByProviderMetaDb(string $providerSlug, string $externalId): array
+	{
+		global $wpdb;
+
+		if (! isset($wpdb->termmeta, $wpdb->term_taxonomy)) {
+			return [];
+		}
+
+		$sql = "
+			SELECT tm_provider.term_id
+			FROM {$wpdb->termmeta} tm_provider
+			INNER JOIN {$wpdb->termmeta} tm_external
+				ON tm_provider.term_id = tm_external.term_id
+			INNER JOIN {$wpdb->term_taxonomy} tt
+				ON tm_provider.term_id = tt.term_id
+			WHERE tt.taxonomy = %s
+				AND tm_provider.meta_key = 'bec_provider_slug'
+				AND tm_provider.meta_value = %s
+				AND tm_external.meta_key = 'bec_external_id'
+				AND tm_external.meta_value = %s
+		";
+
+		/** @var list<string>|null $raw */
+		$raw = $wpdb->get_col(
+			$wpdb->prepare(
+				$sql,
+				UnitCategoryTaxonomy::getSlug(),
+				$providerSlug,
+				$externalId
+			)
+		);
+
+		if (! is_array($raw)) {
+			return [];
+		}
+
+		return self::normalizeTermIdList($raw);
+	}
+
+	/**
+	 * @param array<int|string, mixed> $termIds
+	 *
+	 * @return list<int>
+	 */
+	private static function normalizeTermIdList(array $termIds): array
+	{
 		$ids = [];
-		foreach ($terms as $termId) {
+
+		foreach ($termIds as $termId) {
 			$termId = (int) $termId;
 			if ($termId > 0) {
 				$ids[] = $termId;
@@ -126,6 +299,7 @@ final class UnitCategorySync
 	private static function pickCanonicalTermId(array $termIds): ?int
 	{
 		$canonical = [];
+
 		foreach ($termIds as $termId) {
 			if (! self::isTranslationTerm($termId)) {
 				$canonical[] = $termId;
@@ -353,7 +527,7 @@ final class UnitCategorySync
 		$namesMap = [];
 		if (isset($descriptor['names']) && is_array($descriptor['names'])) {
 			/** @var array<mixed, mixed> $names */
-			$names      = $descriptor['names'];
+			$names    = $descriptor['names'];
 			$namesMap = UnitCategoryTaxonomy::coerceDescriptorNamesToMap($names);
 		}
 
@@ -397,5 +571,10 @@ final class UnitCategorySync
 	private static function buildUniqueSlug(array $descriptor, string $externalId): string
 	{
 		return self::buildSlugForDescriptor($descriptor, $externalId);
+	}
+
+	private static function cacheKey(string $providerSlug, string $externalId): string
+	{
+		return $providerSlug . '|' . $externalId;
 	}
 }
