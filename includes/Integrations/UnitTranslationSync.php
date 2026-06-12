@@ -153,11 +153,16 @@ final class UnitTranslationSync
 			}
 		}
 
+		$postIdForUnique = ($existingId !== null && $existingId > 0) ? $existingId : 0;
+		$slug            = MultilingualBridge::buildTranslatedUnitPostSlug($canonicalId, $lang);
+		$slug            = \wp_unique_post_slug($slug, $postIdForUnique, 'publish', UnitPostType::getSlug(), 0);
+
 		$postData = [
 			'post_title'   => $title,
 			'post_content' => \wp_kses_post($content),
 			'post_status'  => 'publish',
 			'post_type'    => UnitPostType::getSlug(),
+			'post_name'    => $slug,
 		];
 
 		if ($existingId !== null && $existingId > 0) {

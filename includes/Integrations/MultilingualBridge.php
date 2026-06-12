@@ -335,6 +335,25 @@ final class MultilingualBridge
 	}
 
 	/**
+	 * Build the post slug for a translated unit: canonical post_name + language suffix.
+	 */
+	public static function buildTranslatedUnitPostSlug(int $canonicalPostId, string $lang): string
+	{
+		$canonical = \get_post($canonicalPostId);
+		$base      = ($canonical instanceof \WP_Post && $canonical->post_name !== '')
+			? $canonical->post_name
+			: \sanitize_title(\get_the_title($canonicalPostId));
+
+		$langSegment = \sanitize_title($lang);
+		$slug        = $base . '-' . $langSegment;
+
+		/** @var string $filtered */
+		$filtered = \apply_filters('bec_unit_translation_post_slug', $slug, $canonicalPostId, $lang, $base);
+
+		return \is_string($filtered) && $filtered !== '' ? $filtered : $slug;
+	}
+
+	/**
 	 * Whether active languages use a directory path prefix (e.g. /en/) rather than subdomain/domain.
 	 */
 	public static function usesDirectoryLanguageUrls(): bool
