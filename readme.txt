@@ -4,7 +4,7 @@ Tags: booking, kross, hospitality, availability
 Requires at least: 6.4
 Tested up to: 6.7
 Requires PHP: 8.0
-Stable tag: 0.2.2
+Stable tag: 0.2.3
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
@@ -51,6 +51,13 @@ Use **`[bec_available_units_count]`** anywhere on the results page (above an Ele
 Examples: **`[bec_available_units_count]`** (number only), **`[bec_available_units_count format="text"]`** (default “%d available units” copy), **`[bec_available_units_count hide_without_search="1"]`** (empty until search params are complete), **`[bec_available_units_count zero_text="No units found"]`**, **`[bec_available_units_count category="villas"]`** (count only units in that unit category term). Custom text: **`singular`** / **`plural`** with **`%d`**, optional **`class`** for styling.
 
 == Changelog ==
+
+= 0.2.3 =
+* **Multilingual (WPML / Polylang)**: Auto-create and update linked translation posts and unit category terms from provider locale maps on sync (`MultilingualBridge`, `UnitTranslationSync`, `CategoryTranslationSync`). Toggle on **Frontend** settings. Kross supplies unit/category strings; language-prefixed permalinks for directory-based multilingual URLs.
+* **Unit categories**: Registry sync deduplicates provider descriptors; category translation sync on `bec_after_category_sync`.
+* **Fallback**: Sanitize and escape fallback link URLs on save and render.
+* **WPML**: Shipped `wpml-config.xml` for custom types, taxonomies, and meta copy/translate rules.
+* **i18n**: Regenerated translation template and recompiled Italian MO.
 
 = 0.2.2 =
 * **Shortcodes (`[bec_available_units_count]`)**: Count respects the current listing query (e.g. unit category archives) instead of always returning the site-wide total. Optional **`category`** attribute (term slug) scopes the count to a specific unit category.

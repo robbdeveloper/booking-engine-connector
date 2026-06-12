@@ -1,10 +1,10 @@
 msgid ""
 msgstr ""
-"Project-Id-Version: Booking Engine Connector 0.2.2\n"
+"Project-Id-Version: Booking Engine Connector 0.2.3\n"
 "Report-Msgid-Bugs-To: https://wordpress.org/support/plugin/booking-engine-"
 "connector\n"
-"POT-Creation-Date: 2026-06-01T11:14:19+00:00\n"
-"PO-Revision-Date: 2026-06-01 13:14+0000\n"
+"POT-Creation-Date: 2026-06-12T15:04:16+00:00\n"
+"PO-Revision-Date: 2026-06-12 15:30+0000\n"
 "Last-Translator: Booking Engine Connector\n"
 "Language-Team: Italian\n"
 "Language: it_IT\n"
@@ -60,7 +60,7 @@ msgid "Connection"
 msgstr "Connessione"
 
 #: includes/Admin/AdminMenu.php:68 includes/Admin/AdminMenu.php:69
-#: includes/Admin/Settings/FrontendPage.php:38
+#: includes/Admin/Settings/FrontendPage.php:40
 msgid "Frontend"
 msgstr "Front-end"
 
@@ -137,7 +137,7 @@ msgstr "Intervento richiesto"
 msgid "Verify connection"
 msgstr "Verificare la connessione"
 
-#: includes/Admin/AdminMenu.php:188 includes/PostTypes/UnitPostType.php:463
+#: includes/Admin/AdminMenu.php:188 includes/PostTypes/UnitPostType.php:544
 msgid "Last sync"
 msgstr "Ultima sincronizzazione"
 
@@ -353,8 +353,8 @@ msgstr ""
 
 #: includes/Admin/ApiLogPage.php:84 includes/Admin/ApiLogPage.php:103
 #: includes/Admin/Settings/ConnectionPage.php:69
-#: includes/PostTypes/UnitPostType.php:373
-#: includes/PostTypes/UnitPostType.php:462
+#: includes/PostTypes/UnitPostType.php:454
+#: includes/PostTypes/UnitPostType.php:543
 msgid "Provider"
 msgstr "Fornitore"
 
@@ -591,7 +591,7 @@ msgid "Presentation"
 msgstr "Presentazione"
 
 #: includes/Admin/Settings/FallbackPage.php:114
-#: includes/Admin/Settings/FallbackPage.php:132
+#: includes/Admin/Settings/FallbackPage.php:135
 msgid "Inline content"
 msgstr "Contenuti in linea"
 
@@ -604,14 +604,21 @@ msgid "Fallback link URL"
 msgstr "URL del collegamento di riserva"
 
 #: includes/Admin/Settings/FallbackPage.php:121
-msgid "Used when “Link only” is selected."
-msgstr "Utilizzato quando è selezionato “Solo collegamento”."
+msgid ""
+"Used when “Link only” is selected. Enter a full URL, a site path (e.g. /"
+"contact), query parameters (e.g. ?subject=enquiry), or an encoded hash link "
+"(e.g. Elementor popup triggers)."
+msgstr ""
+"Utilizzato quando è selezionato «Solo collegamento». Inserisci un URL "
+"completo, un percorso del sito (es. /contact), parametri di query (es. "
+"?subject=enquiry) o un collegamento con hash codificato (es. trigger popup "
+"Elementor)."
 
-#: includes/Admin/Settings/FallbackPage.php:124
+#: includes/Admin/Settings/FallbackPage.php:127
 msgid "Fallback link text"
 msgstr "Testo del collegamento di riserva"
 
-#: includes/Admin/Settings/FallbackPage.php:126
+#: includes/Admin/Settings/FallbackPage.php:129
 msgid ""
 "Leave empty to use the default contact label, which follows the active site "
 "language."
@@ -619,27 +626,27 @@ msgstr ""
 "Lascia vuoto per utilizzare l'etichetta di contatto predefinita, che segue "
 "la lingua del sito attivo."
 
-#: includes/Admin/Settings/FallbackPage.php:142
+#: includes/Admin/Settings/FallbackPage.php:145
 msgid "Shown for “Inline content” mode. Shortcodes are supported."
 msgstr ""
 "Visualizzato per la modalità \"Contenuto in linea\". Sono supportati gli "
 "shortcode."
 
-#: includes/Admin/Settings/FallbackPage.php:148
+#: includes/Admin/Settings/FallbackPage.php:151
 msgid "Trigger fallback on empty availability"
 msgstr "Attiva il fallback sulla disponibilità vuota"
 
-#: includes/Admin/Settings/FallbackPage.php:150
+#: includes/Admin/Settings/FallbackPage.php:153
 msgid "When the provider reports no rooms available for the search."
 msgstr ""
 "Quando il fornitore segnala che non ci sono camere disponibili per la "
 "ricerca."
 
-#: includes/Admin/Settings/FallbackPage.php:153
+#: includes/Admin/Settings/FallbackPage.php:156
 msgid "Trigger on provider errors"
 msgstr "Attivazione in caso di errori del provider"
 
-#: includes/Admin/Settings/FallbackPage.php:159
+#: includes/Admin/Settings/FallbackPage.php:162
 msgid ""
 "When the quote request fails with one of these categories, show fallback "
 "instead of an error notice."
@@ -647,14 +654,14 @@ msgstr ""
 "Quando la richiesta di preventivo fallisce con una di queste categorie, "
 "mostra il fallback invece di un avviso di errore."
 
-#: includes/Admin/Settings/FallbackPage.php:168
+#: includes/Admin/Settings/FallbackPage.php:171
 #: includes/Admin/Settings/StylingPage.php:210
 #: includes/Admin/Settings/UnitFiltersPage.php:130
 #: includes/Admin/Settings/UnitPermalinkPage.php:191
 msgid "Save changes"
 msgstr "Salva modifiche"
 
-#: includes/Admin/Settings/FrontendPage.php:39
+#: includes/Admin/Settings/FrontendPage.php:41
 msgid ""
 "Configure how the availability search bar collects guests and how booking "
 "blocks appear on single unit pages."
@@ -662,11 +669,11 @@ msgstr ""
 "Configura come la barra di ricerca disponibilità raccoglie gli ospiti e come "
 "i blocchi prenotazione compaiono sulle pagine singola unità."
 
-#: includes/Admin/Settings/FrontendPage.php:53
+#: includes/Admin/Settings/FrontendPage.php:55
 msgid "Search form"
 msgstr "Form di ricerca"
 
-#: includes/Admin/Settings/FrontendPage.php:54
+#: includes/Admin/Settings/FrontendPage.php:56
 msgid ""
 "Controls the `[bec_search]` shortcode and embedded search inside "
 "`[bec_booking_summary]`."
@@ -674,23 +681,23 @@ msgstr ""
 "Controlla lo shortcode `[bec_search]` e la ricerca incorporata in "
 "`[bec_booking_summary]`."
 
-#: includes/Admin/Settings/FrontendPage.php:62
+#: includes/Admin/Settings/FrontendPage.php:64
 msgid "How guests are collected"
 msgstr "Come vengono raccolti gli ospiti"
 
-#: includes/Admin/Settings/FrontendPage.php:64
+#: includes/Admin/Settings/FrontendPage.php:66
 msgid "Follow the active provider (default)"
 msgstr "Segui il fornitore attivo (impostazione predefinita)"
 
-#: includes/Admin/Settings/FrontendPage.php:68
+#: includes/Admin/Settings/FrontendPage.php:70
 msgid "Single “Guests” count only"
 msgstr "Contano solo gli “Ospiti” singoli"
 
-#: includes/Admin/Settings/FrontendPage.php:72
+#: includes/Admin/Settings/FrontendPage.php:74
 msgid "Adults and children (separate fields)"
 msgstr "Adulti e bambini (campi separati)"
 
-#: includes/Admin/Settings/FrontendPage.php:77
+#: includes/Admin/Settings/FrontendPage.php:79
 msgid ""
 "Controls the availability search bar. Use a single total or split adults/"
 "children, regardless of the provider. “Follow the active provider” uses each "
@@ -701,23 +708,23 @@ msgstr ""
 "fornitore attivo\" utilizza le regole proprie di ciascun motore (ad esempio, "
 "Kross può impostare automaticamente un semplice conteggio degli ospiti)."
 
-#: includes/Admin/Settings/FrontendPage.php:83
+#: includes/Admin/Settings/FrontendPage.php:85
 msgid "Child ages in search"
 msgstr "Richiedi età per i bambini"
 
-#: includes/Admin/Settings/FrontendPage.php:85
+#: includes/Admin/Settings/FrontendPage.php:87
 msgid "Follow the active provider"
 msgstr "Segui il fornitore attivo"
 
-#: includes/Admin/Settings/FrontendPage.php:89
+#: includes/Admin/Settings/FrontendPage.php:91
 msgid "Ask for each child’s age"
 msgstr "Chiedi l’età di ogni bambino"
 
-#: includes/Admin/Settings/FrontendPage.php:93
+#: includes/Admin/Settings/FrontendPage.php:95
 msgid "Do not ask for child ages"
 msgstr "Non chiedere l'età dei bambini"
 
-#: includes/Admin/Settings/FrontendPage.php:98
+#: includes/Admin/Settings/FrontendPage.php:100
 msgid ""
 "Applies when the search form shows adults and children. Ignored when using "
 "only a single guest count."
@@ -725,11 +732,11 @@ msgstr ""
 "Si applica quando il modulo di ricerca mostra adulti e bambini. Ignorato "
 "quando si utilizza un solo conteggio degli ospiti."
 
-#: includes/Admin/Settings/FrontendPage.php:108
+#: includes/Admin/Settings/FrontendPage.php:110
 msgid "Single unit pages"
 msgstr "Pagine singola unità"
 
-#: includes/Admin/Settings/FrontendPage.php:109
+#: includes/Admin/Settings/FrontendPage.php:111
 msgid ""
 "Automatic content injection when viewing a synced unit. Disable these to "
 "place shortcodes manually in your template or block editor."
@@ -738,17 +745,17 @@ msgstr ""
 "sincronizzata. Disabilita per posizionare gli shortcode manualmente nel "
 "template o nell'editor a blocchi."
 
-#: includes/Admin/Settings/FrontendPage.php:116
+#: includes/Admin/Settings/FrontendPage.php:118
 msgid "Content injection"
 msgstr "Iniezione contenuto"
 
-#: includes/Admin/Settings/FrontendPage.php:119
+#: includes/Admin/Settings/FrontendPage.php:121
 msgid "Insert the availability search form above the main post content"
 msgstr ""
 "Inserisci il modulo di ricerca disponibilità sopra il contenuto del post "
 "principale"
 
-#: includes/Admin/Settings/FrontendPage.php:123
+#: includes/Admin/Settings/FrontendPage.php:125
 msgid ""
 "When disabled, place `[bec_search]` (or the booking summary shortcode) in "
 "your template or block editor instead."
@@ -756,7 +763,7 @@ msgstr ""
 "Se disabilitato, inserisci invece \"[bec_search]\" (o lo shortcode di "
 "riepilogo della prenotazione) nel tuo modello o nell'editor di blocchi."
 
-#: includes/Admin/Settings/FrontendPage.php:128
+#: includes/Admin/Settings/FrontendPage.php:130
 msgid ""
 "Append the booking quote and Continue button after the main post content "
 "when the URL has dates"
@@ -764,7 +771,7 @@ msgstr ""
 "Aggiungi il preventivo di prenotazione e il pulsante Continua dopo il "
 "contenuto del post principale quando l'URL ha delle date"
 
-#: includes/Admin/Settings/FrontendPage.php:132
+#: includes/Admin/Settings/FrontendPage.php:134
 msgid ""
 "When disabled, use `[bec_booking_summary]` or `[bec_quote]` where you want "
 "pricing and checkout."
@@ -772,11 +779,42 @@ msgstr ""
 "Quando disabilitato, utilizza \"[bec_booking_summary]\" o \"[bec_quote]\" "
 "dove desideri prezzi e checkout."
 
-#: includes/Admin/Settings/FrontendPage.php:141
+#: includes/Admin/Settings/FrontendPage.php:145
+msgid "Multilingual"
+msgstr "Multilingua"
+
+#: includes/Admin/Settings/FrontendPage.php:146
+msgid ""
+"When WPML or Polylang is active, synced units can automatically receive "
+"linked translation posts from provider locale maps."
+msgstr ""
+"Quando WPML o Polylang sono attivi, le unità sincronizzate possono "
+"ricevere automaticamente post di traduzione collegati dalle mappe locali "
+"del provider."
+
+#: includes/Admin/Settings/FrontendPage.php:153
+msgid "Translation sync"
+msgstr "Sincronizzazione traduzioni"
+
+#: includes/Admin/Settings/FrontendPage.php:156
+msgid "Create and update linked translation posts on each unit sync"
+msgstr "Crea e aggiorna post di traduzione collegati a ogni sincronizzazione unità"
+
+#: includes/Admin/Settings/FrontendPage.php:160
+msgid ""
+"Uses Kross be_name and be_description locale maps when available. Title, "
+"description, and their core meta fields are language-specific; images, "
+"amenities, categories, and sync payload stay shared."
+msgstr ""
+"Utilizza le mappe locali Kross be_name e be_description quando disponibili. "
+"Titolo, descrizione e relativi meta core sono specifici per lingua; immagini, "
+"servizi, categorie e payload di sync restano condivisi."
+
+#: includes/Admin/Settings/FrontendPage.php:170
 msgid "Save frontend settings"
 msgstr "Salva impostazioni front-end"
 
-#: includes/Admin/Settings/FrontendPage.php:196
+#: includes/Admin/Settings/FrontendPage.php:233
 msgid "Frontend settings saved."
 msgstr "Impostazioni front-end salvate."
 
@@ -1061,7 +1099,7 @@ msgstr ""
 
 #: includes/Admin/Settings/UnitPermalinkPage.php:146
 #: includes/Admin/Settings/UnitPermalinkPage.php:153
-#: includes/Taxonomies/UnitCategoryTaxonomy.php:119
+#: includes/Taxonomies/UnitCategoryTaxonomy.php:120
 msgid "Unit categories"
 msgstr "Categorie unità"
 
@@ -1364,11 +1402,11 @@ msgstr ""
 "sincronizzazione standard."
 
 #: includes/Admin/SyncAdmin.php:451 includes/Admin/SyncAdmin.php:491
-#: includes/Admin/SyncAdmin.php:597 includes/Admin/SyncAdmin.php:880
-#: includes/Admin/SyncAdmin.php:992 includes/Admin/SyncAdmin.php:1018
-#: includes/Admin/SyncAdmin.php:1034 includes/Admin/SyncAdmin.php:1054
-#: includes/Admin/SyncAdmin.php:1083 includes/Admin/SyncAdmin.php:1098
-#: includes/Admin/SyncAdmin.php:1120
+#: includes/Admin/SyncAdmin.php:597 includes/Admin/SyncAdmin.php:881
+#: includes/Admin/SyncAdmin.php:993 includes/Admin/SyncAdmin.php:1019
+#: includes/Admin/SyncAdmin.php:1035 includes/Admin/SyncAdmin.php:1055
+#: includes/Admin/SyncAdmin.php:1084 includes/Admin/SyncAdmin.php:1099
+#: includes/Admin/SyncAdmin.php:1121
 msgid "Insufficient permissions."
 msgstr "Autorizzazioni insufficienti."
 
@@ -1380,11 +1418,11 @@ msgstr "In attesa dell'avvio della sincronizzazione..."
 msgid "Invalid sync run id."
 msgstr "ID esecuzione sincronizzazione non valido."
 
-#: includes/Admin/SyncAdmin.php:513 includes/Sync/SyncService.php:52
+#: includes/Admin/SyncAdmin.php:513 includes/Sync/SyncService.php:53
 msgid "Another sync is already running."
 msgstr "Un'altra sincronizzazione è già in esecuzione."
 
-#: includes/Admin/SyncAdmin.php:519 includes/Sync/SyncService.php:30
+#: includes/Admin/SyncAdmin.php:519 includes/Sync/SyncService.php:31
 msgid "Starting sync…"
 msgstr "Avvio della sincronizzazione…"
 
@@ -1396,16 +1434,16 @@ msgstr ""
 "Preparazione sincronizzazione a step brevi (ogni richiesta evita timeout del "
 "browser)."
 
-#: includes/Admin/SyncAdmin.php:530 includes/Sync/SyncService.php:76
+#: includes/Admin/SyncAdmin.php:530 includes/Sync/SyncService.php:77
 msgid "Provider credentials are incomplete."
 msgstr "Le credenziali del fornitore sono incomplete."
 
-#: includes/Admin/SyncAdmin.php:574 includes/Sync/SyncService.php:109
+#: includes/Admin/SyncAdmin.php:574 includes/Sync/SyncService.php:112
 msgid "No remote unit rows returned."
 msgstr "Nessuna riga di unità remota restituita."
 
 #. translators: %d: number of remote rows to process
-#: includes/Admin/SyncAdmin.php:579 includes/Sync/SyncService.php:114
+#: includes/Admin/SyncAdmin.php:579 includes/Sync/SyncService.php:117
 #, php-format
 msgid "%d remote unit row to process."
 msgid_plural "%d remote unit rows to process."
@@ -1437,52 +1475,52 @@ msgid "Gallery import finished for unit #%d."
 msgstr "Importazione galleria completata per l’unità #%d."
 
 #. translators: 1: current index, 2: total rows
-#: includes/Admin/SyncAdmin.php:749 includes/Sync/SyncService.php:136
+#: includes/Admin/SyncAdmin.php:749 includes/Sync/SyncService.php:139
 #, php-format
 msgid "Row %1$d/%2$d: skipped (no external ID)."
 msgstr "Riga %1$d/%2$d: saltata (nessun ID esterno)."
 
 #. translators: 1: current index, 2: total rows, 3: unit title
-#: includes/Admin/SyncAdmin.php:760 includes/Sync/SyncService.php:152
+#: includes/Admin/SyncAdmin.php:760 includes/Sync/SyncService.php:155
 #, php-format
 msgid "Processing %1$d/%2$d: %3$s"
 msgstr "Elaborazione %1$d/%2$d: %3$s"
 
 #. translators: %s: external id
-#: includes/Admin/SyncAdmin.php:775 includes/Sync/SyncService.php:169
+#: includes/Admin/SyncAdmin.php:775 includes/Sync/SyncService.php:172
 #, php-format
 msgid "Created unit for external ID %s."
 msgstr "Unità creata per l'ID esterno %s."
 
 #. translators: %s: external id
-#: includes/Admin/SyncAdmin.php:784 includes/Sync/SyncService.php:180
+#: includes/Admin/SyncAdmin.php:784 includes/Sync/SyncService.php:183
 #, php-format
 msgid "Updated unit for external ID %s."
 msgstr "Unità aggiornata per ID esterno %s."
 
 #. translators: %s: external id
-#: includes/Admin/SyncAdmin.php:793 includes/Sync/SyncService.php:191
+#: includes/Admin/SyncAdmin.php:793 includes/Sync/SyncService.php:194
 #, php-format
 msgid "Skipped external ID %s."
 msgstr "ID esterno %s saltato."
 
-#: includes/Admin/SyncAdmin.php:939
+#: includes/Admin/SyncAdmin.php:940
 msgid "Sync now"
 msgstr "Sincronizza ora"
 
-#: includes/Admin/SyncAdmin.php:945
+#: includes/Admin/SyncAdmin.php:946
 msgid "Rename gallery files"
 msgstr "Rinominare i file della galleria"
 
-#: includes/Admin/SyncAdmin.php:956
+#: includes/Admin/SyncAdmin.php:957
 msgid "Sync with provider"
 msgstr "Sincronizzazione con il fornitore"
 
-#: includes/Admin/SyncAdmin.php:1040
+#: includes/Admin/SyncAdmin.php:1041
 msgid "This action is disabled."
 msgstr "Questa azione è disabilitata."
 
-#: includes/Admin/SyncAdmin.php:1130
+#: includes/Admin/SyncAdmin.php:1131
 msgid ""
 "Booking engine discovery is available only while Kross is the active "
 "provider."
@@ -1490,7 +1528,7 @@ msgstr ""
 "La scoperta del Booking Engine è disponibile solo mentre Kross è il "
 "fornitore attivo."
 
-#: includes/Admin/SyncAdmin.php:1149
+#: includes/Admin/SyncAdmin.php:1150
 msgid ""
 "Complete Kross credentials on the Connection page before refreshing booking "
 "engines."
@@ -1499,7 +1537,7 @@ msgstr ""
 "Booking Engines."
 
 #. translators: %d number of distinct booking-engine slugs cached after refresh
-#: includes/Admin/SyncAdmin.php:1175
+#: includes/Admin/SyncAdmin.php:1176
 #, php-format
 msgid "Booking engines list refreshed. %d slug cached."
 msgid_plural "Booking engines list refreshed. %d slugs cached."
@@ -1509,21 +1547,21 @@ msgstr[1] ""
 "Elenco dei Booking Engines aggiornato. %d slug memorizzati nella cache."
 
 #. translators: %s error detail
-#: includes/Admin/SyncAdmin.php:1205
+#: includes/Admin/SyncAdmin.php:1206
 #, php-format
 msgid "Could not refresh booking engines: %s"
 msgstr "Impossibile aggiornare i Booking Engines: %s"
 
-#: includes/Admin/SyncAdmin.php:1226
+#: includes/Admin/SyncAdmin.php:1227
 msgid "Sync settings saved."
 msgstr "Impostazioni di sincronizzazione salvate."
 
-#: includes/Admin/SyncAdmin.php:1232
+#: includes/Admin/SyncAdmin.php:1233
 msgid "Sync lock was cleared."
 msgstr "Blocco sincronizzazione rimosso."
 
 #. translators: %s error detail
-#: includes/Admin/SyncAdmin.php:1283
+#: includes/Admin/SyncAdmin.php:1284
 #, php-format
 msgid "Sync failed unexpectedly: %s"
 msgstr "Sincronizzazione non riuscita in modo imprevisto: %s"
@@ -1539,16 +1577,16 @@ msgid "No availability for these dates."
 msgstr "Nessuna disponibilità per queste date."
 
 #: includes/Checkout/CheckoutCtaHtml.php:24
-#: includes/Providers/Kross/KrossProvider.php:458
-#: includes/Providers/Kross/KrossProvider.php:463
+#: includes/Providers/Kross/KrossProvider.php:473
+#: includes/Providers/Kross/KrossProvider.php:478
 msgid "Book now"
 msgstr "Prenota ora"
 
-#: includes/Core/Activator.php:24
+#: includes/Core/Activator.php:25
 msgid "Booking Engine Connector requires PHP 8.0 or newer."
 msgstr "Il connettore del Booking Engine richiede PHP 8.0 o successivo."
 
-#: includes/Core/Activator.php:25
+#: includes/Core/Activator.php:26
 msgid "Plugin activation error"
 msgstr "Errore di attivazione del plugin"
 
@@ -1817,24 +1855,24 @@ msgctxt "Screen reader text for items list"
 msgid "Units list"
 msgstr "Elenco delle unità"
 
-#: includes/PostTypes/UnitPostType.php:345
+#: includes/PostTypes/UnitPostType.php:426
 msgid "Booking engine — synced data"
 msgstr "Booking Engine: dati sincronizzati"
 
-#: includes/PostTypes/UnitPostType.php:372
-#: includes/PostTypes/UnitPostType.php:461
+#: includes/PostTypes/UnitPostType.php:453
+#: includes/PostTypes/UnitPostType.php:542
 msgid "External ID"
 msgstr "ID esterno"
 
-#: includes/PostTypes/UnitPostType.php:374
+#: includes/PostTypes/UnitPostType.php:455
 msgid "Last sync (stored)"
 msgstr "Ultima sincronizzazione (memorizzata)"
 
-#: includes/PostTypes/UnitPostType.php:375
+#: includes/PostTypes/UnitPostType.php:456
 msgid "Sync enabled"
 msgstr "Sincronizzazione abilitata"
 
-#: includes/PostTypes/UnitPostType.php:378
+#: includes/PostTypes/UnitPostType.php:459
 msgid ""
 "Read-only fields from the booking engine sync. Use the JSON below to see "
 "every key returned for this unit (e.g. for templates and shortcodes)."
@@ -1843,19 +1881,19 @@ msgstr ""
 "JSON riportato di seguito per visualizzare tutte le chiavi restituite per "
 "questa unità (ad esempio per modelli e codici brevi)."
 
-#: includes/PostTypes/UnitPostType.php:389
+#: includes/PostTypes/UnitPostType.php:470
 msgid "Yes"
 msgstr "SÌ"
 
-#: includes/PostTypes/UnitPostType.php:389
+#: includes/PostTypes/UnitPostType.php:470
 msgid "No"
 msgstr "NO"
 
-#: includes/PostTypes/UnitPostType.php:413
+#: includes/PostTypes/UnitPostType.php:494
 msgid "Remote row (JSON)"
 msgstr "Riga remota (JSON)"
 
-#: includes/PostTypes/UnitPostType.php:416
+#: includes/PostTypes/UnitPostType.php:497
 msgid ""
 "No payload stored yet. After the next successful sync, the full remote row "
 "will appear here."
@@ -1864,7 +1902,7 @@ msgstr ""
 "riuscita, la riga remota completa verrà visualizzata qui."
 
 #. translators: Kross API field indicating which booking engine slugs enable this unit.
-#: includes/PostTypes/UnitPostType.php:467
+#: includes/PostTypes/UnitPostType.php:548
 msgid "Kross BE enabled"
 msgstr "Kross BE abilitato"
 
@@ -1923,32 +1961,32 @@ msgstr "Richiesta token Kross non riuscita (%d)."
 msgid "Kross token response did not contain data.auth_token."
 msgstr "La risposta del token Kross non conteneva data.auth_token."
 
-#: includes/Providers/Kross/KrossProvider.php:178
+#: includes/Providers/Kross/KrossProvider.php:183
 msgid "Kross get-room-types request was not successful."
 msgstr "La richiesta dei tipi di stanza di Kross non è andata a buon fine."
 
-#: includes/Providers/Kross/KrossProvider.php:211
+#: includes/Providers/Kross/KrossProvider.php:226
 msgid "Kross get-room-types-categories request was not successful."
 msgstr ""
 "La richiesta delle categorie dei tipi di stanza di Kross non è andata a buon "
 "fine."
 
-#: includes/Providers/Kross/KrossProvider.php:330
+#: includes/Providers/Kross/KrossProvider.php:345
 msgid "Search context must include check-in and check-out dates."
 msgstr "Il contesto di ricerca deve includere le date di check-in e check-out."
 
-#: includes/Providers/Kross/KrossProvider.php:378
+#: includes/Providers/Kross/KrossProvider.php:393
 msgid "Kross calendar/book request was not successful."
 msgstr "La richiesta di calendario/libro di Kross non è andata a buon fine."
 
 #. translators: %d HTTP status
-#: includes/Providers/Kross/KrossProvider.php:550
+#: includes/Providers/Kross/KrossProvider.php:565
 #, php-format
 msgid "Kross API request failed (%d)."
 msgstr "Richiesta API Kross non riuscita (%d)."
 
 #. translators: %d Kross API error_code
-#: includes/Providers/Kross/KrossProvider.php:575
+#: includes/Providers/Kross/KrossProvider.php:590
 #, php-format
 msgid "(error_code %d)"
 msgstr "(codice_errore %d)"
@@ -2429,46 +2467,46 @@ msgstr "Terminato: creato %1$d, aggiornato %2$d, saltato %3$d."
 msgid "Sync finished."
 msgstr "Sincronizzazione terminata."
 
-#: includes/Sync/SyncService.php:31
+#: includes/Sync/SyncService.php:32
 msgid "Acquiring sync lock…"
 msgstr "Acquisizione del blocco sincronizzazione…"
 
-#: includes/Sync/SyncService.php:71
+#: includes/Sync/SyncService.php:72
 msgid "Lock acquired."
 msgstr "Blocco acquisito."
 
-#: includes/Sync/SyncService.php:88
+#: includes/Sync/SyncService.php:89
 msgid "Fetching remote units…"
 msgstr "Recupero unità remote…"
 
-#: includes/Sync/SyncService.php:231
+#: includes/Sync/SyncService.php:234 includes/Sync/SyncService.php:242
 msgid "Invalid unit post."
 msgstr "Posta unitaria non valida."
 
-#: includes/Sync/SyncService.php:239
+#: includes/Sync/SyncService.php:250
 msgid "Unit has no external ID."
 msgstr "L'unità non ha un ID esterno."
 
-#: includes/Sync/SyncService.php:250
+#: includes/Sync/SyncService.php:261
 msgid "Unit provider does not match the active provider."
 msgstr "Il fornitore dell'unità non corrisponde al fornitore attivo."
 
-#: includes/Sync/SyncService.php:270
+#: includes/Sync/SyncService.php:281
 msgid "Remote unit not found for this external ID."
 msgstr "Unità remota non trovata per questo ID esterno."
 
 #. translators: %s external id
-#: includes/Sync/SyncService.php:347 includes/Sync/SyncService.php:491
+#: includes/Sync/SyncService.php:358 includes/Sync/SyncService.php:502
 #, php-format
 msgid "Unit %s"
 msgstr "Unità %s"
 
-#: includes/Sync/SyncService.php:494
+#: includes/Sync/SyncService.php:505
 msgid "(unnamed)"
 msgstr "(senza nome)"
 
 #. translators: %s provider category external id
-#: includes/Sync/UnitCategorySync.php:96
+#: includes/Sync/UnitCategorySync.php:446
 #, php-format
 msgid "Category %s"
 msgstr "Categoria %s"
@@ -2520,69 +2558,69 @@ msgctxt "taxonomy singular name"
 msgid "Unit amenity"
 msgstr "Servizio unità"
 
-#: includes/Taxonomies/UnitCategoryTaxonomy.php:104
+#: includes/Taxonomies/UnitCategoryTaxonomy.php:105
 msgctxt "taxonomy general name"
 msgid "Unit categories"
 msgstr "Categorie unità"
 
-#: includes/Taxonomies/UnitCategoryTaxonomy.php:105
+#: includes/Taxonomies/UnitCategoryTaxonomy.php:106
 msgctxt "taxonomy singular name"
 msgid "Unit category"
 msgstr "Categoria unità"
 
-#: includes/Taxonomies/UnitCategoryTaxonomy.php:106
+#: includes/Taxonomies/UnitCategoryTaxonomy.php:107
 msgid "Search unit categories"
 msgstr "Cerca categorie unità"
 
-#: includes/Taxonomies/UnitCategoryTaxonomy.php:107
+#: includes/Taxonomies/UnitCategoryTaxonomy.php:108
 msgid "Popular unit categories"
 msgstr "Categorie unità più usate"
 
-#: includes/Taxonomies/UnitCategoryTaxonomy.php:108
+#: includes/Taxonomies/UnitCategoryTaxonomy.php:109
 msgid "All unit categories"
 msgstr "Tutte le categorie unità"
 
-#: includes/Taxonomies/UnitCategoryTaxonomy.php:109
+#: includes/Taxonomies/UnitCategoryTaxonomy.php:110
 msgid "Parent unit category"
 msgstr "Categoria unità padre"
 
-#: includes/Taxonomies/UnitCategoryTaxonomy.php:110
+#: includes/Taxonomies/UnitCategoryTaxonomy.php:111
 msgid "Parent unit category:"
 msgstr "Categoria unità padre:"
 
-#: includes/Taxonomies/UnitCategoryTaxonomy.php:111
+#: includes/Taxonomies/UnitCategoryTaxonomy.php:112
 msgid "Edit unit category"
 msgstr "Modifica categoria unità"
 
-#: includes/Taxonomies/UnitCategoryTaxonomy.php:112
+#: includes/Taxonomies/UnitCategoryTaxonomy.php:113
 msgid "Update unit category"
 msgstr "Aggiorna categoria unità"
 
-#: includes/Taxonomies/UnitCategoryTaxonomy.php:113
+#: includes/Taxonomies/UnitCategoryTaxonomy.php:114
 msgid "Add new unit category"
 msgstr "Aggiungi nuova categoria unità"
 
-#: includes/Taxonomies/UnitCategoryTaxonomy.php:114
+#: includes/Taxonomies/UnitCategoryTaxonomy.php:115
 msgid "New unit category name"
 msgstr "Nome della nuova categoria unità"
 
-#: includes/Taxonomies/UnitCategoryTaxonomy.php:115
+#: includes/Taxonomies/UnitCategoryTaxonomy.php:116
 msgid "Separate unit categories with commas"
 msgstr "Separa le categorie unità con le virgole"
 
-#: includes/Taxonomies/UnitCategoryTaxonomy.php:116
+#: includes/Taxonomies/UnitCategoryTaxonomy.php:117
 msgid "Add or remove unit categories"
 msgstr "Aggiungi o rimuovi categorie unità"
 
-#: includes/Taxonomies/UnitCategoryTaxonomy.php:117
+#: includes/Taxonomies/UnitCategoryTaxonomy.php:118
 msgid "Choose from the most used unit categories"
 msgstr "Scegli tra le categorie unità più usate"
 
-#: includes/Taxonomies/UnitCategoryTaxonomy.php:118
+#: includes/Taxonomies/UnitCategoryTaxonomy.php:119
 msgid "No unit categories found."
 msgstr "Nessuna categoria unità trovata."
 
-#: includes/Taxonomies/UnitCategoryTaxonomy.php:120
+#: includes/Taxonomies/UnitCategoryTaxonomy.php:121
 msgid "← Back to unit categories"
 msgstr "← Torna alle categorie unità"
 
@@ -2704,3 +2742,6 @@ msgstr "Galleria"
 #: includes/Units/CoreUnitMetaKeys.php:105
 msgid "CIN (National Identification Code)"
 msgstr "CIN (Codice Identificativo Nazionale)"
+
+#~ msgid "Used when “Link only” is selected."
+#~ msgstr "Utilizzato quando è selezionato “Solo collegamento”."

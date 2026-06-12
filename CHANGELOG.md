@@ -1,5 +1,15 @@
 # Changelog
 
+## 0.2.3 — 2026-06-12
+
+- **Multilingual (WPML / Polylang) — translation sync**: New **`MultilingualBridge`** adapter plus **`UnitTranslationSync`** and **`CategoryTranslationSync`**. After each unit or category sync, linked translation posts and terms are created or updated from provider locale maps (title, content, localized names). Canonical posts stay on the default language; translation metadata uses **`bec_translation_*`** meta. Admin toggle on **Booking Engine → Frontend** (`bec_sync_translations_enabled`, default on when multilingual is active). Filters: **`bec_sync_translations_enabled`**, **`bec_unit_translation_strings`**, **`bec_category_translation_strings`**, **`bec_unit_translation_shared_meta_keys`**. Trash/delete cascades to linked translations.
+- **Kross provider — translations**: **`KrossUnitTranslations`** and **`KrossCategoryTranslations`** supply locale strings from normalized room-type and category rows. **`UnitTranslationSync::buildTranslatedUnitPostSlug()`** builds language-specific unit slugs for translation posts.
+- **Units — permalinks (`UnitPermalinkRouter`)**: Directory language-prefix URLs for WPML/Polylang — duplicate rewrite rules per active language, **`lang`** query var on prefixed routes, localized term archive links, rewrite flush when languages change.
+- **Unit categories (`UnitCategorySync`)**: Registry sync deduplicates provider category descriptors by external ID before upsert; **`bec_after_category_sync`** hook drives category translation sync. Term translation metadata and language assignment aligned with unit flow.
+- **Fallback (`FallbackSettings`, `FallbackRenderer`, `FallbackPage`)**: Sanitize and escape fallback link targets (relative paths, query strings, `mailto:`, `tel:`, `http(s):`); reject unsafe values on save and at render time. Updated link URL placeholder in admin.
+- **WPML**: Shipped **`wpml-config.xml`** — translate **`bec_unit`** / **`bec_unit_category`** / **`bec_unit_amenity`**; copy vs translate rules for sync and translation meta; translate **`bec_core_name`** / **`bec_core_description`** on units.
+- **i18n**: Regenerated `languages/booking-engine-connector.pot`, merged `booking-engine-connector-it_IT.po`, recompiled `booking-engine-connector-it_IT.mo`.
+
 ## 0.2.2 — 2026-06-01
 
 - **Shortcodes (`[bec_available_units_count]`)**: Count respects the current listing query (e.g. unit category taxonomy archives) instead of always returning the site-wide unit total. Optional **`category`** attribute (term slug) scopes the count to a specific unit category on any page.
