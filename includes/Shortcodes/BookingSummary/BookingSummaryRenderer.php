@@ -723,7 +723,7 @@ final class BookingSummaryRenderer
 		if ( $url === '' ) {
 			$url = '#';
 		}
-		return '<a class="bec-booking-summary__enquiry" href="' . \esc_url( $url ) . '">' . \esc_html( $enquiryLabel ) . '</a>';
+		return '<a class="bec-booking-summary__enquiry" href="' . FallbackSettings::escapeLinkHref( $url ) . '">' . \esc_html( $enquiryLabel ) . '</a>';
 	}
 
 	private static function buildRateSelectUrl( int $postId, SearchContext $ctx, string $rateId ): string {

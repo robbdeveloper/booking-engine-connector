@@ -32,7 +32,7 @@ final class FallbackRenderer
 		echo '<aside class="bec-fallback" role="complementary">';
 
 		if ($mode === 'link' && $url !== '') {
-			echo '<a class="bec-fallback__link" href="' . \esc_url($url) . '">' . \esc_html($text) . '</a>';
+			echo '<a class="bec-fallback__link" href="' . FallbackSettings::escapeLinkHref($url) . '">' . \esc_html($text) . '</a>';
 		} elseif ($inline !== '') {
 			echo '<div class="bec-fallback__inner">';
 			echo \do_shortcode(\wp_kses_post($inline));

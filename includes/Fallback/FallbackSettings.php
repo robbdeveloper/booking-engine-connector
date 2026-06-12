@@ -29,4 +29,29 @@ final class FallbackSettings
 
 	/** `get` or `post` — how the browser reaches the Kross booking engine entry URL. */
 	public const OPTION_CHECKOUT_HTTP_METHOD = 'bec_kross_checkout_http_method';
+
+	public static function sanitizeLinkTarget(string $raw): string
+	{
+		return \trim(\sanitize_text_field($raw));
+	}
+
+	public static function escapeLinkHref(string $target): string
+	{
+		$target = \trim($target);
+		if ($target === '') {
+			return '';
+		}
+
+		if (
+			$target[0] !== '/'
+			&& $target[0] !== '?'
+			&& $target[0] !== '#'
+			&& ! \preg_match('#^[a-z][a-z0-9+.-]*:#i', $target)
+			&& \str_contains($target, '=')
+		) {
+			$target = '?' . \ltrim($target, '?&');
+		}
+
+		return \esc_url($target);
+	}
 }

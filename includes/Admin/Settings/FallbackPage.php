@@ -117,8 +117,11 @@ final class FallbackPage
 		echo '</td></tr>';
 
 		echo '<tr><th scope="row"><label for="bec_fallback_link_url">' . \esc_html__('Fallback link URL', 'booking-engine-connector') . '</label></th><td>';
-		echo '<input type="url" class="large-text" name="bec_fallback_link_url" id="bec_fallback_link_url" value="' . \esc_attr($linkUrl) . '" />';
-		echo '<p class="description">' . \esc_html__('Used when “Link only” is selected.', 'booking-engine-connector') . '</p>';
+		echo '<input type="text" class="large-text" name="bec_fallback_link_url" id="bec_fallback_link_url" value="' . \esc_attr($linkUrl) . '" placeholder="/contact or ?subject=enquiry" />';
+		echo '<p class="description">' . \esc_html__(
+			'Used when “Link only” is selected. Enter a full URL, a site path (e.g. /contact), or query parameters (e.g. ?subject=enquiry).',
+			'booking-engine-connector'
+		) . '</p>';
 		echo '</td></tr>';
 
 		echo '<tr><th scope="row"><label for="bec_fallback_link_text">' . \esc_html__('Fallback link text', 'booking-engine-connector') . '</label></th><td>';
@@ -202,7 +205,9 @@ final class FallbackPage
 		}
 		\update_option(FallbackSettings::OPTION_MODE, $mode, false);
 
-		$linkUrl = isset($_POST['bec_fallback_link_url']) ? \esc_url_raw(\wp_unslash((string) $_POST['bec_fallback_link_url'])) : '';
+		$linkUrl = isset($_POST['bec_fallback_link_url'])
+			? FallbackSettings::sanitizeLinkTarget(\wp_unslash((string) $_POST['bec_fallback_link_url']))
+			: '';
 		\update_option(FallbackSettings::OPTION_LINK_URL, $linkUrl, false);
 
 		$linkText = isset($_POST['bec_fallback_link_text']) ? \sanitize_text_field(\wp_unslash((string) $_POST['bec_fallback_link_text'])) : '';
