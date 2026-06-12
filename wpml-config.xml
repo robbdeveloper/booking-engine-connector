@@ -38,4 +38,14 @@
 		<custom-field action="copy">bec_sync_gallery_image_order_hash</custom-field>
 		<custom-field action="copy">_thumbnail_id</custom-field>
 	</custom-fields>
+	<custom-term-fields>
+		<custom-term-field action="copy">bec_external_id</custom-term-field>
+		<custom-term-field action="copy">bec_provider_slug</custom-term-field>
+		<custom-term-field action="copy">bec_category_names</custom-term-field>
+		<custom-term-field action="copy">bec_category_normalized</custom-term-field>
+		<custom-term-field action="copy">bec_last_sync_at</custom-term-field>
+		<custom-term-field action="copy">bec_translation_of_term</custom-term-field>
+		<custom-term-field action="copy">bec_translation_term_lang</custom-term-field>
+		<custom-term-field action="copy">bec_translation_term_ids</custom-term-field>
+	</custom-term-fields>
 </wpml-config>

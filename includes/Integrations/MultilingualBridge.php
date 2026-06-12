@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace BookingEngineConnector\Integrations;
 
 use BookingEngineConnector\PostTypes\UnitPostType;
+use BookingEngineConnector\Taxonomies\UnitCategoryTaxonomy;
 
 /**
  * Thin WPML / Polylang adapter for post translation linking and URL localization.
@@ -18,6 +19,12 @@ final class MultilingualBridge
 	public const META_TRANSLATION_LANG = 'bec_translation_lang';
 
 	public const META_TRANSLATION_POST_IDS = 'bec_translation_post_ids';
+
+	public const META_TRANSLATION_OF_TERM = 'bec_translation_of_term';
+
+	public const META_TRANSLATION_TERM_LANG = 'bec_translation_term_lang';
+
+	public const META_TRANSLATION_TERM_IDS = 'bec_translation_term_ids';
 
 	public static function register(): void
 	{
@@ -129,7 +136,7 @@ final class MultilingualBridge
 				null,
 				[
 					'element_id'   => $termId,
-					'element_type' => 'tax_bec_unit_category',
+					'element_type' => self::wpmlTermElementType(),
 				]
 			);
 
@@ -143,6 +150,93 @@ final class MultilingualBridge
 		}
 
 		return '';
+	}
+
+	public static function setTermLanguage(int $termId, string $lang): void
+	{
+		if ($termId < 1 || $lang === '') {
+			return;
+		}
+
+		if (\defined('ICL_SITEPRESS_VERSION')) {
+			\do_action(
+				'wpml_set_element_language_details',
+				[
+					'element_id'           => $termId,
+					'element_type'         => self::wpmlTermElementType(),
+					'language_code'        => $lang,
+					'source_language_code' => null,
+				]
+			);
+
+			return;
+		}
+
+		if (\function_exists('pll_set_term_language')) {
+			\pll_set_term_language($termId, $lang);
+		}
+	}
+
+	public static function linkTermTranslation(int $sourceId, string $sourceLang, int $translatedId, string $lang): void
+	{
+		if ($sourceId < 1 || $translatedId < 1 || $lang === '') {
+			return;
+		}
+
+		if (\defined('ICL_SITEPRESS_VERSION')) {
+			$trid = \apply_filters('wpml_element_trid', null, $sourceId, self::wpmlTermElementType());
+			$trid = \is_numeric($trid) ? (int) $trid : 0;
+
+			\do_action(
+				'wpml_set_element_language_details',
+				[
+					'element_id'           => $translatedId,
+					'element_type'         => self::wpmlTermElementType(),
+					'trid'                 => $trid > 0 ? $trid : null,
+					'language_code'        => $lang,
+					'source_language_code' => $sourceLang,
+				]
+			);
+
+			return;
+		}
+
+		if (\function_exists('pll_save_term_translations') && \function_exists('pll_get_term_translations')) {
+			$map = \pll_get_term_translations($sourceId);
+			if (! \is_array($map)) {
+				$map = [];
+			}
+			$map[ $sourceLang ] = $sourceId;
+			$map[ $lang ]       = $translatedId;
+			\pll_save_term_translations($map);
+		}
+	}
+
+	public static function getTranslatedTermId(int $sourceId, string $lang): ?int
+	{
+		if ($sourceId < 1 || $lang === '') {
+			return null;
+		}
+
+		if (\defined('ICL_SITEPRESS_VERSION')) {
+			$translated = \apply_filters(
+				'wpml_object_id',
+				$sourceId,
+				UnitCategoryTaxonomy::getSlug(),
+				false,
+				$lang
+			);
+
+			return \is_numeric($translated) && (int) $translated > 0 ? (int) $translated : null;
+		}
+
+		if (\function_exists('pll_get_term')) {
+			$translated = \pll_get_term($sourceId, $lang);
+
+			return \is_numeric($translated) && (int) $translated > 0 ? (int) $translated : null;
+		}
+
+		return null;
 	}
 
 	public static function setPostLanguage(int $postId, string $lang): void
@@ -506,6 +600,19 @@ final class MultilingualBridge
 		];
 	}
 
+	/**
+	 * Term meta query branch: only canonical (non-translation) synced category terms.
+	 *
+	 * @return array<string, mixed>
+	 */
+	public static function canonicalOnlyTermMetaQueryBranch(): array
+	{
+		return [
+			'key'     => self::META_TRANSLATION_OF_TERM,
+			'compare' => 'NOT EXISTS',
+		];
+	}
+
 	public static function resolveCanonicalPostId(int $postId): int
 	{
 		if ($postId < 1) {
@@ -525,6 +632,11 @@ final class MultilingualBridge
 		}
 
 		return '/' . \trim($path, '/') . '/';
+	}
+
+	public static function wpmlTermElementType(): string
+	{
+		return 'tax_' . UnitCategoryTaxonomy::getSlug();
 	}
 
 	private static function wpmlElementType(): string

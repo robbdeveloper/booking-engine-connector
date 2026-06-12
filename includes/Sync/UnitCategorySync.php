@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace BookingEngineConnector\Sync;
 
+use BookingEngineConnector\Integrations\MultilingualBridge;
 use BookingEngineConnector\Taxonomies\UnitCategoryTaxonomy;
 
 /**
@@ -40,7 +41,7 @@ final class UnitCategorySync
 			return;
 		}
 
-		$termId = self::findTermIdForProviderCategory($providerSlug, $externalId);
+		$termId = self::findTermIdForProviderCategory($providerSlug, $externalId, $descriptor);
 
 		if ($termId === null) {
 			$termId = self::createTermForDescriptor($descriptor, $providerSlug, $externalId);
@@ -54,16 +55,43 @@ final class UnitCategorySync
 		wp_set_object_terms($postId, [$termId], UnitCategoryTaxonomy::getSlug(), false);
 	}
 
-	private static function findTermIdForProviderCategory(string $providerSlug, string $externalId): ?int
+	/**
+	 * @param array<string, mixed>|null $descriptor
+	 */
+	private static function findTermIdForProviderCategory(string $providerSlug, string $externalId, ?array $descriptor = null): ?int
+	{
+		return self::findCanonicalTermIdForProviderCategory($providerSlug, $externalId, $descriptor);
+	}
+
+	/**
+	 * @param array<string, mixed>|null $descriptor
+	 */
+	public static function findCanonicalTermIdForProviderCategory(string $providerSlug, string $externalId, ?array $descriptor = null): ?int
+	{
+		$byMeta = self::findTermIdsByProviderMeta($providerSlug, $externalId);
+		if ($byMeta !== []) {
+			return self::pickCanonicalTermId($byMeta);
+		}
+
+		if ($descriptor !== null) {
+			return self::findAdoptableExistingTerm($descriptor, $externalId);
+		}
+
+		return null;
+	}
+
+	/**
+	 * @return list<int>
+	 */
+	private static function findTermIdsByProviderMeta(string $providerSlug, string $externalId): array
 	{
 		$terms = get_terms(
 			[
-				'taxonomy'               => UnitCategoryTaxonomy::getSlug(),
-				'hide_empty'             => false,
-				'number'                   => 1,
-				'fields'                   => 'ids',
-				'suppress_filters'          => false,
-				'meta_query'               => [
+				'taxonomy'         => UnitCategoryTaxonomy::getSlug(),
+				'hide_empty'       => false,
+				'fields'           => 'ids',
+				'suppress_filters' => true,
+				'meta_query'       => [
 					'relation' => 'AND',
 					[
 						'key'   => 'bec_provider_slug',
@@ -77,11 +105,159 @@ final class UnitCategorySync
 			]
 		);
 
-		if (is_wp_error($terms) || ! is_array($terms) || $terms === []) {
+		if (is_wp_error($terms) || ! is_array($terms)) {
+			return [];
+		}
+
+		$ids = [];
+		foreach ($terms as $termId) {
+			$termId = (int) $termId;
+			if ($termId > 0) {
+				$ids[] = $termId;
+			}
+		}
+
+		return $ids;
+	}
+
+	/**
+	 * @param list<int> $termIds
+	 */
+	private static function pickCanonicalTermId(array $termIds): ?int
+	{
+		$canonical = [];
+		foreach ($termIds as $termId) {
+			if (! self::isTranslationTerm($termId)) {
+				$canonical[] = $termId;
+			}
+		}
+
+		if ($canonical === []) {
 			return null;
 		}
 
-		return (int) $terms[0];
+		sort($canonical, SORT_NUMERIC);
+
+		return $canonical[0];
+	}
+
+	public static function isTranslationTerm(int $termId): bool
+	{
+		if ($termId < 1) {
+			return false;
+		}
+
+		return (int) get_term_meta($termId, MultilingualBridge::META_TRANSLATION_OF_TERM, true) > 0;
+	}
+
+	/**
+	 * Reuse a pre-existing taxonomy term (manual or legacy) that lacks provider meta.
+	 *
+	 * @param array<string, mixed> $descriptor
+	 */
+	private static function findAdoptableExistingTerm(array $descriptor, string $externalId): ?int
+	{
+		foreach (self::slugCandidatesForDescriptor($descriptor, $externalId) as $slug) {
+			$term = get_term_by('slug', $slug, UnitCategoryTaxonomy::getSlug());
+			if (! $term instanceof \WP_Term) {
+				continue;
+			}
+
+			$termId = (int) $term->term_id;
+			if (self::canAdoptExistingTerm($termId, $externalId)) {
+				return $termId;
+			}
+		}
+
+		foreach (self::nameCandidatesForDescriptor($descriptor) as $name) {
+			$terms = get_terms(
+				[
+					'taxonomy'         => UnitCategoryTaxonomy::getSlug(),
+					'hide_empty'       => false,
+					'fields'           => 'ids',
+					'name'             => $name,
+					'suppress_filters' => true,
+				]
+			);
+
+			if (is_wp_error($terms) || ! is_array($terms)) {
+				continue;
+			}
+
+			foreach ($terms as $termId) {
+				$termId = (int) $termId;
+				if ($termId > 0 && self::canAdoptExistingTerm($termId, $externalId)) {
+					return $termId;
+				}
+			}
+		}
+
+		return null;
+	}
+
+	private static function canAdoptExistingTerm(int $termId, string $externalId): bool
+	{
+		if (self::isTranslationTerm($termId)) {
+			return false;
+		}
+
+		$existingExternalId = (string) get_term_meta($termId, 'bec_external_id', true);
+		if ($existingExternalId !== '' && $existingExternalId !== $externalId) {
+			return false;
+		}
+
+		return true;
+	}
+
+	/**
+	 * @param array<string, mixed> $descriptor
+	 *
+	 * @return list<string>
+	 */
+	private static function slugCandidatesForDescriptor(array $descriptor, string $externalId): array
+	{
+		$slugs = [self::buildSlugForDescriptor($descriptor, $externalId)];
+
+		foreach (self::nameCandidatesForDescriptor($descriptor) as $name) {
+			$slug = sanitize_title($name);
+			if ($slug !== '') {
+				$slugs[] = $slug;
+			}
+		}
+
+		return array_values(array_unique($slugs));
+	}
+
+	/**
+	 * @param array<string, mixed> $descriptor
+	 *
+	 * @return list<string>
+	 */
+	private static function nameCandidatesForDescriptor(array $descriptor): array
+	{
+		$names = [];
+
+		$defaultName = UnitCategoryTaxonomy::resolveDefaultDisplayName($descriptor);
+		if ($defaultName !== '') {
+			$names[] = $defaultName;
+		}
+
+		$rawName = (string) ($descriptor['name'] ?? '');
+		if ($rawName !== '') {
+			$names[] = $rawName;
+		}
+
+		if (isset($descriptor['names']) && is_array($descriptor['names'])) {
+			/** @var array<mixed, mixed> $namesRaw */
+			$namesRaw = $descriptor['names'];
+			foreach (UnitCategoryTaxonomy::coerceDescriptorNamesToMap($namesRaw) as $label) {
+				if ($label !== '') {
+					$names[] = $label;
+				}
+			}
+		}
+
+		return array_values(array_unique($names));
 	}
 
 	/**
@@ -109,7 +285,15 @@ final class UnitCategorySync
 		);
 
 		if (is_wp_error($result)) {
-			return null;
+			$adopted = self::findAdoptableExistingTerm($descriptor, $externalId);
+			if ($adopted === null) {
+				return null;
+			}
+
+			self::persistTermMeta($adopted, $descriptor, $providerSlug, $externalId);
+			self::ensureCanonicalTermLanguage($adopted);
+
+			return $adopted;
 		}
 
 		$termId = (int) ($result['term_id'] ?? 0);
@@ -118,6 +302,7 @@ final class UnitCategorySync
 		}
 
 		self::persistTermMeta($termId, $descriptor, $providerSlug, $externalId);
+		self::ensureCanonicalTermLanguage($termId);
 
 		return $termId;
 	}
@@ -134,11 +319,30 @@ final class UnitCategorySync
 				UnitCategoryTaxonomy::getSlug(),
 				[
 					'name' => $displayName,
+					'slug' => self::buildSlugForDescriptor($descriptor, $externalId),
 				]
 			);
 		}
 
 		self::persistTermMeta($termId, $descriptor, $providerSlug, $externalId);
+		self::ensureCanonicalTermLanguage($termId);
+	}
+
+	private static function ensureCanonicalTermLanguage(int $termId): void
+	{
+		if (! MultilingualBridge::isFeatureEnabled()) {
+			return;
+		}
+
+		$defaultLang = MultilingualBridge::getDefaultLanguage();
+		if ($defaultLang === '') {
+			return;
+		}
+
+		$currentLang = MultilingualBridge::getTermLanguage($termId);
+		if ($currentLang === '' || $currentLang !== $defaultLang) {
+			MultilingualBridge::setTermLanguage($termId, $defaultLang);
+		}
 	}
 
 	/**
@@ -168,19 +372,30 @@ final class UnitCategorySync
 	/**
 	 * @param array<string, mixed> $descriptor
 	 */
-	private static function buildUniqueSlug(array $descriptor, string $externalId): string
+	public static function buildSlugForDescriptor(array $descriptor, string $externalId, ?string $displayName = null): string
 	{
-		$name        = UnitCategoryTaxonomy::resolveDefaultDisplayName($descriptor);
-		$base        = $name !== '' ? sanitize_title($name) : '';
-		if ($base === '') {
-			$base = 'category';
+		unset($externalId);
+
+		if ($displayName === null) {
+			$displayName = UnitCategoryTaxonomy::resolveDefaultDisplayName($descriptor);
+		}
+		if ($displayName === '' && isset($descriptor['name']) && is_string($descriptor['name'])) {
+			$displayName = trim($descriptor['name']);
 		}
 
-		$candidate = sanitize_title($base . '-' . $externalId);
+		$candidate = $displayName !== '' ? sanitize_title($displayName) : '';
 		if ($candidate === '') {
-			$candidate = 'category-' . sanitize_title($externalId);
+			$candidate = 'category';
 		}
 
 		return $candidate;
+	}
+
+	/**
+	 * @param array<string, mixed> $descriptor
+	 */
+	private static function buildUniqueSlug(array $descriptor, string $externalId): string
+	{
+		return self::buildSlugForDescriptor($descriptor, $externalId);
 	}
 }

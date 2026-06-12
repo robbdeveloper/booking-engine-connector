@@ -250,10 +250,35 @@ final class UnitTranslationSync
 
 	private static function copyTaxonomies(int $canonicalId, int $translationId): void
 	{
+		$translationLang = MultilingualBridge::getPostLanguage($translationId);
+		if ($translationLang === '') {
+			$translationLang = (string) \get_post_meta($translationId, MultilingualBridge::META_TRANSLATION_LANG, true);
+		}
+
 		if (UnitCategoryTaxonomy::isEnabled()) {
 			$terms = \wp_get_object_terms($canonicalId, UnitCategoryTaxonomy::getSlug(), ['fields' => 'ids']);
 			if (\is_array($terms) && ! \is_wp_error($terms)) {
-				\wp_set_object_terms($translationId, $terms, UnitCategoryTaxonomy::getSlug(), false);
+				$mappedTerms = [];
+				foreach ($terms as $termId) {
+					$termId = (int) $termId;
+					if ($termId < 1) {
+						continue;
+					}
+
+					$assignedId = $termId;
+					if ($translationLang !== '' && MultilingualBridge::isFeatureEnabled()) {
+						$translatedTermId = MultilingualBridge::getTranslatedTermId($termId, $translationLang);
+						if ($translatedTermId !== null) {
+							$assignedId = $translatedTermId;
+						}
+					}
+
+					$mappedTerms[] = $assignedId;
+				}
+
+				if ($mappedTerms !== []) {
+					\wp_set_object_terms($translationId, $mappedTerms, UnitCategoryTaxonomy::getSlug(), false);
+				}
 			}
 		}
 

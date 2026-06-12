@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace BookingEngineConnector\Taxonomies;
 
 use BookingEngineConnector\Integrations\Multilingual;
+use BookingEngineConnector\Integrations\MultilingualBridge;
 use BookingEngineConnector\PostTypes\UnitPostType;
 
 /**
@@ -143,6 +144,13 @@ final class UnitCategoryTaxonomy
 			return $term_name;
 		}
 
+		if (MultilingualBridge::isFeatureEnabled()) {
+			$syncedName = trim($term->name);
+			if ($syncedName !== '') {
+				return $syncedName;
+			}
+		}
+
 		$label = self::resolveLocalizedLabelForTerm($term);
 
 		return $label !== '' ? $label : $term_name;
@@ -218,6 +226,45 @@ final class UnitCategoryTaxonomy
 				'single'            => true,
 				'show_in_rest'      => false,
 				'sanitize_callback' => 'sanitize_text_field',
+				'auth_callback'     => $auth,
+				'default'           => '',
+			]
+		);
+
+		register_term_meta(
+			self::TAXONOMY,
+			MultilingualBridge::META_TRANSLATION_OF_TERM,
+			[
+				'type'              => 'integer',
+				'single'            => true,
+				'show_in_rest'      => false,
+				'sanitize_callback' => 'absint',
+				'auth_callback'     => $auth,
+				'default'           => 0,
+			]
+		);
+
+		register_term_meta(
+			self::TAXONOMY,
+			MultilingualBridge::META_TRANSLATION_TERM_LANG,
+			[
+				'type'              => 'string',
+				'single'            => true,
+				'show_in_rest'      => false,
+				'sanitize_callback' => 'sanitize_text_field',
+				'auth_callback'     => $auth,
+				'default'           => '',
+			]
+		);
+
+		register_term_meta(
+			self::TAXONOMY,
+			MultilingualBridge::META_TRANSLATION_TERM_IDS,
+			[
+				'type'              => 'string',
+				'single'            => true,
+				'show_in_rest'      => false,
+				'sanitize_callback' => [self::class, 'sanitizeJsonMeta'],
 				'auth_callback'     => $auth,
 				'default'           => '',
 			]
@@ -384,6 +431,17 @@ final class UnitCategoryTaxonomy
 		if (is_array($namesRaw)) {
 			/** @var array<mixed, mixed> $namesRaw */
 			$names = self::coerceDescriptorNamesToMap($namesRaw);
+		}
+
+		if (MultilingualBridge::isActive() && $names !== []) {
+			$defaultLang = MultilingualBridge::getDefaultLanguage();
+			if ($defaultLang !== '') {
+				$providerKey = MultilingualBridge::localeToProviderKey($defaultLang);
+				$fromDefault = self::resolveLocalizedLabelFromNames($names, $providerKey);
+				if ($fromDefault !== '') {
+					return $fromDefault;
+				}
+			}
 		}
 
 		$fromNames = self::resolveLocalizedLabelFromNames($names);
