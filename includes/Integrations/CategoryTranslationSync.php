@@ -67,6 +67,16 @@ final class CategoryTranslationSync
 	 */
 	public static function onAfterCategorySync(int $canonicalTermId, string $providerSlug, array $descriptor): void
 	{
+		self::syncTranslationsForCanonicalTerm($canonicalTermId, $providerSlug, $descriptor);
+	}
+
+	/**
+	 * Idempotent: ensure linked translation terms exist for a canonical category term.
+	 *
+	 * @param array<string, mixed> $descriptor
+	 */
+	public static function syncTranslationsForCanonicalTerm(int $canonicalTermId, string $providerSlug, array $descriptor): void
+	{
 		if (! MultilingualBridge::isFeatureEnabled()) {
 			return;
 		}
@@ -109,7 +119,7 @@ final class CategoryTranslationSync
 
 			$name = isset($strings[ $lang ]) ? trim((string) $strings[ $lang ]) : '';
 			if ($name === '') {
-				$existingId = MultilingualBridge::getTranslatedTermId($canonicalTermId, $lang);
+				$existingId = MultilingualBridge::resolveTranslatedCategoryTermId($canonicalTermId, $lang);
 				if ($existingId !== null) {
 					$translationMap[ $lang ] = $existingId;
 					self::stripProviderLookupMeta($existingId);
@@ -149,11 +159,12 @@ final class CategoryTranslationSync
 		$dedupeKey = $canonicalTermId . '|' . $lang;
 		if (isset(self::$syncedTranslationKeys[ $dedupeKey ])) {
 			$existingId = self::findExistingTranslationTermId($canonicalTermId, $lang, $name, $descriptor, $externalId);
-
-			return $existingId ?? 0;
+			if ($existingId !== null && $existingId > 0) {
+				return $existingId;
+			}
+		} else {
+			$existingId = self::findExistingTranslationTermId($canonicalTermId, $lang, $name, $descriptor, $externalId);
 		}
-
-		$existingId = self::findExistingTranslationTermId($canonicalTermId, $lang, $name, $descriptor, $externalId);
 
 		$slug     = UnitCategorySync::buildSlugForDescriptor($descriptor, $externalId, $name);
 		$taxonomy = UnitCategoryTaxonomy::getSlug();
@@ -225,7 +236,7 @@ final class CategoryTranslationSync
 		array $descriptor,
 		string $externalId
 	): ?int {
-		$existingId = MultilingualBridge::getTranslatedTermId($canonicalTermId, $lang);
+		$existingId = MultilingualBridge::resolveTranslatedCategoryTermId($canonicalTermId, $lang);
 		if ($existingId !== null && $existingId > 0 && $existingId !== $canonicalTermId) {
 			return $existingId;
 		}

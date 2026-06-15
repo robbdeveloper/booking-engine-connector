@@ -4,7 +4,7 @@ Tags: booking, kross, hospitality, availability
 Requires at least: 6.4
 Tested up to: 6.7
 Requires PHP: 8.0
-Stable tag: 0.2.4
+Stable tag: 0.2.5
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
@@ -51,6 +51,11 @@ Use **`[bec_available_units_count]`** anywhere on the results page (above an Ele
 Examples: **`[bec_available_units_count]`** (number only), **`[bec_available_units_count format="text"]`** (default “%d available units” copy), **`[bec_available_units_count hide_without_search="1"]`** (empty until search params are complete), **`[bec_available_units_count zero_text="No units found"]`**, **`[bec_available_units_count category="villas"]`** (count only units in that unit category term). Custom text: **`singular`** / **`plural`** with **`%d`**, optional **`class`** for styling.
 
 == Changelog ==
+
+= 0.2.5 =
+* **Multilingual (WPML / Polylang) — unit categories**: Translated unit posts now receive translated `bec_unit_category` terms instead of default-language canonical terms. Per-unit category translation sync runs before unit translation assignment; linked translation taxonomies refresh on every canonical unit sync (including existing translations).
+* **Multilingual bridge (`MultilingualBridge`)**: `resolveTranslatedCategoryTermId()` with plugin meta fallbacks and language-variant lookup; `setObjectTermsPreservingIds()` / `getObjectTermIdsRaw()` disable WPML term-ID adjustment during taxonomy assignment.
+* **Category translation sync (`CategoryTranslationSync`)**: Public `syncTranslationsForCanonicalTerm()` helper; dedupe no longer skips creating missing translation terms.
 
 = 0.2.4 =
 * **Unit categories (`UnitCategorySync`)**: Harden canonical category lookup so translation terms are never treated as provider canonicals; repair pass merges duplicate canonical terms per provider/external ID (reassigns units, repoints translation links, preserves synced meta). Adoption restricted to default-language terms. Category registry priming now runs during single-unit sync as well as full sync.

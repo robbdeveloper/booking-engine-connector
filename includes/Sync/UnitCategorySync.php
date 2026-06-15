@@ -154,6 +154,8 @@ final class UnitCategorySync
 		}
 
 		wp_set_object_terms($postId, [$termId], UnitCategoryTaxonomy::getSlug(), false);
+
+		CategoryTranslationSync::syncTranslationsForCanonicalTerm($termId, $providerSlug, $descriptor);
 	}
 
 	/**

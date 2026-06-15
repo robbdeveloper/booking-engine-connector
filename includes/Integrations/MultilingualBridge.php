@@ -28,7 +28,130 @@ final class MultilingualBridge
 
 	public static function register(): void
 	{
-		// Intentionally empty — stateless helpers; {@see UnitTranslationSync} owns hooks.
+		if (\defined('ICL_SITEPRESS_VERSION')) {
+			\add_filter('wpml_disable_term_adjust_id', [self::class, 'filterDisableWpmlTermAdjustId'], 100);
+		}
+	}
+
+	/** @var int */
+	private static int $preserveTermIdDepth = 0;
+
+	/**
+	 * Run a callback while WPML must not rewrite taxonomy term IDs to another language.
+	 */
+	public static function preserveTermIds(callable $callback): void
+	{
+		++self::$preserveTermIdDepth;
+
+		try {
+			$callback();
+		} finally {
+			--self::$preserveTermIdDepth;
+		}
+	}
+
+	/**
+	 * @param mixed $disable
+	 *
+	 * @return mixed
+	 */
+	public static function filterDisableWpmlTermAdjustId($disable)
+	{
+		if (self::$preserveTermIdDepth > 0) {
+			return true;
+		}
+
+		return $disable;
+	}
+
+	/**
+	 * @return list<int>
+	 */
+	public static function getObjectTermIdsRaw(int $objectId, string $taxonomy): array
+	{
+		if ($objectId < 1 || $taxonomy === '') {
+			return [];
+		}
+
+		$terms = [];
+
+		self::preserveTermIds(static function () use ($objectId, $taxonomy, &$terms): void {
+			$terms = \wp_get_object_terms(
+				$objectId,
+				$taxonomy,
+				[
+					'fields'           => 'ids',
+					'suppress_filters' => true,
+				]
+			);
+		});
+
+		if (! \is_array($terms) || \is_wp_error($terms)) {
+			return [];
+		}
+
+		$ids = [];
+		foreach ($terms as $termId) {
+			$termId = (int) $termId;
+			if ($termId > 0) {
+				$ids[] = $termId;
+			}
+		}
+
+		return $ids;
+	}
+
+	/**
+	 * Assign taxonomy terms without WPML rewriting IDs to the default language.
+	 *
+	 * @param list<int> $termIds
+	 */
+	public static function setObjectTermsPreservingIds(int $objectId, array $termIds, string $taxonomy, bool $append = false): void
+	{
+		if ($objectId < 1 || $taxonomy === '') {
+			return;
+		}
+
+		$normalized = [];
+		foreach ($termIds as $termId) {
+			$termId = (int) $termId;
+			if ($termId > 0) {
+				$normalized[] = $termId;
+			}
+		}
+
+		self::preserveTermIds(static function () use ($objectId, $normalized, $taxonomy, $append): void {
+			\wp_set_object_terms($objectId, $normalized, $taxonomy, $append);
+		});
+	}
+
+	/**
+	 * @return list<string>
+	 */
+	public static function languageLookupCandidates(string $lang): array
+	{
+		$lang = \strtolower(\trim($lang));
+		if ($lang === '') {
+			return [];
+		}
+
+		$candidates = [ $lang ];
+
+		if (\str_contains($lang, '_')) {
+			$candidates[] = \str_replace('_', '-', $lang);
+			$candidates[] = \substr($lang, 0, 2);
+		}
+
+		if (\str_contains($lang, '-')) {
+			$candidates[] = \str_replace('-', '_', $lang);
+			$candidates[] = \substr($lang, 0, 2);
+		}
+
+		if (\strlen($lang) > 2) {
+			$candidates[] = \substr($lang, 0, 2);
+		}
+
+		return \array_values(\array_unique(\array_filter($candidates)));
 	}
 
 	public static function isActive(): bool
@@ -187,6 +310,14 @@ final class MultilingualBridge
 			$trid = \apply_filters('wpml_element_trid', null, $sourceId, self::wpmlTermElementType());
 			$trid = \is_numeric($trid) ? (int) $trid : 0;
 
+			if ($trid <= 0) {
+				self::setTermLanguage($sourceId, $sourceLang);
+				$trid = \apply_filters('wpml_element_trid', null, $sourceId, self::wpmlTermElementType());
+				$trid = \is_numeric($trid) ? (int) $trid : 0;
+			}
+
+			self::setTermLanguage($translatedId, $lang);
+
 			\do_action(
 				'wpml_set_element_language_details',
 				[
@@ -237,6 +368,100 @@ final class MultilingualBridge
 		}
 
 		return null;
+	}
+
+	/**
+	 * Resolve the translated {@see bec_unit_category} term for a canonical term and language.
+	 *
+	 * Falls back to plugin-managed translation maps when WPML/Polylang APIs are not yet linked.
+	 */
+	public static function resolveTranslatedCategoryTermId(int $canonicalTermId, string $lang): ?int
+	{
+		if ($canonicalTermId < 1 || $lang === '') {
+			return null;
+		}
+
+		foreach (self::languageLookupCandidates($lang) as $candidateLang) {
+			$storedMap = \get_term_meta($canonicalTermId, self::META_TRANSLATION_TERM_IDS, true);
+			if (\is_array($storedMap) && isset($storedMap[ $candidateLang ])) {
+				$mapped = (int) $storedMap[ $candidateLang ];
+				if ($mapped > 0 && $mapped !== $canonicalTermId && self::termMatchesLanguage($mapped, $lang)) {
+					return $mapped;
+				}
+			}
+
+			$terms = \get_terms(
+				[
+					'taxonomy'         => UnitCategoryTaxonomy::getSlug(),
+					'hide_empty'       => false,
+					'fields'           => 'ids',
+					'suppress_filters' => true,
+					'meta_query'       => [
+						'relation' => 'AND',
+						[
+							'key'   => self::META_TRANSLATION_OF_TERM,
+							'value' => $canonicalTermId,
+						],
+						[
+							'key'   => self::META_TRANSLATION_TERM_LANG,
+							'value' => $candidateLang,
+						],
+					],
+				]
+			);
+
+			if (\is_array($terms) && ! \is_wp_error($terms)) {
+				foreach ($terms as $termId) {
+					$termId = (int) $termId;
+					if ($termId > 0 && $termId !== $canonicalTermId && self::termMatchesLanguage($termId, $lang)) {
+						return $termId;
+					}
+				}
+			}
+		}
+
+		foreach (self::languageLookupCandidates($lang) as $candidateLang) {
+			$translated = self::getTranslatedTermId($canonicalTermId, $candidateLang);
+			if ($translated !== null && $translated > 0 && $translated !== $canonicalTermId && self::termMatchesLanguage($translated, $lang)) {
+				return $translated;
+			}
+		}
+
+		return null;
+	}
+
+	private static function termMatchesLanguage(int $termId, string $lang): bool
+	{
+		if ($termId < 1 || $lang === '') {
+			return false;
+		}
+
+		if (! \defined('ICL_SITEPRESS_VERSION')) {
+			return true;
+		}
+
+		$termLang = self::getTermLanguage($termId);
+		if ($termLang === '') {
+			$termLang = (string) \get_term_meta($termId, self::META_TRANSLATION_TERM_LANG, true);
+		}
+
+		if ($termLang === '') {
+			return true;
+		}
+
+		return \in_array($termLang, self::languageLookupCandidates($lang), true);
+	}
+
+	/**
+	 * Whether a category term is a canonical (default-language) synced term, not a linked translation.
+	 */
+	public static function isCanonicalCategoryTerm(int $termId): bool
+	{
+		if ($termId < 1) {
+			return false;
+		}
+
+		return (int) \get_term_meta($termId, self::META_TRANSLATION_OF_TERM, true) < 1;
 	}
 
 	public static function setPostLanguage(int $postId, string $lang): void

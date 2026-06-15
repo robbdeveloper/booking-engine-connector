@@ -1,5 +1,11 @@
 # Changelog
 
+## 0.2.5 — 2026-06-15
+
+- **Multilingual (WPML / Polylang) — unit categories**: Translated `bec_unit` posts are assigned translated `bec_unit_category` terms instead of default-language canonical terms. **`UnitCategorySync::onAfterUnitSync()`** ensures category translations exist before unit translation sync; **`UnitTranslationSync`** refreshes taxonomy assignment for all linked translation posts on each canonical unit sync (including existing translations without new locale strings).
+- **Multilingual bridge (`MultilingualBridge`)**: **`resolveTranslatedCategoryTermId()`** resolves translated category terms via plugin translation maps, meta queries, and language-variant lookup before WPML/Polylang APIs. **`setObjectTermsPreservingIds()`** and **`getObjectTermIdsRaw()`** wrap taxonomy reads/writes with **`wpml_disable_term_adjust_id`** so WPML does not rewrite translated term IDs to canonical IDs on assignment. Improved WPML term translation linking when **`trid`** is not yet allocated.
+- **Category translation sync (`CategoryTranslationSync`)**: Public idempotent **`syncTranslationsForCanonicalTerm()`** helper; dedupe guard no longer returns early without creating a missing translation term.
+
 ## 0.2.4 — 2026-06-12
 
 - **Unit categories (`UnitCategorySync`)**: Harden canonical category lookup — exclude translation terms from provider-meta queries and SQL fallback; restrict term adoption to default-language (or unassigned) terms without conflicting provider meta. **`repairDuplicateCanonicalTerms()`** merges duplicate canonical provider category terms per `bec_provider_slug` + `bec_external_id`: reassign unit relationships, repoint linked translation terms, merge synced meta, delete duplicate canonicals only (never translation terms). Category registry priming via **`syncUniqueDescriptorsFromRows()`** now runs during single-unit sync as well as full sync.

@@ -16,10 +16,15 @@ use BookingEngineConnector\Units\CoreUnitSemantic;
  */
 final class UnitTranslationSync
 {
+	/** @var array<string, true> */
+	private static array $taxonomyRefreshQueue = [];
+
 	public static function register(): void
 	{
 		\add_action('bec_after_unit_sync', [self::class, 'onAfterUnitSync'], 20, 3);
+		\add_action('bec_after_unit_sync', [self::class, 'onAfterUnitSyncLateTaxonomies'], 99, 3);
 		\add_action('bec_after_unit_gallery_sync', [self::class, 'onAfterGallerySync'], 10, 2);
+		\add_action('shutdown', [self::class, 'onShutdownRefreshTaxonomies'], 9999);
 		\add_action('wp_trash_post', [self::class, 'onTrashPost'], 10, 1);
 		\add_action('before_delete_post', [self::class, 'onBeforeDeletePost'], 10, 1);
 	}
@@ -75,6 +80,10 @@ final class UnitTranslationSync
 			$title   = isset($langStrings['title']) ? \trim((string) $langStrings['title']) : '';
 			$content = isset($langStrings['content']) ? \trim((string) $langStrings['content']) : '';
 			if ($title === '' && $content === '') {
+				$existingId = MultilingualBridge::getTranslatedPostId($postId, $lang);
+				if ($existingId !== null) {
+					$translationMap[ $lang ] = $existingId;
+				}
 				continue;
 			}
 
@@ -90,6 +99,77 @@ final class UnitTranslationSync
 
 		if ($translationMap !== []) {
 			\update_post_meta($postId, MultilingualBridge::META_TRANSLATION_POST_IDS, $translationMap);
+		}
+
+		self::refreshLinkedTranslationTaxonomies($postId, $translationMap, $defaultLang);
+		self::queueTranslationTaxonomyRefresh($postId);
+	}
+
+	/**
+	 * Re-apply translated categories after WPML/Polylang may have copied canonical terms.
+	 *
+	 * @param array<string, mixed> $row
+	 */
+	public static function onAfterUnitSyncLateTaxonomies(int $postId, string $providerSlug, array $row): void
+	{
+		unset($providerSlug, $row);
+
+		if (! MultilingualBridge::isFeatureEnabled()) {
+			return;
+		}
+
+		if ((int) \get_post_meta($postId, MultilingualBridge::META_TRANSLATION_OF, true) > 0) {
+			return;
+		}
+
+		$defaultLang = MultilingualBridge::getDefaultLanguage();
+		if ($defaultLang === '') {
+			return;
+		}
+
+		$translationMap = \get_post_meta($postId, MultilingualBridge::META_TRANSLATION_POST_IDS, true);
+		if (! \is_array($translationMap)) {
+			$translationMap = [];
+		}
+
+		self::refreshLinkedTranslationTaxonomies($postId, $translationMap, $defaultLang);
+		self::queueTranslationTaxonomyRefresh($postId);
+	}
+
+	public static function onShutdownRefreshTaxonomies(): void
+	{
+		if (self::$taxonomyRefreshQueue === [] || ! MultilingualBridge::isFeatureEnabled()) {
+			return;
+		}
+
+		$defaultLang = MultilingualBridge::getDefaultLanguage();
+		if ($defaultLang === '') {
+			self::$taxonomyRefreshQueue = [];
+
+			return;
+		}
+
+		foreach (\array_keys(self::$taxonomyRefreshQueue) as $canonicalId) {
+			$canonicalId = (int) $canonicalId;
+			if ($canonicalId < 1) {
+				continue;
+			}
+
+			$translationMap = \get_post_meta($canonicalId, MultilingualBridge::META_TRANSLATION_POST_IDS, true);
+			if (! \is_array($translationMap)) {
+				$translationMap = [];
+			}
+
+			self::refreshLinkedTranslationTaxonomies($canonicalId, $translationMap, $defaultLang);
+		}
+
+		self::$taxonomyRefreshQueue = [];
+	}
+
+	private static function queueTranslationTaxonomyRefresh(int $canonicalId): void
+	{
+		if ($canonicalId > 0) {
+			self::$taxonomyRefreshQueue[ (string) $canonicalId ] = true;
 		}
 	}
 
@@ -116,7 +196,7 @@ final class UnitTranslationSync
 			if ($translationId < 1 || $translationId === $canonicalPostId) {
 				continue;
 			}
-			self::copySharedMetaAndMedia($canonicalPostId, $translationId);
+			self::copySharedMetaAndMedia($canonicalPostId, $translationId, (string) $lang);
 		}
 	}
 
@@ -193,14 +273,14 @@ final class UnitTranslationSync
 		MultilingualBridge::setPostLanguage($translationId, $lang);
 		MultilingualBridge::linkTranslation($canonicalId, $defaultLang, $translationId, $lang);
 
-		self::copySharedMetaAndMedia($canonicalId, $translationId);
+		self::copySharedMetaAndMedia($canonicalId, $translationId, $lang);
 
 		unset($row);
 
 		return $translationId;
 	}
 
-	private static function copySharedMetaAndMedia(int $canonicalId, int $translationId): void
+	private static function copySharedMetaAndMedia(int $canonicalId, int $translationId, string $translationLang = ''): void
 	{
 		foreach (self::sharedMetaKeys() as $metaKey) {
 			$value = \get_post_meta($canonicalId, $metaKey, true);
@@ -218,7 +298,7 @@ final class UnitTranslationSync
 			\delete_post_meta($translationId, '_thumbnail_id');
 		}
 
-		self::copyTaxonomies($canonicalId, $translationId);
+		self::copyTaxonomies($canonicalId, $translationId, $translationLang);
 	}
 
 	/**
@@ -253,44 +333,131 @@ final class UnitTranslationSync
 		return \is_array($filtered) ? \array_values(\array_unique(\array_map('strval', $filtered))) : $keys;
 	}
 
-	private static function copyTaxonomies(int $canonicalId, int $translationId): void
+	/**
+	 * @param array<string, int> $translationMap
+	 */
+	private static function refreshLinkedTranslationTaxonomies(int $canonicalId, array $translationMap, string $defaultLang): void
 	{
-		$translationLang = MultilingualBridge::getPostLanguage($translationId);
+		foreach (MultilingualBridge::getActiveLanguages() as $lang) {
+			if ($lang === $defaultLang) {
+				continue;
+			}
+
+			$translationId = isset($translationMap[ $lang ]) ? (int) $translationMap[ $lang ] : 0;
+			if ($translationId < 1) {
+				$translationId = (int) ( MultilingualBridge::getTranslatedPostId($canonicalId, $lang) ?? 0 );
+			}
+
+			if ($translationId < 1 || $translationId === $canonicalId) {
+				continue;
+			}
+
+			self::copyTaxonomies($canonicalId, $translationId, $lang);
+		}
+	}
+
+	private static function copyTaxonomies(int $canonicalId, int $translationId, string $translationLang = ''): void
+	{
 		if ($translationLang === '') {
 			$translationLang = (string) \get_post_meta($translationId, MultilingualBridge::META_TRANSLATION_LANG, true);
 		}
+		if ($translationLang === '') {
+			$translationLang = MultilingualBridge::getPostLanguage($translationId);
+		}
 
 		if (UnitCategoryTaxonomy::isEnabled()) {
-			$terms = \wp_get_object_terms($canonicalId, UnitCategoryTaxonomy::getSlug(), ['fields' => 'ids']);
-			if (\is_array($terms) && ! \is_wp_error($terms)) {
-				$mappedTerms = [];
-				foreach ($terms as $termId) {
-					$termId = (int) $termId;
-					if ($termId < 1) {
-						continue;
-					}
+			self::assignTranslatedCategoryTerms($canonicalId, $translationId, $translationLang);
+		}
 
-					$assignedId = $termId;
-					if ($translationLang !== '' && MultilingualBridge::isFeatureEnabled()) {
-						$translatedTermId = MultilingualBridge::getTranslatedTermId($termId, $translationLang);
-						if ($translatedTermId !== null) {
-							$assignedId = $translatedTermId;
-						}
-					}
+		$terms = MultilingualBridge::getObjectTermIdsRaw($canonicalId, UnitAmenityTaxonomy::getSlug());
+		if ($terms !== []) {
+			MultilingualBridge::setObjectTermsPreservingIds($translationId, $terms, UnitAmenityTaxonomy::getSlug(), false);
+		}
+	}
 
-					$mappedTerms[] = $assignedId;
+	private static function assignTranslatedCategoryTerms(int $canonicalId, int $translationId, string $translationLang): void
+	{
+		$taxonomy = UnitCategoryTaxonomy::getSlug();
+
+		if ($translationLang === '' || ! MultilingualBridge::isFeatureEnabled()) {
+			MultilingualBridge::setObjectTermsPreservingIds($translationId, [], $taxonomy, false);
+
+			return;
+		}
+
+		$canonicalTerms = MultilingualBridge::getObjectTermIdsRaw($canonicalId, $taxonomy);
+		if ($canonicalTerms === []) {
+			MultilingualBridge::setObjectTermsPreservingIds($translationId, [], $taxonomy, false);
+
+			return;
+		}
+
+		$mappedTerms = [];
+
+		foreach ($canonicalTerms as $termId) {
+			$termId = (int) $termId;
+			if ($termId < 1) {
+				continue;
+			}
+
+			$descriptor = self::buildCategoryDescriptorFromTerm($termId);
+			if ($descriptor !== null) {
+				$providerSlug = (string) \get_term_meta($termId, 'bec_provider_slug', true);
+				if ($providerSlug !== '') {
+					CategoryTranslationSync::syncTranslationsForCanonicalTerm($termId, $providerSlug, $descriptor);
 				}
+			}
 
-				if ($mappedTerms !== []) {
-					\wp_set_object_terms($translationId, $mappedTerms, UnitCategoryTaxonomy::getSlug(), false);
-				}
+			$translatedTermId = MultilingualBridge::resolveTranslatedCategoryTermId($termId, $translationLang);
+			if ($translatedTermId === null || $translatedTermId === $termId) {
+				continue;
+			}
+
+			$mappedTerms[ $translatedTermId ] = $translatedTermId;
+		}
+
+		$assignedTerms = \array_values($mappedTerms);
+
+		MultilingualBridge::setObjectTermsPreservingIds($translationId, $assignedTerms, $taxonomy, false);
+	}
+
+	/**
+	 * @return array<string, mixed>|null
+	 */
+	private static function buildCategoryDescriptorFromTerm(int $termId): ?array
+	{
+		$normalized = \get_term_meta($termId, 'bec_category_normalized', true);
+		if (\is_string($normalized) && $normalized !== '') {
+			$decoded = \json_decode($normalized, true);
+			if (\is_array($decoded) && (string) ( $decoded['external_id'] ?? '' ) !== '') {
+				/** @var array<string, mixed> $decoded */
+				return $decoded;
 			}
 		}
 
-		$terms = \wp_get_object_terms($canonicalId, UnitAmenityTaxonomy::getSlug(), ['fields' => 'ids']);
-		if (\is_array($terms) && ! \is_wp_error($terms)) {
-			\wp_set_object_terms($translationId, $terms, UnitAmenityTaxonomy::getSlug(), false);
+		$externalId = (string) \get_term_meta($termId, 'bec_external_id', true);
+		$providerSlug = (string) \get_term_meta($termId, 'bec_provider_slug', true);
+		if ($externalId === '' || $providerSlug === '') {
+			return null;
 		}
+
+		$names = [];
+		$namesJson = \get_term_meta($termId, 'bec_category_names', true);
+		if (\is_string($namesJson) && $namesJson !== '') {
+			$decodedNames = \json_decode($namesJson, true);
+			if (\is_array($decodedNames)) {
+				$names = UnitCategoryTaxonomy::coerceDescriptorNamesToMap($decodedNames);
+			}
+		}
+
+		$term = \get_term($termId, UnitCategoryTaxonomy::getSlug());
+		$name = $term instanceof \WP_Term ? $term->name : '';
+
+		return [
+			'external_id' => $externalId,
+			'name'        => $name,
+			'names'       => $names,
+		];
 	}
 
 	private static function cascadeToLinkedPosts(int $postId, string $action): void
