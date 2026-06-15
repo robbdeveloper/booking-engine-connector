@@ -1,5 +1,9 @@
 # Changelog
 
+## 0.2.7 — 2026-06-15
+
+- **Booking summary — enquiry link**: **`[bec_booking_summary]`** Enquiry button uses **`FallbackSettings::getLocalizedLinkUrl()`** so the href follows per-language fallback URL settings (and String Translation fallback) instead of always reading the default-language option.
+
 ## 0.2.6 — 2026-06-15
 
 - **Fallback — multilingual content**: Per-language tabs on **Checkout & Fallback** for fallback link URL, link text, and inline content when WPML or Polylang is active. Non-default languages are stored in `bec_fallback_translations`; default-language values remain in the existing options. Frontend fallback and booking-summary enquiry labels resolve localized values, with WPML/Polylang String Translation as fallback when a translation tab is left empty.

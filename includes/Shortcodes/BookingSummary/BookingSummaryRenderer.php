@@ -717,7 +717,7 @@ final class BookingSummaryRenderer
 		if ( ! $show ) {
 			return '';
 		}
-		$url = \trim( (string) \get_option( FallbackSettings::OPTION_LINK_URL, '' ) );
+		$url = \trim( FallbackSettings::getLocalizedLinkUrl() );
 		$url = (string) \apply_filters( 'bec_booking_summary_enquiry_url', $url, $postId, $ctx );
 		if ( $url === '' ) {
 			$url = '#';
