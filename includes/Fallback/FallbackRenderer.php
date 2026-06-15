@@ -4,8 +4,6 @@ declare(strict_types=1);
 
 namespace BookingEngineConnector\Fallback;
 
-use BookingEngineConnector\Integrations\Multilingual;
-
 /**
  * Markup for inline + link fallback modes (TASK-FB-002).
  */
@@ -15,18 +13,15 @@ final class FallbackRenderer
 	{
 		$mode = (string) \get_option(FallbackSettings::OPTION_MODE, 'inline');
 
-		$url  = \trim((string) \get_option(FallbackSettings::OPTION_LINK_URL, ''));
-		$storedLinkText = (string) \get_option(FallbackSettings::OPTION_LINK_TEXT, '');
+		$url = \trim(FallbackSettings::getLocalizedLinkUrl());
+		$storedLinkText = FallbackSettings::getLocalizedLinkText();
 		if ($storedLinkText !== '') {
-			$text = Multilingual::translateFallbackLinkText($storedLinkText);
+			$text = $storedLinkText;
 		} else {
 			/* translators: Default fallback link label when none is saved in settings. */
 			$text = \__('Contact us', 'booking-engine-connector');
 		}
-		$inline = (string) \get_option(FallbackSettings::OPTION_INLINE_CONTENT, '');
-		if ($inline !== '') {
-			$inline = Multilingual::translateFallbackInlineContent($inline);
-		}
+		$inline = FallbackSettings::getLocalizedInlineContent();
 
 		\ob_start();
 		echo '<aside class="bec-fallback" role="complementary">';

@@ -8,6 +8,7 @@ use BookingEngineConnector\Admin\AdminMenu;
 use BookingEngineConnector\Admin\AdminPageLayout;
 use BookingEngineConnector\Fallback\FallbackSettings;
 use BookingEngineConnector\Integrations\Multilingual;
+use BookingEngineConnector\Integrations\MultilingualBridge;
 use BookingEngineConnector\Providers\Contracts\ProviderErrorCategory;
 
 /**
@@ -36,9 +37,8 @@ final class FallbackPage
 		$mode         = (string) \get_option(FallbackSettings::OPTION_MODE, 'inline');
 		$force        = (bool) \get_option(FallbackSettings::OPTION_FORCE, false);
 		$emptyQuote   = (bool) \get_option(FallbackSettings::OPTION_EMPTY_QUOTE, false);
-		$linkUrl      = (string) \get_option(FallbackSettings::OPTION_LINK_URL, '');
-		$linkText = (string) \get_option(FallbackSettings::OPTION_LINK_TEXT, '');
-		$inline       = (string) \get_option(FallbackSettings::OPTION_INLINE_CONTENT, '');
+		$activeLang   = self::resolveActiveContentLanguage();
+		$contentFields = FallbackSettings::getFieldsForLanguage($activeLang);
 
 		$triggers = \BookingEngineConnector\Fallback\FallbackService::getTriggerCategories();
 
@@ -55,6 +55,7 @@ final class FallbackPage
 		echo '<form method="post" action="' . \esc_url(\admin_url('admin.php')) . '">';
 		echo '<input type="hidden" name="page" value="' . \esc_attr(self::PAGE_SLUG) . '" />';
 		\wp_nonce_field(self::NONCE_ACTION, 'bec_fallback_nonce');
+		echo '<input type="hidden" name="bec_fallback_lang" value="' . \esc_attr($activeLang) . '" />';
 
 		AdminPageLayout::cardOpen(
 			\__('Checkout (Kross)', 'booking-engine-connector'),
@@ -115,38 +116,35 @@ final class FallbackPage
 		echo '<option value="link" ' . \selected($mode, 'link', false) . '>' . \esc_html__('Link only', 'booking-engine-connector') . '</option>';
 		echo '</select>';
 		echo '</td></tr>';
+		echo '</table>';
 
-		echo '<tr><th scope="row"><label for="bec_fallback_link_url">' . \esc_html__('Fallback link URL', 'booking-engine-connector') . '</label></th><td>';
-		echo '<input type="text" class="large-text" name="bec_fallback_link_url" id="bec_fallback_link_url" value="' . \esc_attr($linkUrl) . '" placeholder="/contact, ?subject=enquiry, or #popup-hash" />';
-		echo '<p class="description">' . \esc_html__(
-			'Used when “Link only” is selected. Enter a full URL, a site path (e.g. /contact), query parameters (e.g. ?subject=enquiry), or an encoded hash link (e.g. Elementor popup triggers).',
-			'booking-engine-connector'
-		) . '</p>';
-		echo '</td></tr>';
+		if (FallbackSettings::hasMultilingualContentTabs()) {
+			AdminPageLayout::inlineNotice(
+				\__(
+					'Fallback URL, link text, and inline content can be translated per language below. Leave a translation empty to fall back to the default language value (or WPML/Polylang string translations when configured).',
+					'booking-engine-connector'
+				)
+			);
 
-		echo '<tr><th scope="row"><label for="bec_fallback_link_text">' . \esc_html__('Fallback link text', 'booking-engine-connector') . '</label></th><td>';
-		echo '<input type="text" class="regular-text" name="bec_fallback_link_text" id="bec_fallback_link_text" value="' . \esc_attr($linkText) . '" />';
-		echo '<p class="description">' . \esc_html__(
-			'Leave empty to use the default contact label, which follows the active site language.',
-			'booking-engine-connector'
-		) . '</p>';
-		echo '</td></tr>';
+			AdminPageLayout::tabsNavOpen(
+				\__('Fallback content languages', 'booking-engine-connector')
+			);
+			foreach (FallbackSettings::getContentLanguages() as $lang) {
+				$label = FallbackSettings::getLanguageLabel($lang);
+				if (FallbackSettings::isDefaultContentLanguage($lang)) {
+					$label .= ' (' . \__('default', 'booking-engine-connector') . ')';
+				}
+				AdminPageLayout::tabLink(
+					self::adminPageUrl($lang),
+					$label,
+					$lang === $activeLang
+				);
+			}
+			AdminPageLayout::tabsNavClose();
+		}
 
-		echo '<tr><th scope="row"><label for="bec_fallback_inline_content">' . \esc_html__('Inline content', 'booking-engine-connector') . '</label></th><td>';
-		\wp_editor(
-			$inline,
-			'bec_fallback_inline_content',
-			[
-				'textarea_name' => 'bec_fallback_inline_content',
-				'textarea_rows' => 6,
-				'media_buttons' => false,
-			]
-		);
-		echo '<p class="description">' . \esc_html__(
-			'Shown for “Inline content” mode. Shortcodes are supported.',
-			'booking-engine-connector'
-		) . '</p>';
-		echo '</td></tr>';
+		echo '<table class="form-table" role="presentation">';
+		self::renderContentFields($contentFields);
 
 		echo '<tr><th scope="row">' . \esc_html__('Trigger fallback on empty availability', 'booking-engine-connector') . '</th><td>';
 		echo '<label><input type="checkbox" name="bec_fallback_empty_quote" value="1" ' . \checked($emptyQuote, true, false) . ' /> ';
@@ -205,16 +203,31 @@ final class FallbackPage
 		}
 		\update_option(FallbackSettings::OPTION_MODE, $mode, false);
 
+		$lang = isset($_POST['bec_fallback_lang']) ? \sanitize_key(\wp_unslash((string) $_POST['bec_fallback_lang'])) : '';
+		if ($lang === '') {
+			$lang = MultilingualBridge::getDefaultLanguage();
+		}
+
 		$linkUrl = isset($_POST['bec_fallback_link_url'])
 			? FallbackSettings::sanitizeLinkTarget(\wp_unslash((string) $_POST['bec_fallback_link_url']))
 			: '';
-		\update_option(FallbackSettings::OPTION_LINK_URL, $linkUrl, false);
-
 		$linkText = isset($_POST['bec_fallback_link_text']) ? \sanitize_text_field(\wp_unslash((string) $_POST['bec_fallback_link_text'])) : '';
-		\update_option(FallbackSettings::OPTION_LINK_TEXT, $linkText, false);
+		$inline = isset($_POST['bec_fallback_inline_content']) ? \wp_kses_post(\wp_unslash((string) $_POST['bec_fallback_inline_content'])) : '';
 
-		$inline = isset($_POST['bec_fallback_inline_content']) ? \wp_unslash((string) $_POST['bec_fallback_inline_content']) : '';
-		\update_option(FallbackSettings::OPTION_INLINE_CONTENT, \wp_kses_post($inline), false);
+		if (FallbackSettings::isDefaultContentLanguage($lang)) {
+			\update_option(FallbackSettings::OPTION_LINK_URL, $linkUrl, false);
+			\update_option(FallbackSettings::OPTION_LINK_TEXT, $linkText, false);
+			\update_option(FallbackSettings::OPTION_INLINE_CONTENT, $inline, false);
+		} else {
+			FallbackSettings::saveTranslationForLanguage(
+				$lang,
+				[
+					FallbackSettings::FIELD_LINK_URL       => $linkUrl,
+					FallbackSettings::FIELD_LINK_TEXT      => $linkText,
+					FallbackSettings::FIELD_INLINE_CONTENT => $inline,
+				]
+			);
+		}
 
 		$cats = [];
 		if (isset($_POST['bec_fallback_cat']) && \is_array($_POST['bec_fallback_cat'])) {
@@ -230,7 +243,90 @@ final class FallbackPage
 
 		Multilingual::syncAfterFallbackSave();
 
-		\wp_safe_redirect(\add_query_arg(['page' => self::PAGE_SLUG, 'bec_saved' => '1'], \admin_url('admin.php')));
+		\wp_safe_redirect(
+			\add_query_arg(
+				[
+					'page'      => self::PAGE_SLUG,
+					'bec_saved' => '1',
+					'bec_lang'  => $lang,
+				],
+				\admin_url('admin.php')
+			)
+		);
 		exit;
+	}
+
+	/**
+	 * @param array{link_url: string, link_text: string, inline_content: string} $fields
+	 */
+	private static function renderContentFields(array $fields): void
+	{
+		$linkUrl  = $fields[ FallbackSettings::FIELD_LINK_URL ];
+		$linkText = $fields[ FallbackSettings::FIELD_LINK_TEXT ];
+		$inline   = $fields[ FallbackSettings::FIELD_INLINE_CONTENT ];
+
+		echo '<tr><th scope="row"><label for="bec_fallback_link_url">' . \esc_html__('Fallback link URL', 'booking-engine-connector') . '</label></th><td>';
+		echo '<input type="text" class="large-text" name="bec_fallback_link_url" id="bec_fallback_link_url" value="' . \esc_attr($linkUrl) . '" placeholder="/contact, ?subject=enquiry, or #popup-hash" />';
+		echo '<p class="description">' . \esc_html__(
+			'Used when “Link only” is selected. Enter a full URL, a site path (e.g. /contact), query parameters (e.g. ?subject=enquiry), or an encoded hash link (e.g. Elementor popup triggers).',
+			'booking-engine-connector'
+		) . '</p>';
+		echo '</td></tr>';
+
+		echo '<tr><th scope="row"><label for="bec_fallback_link_text">' . \esc_html__('Fallback link text', 'booking-engine-connector') . '</label></th><td>';
+		echo '<input type="text" class="regular-text" name="bec_fallback_link_text" id="bec_fallback_link_text" value="' . \esc_attr($linkText) . '" />';
+		echo '<p class="description">' . \esc_html__(
+			'Leave empty to use the default contact label, which follows the active site language.',
+			'booking-engine-connector'
+		) . '</p>';
+		echo '</td></tr>';
+
+		echo '<tr><th scope="row"><label for="bec_fallback_inline_content">' . \esc_html__('Inline content', 'booking-engine-connector') . '</label></th><td>';
+		\wp_editor(
+			$inline,
+			'bec_fallback_inline_content',
+			[
+				'textarea_name' => 'bec_fallback_inline_content',
+				'textarea_rows' => 6,
+				'media_buttons' => false,
+			]
+		);
+		echo '<p class="description">' . \esc_html__(
+			'Shown for “Inline content” mode. Shortcodes are supported.',
+			'booking-engine-connector'
+		) . '</p>';
+		echo '</td></tr>';
+	}
+
+	/**
+	 * @param array<string, scalar|null> $extra
+	 */
+	private static function adminPageUrl(string $lang = '', array $extra = []): string
+	{
+		$args = \array_merge(['page' => self::PAGE_SLUG], $extra);
+		if ($lang !== '') {
+			$args['bec_lang'] = $lang;
+		}
+
+		return \add_query_arg($args, \admin_url('admin.php'));
+	}
+
+	private static function resolveActiveContentLanguage(): string
+	{
+		$languages = FallbackSettings::getContentLanguages();
+		$default   = MultilingualBridge::getDefaultLanguage();
+
+		if ($languages === []) {
+			return $default !== '' ? $default : '';
+		}
+
+		if (isset($_GET['bec_lang'])) {
+			$lang = \sanitize_key(\wp_unslash((string) $_GET['bec_lang']));
+			if (\in_array($lang, $languages, true)) {
+				return $lang;
+			}
+		}
+
+		return $languages[0];
 	}
 }

@@ -1,5 +1,11 @@
 # Changelog
 
+## 0.2.6 — 2026-06-15
+
+- **Fallback — multilingual content**: Per-language tabs on **Checkout & Fallback** for fallback link URL, link text, and inline content when WPML or Polylang is active. Non-default languages are stored in `bec_fallback_translations`; default-language values remain in the existing options. Frontend fallback and booking-summary enquiry labels resolve localized values, with WPML/Polylang String Translation as fallback when a translation tab is left empty.
+- **Fallback — link URL**: Preserve percent-encoded characters (e.g. `%3A` for Elementor popup triggers) when saving and rendering fallback link targets; avoid `esc_url()` rewriting encoded hash/query fragments.
+- **i18n**: Regenerated `languages/booking-engine-connector.pot`, merged `booking-engine-connector-it_IT.po`, recompiled `booking-engine-connector-it_IT.mo`.
+
 ## 0.2.5 — 2026-06-15
 
 - **Multilingual (WPML / Polylang) — unit categories**: Translated `bec_unit` posts are assigned translated `bec_unit_category` terms instead of default-language canonical terms. **`UnitCategorySync::onAfterUnitSync()`** ensures category translations exist before unit translation sync; **`UnitTranslationSync`** refreshes taxonomy assignment for all linked translation posts on each canonical unit sync (including existing translations without new locale strings).

@@ -9,7 +9,6 @@ use BookingEngineConnector\Checkout\CheckoutUrlService;
 use BookingEngineConnector\Fallback\FallbackRenderer;
 use BookingEngineConnector\Fallback\FallbackService;
 use BookingEngineConnector\Fallback\FallbackSettings;
-use BookingEngineConnector\Integrations\Multilingual;
 use BookingEngineConnector\PostTypes\UnitPostType;
 use BookingEngineConnector\Providers\ProviderRegistry;
 use BookingEngineConnector\Search\QuoteService;
@@ -71,9 +70,9 @@ final class BookingSummaryRenderer
 		];
 
 		$showEnquiry    = \in_array( \strtolower( (string) ( $a['show_enquiry'] ?? '1' ) ), [ '1', 'true', 'yes' ], true );
-		$storedFallbackLink = (string) \get_option( FallbackSettings::OPTION_LINK_TEXT, '' );
+		$storedFallbackLink = FallbackSettings::getLocalizedLinkText();
 		if ( $storedFallbackLink !== '' ) {
-			$enquiryDefault = Multilingual::translateFallbackLinkText( $storedFallbackLink );
+			$enquiryDefault = $storedFallbackLink;
 		} else {
 			$enquiryDefault = \__( 'Contact us', 'booking-engine-connector' );
 		}

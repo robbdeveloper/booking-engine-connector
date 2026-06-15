@@ -2,14 +2,14 @@
 # This file is distributed under the GPL-2.0-or-later.
 msgid ""
 msgstr ""
-"Project-Id-Version: Booking Engine Connector 0.2.5\n"
+"Project-Id-Version: Booking Engine Connector 0.2.6\n"
 "Report-Msgid-Bugs-To: https://wordpress.org/support/plugin/booking-engine-connector\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"POT-Creation-Date: 2026-06-12T15:04:16+00:00\n"
+"POT-Creation-Date: 2026-06-15T15:18:29+00:00\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "X-Generator: WP-CLI 2.12.0\n"
 "X-Domain: booking-engine-connector\n"
@@ -479,116 +479,128 @@ msgstr ""
 msgid "Configure the external booking URL pattern and when to show contact fallback instead of online booking."
 msgstr ""
 
-#: includes/Admin/Settings/FallbackPage.php:60
+#: includes/Admin/Settings/FallbackPage.php:61
 msgid "Checkout (Kross)"
 msgstr ""
 
-#: includes/Admin/Settings/FallbackPage.php:61
+#: includes/Admin/Settings/FallbackPage.php:62
 msgid "Full URL to your Kross booking engine entry point. Parameters (hotel, room type, dates, guests) are sent as query string (GET) or POST fields."
 msgstr ""
 
-#: includes/Admin/Settings/FallbackPage.php:67
+#: includes/Admin/Settings/FallbackPage.php:68
 msgid "Booking engine base URL"
 msgstr ""
 
-#: includes/Admin/Settings/FallbackPage.php:69
+#: includes/Admin/Settings/FallbackPage.php:70
 msgid "Full URL to your Kross booking engine entry point. Leave empty to hide checkout links until configured. Parameters (hotel, room type, dates, guests) are sent as query string (GET) or as POST fields, depending on the option below."
 msgstr ""
 
-#: includes/Admin/Settings/FallbackPage.php:75
+#: includes/Admin/Settings/FallbackPage.php:76
 msgid "How to open the booking engine"
 msgstr ""
 
-#: includes/Admin/Settings/FallbackPage.php:77
+#: includes/Admin/Settings/FallbackPage.php:78
 msgid "GET — append parameters to the URL"
 msgstr ""
 
-#: includes/Admin/Settings/FallbackPage.php:81
+#: includes/Admin/Settings/FallbackPage.php:82
 msgid "POST — submit parameters in the request body to this URL"
 msgstr ""
 
-#: includes/Admin/Settings/FallbackPage.php:86
+#: includes/Admin/Settings/FallbackPage.php:87
 msgid "Use POST when your engine expects a form submission and then redirects the browser (e.g. middleware that builds the final booking URL from posted fields)."
 msgstr ""
 
-#: includes/Admin/Settings/FallbackPage.php:94
+#: includes/Admin/Settings/FallbackPage.php:95
 msgid "Fallback behavior"
 msgstr ""
 
-#: includes/Admin/Settings/FallbackPage.php:95
+#: includes/Admin/Settings/FallbackPage.php:96
 msgid "When rules match, show contact fallback instead of online booking or API error notices."
 msgstr ""
 
-#: includes/Admin/Settings/FallbackPage.php:102
+#: includes/Admin/Settings/FallbackPage.php:103
 msgid "Enable fallback"
 msgstr ""
 
-#: includes/Admin/Settings/FallbackPage.php:104
+#: includes/Admin/Settings/FallbackPage.php:105
 msgid "Allow fallback blocks when rules match."
 msgstr ""
 
-#: includes/Admin/Settings/FallbackPage.php:107
+#: includes/Admin/Settings/FallbackPage.php:108
 msgid "Always use fallback"
 msgstr ""
 
-#: includes/Admin/Settings/FallbackPage.php:109
+#: includes/Admin/Settings/FallbackPage.php:110
 msgid "Ignore API availability and always show fallback (e.g. contact-only mode)."
 msgstr ""
 
-#: includes/Admin/Settings/FallbackPage.php:112
+#: includes/Admin/Settings/FallbackPage.php:113
 msgid "Presentation"
 msgstr ""
 
-#: includes/Admin/Settings/FallbackPage.php:114
-#: includes/Admin/Settings/FallbackPage.php:135
+#: includes/Admin/Settings/FallbackPage.php:115
+#: includes/Admin/Settings/FallbackPage.php:282
 msgid "Inline content"
 msgstr ""
 
-#: includes/Admin/Settings/FallbackPage.php:115
+#: includes/Admin/Settings/FallbackPage.php:116
 msgid "Link only"
 msgstr ""
 
-#: includes/Admin/Settings/FallbackPage.php:119
-msgid "Fallback link URL"
-msgstr ""
-
-#: includes/Admin/Settings/FallbackPage.php:121
-msgid "Used when “Link only” is selected. Enter a full URL, a site path (e.g. /contact), query parameters (e.g. ?subject=enquiry), or an encoded hash link (e.g. Elementor popup triggers)."
-msgstr ""
-
-#: includes/Admin/Settings/FallbackPage.php:127
-msgid "Fallback link text"
+#: includes/Admin/Settings/FallbackPage.php:122
+msgid "Fallback URL, link text, and inline content can be translated per language below. Leave a translation empty to fall back to the default language value (or WPML/Polylang string translations when configured)."
 msgstr ""
 
 #: includes/Admin/Settings/FallbackPage.php:129
-msgid "Leave empty to use the default contact label, which follows the active site language."
+msgid "Fallback content languages"
 msgstr ""
 
-#: includes/Admin/Settings/FallbackPage.php:145
-msgid "Shown for “Inline content” mode. Shortcodes are supported."
+#: includes/Admin/Settings/FallbackPage.php:134
+msgid "default"
 msgstr ""
 
-#: includes/Admin/Settings/FallbackPage.php:151
+#: includes/Admin/Settings/FallbackPage.php:147
 msgid "Trigger fallback on empty availability"
 msgstr ""
 
-#: includes/Admin/Settings/FallbackPage.php:153
+#: includes/Admin/Settings/FallbackPage.php:149
 msgid "When the provider reports no rooms available for the search."
 msgstr ""
 
-#: includes/Admin/Settings/FallbackPage.php:156
+#: includes/Admin/Settings/FallbackPage.php:152
 msgid "Trigger on provider errors"
 msgstr ""
 
-#: includes/Admin/Settings/FallbackPage.php:162
+#: includes/Admin/Settings/FallbackPage.php:158
 msgid "When the quote request fails with one of these categories, show fallback instead of an error notice."
 msgstr ""
 
-#: includes/Admin/Settings/FallbackPage.php:171
+#: includes/Admin/Settings/FallbackPage.php:167
 #: includes/Admin/Settings/StylingPage.php:210
 #: includes/Admin/Settings/UnitFiltersPage.php:130
 #: includes/Admin/Settings/UnitPermalinkPage.php:191
 msgid "Save changes"
+msgstr ""
+
+#: includes/Admin/Settings/FallbackPage.php:266
+msgid "Fallback link URL"
+msgstr ""
+
+#: includes/Admin/Settings/FallbackPage.php:268
+msgid "Used when “Link only” is selected. Enter a full URL, a site path (e.g. /contact), query parameters (e.g. ?subject=enquiry), or an encoded hash link (e.g. Elementor popup triggers)."
+msgstr ""
+
+#: includes/Admin/Settings/FallbackPage.php:274
+msgid "Fallback link text"
+msgstr ""
+
+#: includes/Admin/Settings/FallbackPage.php:276
+msgid "Leave empty to use the default contact label, which follows the active site language."
+msgstr ""
+
+#: includes/Admin/Settings/FallbackPage.php:292
+msgid "Shown for “Inline content” mode. Shortcodes are supported."
 msgstr ""
 
 #: includes/Admin/Settings/FrontendPage.php:41
@@ -742,7 +754,7 @@ msgid "Optional. Target classes such as .bec-search-form, .bec-search-form-wrap-
 msgstr ""
 
 #: includes/Admin/Settings/StylingPage.php:157
-#: includes/Shortcodes/BookingSummary/BookingSummaryRenderer.php:649
+#: includes/Shortcodes/BookingSummary/BookingSummaryRenderer.php:648
 msgid "Booking summary"
 msgstr ""
 
@@ -1342,12 +1354,12 @@ msgid "Leave empty to use the current post (single unit or loop item)."
 msgstr ""
 
 #. translators: Default fallback link label when none is saved in settings.
-#: includes/Fallback/FallbackRenderer.php:24
-#: includes/Shortcodes/BookingSummary/BookingSummaryRenderer.php:78
+#: includes/Fallback/FallbackRenderer.php:22
+#: includes/Shortcodes/BookingSummary/BookingSummaryRenderer.php:77
 msgid "Contact us"
 msgstr ""
 
-#: includes/Fallback/FallbackRenderer.php:41
+#: includes/Fallback/FallbackRenderer.php:36
 msgid "Add fallback content or link in Booking Engine → Fallback."
 msgstr ""
 
@@ -1363,7 +1375,7 @@ msgstr ""
 
 #. translators: 1: from date, 2: to date
 #: includes/Formatting/DateFormatter.php:129
-#: includes/Shortcodes/BookingSummary/BookingSummaryRenderer.php:579
+#: includes/Shortcodes/BookingSummary/BookingSummaryRenderer.php:578
 #, php-format
 msgid "from %1$s to %2$s"
 msgstr ""
@@ -1962,99 +1974,99 @@ msgid "%d available units"
 msgstr ""
 
 #: includes/Shortcodes/BookingSummary/BookingSummaryRateStateBuilder.php:56
-#: includes/Shortcodes/BookingSummary/BookingSummaryRenderer.php:356
-#: includes/Shortcodes/BookingSummary/BookingSummaryRenderer.php:644
+#: includes/Shortcodes/BookingSummary/BookingSummaryRenderer.php:355
+#: includes/Shortcodes/BookingSummary/BookingSummaryRenderer.php:643
 msgid "Continue"
 msgstr ""
 
-#: includes/Shortcodes/BookingSummary/BookingSummaryRenderer.php:47
+#: includes/Shortcodes/BookingSummary/BookingSummaryRenderer.php:46
 msgid "City tax not included"
 msgstr ""
 
-#: includes/Shortcodes/BookingSummary/BookingSummaryRenderer.php:80
-#: includes/Shortcodes/BookingSummary/BookingSummaryRenderer.php:175
+#: includes/Shortcodes/BookingSummary/BookingSummaryRenderer.php:79
+#: includes/Shortcodes/BookingSummary/BookingSummaryRenderer.php:174
 msgid "Enquiry"
 msgstr ""
 
-#: includes/Shortcodes/BookingSummary/BookingSummaryRenderer.php:213
-#: includes/Shortcodes/BookingSummary/BookingSummaryRenderer.php:652
+#: includes/Shortcodes/BookingSummary/BookingSummaryRenderer.php:212
+#: includes/Shortcodes/BookingSummary/BookingSummaryRenderer.php:651
 msgid "Summary"
 msgstr ""
 
-#: includes/Shortcodes/BookingSummary/BookingSummaryRenderer.php:227
-#: includes/Shortcodes/BookingSummary/BookingSummaryRenderer.php:633
+#: includes/Shortcodes/BookingSummary/BookingSummaryRenderer.php:226
+#: includes/Shortcodes/BookingSummary/BookingSummaryRenderer.php:632
 msgid "Check availability"
 msgstr ""
 
-#: includes/Shortcodes/BookingSummary/BookingSummaryRenderer.php:252
+#: includes/Shortcodes/BookingSummary/BookingSummaryRenderer.php:251
 msgid "No solution available for the dates and guests indicated."
 msgstr ""
 
-#: includes/Shortcodes/BookingSummary/BookingSummaryRenderer.php:424
+#: includes/Shortcodes/BookingSummary/BookingSummaryRenderer.php:423
 msgid "Search selection"
 msgstr ""
 
-#: includes/Shortcodes/BookingSummary/BookingSummaryRenderer.php:426
+#: includes/Shortcodes/BookingSummary/BookingSummaryRenderer.php:425
 msgid "Stay dates"
 msgstr ""
 
-#: includes/Shortcodes/BookingSummary/BookingSummaryRenderer.php:473
+#: includes/Shortcodes/BookingSummary/BookingSummaryRenderer.php:472
 msgid "Select rate"
 msgstr ""
 
-#: includes/Shortcodes/BookingSummary/BookingSummaryRenderer.php:474
+#: includes/Shortcodes/BookingSummary/BookingSummaryRenderer.php:473
 msgid "Rates"
 msgstr ""
 
 #. translators: %d: nights
-#: includes/Shortcodes/BookingSummary/BookingSummaryRenderer.php:587
+#: includes/Shortcodes/BookingSummary/BookingSummaryRenderer.php:586
 #, php-format
 msgid "%d night"
 msgid_plural "%d nights"
 msgstr[0] ""
 msgstr[1] ""
 
-#: includes/Shortcodes/BookingSummary/BookingSummaryRenderer.php:624
+#: includes/Shortcodes/BookingSummary/BookingSummaryRenderer.php:623
 msgid "View details"
 msgstr ""
 
-#: includes/Shortcodes/BookingSummary/BookingSummaryRenderer.php:628
+#: includes/Shortcodes/BookingSummary/BookingSummaryRenderer.php:627
 msgid "Booking on mobile"
 msgstr ""
 
-#: includes/Shortcodes/BookingSummary/BookingSummaryRenderer.php:639
+#: includes/Shortcodes/BookingSummary/BookingSummaryRenderer.php:638
 msgid "Current total"
 msgstr ""
 
-#: includes/Shortcodes/BookingSummary/BookingSummaryRenderer.php:652
+#: includes/Shortcodes/BookingSummary/BookingSummaryRenderer.php:651
 msgid "Back"
 msgstr ""
 
-#: includes/Shortcodes/BookingSummary/BookingSummaryRenderer.php:780
+#: includes/Shortcodes/BookingSummary/BookingSummaryRenderer.php:779
 msgid "Per night"
 msgstr ""
 
-#: includes/Shortcodes/BookingSummary/BookingSummaryRenderer.php:830
-#: includes/Shortcodes/BookingSummary/BookingSummaryRenderer.php:899
+#: includes/Shortcodes/BookingSummary/BookingSummaryRenderer.php:829
+#: includes/Shortcodes/BookingSummary/BookingSummaryRenderer.php:898
 msgid "Total"
 msgstr ""
 
-#: includes/Shortcodes/BookingSummary/BookingSummaryRenderer.php:838
+#: includes/Shortcodes/BookingSummary/BookingSummaryRenderer.php:837
 #: includes/Shortcodes/BookingSummary/BookingSummaryViewModelBuilder.php:111
 msgid "Prepayment needed"
 msgstr ""
 
-#: includes/Shortcodes/BookingSummary/BookingSummaryRenderer.php:847
+#: includes/Shortcodes/BookingSummary/BookingSummaryRenderer.php:846
 #: includes/Shortcodes/BookingSummary/BookingSummaryViewModelBuilder.php:119
 msgid "Damage deposit"
 msgstr ""
 
-#: includes/Shortcodes/BookingSummary/BookingSummaryRenderer.php:870
+#: includes/Shortcodes/BookingSummary/BookingSummaryRenderer.php:869
 #: includes/Shortcodes/BookingSummary/BookingSummaryViewModelBuilder.php:78
 msgid "This rate includes"
 msgstr ""
 
-#: includes/Shortcodes/BookingSummary/BookingSummaryRenderer.php:871
+#: includes/Shortcodes/BookingSummary/BookingSummaryRenderer.php:870
 #: includes/Shortcodes/BookingSummary/BookingSummaryViewModelBuilder.php:85
 msgid "Cancellation and payments"
 msgstr ""
@@ -2184,18 +2196,18 @@ msgid "Remote unit not found for this external ID."
 msgstr ""
 
 #. translators: %s external id
-#: includes/Sync/SyncService.php:358
-#: includes/Sync/SyncService.php:502
+#: includes/Sync/SyncService.php:360
+#: includes/Sync/SyncService.php:504
 #, php-format
 msgid "Unit %s"
 msgstr ""
 
-#: includes/Sync/SyncService.php:505
+#: includes/Sync/SyncService.php:507
 msgid "(unnamed)"
 msgstr ""
 
 #. translators: %s provider category external id
-#: includes/Sync/UnitCategorySync.php:446
+#: includes/Sync/UnitCategorySync.php:474
 #, php-format
 msgid "Category %s"
 msgstr ""

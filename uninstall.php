@@ -34,6 +34,7 @@ $options = [
 	'bec_fallback_link_url',
 	'bec_fallback_link_text',
 	'bec_fallback_inline_content',
+	'bec_fallback_translations',
 	'bec_styling_search_preset',
 	'bec_styling_booking_summary_preset',
 	'bec_styling_theme_variables_css',

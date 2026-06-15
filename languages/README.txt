@@ -42,10 +42,11 @@ a shipped MO). Spot-check: Booking Engine admin screens, `[bec_search]`, `[bec_b
 (`includes/Front/PublicAssets.php` + bundled moment locale).
 
 WPML / Polylang: with a non-default language active, confirm gettext strings switch. For stored
-fallback “link text” and inline HTML, translate entries registered under context
-“Booking Engine Connector” (WPML String Translation) or group `booking-engine-connector` (Polylang),
-including keys `fallback_link_text` and `fallback_inline_content` — see
-`includes/Integrations/Multilingual.php`.
+fallback “link text” and inline HTML, use per-language tabs on **Checkout & Fallback** when
+WPML/Polylang is active (`bec_fallback_translations`), or translate entries registered under
+context “Booking Engine Connector” (WPML String Translation) or group `booking-engine-connector`
+(Polylang), including keys `fallback_link_text` and `fallback_inline_content` — see
+`includes/Integrations/Multilingual.php` and `includes/Fallback/FallbackSettings.php`.
 
 The `bec_provider_locale` filter can align `determine_locale()` with a provider/API locale (see
 `Multilingual::filteredSiteLocale()` and Kross checkout `lang`).

@@ -53,6 +53,7 @@ final class Activator
 		\add_option(FallbackSettings::OPTION_LINK_URL, '', '', false);
 		\add_option(FallbackSettings::OPTION_LINK_TEXT, '', '', false);
 		\add_option(FallbackSettings::OPTION_INLINE_CONTENT, '', '', false);
+		\add_option(FallbackSettings::OPTION_TRANSLATIONS, [], '', false);
 
 		\add_option(UnitPostType::OPTION_PERMALINK_SLUG, '', '', false);
 		\add_option(UnitCategoryTaxonomy::OPTION_ENABLED, 0, '', false);

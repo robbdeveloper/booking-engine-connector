@@ -1,9 +1,9 @@
 msgid ""
 msgstr ""
-"Project-Id-Version: Booking Engine Connector 0.2.5\n"
+"Project-Id-Version: Booking Engine Connector 0.2.6\n"
 "Report-Msgid-Bugs-To: https://wordpress.org/support/plugin/booking-engine-"
 "connector\n"
-"POT-Creation-Date: 2026-06-12T15:04:16+00:00\n"
+"POT-Creation-Date: 2026-06-15T15:18:29+00:00\n"
 "PO-Revision-Date: 2026-06-12 15:30+0000\n"
 "Last-Translator: Booking Engine Connector\n"
 "Language-Team: Italian\n"
@@ -504,11 +504,11 @@ msgstr ""
 "Configura lo schema URL di prenotazione esterno e quando mostrare il "
 "fallback contatto al posto della prenotazione online."
 
-#: includes/Admin/Settings/FallbackPage.php:60
+#: includes/Admin/Settings/FallbackPage.php:61
 msgid "Checkout (Kross)"
 msgstr "Cassa (Kross)"
 
-#: includes/Admin/Settings/FallbackPage.php:61
+#: includes/Admin/Settings/FallbackPage.php:62
 msgid ""
 "Full URL to your Kross booking engine entry point. Parameters (hotel, room "
 "type, dates, guests) are sent as query string (GET) or POST fields."
@@ -517,11 +517,11 @@ msgstr ""
 "(hotel, tipo camera, date, ospiti) vengono inviati come query string (GET) o "
 "campi POST."
 
-#: includes/Admin/Settings/FallbackPage.php:67
+#: includes/Admin/Settings/FallbackPage.php:68
 msgid "Booking engine base URL"
 msgstr "URL di base del Booking Engine"
 
-#: includes/Admin/Settings/FallbackPage.php:69
+#: includes/Admin/Settings/FallbackPage.php:70
 msgid ""
 "Full URL to your Kross booking engine entry point. Leave empty to hide "
 "checkout links until configured. Parameters (hotel, room type, dates, "
@@ -533,19 +533,19 @@ msgstr ""
 "parametri (hotel, tipo di camera, date, ospiti) vengono inviati come stringa "
 "di query (GET) o come campi POST, a seconda dell'opzione seguente."
 
-#: includes/Admin/Settings/FallbackPage.php:75
+#: includes/Admin/Settings/FallbackPage.php:76
 msgid "How to open the booking engine"
 msgstr "Come aprire il Booking Engine"
 
-#: includes/Admin/Settings/FallbackPage.php:77
+#: includes/Admin/Settings/FallbackPage.php:78
 msgid "GET — append parameters to the URL"
 msgstr "GET: aggiungi parametri all'URL"
 
-#: includes/Admin/Settings/FallbackPage.php:81
+#: includes/Admin/Settings/FallbackPage.php:82
 msgid "POST — submit parameters in the request body to this URL"
 msgstr "POST: invia i parametri nel corpo della richiesta a questo URL"
 
-#: includes/Admin/Settings/FallbackPage.php:86
+#: includes/Admin/Settings/FallbackPage.php:87
 msgid ""
 "Use POST when your engine expects a form submission and then redirects the "
 "browser (e.g. middleware that builds the final booking URL from posted "
@@ -555,11 +555,11 @@ msgstr ""
 "reindirizza il browser (ad esempio un middleware che crea l'URL di "
 "prenotazione finale dai campi pubblicati)."
 
-#: includes/Admin/Settings/FallbackPage.php:94
+#: includes/Admin/Settings/FallbackPage.php:95
 msgid "Fallback behavior"
 msgstr "Comportamento fallback"
 
-#: includes/Admin/Settings/FallbackPage.php:95
+#: includes/Admin/Settings/FallbackPage.php:96
 msgid ""
 "When rules match, show contact fallback instead of online booking or API "
 "error notices."
@@ -567,86 +567,72 @@ msgstr ""
 "Quando le regole corrispondono, mostra il fallback contatto al posto della "
 "prenotazione online o degli avvisi di errore API."
 
-#: includes/Admin/Settings/FallbackPage.php:102
+#: includes/Admin/Settings/FallbackPage.php:103
 msgid "Enable fallback"
 msgstr "Abilita il fallback"
 
-#: includes/Admin/Settings/FallbackPage.php:104
+#: includes/Admin/Settings/FallbackPage.php:105
 msgid "Allow fallback blocks when rules match."
 msgstr "Consenti blocchi di fallback quando le regole corrispondono."
 
-#: includes/Admin/Settings/FallbackPage.php:107
+#: includes/Admin/Settings/FallbackPage.php:108
 msgid "Always use fallback"
 msgstr "Utilizzare sempre il fallback"
 
-#: includes/Admin/Settings/FallbackPage.php:109
+#: includes/Admin/Settings/FallbackPage.php:110
 msgid ""
 "Ignore API availability and always show fallback (e.g. contact-only mode)."
 msgstr ""
 "Ignora la disponibilità dell'API e mostra sempre il fallback (ad esempio la "
 "modalità solo contatto)."
 
-#: includes/Admin/Settings/FallbackPage.php:112
+#: includes/Admin/Settings/FallbackPage.php:113
 msgid "Presentation"
 msgstr "Presentazione"
 
-#: includes/Admin/Settings/FallbackPage.php:114
-#: includes/Admin/Settings/FallbackPage.php:135
+#: includes/Admin/Settings/FallbackPage.php:115
+#: includes/Admin/Settings/FallbackPage.php:282
 msgid "Inline content"
 msgstr "Contenuti in linea"
 
-#: includes/Admin/Settings/FallbackPage.php:115
+#: includes/Admin/Settings/FallbackPage.php:116
 msgid "Link only"
 msgstr "Solo collegamento"
 
-#: includes/Admin/Settings/FallbackPage.php:119
-msgid "Fallback link URL"
-msgstr "URL del collegamento di riserva"
-
-#: includes/Admin/Settings/FallbackPage.php:121
+#: includes/Admin/Settings/FallbackPage.php:122
 msgid ""
-"Used when “Link only” is selected. Enter a full URL, a site path (e.g. /"
-"contact), query parameters (e.g. ?subject=enquiry), or an encoded hash link "
-"(e.g. Elementor popup triggers)."
+"Fallback URL, link text, and inline content can be translated per language "
+"below. Leave a translation empty to fall back to the default language value "
+"(or WPML/Polylang string translations when configured)."
 msgstr ""
-"Utilizzato quando è selezionato «Solo collegamento». Inserisci un URL "
-"completo, un percorso del sito (es. /contact), parametri di query (es. "
-"?subject=enquiry) o un collegamento con hash codificato (es. trigger popup "
-"Elementor)."
-
-#: includes/Admin/Settings/FallbackPage.php:127
-msgid "Fallback link text"
-msgstr "Testo del collegamento di riserva"
+"URL, testo del collegamento e contenuto inline del fallback possono essere "
+"tradotti per lingua qui sotto. Lascia vuota una traduzione per usare il "
+"valore della lingua predefinita (o le traduzioni stringa WPML/Polylang se "
+"configurate)."
 
 #: includes/Admin/Settings/FallbackPage.php:129
-msgid ""
-"Leave empty to use the default contact label, which follows the active site "
-"language."
-msgstr ""
-"Lascia vuoto per utilizzare l'etichetta di contatto predefinita, che segue "
-"la lingua del sito attivo."
+msgid "Fallback content languages"
+msgstr "Lingue del contenuto fallback"
 
-#: includes/Admin/Settings/FallbackPage.php:145
-msgid "Shown for “Inline content” mode. Shortcodes are supported."
-msgstr ""
-"Visualizzato per la modalità \"Contenuto in linea\". Sono supportati gli "
-"shortcode."
+#: includes/Admin/Settings/FallbackPage.php:134
+msgid "default"
+msgstr "predefinita"
 
-#: includes/Admin/Settings/FallbackPage.php:151
+#: includes/Admin/Settings/FallbackPage.php:147
 msgid "Trigger fallback on empty availability"
 msgstr "Attiva il fallback sulla disponibilità vuota"
 
-#: includes/Admin/Settings/FallbackPage.php:153
+#: includes/Admin/Settings/FallbackPage.php:149
 msgid "When the provider reports no rooms available for the search."
 msgstr ""
 "Quando il fornitore segnala che non ci sono camere disponibili per la "
 "ricerca."
 
-#: includes/Admin/Settings/FallbackPage.php:156
+#: includes/Admin/Settings/FallbackPage.php:152
 msgid "Trigger on provider errors"
 msgstr "Attivazione in caso di errori del provider"
 
-#: includes/Admin/Settings/FallbackPage.php:162
+#: includes/Admin/Settings/FallbackPage.php:158
 msgid ""
 "When the quote request fails with one of these categories, show fallback "
 "instead of an error notice."
@@ -654,12 +640,45 @@ msgstr ""
 "Quando la richiesta di preventivo fallisce con una di queste categorie, "
 "mostra il fallback invece di un avviso di errore."
 
-#: includes/Admin/Settings/FallbackPage.php:171
+#: includes/Admin/Settings/FallbackPage.php:167
 #: includes/Admin/Settings/StylingPage.php:210
 #: includes/Admin/Settings/UnitFiltersPage.php:130
 #: includes/Admin/Settings/UnitPermalinkPage.php:191
 msgid "Save changes"
 msgstr "Salva modifiche"
+
+#: includes/Admin/Settings/FallbackPage.php:266
+msgid "Fallback link URL"
+msgstr "URL del collegamento di riserva"
+
+#: includes/Admin/Settings/FallbackPage.php:268
+msgid ""
+"Used when “Link only” is selected. Enter a full URL, a site path (e.g. /"
+"contact), query parameters (e.g. ?subject=enquiry), or an encoded hash link "
+"(e.g. Elementor popup triggers)."
+msgstr ""
+"Utilizzato quando è selezionato «Solo collegamento». Inserisci un URL "
+"completo, un percorso del sito (es. /contact), parametri di query (es. ?"
+"subject=enquiry) o un collegamento con hash codificato (es. trigger popup "
+"Elementor)."
+
+#: includes/Admin/Settings/FallbackPage.php:274
+msgid "Fallback link text"
+msgstr "Testo del collegamento di riserva"
+
+#: includes/Admin/Settings/FallbackPage.php:276
+msgid ""
+"Leave empty to use the default contact label, which follows the active site "
+"language."
+msgstr ""
+"Lascia vuoto per utilizzare l'etichetta di contatto predefinita, che segue "
+"la lingua del sito attivo."
+
+#: includes/Admin/Settings/FallbackPage.php:292
+msgid "Shown for “Inline content” mode. Shortcodes are supported."
+msgstr ""
+"Visualizzato per la modalità \"Contenuto in linea\". Sono supportati gli "
+"shortcode."
 
 #: includes/Admin/Settings/FrontendPage.php:41
 msgid ""
@@ -788,9 +807,8 @@ msgid ""
 "When WPML or Polylang is active, synced units can automatically receive "
 "linked translation posts from provider locale maps."
 msgstr ""
-"Quando WPML o Polylang sono attivi, le unità sincronizzate possono "
-"ricevere automaticamente post di traduzione collegati dalle mappe locali "
-"del provider."
+"Quando WPML o Polylang sono attivi, le unità sincronizzate possono ricevere "
+"automaticamente post di traduzione collegati dalle mappe locali del provider."
 
 #: includes/Admin/Settings/FrontendPage.php:153
 msgid "Translation sync"
@@ -798,7 +816,8 @@ msgstr "Sincronizzazione traduzioni"
 
 #: includes/Admin/Settings/FrontendPage.php:156
 msgid "Create and update linked translation posts on each unit sync"
-msgstr "Crea e aggiorna post di traduzione collegati a ogni sincronizzazione unità"
+msgstr ""
+"Crea e aggiorna post di traduzione collegati a ogni sincronizzazione unità"
 
 #: includes/Admin/Settings/FrontendPage.php:160
 msgid ""
@@ -807,8 +826,8 @@ msgid ""
 "amenities, categories, and sync payload stay shared."
 msgstr ""
 "Utilizza le mappe locali Kross be_name e be_description quando disponibili. "
-"Titolo, descrizione e relativi meta core sono specifici per lingua; immagini, "
-"servizi, categorie e payload di sync restano condivisi."
+"Titolo, descrizione e relativi meta core sono specifici per lingua; "
+"immagini, servizi, categorie e payload di sync restano condivisi."
 
 #: includes/Admin/Settings/FrontendPage.php:170
 msgid "Save frontend settings"
@@ -881,7 +900,7 @@ msgstr ""
 "wrap--enhanced, .daterangepicker."
 
 #: includes/Admin/Settings/StylingPage.php:157
-#: includes/Shortcodes/BookingSummary/BookingSummaryRenderer.php:649
+#: includes/Shortcodes/BookingSummary/BookingSummaryRenderer.php:648
 msgid "Booking summary"
 msgstr "Riepilogo della prenotazione"
 
@@ -1620,12 +1639,12 @@ msgstr ""
 "Lascia vuoto per usare il post corrente (unità singola o elemento del loop)."
 
 #. translators: Default fallback link label when none is saved in settings.
-#: includes/Fallback/FallbackRenderer.php:24
-#: includes/Shortcodes/BookingSummary/BookingSummaryRenderer.php:78
+#: includes/Fallback/FallbackRenderer.php:22
+#: includes/Shortcodes/BookingSummary/BookingSummaryRenderer.php:77
 msgid "Contact us"
 msgstr "Contattaci"
 
-#: includes/Fallback/FallbackRenderer.php:41
+#: includes/Fallback/FallbackRenderer.php:36
 msgid "Add fallback content or link in Booking Engine → Fallback."
 msgstr ""
 "Aggiungi contenuto o collegamento fallback in Booking Engine → Fallback."
@@ -1642,7 +1661,7 @@ msgstr "Dal %1$s al %2$s"
 
 #. translators: 1: from date, 2: to date
 #: includes/Formatting/DateFormatter.php:129
-#: includes/Shortcodes/BookingSummary/BookingSummaryRenderer.php:579
+#: includes/Shortcodes/BookingSummary/BookingSummaryRenderer.php:578
 #, php-format
 msgid "from %1$s to %2$s"
 msgstr "da %1$s a %2$s"
@@ -2260,99 +2279,99 @@ msgid "%d available units"
 msgstr "%d unità disponibili"
 
 #: includes/Shortcodes/BookingSummary/BookingSummaryRateStateBuilder.php:56
-#: includes/Shortcodes/BookingSummary/BookingSummaryRenderer.php:356
-#: includes/Shortcodes/BookingSummary/BookingSummaryRenderer.php:644
+#: includes/Shortcodes/BookingSummary/BookingSummaryRenderer.php:355
+#: includes/Shortcodes/BookingSummary/BookingSummaryRenderer.php:643
 msgid "Continue"
 msgstr "Continua"
 
-#: includes/Shortcodes/BookingSummary/BookingSummaryRenderer.php:47
+#: includes/Shortcodes/BookingSummary/BookingSummaryRenderer.php:46
 msgid "City tax not included"
 msgstr "Tassa di soggiorno non inclusa"
 
-#: includes/Shortcodes/BookingSummary/BookingSummaryRenderer.php:80
-#: includes/Shortcodes/BookingSummary/BookingSummaryRenderer.php:175
+#: includes/Shortcodes/BookingSummary/BookingSummaryRenderer.php:79
+#: includes/Shortcodes/BookingSummary/BookingSummaryRenderer.php:174
 msgid "Enquiry"
 msgstr "Richiesta info"
 
-#: includes/Shortcodes/BookingSummary/BookingSummaryRenderer.php:213
-#: includes/Shortcodes/BookingSummary/BookingSummaryRenderer.php:652
+#: includes/Shortcodes/BookingSummary/BookingSummaryRenderer.php:212
+#: includes/Shortcodes/BookingSummary/BookingSummaryRenderer.php:651
 msgid "Summary"
 msgstr "Riepilogo"
 
-#: includes/Shortcodes/BookingSummary/BookingSummaryRenderer.php:227
-#: includes/Shortcodes/BookingSummary/BookingSummaryRenderer.php:633
+#: includes/Shortcodes/BookingSummary/BookingSummaryRenderer.php:226
+#: includes/Shortcodes/BookingSummary/BookingSummaryRenderer.php:632
 msgid "Check availability"
 msgstr "Verifica la disponibilità"
 
-#: includes/Shortcodes/BookingSummary/BookingSummaryRenderer.php:252
+#: includes/Shortcodes/BookingSummary/BookingSummaryRenderer.php:251
 msgid "No solution available for the dates and guests indicated."
 msgstr "Nessuna soluzione disponibile per le date e gli ospiti indicati."
 
-#: includes/Shortcodes/BookingSummary/BookingSummaryRenderer.php:424
+#: includes/Shortcodes/BookingSummary/BookingSummaryRenderer.php:423
 msgid "Search selection"
 msgstr "Selezione della ricerca"
 
-#: includes/Shortcodes/BookingSummary/BookingSummaryRenderer.php:426
+#: includes/Shortcodes/BookingSummary/BookingSummaryRenderer.php:425
 msgid "Stay dates"
 msgstr "Date del soggiorno"
 
-#: includes/Shortcodes/BookingSummary/BookingSummaryRenderer.php:473
+#: includes/Shortcodes/BookingSummary/BookingSummaryRenderer.php:472
 msgid "Select rate"
 msgstr "Seleziona tariffa"
 
-#: includes/Shortcodes/BookingSummary/BookingSummaryRenderer.php:474
+#: includes/Shortcodes/BookingSummary/BookingSummaryRenderer.php:473
 msgid "Rates"
 msgstr "Tariffe"
 
 #. translators: %d: nights
-#: includes/Shortcodes/BookingSummary/BookingSummaryRenderer.php:587
+#: includes/Shortcodes/BookingSummary/BookingSummaryRenderer.php:586
 #, php-format
 msgid "%d night"
 msgid_plural "%d nights"
 msgstr[0] "%d notte"
 msgstr[1] "%d notti"
 
-#: includes/Shortcodes/BookingSummary/BookingSummaryRenderer.php:624
+#: includes/Shortcodes/BookingSummary/BookingSummaryRenderer.php:623
 msgid "View details"
 msgstr "Visualizza i dettagli"
 
-#: includes/Shortcodes/BookingSummary/BookingSummaryRenderer.php:628
+#: includes/Shortcodes/BookingSummary/BookingSummaryRenderer.php:627
 msgid "Booking on mobile"
 msgstr "Prenotazione su cellulare"
 
-#: includes/Shortcodes/BookingSummary/BookingSummaryRenderer.php:639
+#: includes/Shortcodes/BookingSummary/BookingSummaryRenderer.php:638
 msgid "Current total"
 msgstr "Totale attuale"
 
-#: includes/Shortcodes/BookingSummary/BookingSummaryRenderer.php:652
+#: includes/Shortcodes/BookingSummary/BookingSummaryRenderer.php:651
 msgid "Back"
 msgstr "Indietro"
 
-#: includes/Shortcodes/BookingSummary/BookingSummaryRenderer.php:780
+#: includes/Shortcodes/BookingSummary/BookingSummaryRenderer.php:779
 msgid "Per night"
 msgstr "A notte"
 
-#: includes/Shortcodes/BookingSummary/BookingSummaryRenderer.php:830
-#: includes/Shortcodes/BookingSummary/BookingSummaryRenderer.php:899
+#: includes/Shortcodes/BookingSummary/BookingSummaryRenderer.php:829
+#: includes/Shortcodes/BookingSummary/BookingSummaryRenderer.php:898
 msgid "Total"
 msgstr "Totale"
 
-#: includes/Shortcodes/BookingSummary/BookingSummaryRenderer.php:838
+#: includes/Shortcodes/BookingSummary/BookingSummaryRenderer.php:837
 #: includes/Shortcodes/BookingSummary/BookingSummaryViewModelBuilder.php:111
 msgid "Prepayment needed"
 msgstr "Pagamento anticipato"
 
-#: includes/Shortcodes/BookingSummary/BookingSummaryRenderer.php:847
+#: includes/Shortcodes/BookingSummary/BookingSummaryRenderer.php:846
 #: includes/Shortcodes/BookingSummary/BookingSummaryViewModelBuilder.php:119
 msgid "Damage deposit"
 msgstr "Deposito cauzionale"
 
-#: includes/Shortcodes/BookingSummary/BookingSummaryRenderer.php:870
+#: includes/Shortcodes/BookingSummary/BookingSummaryRenderer.php:869
 #: includes/Shortcodes/BookingSummary/BookingSummaryViewModelBuilder.php:78
 msgid "This rate includes"
 msgstr "Questa tariffa include"
 
-#: includes/Shortcodes/BookingSummary/BookingSummaryRenderer.php:871
+#: includes/Shortcodes/BookingSummary/BookingSummaryRenderer.php:870
 #: includes/Shortcodes/BookingSummary/BookingSummaryViewModelBuilder.php:85
 msgid "Cancellation and payments"
 msgstr "Cancellazione e pagamenti"
@@ -2496,17 +2515,17 @@ msgid "Remote unit not found for this external ID."
 msgstr "Unità remota non trovata per questo ID esterno."
 
 #. translators: %s external id
-#: includes/Sync/SyncService.php:358 includes/Sync/SyncService.php:502
+#: includes/Sync/SyncService.php:360 includes/Sync/SyncService.php:504
 #, php-format
 msgid "Unit %s"
 msgstr "Unità %s"
 
-#: includes/Sync/SyncService.php:505
+#: includes/Sync/SyncService.php:507
 msgid "(unnamed)"
 msgstr "(senza nome)"
 
 #. translators: %s provider category external id
-#: includes/Sync/UnitCategorySync.php:446
+#: includes/Sync/UnitCategorySync.php:474
 #, php-format
 msgid "Category %s"
 msgstr "Categoria %s"
