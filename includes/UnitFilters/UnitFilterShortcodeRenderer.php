@@ -58,15 +58,23 @@ final class UnitFilterShortcodeRenderer
 		$amenityLimit = \max(0, (int) $a['amenities_limit']);
 		self::$hideLabels = self::isTruthy((string) $a['hide_labels']);
 
+		$hubRows = self::resolveHubRows($fieldDefs, $request, (string) $a['amenities'], $amenityLimit);
+
 		\ob_start();
+
+		$formId = \wp_unique_id('bec_unit_filters_');
 
 		$classes = 'bec-unit-filters bec-unit-filters--' . $layout;
 		if (self::$hideLabels) {
 			$classes .= ' bec-unit-filters--hide-labels';
 		}
-		echo '<form class="' . \esc_attr($classes) . '" method="get" action="' . \esc_url($action) . '">';
+		echo '<form id="' . \esc_attr($formId) . '" class="' . \esc_attr($classes) . '" method="get" action="' . \esc_url($action) . '" data-bec-unit-filters-form>';
 
 		self::renderPreservedHiddenFields($request);
+
+		self::renderMobileFilterHub($hubRows, $formId, $action, $showReset);
+
+		echo '<div class="bec-unit-filters__fields">';
 
 		foreach ($fieldDefs as $def) {
 			$id = $def['id'] ?? '';
@@ -84,6 +92,8 @@ final class UnitFilterShortcodeRenderer
 				self::renderAmenitiesField($request, $choices);
 			}
 		}
+
+		echo '</div>';
 
 		echo '<div class="bec-unit-filters__actions">';
 		echo '<button type="submit" class="bec-unit-filters__submit">' . \esc_html__(
@@ -165,6 +175,171 @@ final class UnitFilterShortcodeRenderer
 		}
 
 		return (string) \add_query_arg($args, $action);
+	}
+
+	/**
+	 * @param list<array{id: string, param: string, label: string, meta_key?: string, taxonomy?: string}> $fieldDefs
+	 * @return list<array{slug: string, label: string, value: string}>
+	 */
+	private static function resolveHubRows(
+		array $fieldDefs,
+		UnitFilterRequest $request,
+		string $amenitiesAttr,
+		int $amenityLimit
+	): array {
+		$rows = [];
+		$anyLabel = \__('Any', 'booking-engine-connector');
+
+		foreach ($fieldDefs as $def) {
+			$id = $def['id'] ?? '';
+			if ($id === UnitFilterRegistry::FILTER_ORDER) {
+				$current = $request->getOrder();
+				$options = [
+					['value' => '', 'label' => $anyLabel],
+					['value' => 'ASC', 'label' => \__('Ascending', 'booking-engine-connector')],
+					['value' => 'DESC', 'label' => \__('Descending', 'booking-engine-connector')],
+				];
+				$rows[] = [
+					'slug'  => 'order',
+					'label' => \__('Order', 'booking-engine-connector'),
+					'value' => self::pickerDisplayLabel(\__('Order', 'booking-engine-connector'), $current, $options, $anyLabel),
+				];
+			} elseif ($id === UnitFilterRegistry::FILTER_ROOMS) {
+				$min = $request->getRoomsMin();
+				$current = $min > 0 ? (string) $min : '';
+				$options = [['value' => '', 'label' => $anyLabel]];
+				for ($i = 1; $i <= 10; $i++) {
+					$options[] = ['value' => (string) $i, 'label' => (string) $i . '+'];
+				}
+				$rows[] = [
+					'slug'  => 'rooms',
+					'label' => \__('Rooms', 'booking-engine-connector'),
+					'value' => self::pickerDisplayLabel(\__('Rooms', 'booking-engine-connector'), $current, $options, $anyLabel),
+				];
+			} elseif ($id === UnitFilterRegistry::FILTER_BATHROOMS) {
+				$min = $request->getBathroomsMin();
+				$minStr = $min > 0.0 ? UnitFilterRequest::formatBathroomsMin($min) : '';
+				$options = [['value' => '', 'label' => $anyLabel]];
+				foreach (['1', '1.5', '2', '2.5', '3', '4'] as $opt) {
+					$options[] = ['value' => $opt, 'label' => $opt . '+'];
+				}
+				$rows[] = [
+					'slug'  => 'bathrooms',
+					'label' => \__('Bathrooms', 'booking-engine-connector'),
+					'value' => self::pickerDisplayLabel(\__('Bathrooms', 'booking-engine-connector'), $minStr, $options, $anyLabel),
+				];
+			} elseif ($id === UnitFilterRegistry::FILTER_AMENITIES) {
+				$choices = self::resolveAmenityChoices($amenitiesAttr, $amenityLimit);
+				if ($choices === []) {
+					continue;
+				}
+				$selectedCount = 0;
+				$selected = \array_fill_keys($request->getAmenityKeys(), true);
+				foreach ($choices as $choice) {
+					if (isset($selected[ $choice['key'] ])) {
+						$selectedCount++;
+					}
+				}
+				$amenitiesLabel = \__('Amenities', 'booking-engine-connector');
+				if ($selectedCount > 0) {
+					$value = \sprintf(
+						/* translators: 1: number of selected amenities, 2: total number of amenity choices. */
+						\_n(
+							'%1$d of %2$d selected',
+							'%1$d of %2$d selected',
+							$selectedCount,
+							'booking-engine-connector'
+						),
+						$selectedCount,
+						\count($choices)
+					);
+				} else {
+					$value = self::$hideLabels
+						? $amenitiesLabel
+						: \__('Pick desired amenities', 'booking-engine-connector');
+				}
+				$rows[] = [
+					'slug'  => 'amenities',
+					'label' => $amenitiesLabel,
+					'value' => $value,
+				];
+			}
+		}
+
+		return $rows;
+	}
+
+	/**
+	 * @param list<array{slug: string, label: string, value: string}> $hubRows
+	 */
+	private static function renderMobileFilterHub(
+		array $hubRows,
+		string $formId,
+		string $action,
+		bool $showReset
+	): void {
+		if ($hubRows === []) {
+			return;
+		}
+
+		$filterLabel   = \__('Filter', 'booking-engine-connector');
+		$filtersTitle  = \__('Filters', 'booking-engine-connector');
+		$applyLabel    = \esc_html__('Apply filters', 'booking-engine-connector');
+		$resetLabel    = \esc_html__('Reset filters', 'booking-engine-connector');
+		$closeAria     = \esc_attr__('Close filters', 'booking-engine-connector');
+		$hubPanelId    = \wp_unique_id('bec_filter_hub_panel_');
+
+		echo '<div class="bec-unit-filters__hub" data-bec-filter-hub>';
+
+		echo '<button type="button" class="bec-unit-filters__mobile-trigger" data-bec-filter-hub-trigger ';
+		echo 'aria-haspopup="dialog" aria-expanded="false" aria-controls="' . \esc_attr($hubPanelId) . '">';
+		echo '<span class="bec-unit-filters__mobile-trigger-icon" aria-hidden="true"></span>';
+		echo '<span class="bec-unit-filters__mobile-trigger-text">' . \esc_html($filterLabel) . '</span>';
+		echo '<span class="bec-unit-filters__mobile-trigger-badge" data-bec-filter-hub-badge hidden>0</span>';
+		echo '</button>';
+
+		echo '<div class="bec-unit-filters__hub-backdrop" data-bec-filter-hub-backdrop hidden></div>';
+
+		echo '<div class="bec-unit-filters__hub-panel" id="' . \esc_attr($hubPanelId) . '" data-bec-filter-hub-panel ';
+		echo 'role="dialog" aria-modal="false" aria-labelledby="' . \esc_attr($hubPanelId) . '_title">';
+
+		echo '<div class="bec-unit-filters__hub-panel-header">';
+		echo '<span class="bec-unit-filters__hub-panel-title" id="' . \esc_attr($hubPanelId) . '_title">' . \esc_html($filtersTitle) . '</span>';
+		echo '<button type="button" class="bec-unit-filters__hub-close" data-bec-filter-hub-close aria-label="' . $closeAria . '">';
+		echo '<span aria-hidden="true">&times;</span>';
+		echo '</button>';
+		echo '</div>';
+
+		echo '<ul class="bec-unit-filters__hub-list" data-bec-filter-hub-list>';
+		foreach ($hubRows as $row) {
+			echo '<li class="bec-unit-filters__hub-item">';
+			echo '<button type="button" class="bec-unit-filters__hub-row" data-bec-filter-hub-row ';
+			echo 'data-bec-filter-target="' . \esc_attr($row['slug']) . '">';
+			echo '<span class="bec-unit-filters__hub-row-label">' . \esc_html($row['label']) . '</span>';
+			echo '<span class="bec-unit-filters__hub-row-value" data-bec-filter-hub-row-value>';
+			echo \esc_html($row['value']);
+			echo '</span>';
+			echo '<span class="bec-unit-filters__hub-row-caret" aria-hidden="true"></span>';
+			echo '</button>';
+			echo '</li>';
+		}
+		echo '</ul>';
+
+		echo '<div class="bec-unit-filters__hub-panel-footer">';
+		echo '<div class="bec-unit-filters__hub-actions">';
+		if ($showReset) {
+			echo '<a class="bec-unit-filters__reset bec-unit-filters__hub-reset" href="' . \esc_url(self::resetUrl($action)) . '">';
+			echo $resetLabel;
+			echo '</a>';
+		}
+		echo '<button type="submit" class="bec-unit-filters__submit bec-unit-filters__hub-submit" form="' . \esc_attr($formId) . '">';
+		echo $applyLabel;
+		echo '</button>';
+		echo '</div>';
+		echo '</div>';
+
+		echo '</div>';
+		echo '</div>';
 	}
 
 	private static function renderPreservedHiddenFields(UnitFilterRequest $request): void
