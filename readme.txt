@@ -4,7 +4,7 @@ Tags: booking, kross, hospitality, availability
 Requires at least: 6.4
 Tested up to: 6.7
 Requires PHP: 8.0
-Stable tag: 0.2.9
+Stable tag: 0.2.10
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
@@ -51,6 +51,9 @@ Use **`[bec_available_units_count]`** anywhere on the results page (above an Ele
 Examples: **`[bec_available_units_count]`** (number only), **`[bec_available_units_count format="text"]`** (default “%d available units” copy), **`[bec_available_units_count hide_without_search="1"]`** (empty until search params are complete), **`[bec_available_units_count zero_text="No units found"]`**, **`[bec_available_units_count category="villas"]`** (count only units in that unit category term), **`[bec_available_units_count query_id="bec_available_only"]`** (target a specific Loop Grid Query ID when multiple grids exist). Custom text: **`singular`** / **`plural`** with **`%d`**, optional **`class`** for styling.
 
 == Changelog ==
+
+= 0.2.10 =
+* **Shortcodes (`[bec_available_units_count]`)**: Fix counts on unit category archives after **`bec_search`** — candidate discovery now preserves `taxonomy` / `term` (and BEC routing) scope instead of widening to all site-wide available units.
 
 = 0.2.9 =
 * **Shortcodes (`[bec_available_units_count]`)**: Count mirrors the Elementor Loop Grid query (same **`bec_filter_*`** + availability rules as Query ID **`bec_available_only`** / **`bec_filtered_units`**) by resolving the loop grid’s base query from the current Elementor document. Native unit archives and taxonomy archives keep using the main query. Optional **`query_id`** attribute targets a specific Loop Grid Query ID. Filters **`bec_unit_listing_query_for_count`**, **`bec_elementor_unit_listing_document_ids`**.

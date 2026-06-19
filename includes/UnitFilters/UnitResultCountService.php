@@ -208,12 +208,15 @@ final class UnitResultCountService
 	private static function loopQuerySignature(WP_Query $query): string
 	{
 		$parts = [
-			'post__in'   => $query->get('post__in'),
-			'post__not_in' => $query->get('post__not_in'),
-			'tax_query'  => $query->get('tax_query'),
-			'meta_query' => $query->get('meta_query'),
-			'orderby'    => $query->get('orderby'),
-			'order'      => $query->get('order'),
+			'post__in'          => $query->get('post__in'),
+			'post__not_in'      => $query->get('post__not_in'),
+			'tax_query'         => $query->get('tax_query'),
+			'taxonomy'          => $query->get('taxonomy'),
+			'term'              => $query->get('term'),
+			'bec_unit_category' => $query->get('bec_unit_category'),
+			'meta_query'        => $query->get('meta_query'),
+			'orderby'           => $query->get('orderby'),
+			'order'             => $query->get('order'),
 		];
 
 		return \md5((string) \wp_json_encode($parts));

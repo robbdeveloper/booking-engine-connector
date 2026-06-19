@@ -9,6 +9,7 @@ use BookingEngineConnector\Integrations\MultilingualBridge;
 use BookingEngineConnector\PostTypes\UnitPostType;
 use BookingEngineConnector\Search\QuoteService;
 use BookingEngineConnector\Search\SearchContext;
+use BookingEngineConnector\Taxonomies\UnitCategoryTaxonomy;
 use WP_Query;
 
 /**
@@ -171,6 +172,8 @@ final class UnitListingAvailability
 		$taxQuery = $query->get('tax_query');
 		if (\is_array($taxQuery) && $taxQuery !== []) {
 			$args['tax_query'] = $taxQuery;
+		} else {
+			$args = self::mergeListingTaxonomyConstraints($query, $args);
 		}
 
 		$postNotIn = $query->get('post__not_in');
@@ -210,6 +213,60 @@ final class UnitListingAvailability
 		}
 
 		return $postIds;
+	}
+
+	/**
+	 * Carry taxonomy archive scope into subqueries when the source query uses
+	 * `taxonomy` / `term` (or BEC routing vars) instead of a `tax_query` array.
+	 *
+	 * Elementor Loop Grids with Source → Current Query pass those vars through;
+	 * without this merge, availability counts on category archives widen to all units.
+	 *
+	 * @param array<string, mixed> $args
+	 * @return array<string, mixed>
+	 */
+	private static function mergeListingTaxonomyConstraints(WP_Query $query, array $args): array
+	{
+		if (isset($args['tax_query']) || isset($args['taxonomy'])) {
+			return $args;
+		}
+
+		$taxonomy = $query->get('taxonomy');
+		$term     = $query->get('term');
+		if (\is_string($taxonomy) && $taxonomy !== '' && \is_string($term) && $term !== '') {
+			$args['taxonomy'] = $taxonomy;
+			$args['term']     = $term;
+
+			return $args;
+		}
+
+		$becCategory = $query->get('bec_unit_category');
+		if (\is_string($becCategory) && $becCategory !== '') {
+			$args['tax_query'] = [
+				[
+					'taxonomy'         => UnitCategoryTaxonomy::TAXONOMY,
+					'field'            => 'slug',
+					'terms'            => [ \sanitize_title($becCategory) ],
+					'include_children' => true,
+				],
+			];
+
+			return $args;
+		}
+
+		$queried = $query->get_queried_object();
+		if ($queried instanceof \WP_Term) {
+			$args['tax_query'] = [
+				[
+					'taxonomy'         => $queried->taxonomy,
+					'field'            => 'term_id',
+					'terms'            => [ (int) $queried->term_id ],
+					'include_children' => true,
+				],
+			];
+		}
+
+		return $args;
 	}
 
 	/**

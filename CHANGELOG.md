@@ -1,5 +1,9 @@
 # Changelog
 
+## 0.2.10 — 2026-06-19
+
+- **Shortcodes (`[bec_available_units_count]`)**: Fix counts on unit category archives after **`bec_search`** — candidate discovery now preserves `taxonomy` / `term` (and BEC routing) scope instead of widening to all site-wide available units when availability pruning runs.
+
 ## 0.2.9 — 2026-06-19
 
 - **Shortcodes (`[bec_available_units_count]`)**: Count now mirrors the Elementor Loop Grid query (same **`bec_filter_*`** + availability rules as Query ID **`bec_available_only`** / **`bec_filtered_units`**) by resolving the loop grid’s base query from the current Elementor document, not the bulk availability response alone. Native unit archives and taxonomy archives keep using the main query; optional **`query_id`** attribute targets a specific Loop Grid Query ID. Filters **`bec_unit_listing_query_for_count`**, **`bec_elementor_unit_listing_document_ids`**.
