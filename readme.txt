@@ -46,9 +46,9 @@ Shortcode attributes include **`layout`** (`inline` or `stacked`), **`show_reset
 
 = How do I show how many units match the current search? =
 
-Use **`[bec_available_units_count]`** anywhere on the results page (above an Elementor Loop Grid, in a heading, or on the native unit archive). It counts published units that match the **current listing query** (e.g. unit category archive), **`bec_filter_*`** params and, when dates and guests are in the URL, units that are **available** for that search—the same rules as Loop Grid Query ID **`bec_available_only`** / **`bec_filtered_units`**.
+Use **`[bec_available_units_count]`** anywhere on the results page (above an Elementor Loop Grid, in a heading, or on the native unit archive). It counts published units that match the **current listing query** (e.g. unit category archive), **`bec_filter_*`** params and, when dates and guests are in the URL, units that are **available** for that search—the same rules as Loop Grid Query ID **`bec_available_only`** / **`bec_filtered_units`**. On Elementor results pages the shortcode resolves the Loop Grid’s base query from the page document so the number matches the filtered grid, not the provider’s bulk availability total alone.
 
-Examples: **`[bec_available_units_count]`** (number only), **`[bec_available_units_count format="text"]`** (default “%d available units” copy), **`[bec_available_units_count hide_without_search="1"]`** (empty until search params are complete), **`[bec_available_units_count zero_text="No units found"]`**, **`[bec_available_units_count category="villas"]`** (count only units in that unit category term). Custom text: **`singular`** / **`plural`** with **`%d`**, optional **`class`** for styling.
+Examples: **`[bec_available_units_count]`** (number only), **`[bec_available_units_count format="text"]`** (default “%d available units” copy), **`[bec_available_units_count hide_without_search="1"]`** (empty until search params are complete), **`[bec_available_units_count zero_text="No units found"]`**, **`[bec_available_units_count category="villas"]`** (count only units in that unit category term), **`[bec_available_units_count query_id="bec_available_only"]`** (target a specific Loop Grid Query ID when multiple grids exist). Custom text: **`singular`** / **`plural`** with **`%d`**, optional **`class`** for styling.
 
 == Changelog ==
 

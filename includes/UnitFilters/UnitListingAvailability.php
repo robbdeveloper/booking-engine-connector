@@ -340,6 +340,24 @@ final class UnitListingAvailability
 
 		$availableIds = self::filterAvailableIds($candidateIds, $ctx);
 
+		return self::finalizeAvailableIds($availableIds, $candidateIds, $ctx, $loopQuery);
+	}
+
+	/**
+	 * @param list<int> $availableIds
+	 * @param list<int> $candidateIds
+	 * @return list<int>
+	 */
+	public static function finalizeAvailableIds(array $availableIds, array $candidateIds, SearchContext $ctx, ?WP_Query $loopQuery): array
+	{
+		$availableIds = \array_values(\array_map('intval', (array) \apply_filters(
+			'bec_elementor_available_post_ids',
+			$availableIds,
+			$candidateIds,
+			$ctx,
+			$loopQuery
+		)));
+
 		return \array_values(\array_map('intval', (array) \apply_filters(
 			'bec_available_unit_ids',
 			$availableIds,

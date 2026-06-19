@@ -25,6 +25,7 @@ final class AvailableUnitsCountShortcodeRenderer
 				'plural'              => '',
 				'hide_without_search' => '0',
 				'category'            => '',
+				'query_id'            => '',
 				'class'               => '',
 			],
 			$atts,
@@ -44,7 +45,8 @@ final class AvailableUnitsCountShortcodeRenderer
 		}
 
 		$categorySlug = \sanitize_title(\trim((string) $a['category']));
-		$count          = UnitResultCountService::getCount($loopQuery, $categorySlug);
+		$queryId      = \sanitize_key(\trim((string) $a['query_id']));
+		$count        = UnitResultCountService::getCount($loopQuery, $categorySlug, $queryId);
 
 		$format = \sanitize_key(\strtolower(\trim((string) $a['format'])));
 		if ($format !== 'text') {

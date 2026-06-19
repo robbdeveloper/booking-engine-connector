@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace BookingEngineConnector\UnitFilters;
 
+use BookingEngineConnector\Elementor\UnitListingQueryResolver;
 use BookingEngineConnector\PostTypes\UnitPostType;
 use BookingEngineConnector\Search\SearchContext;
 use BookingEngineConnector\Taxonomies\UnitCategoryTaxonomy;
@@ -22,18 +23,24 @@ final class UnitResultCountService
 	 *
 	 * @param WP_Query|null $loopQuery      Optional in-loop query; used only when availability pruning is off and the query is a meaningful unit loop.
 	 * @param string        $categorySlug   Optional unit category term slug; scopes the count when set.
+	 * @param string        $elementorQueryId Optional Elementor Loop Grid Query ID (e.g. `bec_available_only`).
 	 */
-	public static function getCount(?WP_Query $loopQuery = null, string $categorySlug = ''): int
+	public static function getCount(?WP_Query $loopQuery = null, string $categorySlug = '', string $elementorQueryId = ''): int
 	{
 		$categorySlug = \sanitize_title(\trim($categorySlug));
+		$elementorQueryId = \sanitize_key(\trim($elementorQueryId));
 
 		if ($loopQuery !== null && ! self::isMeaningfulUnitLoopQuery($loopQuery)) {
 			$loopQuery = null;
 		}
 
+		if ($categorySlug === '') {
+			$loopQuery = self::resolveElementorListingQuery($loopQuery, $elementorQueryId);
+		}
+
 		$loopQuery = self::resolveListingQuery($loopQuery, $categorySlug);
 
-		$key = self::cacheKey($loopQuery, $categorySlug);
+		$key = self::cacheKey($loopQuery, $categorySlug, $elementorQueryId);
 		if (isset(self::$cache[ $key ])) {
 			return self::$cache[ $key ];
 		}
@@ -50,6 +57,27 @@ final class UnitResultCountService
 		self::$cache[ $key ] = $count;
 
 		return $count;
+	}
+
+	private static function resolveElementorListingQuery(?WP_Query $loopQuery, string $elementorQueryId): ?WP_Query
+	{
+		if ($loopQuery instanceof WP_Query && self::isMeaningfulUnitLoopQuery($loopQuery)) {
+			return $loopQuery;
+		}
+
+		$resolved = UnitListingQueryResolver::resolve($elementorQueryId);
+		if (! $resolved instanceof WP_Query) {
+			return $loopQuery;
+		}
+
+		/**
+		 * @param WP_Query      $resolved
+		 * @param WP_Query|null $loopQuery
+		 * @param string        $elementorQueryId
+		 */
+		$resolved = \apply_filters('bec_unit_listing_query_for_count', $resolved, $loopQuery, $elementorQueryId);
+
+		return $resolved instanceof WP_Query ? $resolved : $loopQuery;
 	}
 
 	private static function computeCount(?WP_Query $loopQuery, bool $categoryOverride = false): int
@@ -81,8 +109,11 @@ final class UnitResultCountService
 		}
 
 		$postType = $query->get('post_type');
-		if ($postType === $slug || $postType === [ $slug ]) {
-			return (int) $query->found_posts >= 0;
+		if (
+			($postType === $slug || $postType === [ $slug ])
+			&& \is_array($query->posts)
+		) {
+			return true;
 		}
 
 		return false;
@@ -157,7 +188,7 @@ final class UnitResultCountService
 		$query->set('tax_query', $merged);
 	}
 
-	private static function cacheKey(?WP_Query $loopQuery, string $categorySlug = ''): string
+	private static function cacheKey(?WP_Query $loopQuery, string $categorySlug = '', string $elementorQueryId = ''): string
 	{
 		$filterRequest = UnitFilterRequest::fromRequest();
 		$ctx           = SearchContext::fromRequest();
@@ -167,6 +198,7 @@ final class UnitResultCountService
 			'search'      => $ctx->toQueryArgs(),
 			'prune'       => UnitListingAvailability::shouldApplyAvailabilityPruning($ctx),
 			'category'    => $categorySlug,
+			'query_id'    => $elementorQueryId,
 			'loop_sig'    => $loopQuery instanceof WP_Query ? self::loopQuerySignature($loopQuery) : '',
 		];
 

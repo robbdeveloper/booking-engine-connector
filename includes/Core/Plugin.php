@@ -14,6 +14,7 @@ use BookingEngineConnector\Admin\Settings\UnitPermalinkPage;
 use BookingEngineConnector\Admin\SyncAdmin;
 use BookingEngineConnector\Elementor\AvailabilityQueryFilter;
 use BookingEngineConnector\Elementor\DynamicTagsRegistrar;
+use BookingEngineConnector\Elementor\UnitListingQueryResolver;
 use BookingEngineConnector\Front\AmenitiesAssets;
 use BookingEngineConnector\Front\PublicAssets;
 use BookingEngineConnector\Integrations\Multilingual;
@@ -88,6 +89,7 @@ final class Plugin
 		AmenitiesAssets::register();
 		PublicContentBlocks::register();
 		AvailabilityQueryFilter::register();
+		UnitListingQueryResolver::register();
 		DynamicTagsRegistrar::register();
 		AdminMenu::register();
 		StylingSettings::register();

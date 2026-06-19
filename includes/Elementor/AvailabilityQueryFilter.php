@@ -118,13 +118,7 @@ final class AvailabilityQueryFilter
 			}
 
 			$availableIds = UnitListingAvailability::filterAvailableIds($candidateIds, $ctx);
-			$availableIds = \array_values(\array_map('intval', (array) \apply_filters(
-				'bec_elementor_available_post_ids',
-				$availableIds,
-				$candidateIds,
-				$ctx,
-				$query
-			)));
+			$availableIds = UnitListingAvailability::finalizeAvailableIds($availableIds, $candidateIds, $ctx, $query);
 
 			UnitListingAvailability::restrictQueryToUnitIds($query, $availableIds);
 		} finally {
