@@ -103,6 +103,10 @@ final class AvailabilityQueryFilter
 
 			$ctx = SearchContext::fromRequest();
 			if (! UnitListingAvailability::shouldApplyAvailabilityPruning($ctx)) {
+				if ($filterRequest->hasActiveFilters()) {
+					UnitListingAvailability::restrictQueryToCandidates($query);
+				}
+
 				return;
 			}
 
@@ -122,26 +126,7 @@ final class AvailabilityQueryFilter
 				$query
 			)));
 
-			$existing = $query->get('post__in');
-			if (\is_array($existing) && $existing !== []) {
-				$existing     = \array_map('intval', $existing);
-				$availableIds = \array_values(\array_intersect($existing, $availableIds));
-			}
-
-			$excluded = $query->get('post__not_in');
-			if (\is_array($excluded) && $excluded !== []) {
-				$excluded     = \array_map('intval', $excluded);
-				$availableIds = \array_values(\array_diff($availableIds, $excluded));
-			}
-
-			if ($availableIds === []) {
-				$query->set('post__in', [0]);
-
-				return;
-			}
-
-			$query->set('post__in', $availableIds);
-			$query->set('ignore_sticky_posts', true);
+			UnitListingAvailability::restrictQueryToUnitIds($query, $availableIds);
 		} finally {
 			UnitListingAvailability::leaveListingScope();
 		}

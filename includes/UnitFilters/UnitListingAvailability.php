@@ -272,6 +272,45 @@ final class UnitListingAvailability
 	}
 
 	/**
+	 * Restrict a loop query to unit IDs matching its current vars (meta/tax/post__in).
+	 */
+	public static function restrictQueryToCandidates(WP_Query $query): void
+	{
+		$candidateIds = self::getCandidateIdsFromQuery($query);
+		self::restrictQueryToUnitIds($query, $candidateIds);
+	}
+
+	/**
+	 * @param list<int> $unitIds
+	 */
+	public static function restrictQueryToUnitIds(WP_Query $query, array $unitIds): void
+	{
+		$unitIds = \array_values(\array_map('intval', $unitIds));
+
+		$existing = $query->get('post__in');
+		if (\is_array($existing) && $existing !== []) {
+			$existing  = \array_map('intval', $existing);
+			$unitIds   = \array_values(\array_intersect($existing, $unitIds));
+		}
+
+		$excluded = $query->get('post__not_in');
+		if (\is_array($excluded) && $excluded !== []) {
+			$excluded = \array_map('intval', $excluded);
+			$unitIds  = \array_values(\array_diff($unitIds, $excluded));
+		}
+
+		if ($unitIds === []) {
+			$query->set('post__in', [0]);
+
+			return;
+		}
+
+		$query->set('post__in', $unitIds);
+		$query->set('orderby', 'post__in');
+		$query->set('ignore_sticky_posts', true);
+	}
+
+	/**
 	 * Available unit post IDs after unit filters and optional availability pruning.
 	 *
 	 * @param WP_Query|null $loopQuery Optional loop/archive query (Elementor grid constraints).
