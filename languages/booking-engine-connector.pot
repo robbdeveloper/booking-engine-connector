@@ -368,6 +368,7 @@ msgid "HTTP status"
 msgstr ""
 
 #: includes/Admin/ApiLogPage.php:96
+#: includes/UnitFilters/UnitFilterShortcodeRenderer.php:285
 msgid "Filter"
 msgstr ""
 
@@ -2330,6 +2331,14 @@ msgstr ""
 
 #: includes/UnitFilters/UnitFilterShortcodeRenderer.php:94
 msgid "Reset filters"
+msgstr ""
+
+#: includes/UnitFilters/UnitFilterShortcodeRenderer.php:286
+msgid "Filters"
+msgstr ""
+
+#: includes/UnitFilters/UnitFilterShortcodeRenderer.php:289
+msgid "Close filters"
 msgstr ""
 
 #: includes/UnitFilters/UnitFilterShortcodeRenderer.php:219
