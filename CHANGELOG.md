@@ -1,5 +1,11 @@
 # Changelog
 
+## 0.2.8 — 2026-06-19
+
+- **Unit filters UI (`[bec_unit_filters]`) — mobile**: New **Filter** hub on viewports ≤639px — a single trigger opens a body-mounted drawer listing each enabled filter; tapping a row opens the existing picker/amenities bottom sheet. **Done** (and close/backdrop/Escape) returns to the hub so visitors can adjust multiple filters before **Apply filters**. Hub footer places **Reset filters** on the left and **Apply filters** on the right; active-filter count badge on the trigger.
+- **Unit filters UI — overlays**: Hub and per-field picker/amenities panels portal to `document.body` on mobile for reliable fixed positioning and z-index stacking. Native radio/checkbox controls stay visually hidden in portaled panels (custom option UI only). Desktop inline filter row layout preserved via `.bec-unit-filters__fields` flex wrapper.
+- **i18n**: Italian translations for mobile hub strings (**Filters** → *Filtri*, **Close filters**, hub **Filter** trigger). Updated `languages/booking-engine-connector.pot`, merged `booking-engine-connector-it_IT.po`, recompiled `booking-engine-connector-it_IT.mo`.
+
 ## 0.2.7 — 2026-06-15
 
 - **Booking summary — enquiry link**: **`[bec_booking_summary]`** Enquiry button uses **`FallbackSettings::getLocalizedLinkUrl()`** so the href follows per-language fallback URL settings (and String Translation fallback) instead of always reading the default-language option.

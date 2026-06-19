@@ -4,7 +4,7 @@ Tags: booking, kross, hospitality, availability
 Requires at least: 6.4
 Tested up to: 6.7
 Requires PHP: 8.0
-Stable tag: 0.2.7
+Stable tag: 0.2.8
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
@@ -51,6 +51,11 @@ Use **`[bec_available_units_count]`** anywhere on the results page (above an Ele
 Examples: **`[bec_available_units_count]`** (number only), **`[bec_available_units_count format="text"]`** (default “%d available units” copy), **`[bec_available_units_count hide_without_search="1"]`** (empty until search params are complete), **`[bec_available_units_count zero_text="No units found"]`**, **`[bec_available_units_count category="villas"]`** (count only units in that unit category term). Custom text: **`singular`** / **`plural`** with **`%d`**, optional **`class`** for styling.
 
 == Changelog ==
+
+= 0.2.8 =
+* **Unit filters UI (`[bec_unit_filters]`) — mobile**: **Filter** button opens a body-mounted hub drawer with one row per filter; each row opens the existing picker/amenities sheet. **Done** returns to the hub for multi-filter editing. Hub footer: **Reset filters** left, **Apply filters** right; badge shows active filter count.
+* **Unit filters UI — overlays**: Mobile hub and field panels portal to `document.body` for correct stacking; native radios/checkboxes hidden in portaled option lists. Desktop inline filter layout unchanged.
+* **i18n**: Italian hub strings (**Filters** / *Filtri*, **Close filters**); refreshed POT/PO/MO.
 
 = 0.2.7 =
 * **Booking summary — enquiry link**: `[bec_booking_summary]` Enquiry button now uses the localized fallback link URL for the active WPML/Polylang language (not only the default-language option).
