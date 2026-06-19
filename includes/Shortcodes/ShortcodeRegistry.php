@@ -20,6 +20,7 @@ use BookingEngineConnector\Shortcodes\BookingSummary\BookingSummaryRenderer;
 use BookingEngineConnector\Shortcodes\BookingSummary\BookingSummaryViewModelBuilder;
 use BookingEngineConnector\Sync\SyncPayloadEncoder;
 use BookingEngineConnector\UnitFilters\UnitFilterShortcodeRenderer;
+use BookingEngineConnector\Units\UnitBookingMode;
 use BookingEngineConnector\Units\UnitGalleryPresenter;
 
 /**
@@ -102,6 +103,11 @@ final class ShortcodeRegistry
 		);
 
 		if (FallbackService::isAlwaysOn()) {
+			return FallbackRenderer::render();
+		}
+
+		$postId = (int) \get_the_ID();
+		if (\is_singular(UnitPostType::getSlug()) && $postId > 0 && UnitBookingMode::isOnlyRequest($postId)) {
 			return FallbackRenderer::render();
 		}
 
@@ -253,6 +259,10 @@ final class ShortcodeRegistry
 			return '';
 		}
 
+		if (UnitBookingMode::isOnlyRequest($postId)) {
+			return '';
+		}
+
 		if (FallbackService::isAlwaysOn()) {
 			return '';
 		}
@@ -308,6 +318,33 @@ final class ShortcodeRegistry
 		}
 		if ($postId < 1 || \get_post_type($postId) !== UnitPostType::getSlug()) {
 			return '';
+		}
+
+		if (UnitBookingMode::isOnlyRequest($postId)) {
+			if (FallbackService::isAlwaysOn()) {
+				return '';
+			}
+
+			$amount = UnitBookingMode::startingFromAmount($postId);
+			if ($amount === null) {
+				return '';
+			}
+
+			$formatOptions = self::quoteMoneyFormatOptionsFromAtts($a);
+			$currency      = UnitBookingMode::startingFromCurrency($postId);
+			$money         = MoneyFormatter::format($amount, $currency, $formatOptions);
+			$ctx           = SearchContext::fromRequest();
+			$text          = \trim(
+				(string) \sprintf(
+					/* translators: %s: formatted price including currency when applicable */
+					\__('From %s', 'booking-engine-connector'),
+					$money
+				)
+			);
+			$text = (string) \apply_filters('bec_shortcode_quote_text', $text, null, $postId, $ctx);
+			$html = '<p class="bec-shortcode-quote bec-shortcode-quote--starting-from">' . \esc_html($text) . '</p>';
+
+			return (string) \apply_filters('bec_shortcode_quote_html', $html, null, $postId, $ctx);
 		}
 
 		if (FallbackService::isAlwaysOn()) {

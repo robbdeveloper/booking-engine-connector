@@ -33,6 +33,8 @@
 		<custom-field action="copy">bec_core_amenities</custom-field>
 		<custom-field action="copy">bec_core_gallery</custom-field>
 		<custom-field action="copy">bec_core_cin</custom-field>
+		<custom-field action="copy">bec_core_only_request</custom-field>
+		<custom-field action="copy">bec_core_starting_from</custom-field>
 		<custom-field action="copy">bec_sync_gallery_source_hash</custom-field>
 		<custom-field action="copy">bec_sync_gallery_image_set_hash</custom-field>
 		<custom-field action="copy">bec_sync_gallery_image_order_hash</custom-field>

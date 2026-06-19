@@ -167,6 +167,10 @@ final class CoreUnitFieldRegistry
 
 	private static function wpMetaType(string $type): string
 	{
+		if ($type === 'boolean') {
+			return 'boolean';
+		}
+
 		return 'string';
 	}
 
@@ -175,6 +179,10 @@ final class CoreUnitFieldRegistry
 	 */
 	private static function defaultForType(string $type)
 	{
+		if ($type === 'boolean') {
+			return false;
+		}
+
 		return '';
 	}
 
@@ -277,13 +285,29 @@ final class CoreUnitFieldRegistry
 	}
 
 	/**
-	 * @param 'string'|'textarea'|'number'|'bathrooms'|'amenities_json'|'gallery_json' $type
+	 * @param 'string'|'textarea'|'number'|'bathrooms'|'boolean'|'amenities_json'|'gallery_json' $type
 	 *
 	 * @return mixed
 	 */
 	public static function sanitizeValue(string $type, $value)
 	{
 		switch ($type) {
+			case 'boolean':
+				if ($value === null || $value === '') {
+					return false;
+				}
+				if (is_bool($value)) {
+					return $value;
+				}
+				if (is_string($value)) {
+					return \in_array(\strtolower($value), ['1', 'true', 'yes', 'on'], true);
+				}
+				if (is_int($value) || is_float($value)) {
+					return (int) $value !== 0;
+				}
+
+				return (bool) $value;
+
 			case 'readonly':
 			case 'string':
 				if ($value === null) {
@@ -486,6 +510,12 @@ final class CoreUnitFieldRegistry
 						) . '</p>';
 					}
 					break;
+				case 'boolean':
+					$on = self::sanitizeValue('boolean', $val);
+					echo '<input type="hidden" name="' . esc_attr($name) . '" value="0" />';
+					echo '<label><input type="checkbox" id="bec_core_' . esc_attr($metaKey) . '" name="' . esc_attr($name) . '" value="1" ' . \checked($on, true, false) . ' /> ';
+					echo \esc_html__('Enabled', 'booking-engine-connector') . '</label>';
+					break;
 				default:
 					echo '<input type="text" class="large-text" id="bec_core_' . esc_attr($metaKey) . '" name="' . esc_attr($name) . '" value="' . esc_attr(is_scalar($val) ? (string) $val : '') . '" />';
 			}
@@ -667,6 +697,13 @@ final class CoreUnitFieldRegistry
 		foreach (CoreUnitMetaKeys::definitions() as $semantic => $conf) {
 			$metaKey = $conf['meta_key'];
 			$type    = $conf['type'];
+
+			if ($type === 'boolean') {
+				$raw = isset($postedRaw[ $metaKey ]) && (string) $postedRaw[ $metaKey ] === '1';
+				update_post_meta($postId, $metaKey, self::sanitizeValue('boolean', $raw));
+
+				continue;
+			}
 
 			if (! array_key_exists($metaKey, $postedRaw)) {
 				continue;

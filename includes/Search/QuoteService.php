@@ -7,6 +7,7 @@ namespace BookingEngineConnector\Search;
 use BookingEngineConnector\Providers\Contracts\BulkQuoteProviderInterface;
 use BookingEngineConnector\Providers\Contracts\ProviderException;
 use BookingEngineConnector\Providers\ProviderRegistry;
+use BookingEngineConnector\Units\UnitBookingMode;
 
 /**
  * Fetches quotes via the active provider with transient caching (NFR-PERF).
@@ -25,6 +26,10 @@ final class QuoteService
 	public static function getQuote(int $postId, ?SearchContext $ctx = null)
 	{
 		$ctx = $ctx ?? SearchContext::fromRequest();
+
+		if (UnitBookingMode::isOnlyRequest($postId)) {
+			return ['available' => false];
+		}
 
 		if (! $ctx->isComplete()) {
 			return new \WP_Error(

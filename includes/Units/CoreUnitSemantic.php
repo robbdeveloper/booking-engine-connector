@@ -61,6 +61,12 @@ final class CoreUnitSemantic
 	/** Italian national identification code for accommodation units (Codice Identificativo Nazionale). */
 	public const CIN = 'cin';
 
+	/** When true, the unit is only bookable via enquiry / request form (no online checkout). */
+	public const ONLY_REQUEST = 'only_request';
+
+	/** Display price for request-only units (e.g. "From {amount}" in shortcodes). */
+	public const STARTING_FROM = 'starting_from';
+
 	/**
 	 * @return list<string>
 	 */
@@ -85,6 +91,8 @@ final class CoreUnitSemantic
 			self::AMENITIES,
 			self::GALLERY,
 			self::CIN,
+			self::ONLY_REQUEST,
+			self::STARTING_FROM,
 		];
 	}
 }

@@ -17,6 +17,7 @@ use BookingEngineConnector\Search\SearchForm;
 use BookingEngineConnector\Styling\StylingSettings;
 use BookingEngineConnector\Sync\JsonExtensionFlags;
 use BookingEngineConnector\Sync\SyncPayloadEncoder;
+use BookingEngineConnector\Units\UnitBookingMode;
 
 /**
  * Renders the booking summary / sidebar shortcode.
@@ -82,6 +83,15 @@ final class BookingSummaryRenderer
 		}
 
 		\ob_start();
+
+		if ( UnitBookingMode::isOnlyRequest( $postId ) ) {
+			self::printRootOpen( $instanceId, $rootClasses, $postId, 'fallback' );
+			self::renderFallbackOnly();
+			echo '</div>';
+			$html = (string) \ob_get_clean();
+
+			return (string) \apply_filters( 'bec_booking_summary_html', $html, $postId, $ctx, $a );
+		}
 
 		if ( FallbackService::isAlwaysOn() ) {
 			self::printRootOpen( $instanceId, $rootClasses, $postId, 'fallback' );

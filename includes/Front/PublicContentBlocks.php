@@ -10,6 +10,7 @@ use BookingEngineConnector\Fallback\FallbackService;
 use BookingEngineConnector\PostTypes\UnitPostType;
 use BookingEngineConnector\Search\QuoteService;
 use BookingEngineConnector\Search\SearchContext;
+use BookingEngineConnector\Units\UnitBookingMode;
 
 /**
  * Appends booking CTA or fallback after unit content when search GET params are complete.
@@ -44,6 +45,15 @@ final class PublicContentBlocks
 		$ctx    = SearchContext::fromRequest();
 		if (! $ctx->isComplete()) {
 			return $content;
+		}
+
+		if (UnitBookingMode::isOnlyRequest($postId)) {
+			$block = FallbackRenderer::render();
+			if ($block === '') {
+				return $content;
+			}
+
+			return $content . $block;
 		}
 
 		$quote = QuoteService::getQuote($postId, $ctx);

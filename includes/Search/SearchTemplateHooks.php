@@ -7,6 +7,7 @@ namespace BookingEngineConnector\Search;
 use BookingEngineConnector\Fallback\FallbackRenderer;
 use BookingEngineConnector\Fallback\FallbackService;
 use BookingEngineConnector\PostTypes\UnitPostType;
+use BookingEngineConnector\Units\UnitBookingMode;
 
 /**
  * Template integration: optional auto-form on single units, archive loop hooks.
@@ -62,6 +63,10 @@ final class SearchTemplateHooks
 		self::$prependedSearchFormForPostId[$postId] = true;
 
 		if (FallbackService::isAlwaysOn()) {
+			return FallbackRenderer::render() . $content;
+		}
+
+		if (UnitBookingMode::isOnlyRequest($postId)) {
 			return FallbackRenderer::render() . $content;
 		}
 

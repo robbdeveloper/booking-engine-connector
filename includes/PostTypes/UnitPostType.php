@@ -7,6 +7,7 @@ namespace BookingEngineConnector\PostTypes;
 use BookingEngineConnector\Providers\ProviderRegistry;
 use BookingEngineConnector\Sync\JsonExtensionFlags;
 use BookingEngineConnector\Sync\SyncPayloadEncoder;
+use BookingEngineConnector\Units\UnitBookingMode;
 use DateTimeImmutable;
 use DateTimeInterface;
 use WP_Query;
@@ -539,9 +540,10 @@ final class UnitPostType
 		foreach ($columns as $key => $label) {
 			$out[ $key ] = $label;
 			if ($key === 'title') {
-				$out['bec_external_id']   = __('External ID', 'booking-engine-connector');
-				$out['bec_provider_slug'] = __('Provider', 'booking-engine-connector');
-				$out['bec_last_sync_at']  = __('Last sync', 'booking-engine-connector');
+				$out['bec_external_id']        = __('External ID', 'booking-engine-connector');
+				$out['bec_provider_slug']      = __('Provider', 'booking-engine-connector');
+				$out['bec_last_sync_at']       = __('Last sync', 'booking-engine-connector');
+				$out['bec_core_only_request']  = __('Request only', 'booking-engine-connector');
 
 				if (ProviderRegistry::getActiveSlug() === 'kross') {
 					/* translators: Kross API field indicating which booking engine slugs enable this unit. */
@@ -564,6 +566,13 @@ final class UnitPostType
 				break;
 			case 'bec_last_sync_at':
 				echo esc_html((string) get_post_meta($post_id, 'bec_last_sync_at', true));
+				break;
+			case 'bec_core_only_request':
+				echo esc_html(
+					UnitBookingMode::isOnlyRequest($post_id)
+						? __('Yes', 'booking-engine-connector')
+						: __('No', 'booking-engine-connector')
+				);
 				break;
 			case 'bec_kross_be_enabled':
 				if (ProviderRegistry::getActiveSlug() !== 'kross') {
@@ -610,9 +619,10 @@ final class UnitPostType
 	 */
 	public static function filterSortableColumns(array $columns): array
 	{
-		$columns['bec_external_id']   = 'bec_external_id';
-		$columns['bec_provider_slug'] = 'bec_provider_slug';
-		$columns['bec_last_sync_at']  = 'bec_last_sync_at';
+		$columns['bec_external_id']       = 'bec_external_id';
+		$columns['bec_provider_slug']     = 'bec_provider_slug';
+		$columns['bec_last_sync_at']      = 'bec_last_sync_at';
+		$columns['bec_core_only_request'] = 'bec_core_only_request';
 
 		return $columns;
 	}
@@ -633,11 +643,15 @@ final class UnitPostType
 			return;
 		}
 
-		if (! in_array($orderby, ['bec_external_id', 'bec_provider_slug', 'bec_last_sync_at'], true)) {
+		if (! in_array($orderby, ['bec_external_id', 'bec_provider_slug', 'bec_last_sync_at', 'bec_core_only_request'], true)) {
 			return;
 		}
 
 		$query->set('meta_key', $orderby);
-		$query->set('orderby', 'meta_value');
+		if ($orderby === 'bec_core_only_request') {
+			$query->set('orderby', 'meta_value_num');
+		} else {
+			$query->set('orderby', 'meta_value');
+		}
 	}
 }

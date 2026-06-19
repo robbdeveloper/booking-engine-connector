@@ -50,6 +50,8 @@ final class KrossCoreUnitFields
 			CoreUnitSemantic::AMENITIES       => $amenities,
 			CoreUnitSemantic::GALLERY         => self::extractGalleryRemotePayload($r),
 			CoreUnitSemantic::CIN             => self::scalarString($r['cin'] ?? null),
+			CoreUnitSemantic::ONLY_REQUEST    => self::boolValue($r['be_only_request'] ?? false),
+			CoreUnitSemantic::STARTING_FROM   => self::numericString($r['starting_from_price'] ?? ''),
 		];
 	}
 
@@ -336,5 +338,30 @@ final class KrossCoreUnitFields
 		}
 
 		return (string) $v;
+	}
+
+	/**
+	 * @param mixed $v
+	 */
+	private static function boolValue($v): bool
+	{
+		return \filter_var($v, FILTER_VALIDATE_BOOLEAN, FILTER_NULL_ON_FAILURE) ?? false;
+	}
+
+	/**
+	 * @param mixed $v
+	 */
+	private static function numericString($v): string
+	{
+		if ($v === null || $v === '') {
+			return '';
+		}
+		if (\is_numeric($v)) {
+			$n = $v + 0;
+
+			return \is_float($n) ? (string) $n : (string) (int) $n;
+		}
+
+		return '';
 	}
 }

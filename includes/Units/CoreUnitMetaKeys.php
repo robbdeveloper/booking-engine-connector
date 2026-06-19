@@ -105,6 +105,16 @@ final class CoreUnitMetaKeys
 				'label'    => \__('CIN (National Identification Code)', 'booking-engine-connector'),
 				'type'     => 'string',
 			],
+			CoreUnitSemantic::ONLY_REQUEST => [
+				'meta_key' => 'bec_core_only_request',
+				'label'    => \__('Only bookable by request', 'booking-engine-connector'),
+				'type'     => 'boolean',
+			],
+			CoreUnitSemantic::STARTING_FROM => [
+				'meta_key' => 'bec_core_starting_from',
+				'label'    => \__('Starting from price', 'booking-engine-connector'),
+				'type'     => 'number',
+			],
 		];
 	}
 

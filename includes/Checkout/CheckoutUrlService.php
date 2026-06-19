@@ -8,6 +8,7 @@ use BookingEngineConnector\Providers\ProviderRegistry;
 use BookingEngineConnector\Search\QuoteService;
 use BookingEngineConnector\Search\SearchContext;
 use BookingEngineConnector\Search\SearchValidator;
+use BookingEngineConnector\Units\UnitBookingMode;
 
 /**
  * Resolves checkout URL for a unit post via the active provider (TASK-CHK-001).
@@ -23,6 +24,10 @@ final class CheckoutUrlService
 	 */
 	public static function buildForPost(int $postId, SearchContext $ctx): ?array
 	{
+		if (UnitBookingMode::isOnlyRequest($postId)) {
+			return null;
+		}
+
 		if (! $ctx->isComplete()) {
 			return null;
 		}
