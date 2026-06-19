@@ -1,10 +1,14 @@
 # Changelog
 
+## 0.3.1 — 2026-06-19
+
+- **Units — request-only pricing**: `[bec_quote]` starting-from output resolves currency from sync payload or defaults to EUR so formatted prices match normal quotes (e.g. `1.500,00 €`). Filters **`bec_core_starting_from_currency`**, **`bec_core_starting_from_currency_default`**.
+- **Admin**: Units list table **Request only** column (Yes/No), sortable.
+
 ## 0.3.0 — 2026-06-19
 
 - **Units — request-only booking**: Canonical core meta **`bec_core_only_request`** (boolean) and **`bec_core_starting_from`** (numeric), synced from Kross raw **`be_only_request`** and **`starting_from_price`**. Boolean support in the core-fields registry and admin metabox; WPML copy rules for both keys.
 - **Frontend**: Request-only units render contact fallback for **`[bec_search]`**, auto-prepended search, and **`[bec_booking_summary]`**; **`[bec_quote]`** shows translated “From {starting_from}” without live quotes; **`[bec_checkout]`** and appended booking blocks skip online booking. **`QuoteService`**, **`CheckoutUrlService`**, and **`PublicContentBlocks`** backstop alternate paths. Helper **`UnitBookingMode`**; filter **`bec_core_starting_from_currency`** for optional currency display.
-- **Admin**: Units list table column **Request only** (Yes/No), sortable.
 
 ## 0.2.10 — 2026-06-19
 

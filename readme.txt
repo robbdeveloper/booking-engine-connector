@@ -4,7 +4,7 @@ Tags: booking, kross, hospitality, availability
 Requires at least: 6.4
 Tested up to: 6.7
 Requires PHP: 8.0
-Stable tag: 0.3.0
+Stable tag: 0.3.1
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
@@ -52,8 +52,11 @@ Examples: **`[bec_available_units_count]`** (number only), **`[bec_available_uni
 
 == Changelog ==
 
+= 0.3.1 =
+* **Units — request-only pricing**: `[bec_quote]` starting-from price now includes the euro symbol (and currency formatting) consistent with normal quote output. Admin units list adds a sortable **Request only** column.
+
 = 0.3.0 =
-* **Units — request-only booking**: New canonical core fields **`bec_core_only_request`** and **`bec_core_starting_from`**, synced from Kross **`be_only_request`** and **`starting_from_price`**. Request-only units show the contact fallback instead of search/booking summary on single unit pages; **`[bec_quote]`** displays a static “From {price}” amount; checkout and live quote API calls are skipped. Admin units list adds a sortable **Request only** column.
+* **Units — request-only booking**: New canonical core fields **`bec_core_only_request`** and **`bec_core_starting_from`**, synced from Kross **`be_only_request`** and **`starting_from_price`**. Request-only units show the contact fallback instead of search/booking summary on single unit pages; **`[bec_quote]`** displays a static “From {price}” amount; checkout and live quote API calls are skipped.
 
 = 0.2.10 =
 * **Shortcodes (`[bec_available_units_count]`)**: Fix counts on unit category archives after **`bec_search`** — candidate discovery now preserves `taxonomy` / `term` (and BEC routing) scope instead of widening to all site-wide available units.

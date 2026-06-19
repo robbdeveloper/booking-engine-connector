@@ -4,6 +4,8 @@ declare(strict_types=1);
 
 namespace BookingEngineConnector\Units;
 
+use BookingEngineConnector\Sync\SyncPayloadEncoder;
+
 /**
  * Reads canonical booking-mode flags from unit core meta.
  */
@@ -41,8 +43,54 @@ final class UnitBookingMode
 	{
 		/** @var string $currency */
 		$currency = (string) \apply_filters('bec_core_starting_from_currency', '', $postId);
+		$currency = \trim($currency);
+		if ($currency !== '') {
+			return $currency;
+		}
 
-		return \trim($currency);
+		$fromPayload = self::currencyFromSyncPayload($postId);
+		if ($fromPayload !== '') {
+			return $fromPayload;
+		}
+
+		/** @var string $default */
+		$default = (string) \apply_filters('bec_core_starting_from_currency_default', 'EUR', $postId);
+
+		return \trim($default);
+	}
+
+	private static function currencyFromSyncPayload(int $postId): string
+	{
+		if ($postId < 1) {
+			return '';
+		}
+
+		$syncJson = (string) \get_post_meta($postId, 'bec_sync_payload', true);
+		if ($syncJson === '') {
+			return '';
+		}
+
+		$payload = SyncPayloadEncoder::decodeStored($syncJson);
+		if (! \is_array($payload)) {
+			return '';
+		}
+
+		$raw = $payload['raw'] ?? null;
+		if (! \is_array($raw)) {
+			return '';
+		}
+
+		foreach (['currency', 'currency_code', 'currency_iso'] as $key) {
+			if (! isset($raw[ $key ]) || ! \is_scalar($raw[ $key ])) {
+				continue;
+			}
+			$value = \trim((string) $raw[ $key ]);
+			if ($value !== '') {
+				return $value;
+			}
+		}
+
+		return '';
 	}
 
 	/**
