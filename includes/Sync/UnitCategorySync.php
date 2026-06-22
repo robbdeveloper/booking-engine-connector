@@ -93,6 +93,23 @@ final class UnitCategorySync
 			$activeLangs = [ $defaultLang !== '' ? $defaultLang : '' ];
 		}
 
+		if ($multilingual && $defaultLang !== '') {
+			$activeLangs = array_values($activeLangs);
+			usort(
+				$activeLangs,
+				static function (string $a, string $b) use ($defaultLang): int {
+					if ($a === $defaultLang) {
+						return -1;
+					}
+					if ($b === $defaultLang) {
+						return 1;
+					}
+
+					return strcmp($a, $b);
+				}
+			);
+		}
+
 		/** @var array<string, string> $strings */
 		$strings = apply_filters('bec_category_translation_strings', [], $descriptor, $providerSlug, 0);
 		if (! is_array($strings)) {
@@ -167,6 +184,60 @@ final class UnitCategorySync
 			return null;
 		}
 
+		if ($lang !== '' && \defined('ICL_SITEPRESS_VERSION')) {
+			$termId = self::findTermIdViaWpml($providerSlug, $externalId, $lang);
+			if ($termId !== null) {
+				return $termId;
+			}
+		}
+
+		return self::findTermIdViaMeta($providerSlug, $externalId, $lang);
+	}
+
+	private static function findTermIdViaWpml(string $providerSlug, string $externalId, string $lang): ?int
+	{
+		global $wpdb;
+
+		$taxonomy    = UnitCategoryTaxonomy::getSlug();
+		$elementType = MultilingualBridge::wpmlTermElementType();
+		$iclTable    = $wpdb->prefix . 'icl_translations';
+
+		foreach (MultilingualBridge::languageLookupCandidates($lang) as $candidate) {
+			$sql = $wpdb->prepare(
+				"SELECT tt.term_id
+				   FROM {$wpdb->term_taxonomy} tt
+				   INNER JOIN {$wpdb->termmeta} mp
+				     ON mp.term_id = tt.term_id
+				    AND mp.meta_key = 'bec_provider_slug'
+				    AND mp.meta_value = %s
+				   INNER JOIN {$wpdb->termmeta} me
+				     ON me.term_id = tt.term_id
+				    AND me.meta_key = 'bec_external_id'
+				    AND me.meta_value = %s
+				   INNER JOIN {$iclTable} icl
+				     ON icl.element_id = tt.term_taxonomy_id
+				    AND icl.element_type = %s
+				    AND icl.language_code = %s
+				  WHERE tt.taxonomy = %s
+				  LIMIT 1",
+				$providerSlug,
+				$externalId,
+				$elementType,
+				$candidate,
+				$taxonomy
+			);
+
+			$termId = (int) $wpdb->get_var($sql);
+			if ($termId > 0) {
+				return $termId;
+			}
+		}
+
+		return null;
+	}
+
+	private static function findTermIdViaMeta(string $providerSlug, string $externalId, string $lang): ?int
+	{
 		global $wpdb;
 
 		$taxonomy = UnitCategoryTaxonomy::getSlug();
@@ -207,7 +278,7 @@ final class UnitCategorySync
 				     ON me.term_id = tt.term_id
 				    AND me.meta_key = 'bec_external_id'
 				    AND me.meta_value = %s
-				    LEFT JOIN {$wpdb->termmeta} ml
+				   LEFT JOIN {$wpdb->termmeta} ml
 				     ON ml.term_id = tt.term_id
 				    AND ml.meta_key = %s
 				  WHERE tt.taxonomy = %s

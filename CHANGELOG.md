@@ -1,5 +1,9 @@
 # Changelog
 
+## 0.3.6 — 2026-06-22
+
+- **Unit categories (WPML)**: Fix duplicate and misassigned category terms on re-sync (e.g. 6 EN / 2 IT after a second sync). **`MultilingualBridge`** now passes **`term_taxonomy_id`** to WPML term language/link APIs (WPML requires this, not **`term_id`**). **`UnitCategorySync::findTermId()`** resolves terms via **`icl_translations`** when WPML is active so lookups stay correct even if term meta is copied. **`wpml-config.xml`**: **`bec_term_lang`** and **`bec_category_names`** changed from `copy` to `translate`. Default language is synced before translations are linked.
+
 ## 0.3.5 — 2026-06-22
 
 - **Unit categories (WPML)**: Fix translated category terms all appearing under the default language (e.g. English “Apartments” listed under IT). Only the default-language term gets standalone **`setTermLanguage()`** during sync; translations are linked exclusively via **`linkTermTranslation()`** with `source_language_code` set to the default language. **`linkTermTranslation()`** no longer pre-registers translated terms as primary elements. **`createTerm()`** switches WPML context before **`wp_insert_term()`** so new terms are not auto-tagged as the admin default language.

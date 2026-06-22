@@ -254,11 +254,16 @@ final class MultilingualBridge
 		}
 
 		if (\defined('ICL_SITEPRESS_VERSION')) {
+			$elementId = self::getTermTaxonomyId($termId);
+			if ($elementId < 1) {
+				return '';
+			}
+
 			$lang = \apply_filters(
 				'wpml_element_language_code',
 				null,
 				[
-					'element_id'   => $termId,
+					'element_id'   => $elementId,
 					'element_type' => self::wpmlTermElementType(),
 				]
 			);
@@ -282,10 +287,15 @@ final class MultilingualBridge
 		}
 
 		if (\defined('ICL_SITEPRESS_VERSION')) {
+			$elementId = self::getTermTaxonomyId($termId);
+			if ($elementId < 1) {
+				return;
+			}
+
 			\do_action(
 				'wpml_set_element_language_details',
 				[
-					'element_id'           => $termId,
+					'element_id'           => $elementId,
 					'element_type'         => self::wpmlTermElementType(),
 					'language_code'        => $lang,
 					'source_language_code' => null,
@@ -307,19 +317,25 @@ final class MultilingualBridge
 		}
 
 		if (\defined('ICL_SITEPRESS_VERSION')) {
-			$trid = \apply_filters('wpml_element_trid', null, $sourceId, self::wpmlTermElementType());
+			$sourceElementId     = self::getTermTaxonomyId($sourceId);
+			$translatedElementId = self::getTermTaxonomyId($translatedId);
+			if ($sourceElementId < 1 || $translatedElementId < 1) {
+				return;
+			}
+
+			$trid = \apply_filters('wpml_element_trid', null, $sourceElementId, self::wpmlTermElementType());
 			$trid = \is_numeric($trid) ? (int) $trid : 0;
 
 			if ($trid <= 0) {
 				self::setTermLanguage($sourceId, $sourceLang);
-				$trid = \apply_filters('wpml_element_trid', null, $sourceId, self::wpmlTermElementType());
+				$trid = \apply_filters('wpml_element_trid', null, $sourceElementId, self::wpmlTermElementType());
 				$trid = \is_numeric($trid) ? (int) $trid : 0;
 			}
 
 			\do_action(
 				'wpml_set_element_language_details',
 				[
-					'element_id'           => $translatedId,
+					'element_id'           => $translatedElementId,
 					'element_type'         => self::wpmlTermElementType(),
 					'trid'                 => $trid > 0 ? $trid : null,
 					'language_code'        => $lang,
@@ -879,6 +895,21 @@ final class MultilingualBridge
 	public static function wpmlTermElementType(): string
 	{
 		return 'tax_' . UnitCategoryTaxonomy::getSlug();
+	}
+
+	public static function getTermTaxonomyId(int $termId, ?string $taxonomy = null): int
+	{
+		if ($termId < 1) {
+			return 0;
+		}
+
+		$taxonomy = $taxonomy ?? UnitCategoryTaxonomy::getSlug();
+		$term     = \get_term($termId, $taxonomy);
+		if ($term instanceof \WP_Term && (int) $term->term_taxonomy_id > 0) {
+			return (int) $term->term_taxonomy_id;
+		}
+
+		return 0;
 	}
 
 	private static function wpmlElementType(): string
