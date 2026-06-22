@@ -369,6 +369,9 @@ final class UnitListingQueryResolver
 			'post__not_in',
 			'post_parent',
 			'tax_query',
+			'taxonomy',
+			'term',
+			'bec_unit_category',
 			'meta_query',
 			'author',
 			'author__in',
@@ -378,6 +381,7 @@ final class UnitListingQueryResolver
 			'order',
 			'posts_per_page',
 			'ignore_sticky_posts',
+			'lang',
 		];
 	}
 

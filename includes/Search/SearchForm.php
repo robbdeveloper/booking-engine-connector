@@ -6,10 +6,12 @@ namespace BookingEngineConnector\Search;
 
 use BookingEngineConnector\Front\PublicAssets;
 use BookingEngineConnector\Formatting\MomentFormatMapper;
+use BookingEngineConnector\Integrations\MultilingualBridge;
 use BookingEngineConnector\PostTypes\UnitPostType;
 use BookingEngineConnector\Providers\Contracts\SearchGuestFieldMode;
 use BookingEngineConnector\Providers\ProviderRegistry;
 use BookingEngineConnector\Styling\StylingSettings;
+use BookingEngineConnector\Taxonomies\UnitCategoryTaxonomy;
 
 /**
  * Renders the availability search form (GET → bec_* query parameters).
@@ -52,6 +54,15 @@ final class SearchForm
 			if (\is_post_type_archive($slug)) {
 				$link = \get_post_type_archive_link($slug);
 				$action = $link !== false ? (string) $link : \home_url('/');
+				$action = MultilingualBridge::localizeUrl($action, MultilingualBridge::getCurrentLanguage());
+			} elseif (\is_tax(UnitCategoryTaxonomy::TAXONOMY)) {
+				$term = \get_queried_object();
+				if ($term instanceof \WP_Term) {
+					$link = \get_term_link($term);
+					$action = ! \is_wp_error($link) ? (string) $link : \home_url('/');
+				} else {
+					$action = \home_url('/');
+				}
 			} elseif (\is_singular()) {
 				$action = (string) \get_permalink();
 			} else {

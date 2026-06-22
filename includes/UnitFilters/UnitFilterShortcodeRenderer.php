@@ -5,7 +5,10 @@ declare(strict_types=1);
 namespace BookingEngineConnector\UnitFilters;
 
 use BookingEngineConnector\Search\SearchContext;
+use BookingEngineConnector\Integrations\MultilingualBridge;
+use BookingEngineConnector\PostTypes\UnitPostType;
 use BookingEngineConnector\Taxonomies\UnitAmenityTaxonomy;
+use BookingEngineConnector\Taxonomies\UnitCategoryTaxonomy;
 
 /**
  * Renders `[bec_unit_filters]` with GET form, preserved search params, and BEM markup.
@@ -147,10 +150,21 @@ final class UnitFilterShortcodeRenderer
 			}
 		}
 
-		if (\is_post_type_archive(\BookingEngineConnector\PostTypes\UnitPostType::getSlug())) {
-			$archive = \get_post_type_archive_link(\BookingEngineConnector\PostTypes\UnitPostType::getSlug());
+		$slug = UnitPostType::getSlug();
+		if (\is_post_type_archive($slug)) {
+			$archive = \get_post_type_archive_link($slug);
+			$action  = $archive !== false ? (string) $archive : \home_url('/');
 
-			return $archive !== false ? (string) $archive : \home_url('/');
+			return MultilingualBridge::localizeUrl($action, MultilingualBridge::getCurrentLanguage());
+		}
+
+		if (\is_tax(UnitCategoryTaxonomy::TAXONOMY)) {
+			$term = \get_queried_object();
+			if ($term instanceof \WP_Term) {
+				$link = \get_term_link($term);
+
+				return ! \is_wp_error($link) ? (string) $link : \home_url('/');
+			}
 		}
 
 		global $wp;

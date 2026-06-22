@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace BookingEngineConnector\UnitFilters;
 
 use BookingEngineConnector\Elementor\UnitListingQueryResolver;
+use BookingEngineConnector\Integrations\MultilingualBridge;
 use BookingEngineConnector\PostTypes\UnitPostType;
 use BookingEngineConnector\Search\SearchContext;
 use BookingEngineConnector\Taxonomies\UnitCategoryTaxonomy;
@@ -131,7 +132,7 @@ final class UnitResultCountService
 		if ($loopQuery instanceof WP_Query) {
 			$working = clone $loopQuery;
 		} else {
-			$working = new WP_Query(UnitListingAvailability::defaultListingQueryVars());
+			$working = new WP_Query(UnitListingAvailability::defaultListingQueryVars($loopQuery));
 		}
 
 		self::applyUnitCategorySlug($working, $categorySlug);
@@ -199,6 +200,7 @@ final class UnitResultCountService
 			'prune'       => UnitListingAvailability::shouldApplyAvailabilityPruning($ctx),
 			'category'    => $categorySlug,
 			'query_id'    => $elementorQueryId,
+			'lang'        => MultilingualBridge::getRequestLanguage($loopQuery),
 			'loop_sig'    => $loopQuery instanceof WP_Query ? self::loopQuerySignature($loopQuery) : '',
 		];
 
@@ -217,6 +219,7 @@ final class UnitResultCountService
 			'meta_query'        => $query->get('meta_query'),
 			'orderby'           => $query->get('orderby'),
 			'order'             => $query->get('order'),
+			'lang'              => $query->get('lang'),
 		];
 
 		return \md5((string) \wp_json_encode($parts));

@@ -1,5 +1,9 @@
 # Changelog
 
+## 0.3.2 — 2026-06-22
+
+- **Multilingual listings**: Fix search, BEC unit filters, and availability pruning on translated unit and category archives by using language-aware candidate discovery instead of canonical-only unit IDs; carry `lang` through Elementor current-query resolution and count cache keys; localize search/filter form actions on translated archives.
+
 ## 0.3.1 — 2026-06-19
 
 - **Units — request-only pricing**: `[bec_quote]` starting-from output resolves currency from sync payload or defaults to EUR so formatted prices match normal quotes (e.g. `1.500,00 €`). Filters **`bec_core_starting_from_currency`**, **`bec_core_starting_from_currency_default`**.

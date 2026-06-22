@@ -48,10 +48,41 @@ final class UnitListingAvailability
 	}
 
 	/**
+	 * Whether candidate discovery should return translation posts for this request.
+	 */
+	private static function usesTranslatedListingContext(?WP_Query $query = null): bool
+	{
+		if (! MultilingualBridge::isActive()) {
+			return false;
+		}
+
+		$lang        = self::resolveListingLanguage($query);
+		$defaultLang = MultilingualBridge::getDefaultLanguage();
+		if ($lang === '' || $defaultLang === '') {
+			return false;
+		}
+
+		$langCandidates     = MultilingualBridge::languageLookupCandidates($lang);
+		$defaultCandidates  = MultilingualBridge::languageLookupCandidates($defaultLang);
+		foreach ($langCandidates as $candidate) {
+			if (\in_array($candidate, $defaultCandidates, true)) {
+				return false;
+			}
+		}
+
+		return true;
+	}
+
+	private static function resolveListingLanguage(?WP_Query $query = null): string
+	{
+		return MultilingualBridge::getRequestLanguage($query);
+	}
+
+	/**
 	 * @param list<int> $postIds
 	 * @return list<int>
 	 */
-	public static function filterUnitIdsWithExternalId(array $postIds): array
+	public static function filterUnitIdsWithExternalId(array $postIds, ?WP_Query $query = null): array
 	{
 		global $wpdb;
 
@@ -69,16 +100,23 @@ final class UnitListingAvailability
 
 		$inList   = \implode(',', $ids);
 		$postType = \esc_sql(UnitPostType::getSlug());
-		$sql      = "SELECT DISTINCT p.ID
+		$translationJoin  = '';
+		$translationWhere = '';
+		if (! self::usesTranslatedListingContext($query)) {
+			$translationJoin  = "LEFT JOIN {$wpdb->postmeta} AS pm_tr ON pm_tr.post_id = p.ID AND pm_tr.meta_key = '" . \esc_sql(MultilingualBridge::META_TRANSLATION_OF) . "'";
+			$translationWhere = 'AND pm_tr.meta_id IS NULL';
+		}
+
+		$sql = "SELECT DISTINCT p.ID
 			FROM {$wpdb->posts} AS p
 			INNER JOIN {$wpdb->postmeta} AS pm ON pm.post_id = p.ID
-			LEFT JOIN {$wpdb->postmeta} AS pm_tr ON pm_tr.post_id = p.ID AND pm_tr.meta_key = '" . \esc_sql(MultilingualBridge::META_TRANSLATION_OF) . "'
+			{$translationJoin}
 			WHERE p.ID IN ({$inList})
 			AND p.post_type = '{$postType}'
 			AND p.post_status = 'publish'
 			AND pm.meta_key = 'bec_external_id'
 			AND pm.meta_value <> ''
-			AND pm_tr.meta_id IS NULL";
+			{$translationWhere}";
 
 		$col = $wpdb->get_col($sql);
 		if (! \is_array($col)) {
@@ -92,7 +130,7 @@ final class UnitListingAvailability
 	 * @param array<string|int, mixed>|null $existing
 	 * @return array<string|int, mixed>
 	 */
-	public static function mergeExternalIdMetaQuery($existing): array
+	public static function mergeExternalIdMetaQuery($existing, ?WP_Query $query = null): array
 	{
 		$externalBranch = [
 			'relation' => 'AND',
@@ -105,8 +143,11 @@ final class UnitListingAvailability
 				'value'   => '',
 				'compare' => '!=',
 			],
-			MultilingualBridge::canonicalOnlyMetaQueryBranch(),
 		];
+
+		if (! self::usesTranslatedListingContext($query)) {
+			$externalBranch[] = MultilingualBridge::canonicalOnlyMetaQueryBranch();
+		}
 
 		if (! \is_array($existing) || $existing === []) {
 			return $externalBranch;
@@ -128,7 +169,7 @@ final class UnitListingAvailability
 	{
 		$existing = $query->get('post__in');
 		if (\is_array($existing) && $existing !== []) {
-			return self::filterUnitIdsWithExternalId($existing);
+			return self::filterUnitIdsWithExternalId($existing, $query);
 		}
 
 		return self::discoverCandidateIdsViaSubquery($query);
@@ -154,20 +195,27 @@ final class UnitListingAvailability
 			$postStatus = 'publish';
 		}
 
+		$translatedContext = self::usesTranslatedListingContext($query);
+		$lang              = self::resolveListingLanguage($query);
+
 		$args = [
 			'post_type'              => $postType,
 			'post_status'            => $postStatus,
-			'meta_query'             => self::mergeExternalIdMetaQuery($query->get('meta_query')),
+			'meta_query'             => self::mergeExternalIdMetaQuery($query->get('meta_query'), $query),
 			'posts_per_page'         => -1,
 			'fields'                 => 'ids',
 			'no_found_rows'          => true,
 			'ignore_sticky_posts'    => true,
 			'update_post_meta_cache' => false,
 			'update_post_term_cache' => false,
-			'suppress_filters'       => true,
+			'suppress_filters'       => ! $translatedContext,
 			'orderby'                => $query->get('orderby'),
 			'order'                  => $query->get('order'),
 		];
+
+		if ($translatedContext && $lang !== '') {
+			$args['lang'] = $lang;
+		}
 
 		$taxQuery = $query->get('tax_query');
 		if (\is_array($taxQuery) && $taxQuery !== []) {
@@ -381,7 +429,7 @@ final class UnitListingAvailability
 		if ($loopQuery instanceof WP_Query) {
 			$working = clone $loopQuery;
 		} else {
-			$working = new WP_Query(self::defaultListingQueryVars());
+			$working = new WP_Query(self::defaultListingQueryVars($loopQuery));
 		}
 
 		UnitFilterQueryApplier::apply($working, $filterRequest);
@@ -429,19 +477,28 @@ final class UnitListingAvailability
 	 *
 	 * @return array<string, mixed>
 	 */
-	public static function defaultListingQueryVars(): array
+	public static function defaultListingQueryVars(?WP_Query $query = null): array
 	{
-		return [
+		$translatedContext = self::usesTranslatedListingContext($query);
+		$lang              = self::resolveListingLanguage($query);
+
+		$vars = [
 			'post_type'              => UnitPostType::getSlug(),
 			'post_status'            => 'publish',
-			'meta_query'             => self::mergeExternalIdMetaQuery(null),
+			'meta_query'             => self::mergeExternalIdMetaQuery(null, $query),
 			'posts_per_page'         => -1,
 			'fields'                 => 'ids',
 			'no_found_rows'          => true,
 			'ignore_sticky_posts'    => true,
 			'update_post_meta_cache' => false,
 			'update_post_term_cache' => false,
-			'suppress_filters'       => true,
+			'suppress_filters'       => ! $translatedContext,
 		];
+
+		if ($translatedContext && $lang !== '') {
+			$vars['lang'] = $lang;
+		}
+
+		return $vars;
 	}
 }
