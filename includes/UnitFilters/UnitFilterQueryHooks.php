@@ -5,9 +5,10 @@ declare(strict_types=1);
 namespace BookingEngineConnector\UnitFilters;
 
 use BookingEngineConnector\PostTypes\UnitPostType;
+use BookingEngineConnector\Taxonomies\UnitCategoryTaxonomy;
 
 /**
- * Applies unit filters to the native {@see bec_unit} post type archive main query.
+ * Applies unit filters to native unit archive and unit category taxonomy main queries.
  */
 final class UnitFilterQueryHooks
 {
@@ -22,7 +23,10 @@ final class UnitFilterQueryHooks
 			return;
 		}
 
-		if (! $query->is_post_type_archive(UnitPostType::getSlug())) {
+		if (
+			! $query->is_post_type_archive(UnitPostType::getSlug())
+			&& ! $query->is_tax(UnitCategoryTaxonomy::TAXONOMY)
+		) {
 			return;
 		}
 

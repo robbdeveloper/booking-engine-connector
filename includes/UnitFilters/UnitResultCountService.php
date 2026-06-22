@@ -87,6 +87,7 @@ final class UnitResultCountService
 			! $categoryOverride
 			&& $loopQuery instanceof WP_Query
 			&& ! UnitListingAvailability::shouldApplyAvailabilityPruning()
+			&& ! UnitFilterRequest::fromRequest()->hasActiveFilters()
 			&& self::isMeaningfulUnitLoopQuery($loopQuery)
 		) {
 			return \max(0, (int) $loopQuery->found_posts);
