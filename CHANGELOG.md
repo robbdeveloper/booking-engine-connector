@@ -1,5 +1,9 @@
 # Changelog
 
+## 0.3.5 — 2026-06-22
+
+- **Unit categories (WPML)**: Fix translated category terms all appearing under the default language (e.g. English “Apartments” listed under IT). Only the default-language term gets standalone **`setTermLanguage()`** during sync; translations are linked exclusively via **`linkTermTranslation()`** with `source_language_code` set to the default language. **`linkTermTranslation()`** no longer pre-registers translated terms as primary elements. **`createTerm()`** switches WPML context before **`wp_insert_term()`** so new terms are not auto-tagged as the admin default language.
+
 ## 0.3.4 — 2026-06-22
 
 - **Unit categories (`UnitCategorySync`)**: Simplify category sync into two phases — Phase 1 upserts one term per active WPML language from the provider category API (Kross `get-room-types-categories`, keyed by `id_room_type_category`); Phase 2 only assigns existing terms to units and never creates categories. Fix duplicate categories on every re-sync: **`findTermId()`** now queries `term_taxonomy` + term meta directly (bypasses WPML `get_terms` language filtering). Category slugs are plain sanitized names (no external-ID suffix). Removed dedupe/repair/heal machinery and **`CategoryTranslationSync`** (WPML linking folded into **`UnitCategorySync::syncCategory`**).

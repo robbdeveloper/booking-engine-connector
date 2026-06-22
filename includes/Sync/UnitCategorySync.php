@@ -137,7 +137,7 @@ final class UnitCategorySync
 
 			$translationMap[ $lang ] = $termId;
 
-			if ($multilingual && $lang !== '') {
+			if ($multilingual && $lang !== '' && $lang === $defaultLang) {
 				MultilingualBridge::setTermLanguage($termId, $lang);
 			}
 		}
@@ -279,13 +279,30 @@ final class UnitCategorySync
 			$slug = 'category';
 		}
 
-		$result = wp_insert_term(
-			$displayName,
-			UnitCategoryTaxonomy::getSlug(),
-			[
-				'slug' => $slug,
-			]
-		);
+		$insert = static function () use ($displayName, $slug): array|\WP_Error {
+			return wp_insert_term(
+				$displayName,
+				UnitCategoryTaxonomy::getSlug(),
+				[
+					'slug' => $slug,
+				]
+			);
+		};
+
+		if ($lang !== '' && MultilingualBridge::isActive()) {
+			$previousLang = MultilingualBridge::getCurrentLanguage();
+			MultilingualBridge::switchRequestLanguage($lang);
+
+			try {
+				$result = $insert();
+			} finally {
+				if ($previousLang !== '' && $previousLang !== $lang) {
+					MultilingualBridge::switchRequestLanguage($previousLang);
+				}
+			}
+		} else {
+			$result = $insert();
+		}
 
 		if (is_wp_error($result)) {
 			return null;

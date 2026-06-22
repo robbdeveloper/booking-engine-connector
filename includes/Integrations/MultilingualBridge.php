@@ -316,8 +316,6 @@ final class MultilingualBridge
 				$trid = \is_numeric($trid) ? (int) $trid : 0;
 			}
 
-			self::setTermLanguage($translatedId, $lang);
-
 			\do_action(
 				'wpml_set_element_language_details',
 				[
