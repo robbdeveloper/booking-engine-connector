@@ -194,6 +194,19 @@ final class UnitCategoryTaxonomy
 
 		register_term_meta(
 			self::TAXONOMY,
+			\BookingEngineConnector\Sync\UnitCategorySync::META_TERM_LANG,
+			[
+				'type'              => 'string',
+				'single'            => true,
+				'show_in_rest'      => false,
+				'sanitize_callback' => 'sanitize_text_field',
+				'auth_callback'     => $auth,
+				'default'           => '',
+			]
+		);
+
+		register_term_meta(
+			self::TAXONOMY,
 			'bec_category_names',
 			[
 				'type'              => 'string',

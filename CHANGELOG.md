@@ -1,5 +1,9 @@
 # Changelog
 
+## 0.3.4 — 2026-06-22
+
+- **Unit categories (`UnitCategorySync`)**: Simplify category sync into two phases — Phase 1 upserts one term per active WPML language from the provider category API (Kross `get-room-types-categories`, keyed by `id_room_type_category`); Phase 2 only assigns existing terms to units and never creates categories. Fix duplicate categories on every re-sync: **`findTermId()`** now queries `term_taxonomy` + term meta directly (bypasses WPML `get_terms` language filtering). Category slugs are plain sanitized names (no external-ID suffix). Removed dedupe/repair/heal machinery and **`CategoryTranslationSync`** (WPML linking folded into **`UnitCategorySync::syncCategory`**).
+
 ## 0.3.3 — 2026-06-22
 
 - **Unit categories (`UnitCategorySync`, `CategoryTranslationSync`)**: Harden synced category deduplication — manual AJAX sync runs the same category registry preflight as full sync (repair, translation meta cleanup, descriptor priming). Canonical terms resolve strictly by `bec_provider_slug` + `bec_external_id`; legacy adoption limited to default-language terms without provider meta. Existing category slugs preserved on update; new terms use `{name}-{external_id}` slugs. **`repairDuplicateTranslationTerms()`** merges duplicate translated terms per canonical + language. Unit assignment fails closed when a category cannot be resolved (`bec_unit_category_assignment_skipped`).

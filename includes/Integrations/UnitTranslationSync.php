@@ -6,6 +6,7 @@ namespace BookingEngineConnector\Integrations;
 
 use BookingEngineConnector\Media\RemoteGalleryImporter;
 use BookingEngineConnector\PostTypes\UnitPostType;
+use BookingEngineConnector\Sync\UnitCategorySync;
 use BookingEngineConnector\Taxonomies\UnitAmenityTaxonomy;
 use BookingEngineConnector\Taxonomies\UnitCategoryTaxonomy;
 use BookingEngineConnector\Units\CoreUnitMetaKeys;
@@ -400,15 +401,13 @@ final class UnitTranslationSync
 				continue;
 			}
 
-			$descriptor = self::buildCategoryDescriptorFromTerm($termId);
-			if ($descriptor !== null) {
-				$providerSlug = (string) \get_term_meta($termId, 'bec_provider_slug', true);
-				if ($providerSlug !== '') {
-					CategoryTranslationSync::syncTranslationsForCanonicalTerm($termId, $providerSlug, $descriptor);
-				}
+			$externalId   = (string) \get_term_meta($termId, 'bec_external_id', true);
+			$providerSlug = (string) \get_term_meta($termId, 'bec_provider_slug', true);
+			if ($externalId === '' || $providerSlug === '') {
+				continue;
 			}
 
-			$translatedTermId = MultilingualBridge::resolveTranslatedCategoryTermId($termId, $translationLang);
+			$translatedTermId = UnitCategorySync::findTermId($providerSlug, $externalId, $translationLang);
 			if ($translatedTermId === null || $translatedTermId === $termId) {
 				continue;
 			}
@@ -416,48 +415,7 @@ final class UnitTranslationSync
 			$mappedTerms[ $translatedTermId ] = $translatedTermId;
 		}
 
-		$assignedTerms = \array_values($mappedTerms);
-
-		MultilingualBridge::setObjectTermsPreservingIds($translationId, $assignedTerms, $taxonomy, false);
-	}
-
-	/**
-	 * @return array<string, mixed>|null
-	 */
-	private static function buildCategoryDescriptorFromTerm(int $termId): ?array
-	{
-		$normalized = \get_term_meta($termId, 'bec_category_normalized', true);
-		if (\is_string($normalized) && $normalized !== '') {
-			$decoded = \json_decode($normalized, true);
-			if (\is_array($decoded) && (string) ( $decoded['external_id'] ?? '' ) !== '') {
-				/** @var array<string, mixed> $decoded */
-				return $decoded;
-			}
-		}
-
-		$externalId = (string) \get_term_meta($termId, 'bec_external_id', true);
-		$providerSlug = (string) \get_term_meta($termId, 'bec_provider_slug', true);
-		if ($externalId === '' || $providerSlug === '') {
-			return null;
-		}
-
-		$names = [];
-		$namesJson = \get_term_meta($termId, 'bec_category_names', true);
-		if (\is_string($namesJson) && $namesJson !== '') {
-			$decodedNames = \json_decode($namesJson, true);
-			if (\is_array($decodedNames)) {
-				$names = UnitCategoryTaxonomy::coerceDescriptorNamesToMap($decodedNames);
-			}
-		}
-
-		$term = \get_term($termId, UnitCategoryTaxonomy::getSlug());
-		$name = $term instanceof \WP_Term ? $term->name : '';
-
-		return [
-			'external_id' => $externalId,
-			'name'        => $name,
-			'names'       => $names,
-		];
+		MultilingualBridge::setObjectTermsPreservingIds($translationId, \array_values($mappedTerms), $taxonomy, false);
 	}
 
 	private static function cascadeToLinkedPosts(int $postId, string $action): void

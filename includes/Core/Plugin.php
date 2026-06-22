@@ -19,7 +19,6 @@ use BookingEngineConnector\Front\AmenitiesAssets;
 use BookingEngineConnector\Front\PublicAssets;
 use BookingEngineConnector\Integrations\Multilingual;
 use BookingEngineConnector\Integrations\MultilingualBridge;
-use BookingEngineConnector\Integrations\CategoryTranslationSync;
 use BookingEngineConnector\Integrations\UnitTranslationSync;
 use BookingEngineConnector\Providers\Kross\KrossCategoryTranslations;
 use BookingEngineConnector\Providers\Kross\KrossUnitTranslations;
@@ -76,7 +75,6 @@ final class Plugin
 		Multilingual::register();
 		MultilingualBridge::register();
 		UnitTranslationSync::register();
-		CategoryTranslationSync::register();
 		KrossUnitTranslations::register();
 		KrossCategoryTranslations::register();
 
