@@ -4,7 +4,7 @@ Tags: booking, kross, hospitality, availability
 Requires at least: 6.4
 Tested up to: 6.7
 Requires PHP: 8.0
-Stable tag: 0.3.2
+Stable tag: 0.3.3
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
@@ -51,6 +51,9 @@ Use **`[bec_available_units_count]`** anywhere on the results page (above an Ele
 Examples: **`[bec_available_units_count]`** (number only), **`[bec_available_units_count format="text"]`** (default “%d available units” copy), **`[bec_available_units_count hide_without_search="1"]`** (empty until search params are complete), **`[bec_available_units_count zero_text="No units found"]`**, **`[bec_available_units_count category="villas"]`** (count only units in that unit category term), **`[bec_available_units_count query_id="bec_available_only"]`** (target a specific Loop Grid Query ID when multiple grids exist). Custom text: **`singular`** / **`plural`** with **`%d`**, optional **`class`** for styling.
 
 == Changelog ==
+
+= 0.3.3 =
+* **Unit categories**: Harden synced category deduplication — manual AJAX sync now runs the same category registry preflight as full sync; canonical terms resolve strictly by `bec_provider_slug` + `bec_external_id`; existing category slugs are preserved on update; new terms use collision-resistant slugs; duplicate translated category terms are merged automatically; unit assignment fails closed when a category cannot be resolved.
 
 = 0.3.2 =
 * **Multilingual listings**: Fix search, BEC unit filters, and availability pruning on translated unit and category archives (e.g. `/it/strutture`, `/it/appartamenti`) by using language-aware candidate discovery instead of canonical-only unit IDs.

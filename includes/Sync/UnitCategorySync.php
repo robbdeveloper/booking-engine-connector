@@ -38,6 +38,7 @@ final class UnitCategorySync
 
 		self::repairDuplicateCanonicalTerms($providerSlug);
 		CategoryTranslationSync::cleanupExistingTranslationProviderMeta();
+		CategoryTranslationSync::repairDuplicateTranslationTerms();
 
 		/** @var array<string, array<string, mixed>> $unique */
 		$unique = [];
@@ -144,12 +145,21 @@ final class UnitCategorySync
 			return;
 		}
 
-		$termId = self::resolveCanonicalTermId($providerSlug, $externalId, $descriptor);
-		if ($termId === null) {
-			$termId = self::syncDescriptor($providerSlug, $descriptor);
-		}
+		$termId = self::resolveCanonicalTermId($providerSlug, $externalId, null);
 
 		if ($termId === null) {
+			/**
+			 * Fail closed: do not adopt or create categories during unit assignment.
+			 * Categories must exist from registry preflight (syncUniqueDescriptorsFromRows).
+			 */
+			do_action(
+				'bec_unit_category_assignment_skipped',
+				$postId,
+				$providerSlug,
+				$externalId,
+				$descriptor
+			);
+
 			return;
 		}
 
@@ -349,7 +359,7 @@ final class UnitCategorySync
 	 */
 	private static function findAdoptableExistingTerm(array $descriptor, string $externalId): ?int
 	{
-		foreach (self::slugCandidatesForDescriptor($descriptor, $externalId) as $slug) {
+		foreach (self::slugCandidatesForAdoption($descriptor, $externalId) as $slug) {
 			$term = get_term_by('slug', $slug, UnitCategoryTaxonomy::getSlug());
 			if (! $term instanceof \WP_Term) {
 				continue;
@@ -361,7 +371,7 @@ final class UnitCategorySync
 			}
 		}
 
-		foreach (self::nameCandidatesForDescriptor($descriptor) as $name) {
+		foreach (self::defaultLanguageNameCandidatesForDescriptor($descriptor) as $name) {
 			$terms = get_terms(
 				[
 					'taxonomy'         => UnitCategoryTaxonomy::getSlug(),
@@ -389,12 +399,15 @@ final class UnitCategorySync
 
 	private static function canAdoptExistingTerm(int $termId, string $externalId): bool
 	{
+		unset($externalId);
+
 		if (self::isTranslationTerm($termId)) {
 			return false;
 		}
 
 		$existingExternalId = (string) get_term_meta($termId, 'bec_external_id', true);
-		if ($existingExternalId !== '' && $existingExternalId !== $externalId) {
+		$existingProvider   = (string) get_term_meta($termId, 'bec_provider_slug', true);
+		if ($existingExternalId !== '' || $existingProvider !== '') {
 			return false;
 		}
 
@@ -416,11 +429,14 @@ final class UnitCategorySync
 	 *
 	 * @return list<string>
 	 */
-	private static function slugCandidatesForDescriptor(array $descriptor, string $externalId): array
+	private static function slugCandidatesForAdoption(array $descriptor, string $externalId): array
 	{
-		$slugs = [self::buildSlugForDescriptor($descriptor, $externalId)];
+		$slugs = [
+			self::buildUniqueSlug($descriptor, $externalId),
+			self::buildSlugForDescriptor($descriptor, $externalId),
+		];
 
-		foreach (self::nameCandidatesForDescriptor($descriptor) as $name) {
+		foreach (self::defaultLanguageNameCandidatesForDescriptor($descriptor) as $name) {
 			$slug = sanitize_title($name);
 			if ($slug !== '') {
 				$slugs[] = $slug;
@@ -431,32 +447,19 @@ final class UnitCategorySync
 	}
 
 	/**
+	 * Default-language labels only (safe for legacy term adoption).
+	 *
 	 * @param array<string, mixed> $descriptor
 	 *
 	 * @return list<string>
 	 */
-	private static function nameCandidatesForDescriptor(array $descriptor): array
+	private static function defaultLanguageNameCandidatesForDescriptor(array $descriptor): array
 	{
 		$names = [];
 
 		$defaultName = UnitCategoryTaxonomy::resolveDefaultDisplayName($descriptor);
 		if ($defaultName !== '') {
 			$names[] = $defaultName;
-		}
-
-		$rawName = (string) ($descriptor['name'] ?? '');
-		if ($rawName !== '') {
-			$names[] = $rawName;
-		}
-
-		if (isset($descriptor['names']) && is_array($descriptor['names'])) {
-			/** @var array<mixed, mixed> $namesRaw */
-			$namesRaw = $descriptor['names'];
-			foreach (UnitCategoryTaxonomy::coerceDescriptorNamesToMap($namesRaw) as $label) {
-				if ($label !== '') {
-					$names[] = $label;
-				}
-			}
 		}
 
 		return array_values(array_unique($names));
@@ -521,7 +524,6 @@ final class UnitCategorySync
 				UnitCategoryTaxonomy::getSlug(),
 				[
 					'name' => $displayName,
-					'slug' => self::buildSlugForDescriptor($descriptor, $externalId),
 				]
 			);
 		}
@@ -598,7 +600,13 @@ final class UnitCategorySync
 	 */
 	private static function buildUniqueSlug(array $descriptor, string $externalId): string
 	{
-		return self::buildSlugForDescriptor($descriptor, $externalId);
+		$base = self::buildSlugForDescriptor($descriptor, $externalId);
+		$suffix = sanitize_title($externalId);
+		if ($suffix === '') {
+			return $base;
+		}
+
+		return $base . '-' . $suffix;
 	}
 
 	private static function cacheKey(string $providerSlug, string $externalId): string

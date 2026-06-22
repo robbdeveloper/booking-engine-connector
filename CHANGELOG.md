@@ -1,5 +1,9 @@
 # Changelog
 
+## 0.3.3 — 2026-06-22
+
+- **Unit categories (`UnitCategorySync`, `CategoryTranslationSync`)**: Harden synced category deduplication — manual AJAX sync runs the same category registry preflight as full sync (repair, translation meta cleanup, descriptor priming). Canonical terms resolve strictly by `bec_provider_slug` + `bec_external_id`; legacy adoption limited to default-language terms without provider meta. Existing category slugs preserved on update; new terms use `{name}-{external_id}` slugs. **`repairDuplicateTranslationTerms()`** merges duplicate translated terms per canonical + language. Unit assignment fails closed when a category cannot be resolved (`bec_unit_category_assignment_skipped`).
+
 ## 0.3.2 — 2026-06-22
 
 - **Multilingual listings**: Fix search, BEC unit filters, and availability pruning on translated unit and category archives by using language-aware candidate discovery instead of canonical-only unit IDs; carry `lang` through Elementor current-query resolution and count cache keys; localize search/filter form actions on translated archives.

@@ -18,6 +18,7 @@ use BookingEngineConnector\Sync\SyncManualBatchState;
 use BookingEngineConnector\Sync\SyncLock;
 use BookingEngineConnector\Sync\SyncProgressReporter;
 use BookingEngineConnector\Sync\SyncService;
+use BookingEngineConnector\Sync\UnitCategorySync;
 use BookingEngineConnector\Units\CoreUnitMetaKeys;
 use BookingEngineConnector\Units\CoreUnitSemantic;
 use BookingEngineConnector\Admin\AdminPageLayout;
@@ -552,6 +553,8 @@ final class SyncAdmin
 		$service = new SyncService();
 		$rows    = $service->normalizeRemoteUnitRows($remote);
 		$total   = \count($rows);
+
+		UnitCategorySync::syncUniqueDescriptorsFromRows($slug, $rows);
 
 		$state = [
 			'provider_slug'  => $slug,
