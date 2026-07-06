@@ -110,6 +110,9 @@ final class AmenitiesAssets
 		if (self::contentHasBecUnitInfoKey($content, 'amenities_grid') || self::contentHasBecUnitInfoKey($content, 'bedroom_arrangements')) {
 			return true;
 		}
+		if (self::contentHasBecUnitAmenityShortcode($content)) {
+			return true;
+		}
 
 		return (bool) \apply_filters('bec_enqueue_kross_amenities_assets', false, $post);
 	}
@@ -135,6 +138,15 @@ final class AmenitiesAssets
 		}
 
 		return false;
+	}
+
+	private static function contentHasBecUnitAmenityShortcode(string $content): bool
+	{
+		if (! \str_contains($content, 'bec_unit_amenity')) {
+			return false;
+		}
+
+		return (bool) \preg_match('/\[\s*bec_unit_amenity\b[^\]]*\]/', $content);
 	}
 
 	/**

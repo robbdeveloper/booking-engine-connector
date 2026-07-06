@@ -1,5 +1,10 @@
 # Changelog
 
+## 0.3.7 — 2026-07-06
+
+- **Shortcodes (`[bec_unit_amenity]`)**: Conditionally render a single unit amenity when the synced unit has it — returns empty output when absent (for template/Elementor conditional display). Attributes: **`key`** (required amenity code, e.g. `wifi`), **`unit_id`**, **`default`**, **`show_icon`** (`0` default), **`class`**, **`font_pack`**. Provider API: **`ProviderInterface::getUnitAmenityItem()`**; Kross implementation in **`KrossUnitAmenityResolver`** reads **`bec_core_amenities`** (fallback: sync payload), resolves the label from API locale maps via the active site locale, and applies **`bec_kross_unit_amenity_display_label`**. Filters **`bec_unit_amenity_item`**, **`bec_kross_unit_amenity_item`**, **`bec_shortcode_unit_amenity_html`**. Example: `[bec_unit_amenity key="wifi"]`. Amenity names are API-driven translations, not gettext strings.
+- **i18n**: Regenerated `languages/booking-engine-connector.pot`, merged `booking-engine-connector-it_IT.po`, recompiled `booking-engine-connector-it_IT.mo`.
+
 ## 0.3.6 — 2026-06-22
 
 - **Unit categories (WPML)**: Fix duplicate and misassigned category terms on re-sync (e.g. 6 EN / 2 IT after a second sync). **`MultilingualBridge`** now passes **`term_taxonomy_id`** to WPML term language/link APIs (WPML requires this, not **`term_id`**). **`UnitCategorySync::findTermId()`** resolves terms via **`icl_translations`** when WPML is active so lookups stay correct even if term meta is copied. **`wpml-config.xml`**: **`bec_term_lang`** and **`bec_category_names`** changed from `copy` to `translate`. Default language is synced before translations are linked.

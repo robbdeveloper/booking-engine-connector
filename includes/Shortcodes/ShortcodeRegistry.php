@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace BookingEngineConnector\Shortcodes;
 
+use BookingEngineConnector\Front\AmenitiesAssets;
 use BookingEngineConnector\Checkout\CheckoutCtaHtml;
 use BookingEngineConnector\Checkout\CheckoutUrlService;
 use BookingEngineConnector\Formatting\DateFormatter;
@@ -41,6 +42,7 @@ final class ShortcodeRegistry
 		\add_shortcode('bec_fallback', [self::class, 'renderFallback']);
 		\add_shortcode('bec_unit_url', [self::class, 'renderUnitUrl']);
 		\add_shortcode('bec_unit_info', [self::class, 'renderUnitInfo']);
+		\add_shortcode('bec_unit_amenity', [self::class, 'renderUnitAmenity']);
 		\add_shortcode('bec_unit_field', [self::class, 'renderUnitField']);
 		\add_shortcode('bec_unit_gallery', [self::class, 'renderUnitGallery']);
 		\add_shortcode('bec_booking_summary', [BookingSummaryRenderer::class, 'renderFromShortcode']);
@@ -705,6 +707,164 @@ final class ShortcodeRegistry
 		$html = (string) \apply_filters('bec_unit_info_output', $html, $key, $postId, $decoded, $context);
 
 		return $html;
+	}
+
+	/**
+	 * Conditionally render one unit amenity when the synced unit has it (`[bec_unit_amenity key="wifi"]`).
+	 *
+	 * Returns empty string when the amenity is absent (for conditional display in templates).
+	 *
+	 * Attributes: key (required amenity code), unit_id, default, show_icon (0 default), class, font_pack.
+	 *
+	 * Filters: bec_unit_amenity_item, bec_shortcode_unit_amenity_html.
+	 *
+	 * @param array<string, string>|string $atts
+	 */
+	public static function renderUnitAmenity($atts = []): string
+	{
+		$raw = \is_array($atts) ? $atts : [];
+		$a   = \shortcode_atts(
+			[
+				'key'       => '',
+				'unit_id'   => '0',
+				'default'   => '',
+				'show_icon' => '0',
+				'class'     => '',
+			],
+			$raw,
+			'bec_unit_amenity'
+		);
+
+		$key = \sanitize_key(\trim((string) $a['key']));
+		$def = (string) $a['default'];
+		$defOut = $def === '' ? '' : \esc_html($def);
+
+		if ($key === '') {
+			return $defOut;
+		}
+
+		$postId = (int) $a['unit_id'];
+		if ($postId < 1) {
+			$postId = (int) \get_the_ID();
+		}
+		if ($postId < 1 || \get_post_type($postId) !== UnitPostType::getSlug()) {
+			return $defOut;
+		}
+
+		$providerSlug = (string) \get_post_meta($postId, 'bec_provider_slug', true);
+		if ($providerSlug === '') {
+			$providerSlug = ProviderRegistry::getActiveSlug();
+		}
+
+		$json = (string) \get_post_meta($postId, 'bec_sync_payload', true);
+		if ($json === '') {
+			return $defOut;
+		}
+
+		$decoded = SyncPayloadEncoder::decodeStored($json);
+		if ($decoded === null) {
+			return $defOut;
+		}
+
+		$passThrough = [];
+		$reserved    = [ 'key' => true, 'unit_id' => true, 'default' => true, 'show_icon' => true, 'class' => true ];
+		foreach ($raw as $k => $v) {
+			if (isset($reserved[ $k ])) {
+				continue;
+			}
+			$passThrough[ (string) $k ] = \is_scalar($v) ? (string) $v : '';
+		}
+
+		$context = self::shortcodeLocaleContext($providerSlug);
+
+		$provider = ProviderRegistry::getProvider($providerSlug);
+
+		try {
+			$item = $provider->getUnitAmenityItem($decoded, $postId, $key, $passThrough, $context);
+		} catch (\Throwable $e) {
+			return $defOut;
+		}
+
+		$item = \apply_filters(
+			'bec_unit_amenity_item',
+			$item,
+			$key,
+			$postId,
+			$decoded,
+			$context,
+			$passThrough
+		);
+
+		if (! \is_array($item) || ! isset($item['key'], $item['label']) || (string) $item['key'] === '') {
+			return $defOut;
+		}
+
+		$showIcon = self::shortcodeBoolAttr((string) $a['show_icon'], false);
+		if ($showIcon) {
+			AmenitiesAssets::enqueueForKross($postId, $passThrough);
+		}
+
+		$label = (string) $item['label'];
+		$itemKey = (string) $item['key'];
+
+		$classes = [ 'bec-unit-amenity', 'bec-unit-amenity--' . \sanitize_html_class($providerSlug) ];
+		$extraClass = \sanitize_html_class((string) $a['class']);
+		if ($extraClass !== '') {
+			$classes[] = $extraClass;
+		}
+
+		$html = '<span class="' . \esc_attr(\implode(' ', $classes)) . '">';
+		if ($showIcon) {
+			$html .= '<i class="bec-unit-amenity__icon icon-' . \esc_attr($itemKey) . '" aria-hidden="true"></i>';
+		}
+		$html .= '<span class="bec-unit-amenity__label">' . \esc_html($label) . '</span>';
+		$html .= '</span>';
+
+		return (string) \apply_filters(
+			'bec_shortcode_unit_amenity_html',
+			$html,
+			$item,
+			$key,
+			$postId,
+			$decoded,
+			$context,
+			$passThrough
+		);
+	}
+
+	/**
+	 * @return array{provider: string, locale: string}
+	 */
+	private static function shortcodeLocaleContext(string $providerSlug): array
+	{
+		$locale = \function_exists('determine_locale') ? \determine_locale() : \get_locale();
+		$locale = \str_replace('-', '_', (string) $locale);
+		$primary = \explode('_', $locale, 2)[0];
+		$locale2 = \strtolower(\substr($primary, 0, 2));
+		if ($locale2 === '' || ! \preg_match('/^[a-z]{2}$/', $locale2)) {
+			$locale2 = 'en';
+		}
+
+		return [
+			'provider' => $providerSlug,
+			'locale'   => $locale2,
+		];
+	}
+
+	private static function shortcodeBoolAttr(string $raw, bool $default): bool
+	{
+		$v = \strtolower(\trim($raw));
+		if ($v === '') {
+			return $default;
+		}
+		if (\in_array($v, [ '1', 'true', 'yes', 'on' ], true)) {
+			return true;
+		}
+		if (\in_array($v, [ '0', 'false', 'no', 'off' ], true)) {
+			return false;
+		}
+
+		return $default;
 	}
 
 	/**

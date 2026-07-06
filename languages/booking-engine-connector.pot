@@ -2,14 +2,14 @@
 # This file is distributed under the GPL-2.0-or-later.
 msgid ""
 msgstr ""
-"Project-Id-Version: Booking Engine Connector 0.3.6\n"
+"Project-Id-Version: Booking Engine Connector 0.3.7\n"
 "Report-Msgid-Bugs-To: https://wordpress.org/support/plugin/booking-engine-connector\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"POT-Creation-Date: 2026-06-22T10:28:29+00:00\n"
+"POT-Creation-Date: 2026-07-06T15:05:07+00:00\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "X-Generator: WP-CLI 2.12.0\n"
 "X-Domain: booking-engine-connector\n"
@@ -65,7 +65,7 @@ msgstr ""
 
 #: includes/Admin/AdminMenu.php:77
 #: includes/Admin/AdminMenu.php:78
-#: includes/Admin/SyncAdmin.php:91
+#: includes/Admin/SyncAdmin.php:92
 msgid "Sync & Import"
 msgstr ""
 
@@ -176,7 +176,7 @@ msgid "Adjust schedule"
 msgstr ""
 
 #: includes/Admin/AdminMenu.php:218
-#: includes/Admin/SyncAdmin.php:323
+#: includes/Admin/SyncAdmin.php:324
 msgid "Sync lock"
 msgstr ""
 
@@ -277,7 +277,7 @@ msgid "Provider credentials and connection test."
 msgstr ""
 
 #: includes/Admin/AdminMenu.php:293
-#: includes/Admin/SyncAdmin.php:303
+#: includes/Admin/SyncAdmin.php:304
 msgid "Run sync"
 msgstr ""
 
@@ -956,239 +956,239 @@ msgstr ""
 msgid "Example category archive URL: %s."
 msgstr ""
 
-#: includes/Admin/SyncAdmin.php:92
+#: includes/Admin/SyncAdmin.php:93
 msgid "Schedule automatic syncs, filter Kross booking engines, run manual imports, and manage gallery filenames."
 msgstr ""
 
 #. translators: 1: created count, 2: updated, 3: skipped
-#: includes/Admin/SyncAdmin.php:111
+#: includes/Admin/SyncAdmin.php:112
 #, php-format
 msgid "Last run: created %1$d, updated %2$d, skipped %3$d."
 msgstr ""
 
 #. translators: 1: unit post ID
-#: includes/Admin/SyncAdmin.php:131
+#: includes/Admin/SyncAdmin.php:132
 #, php-format
 msgid "Gallery file rename for unit #%1$d:"
 msgstr ""
 
 #. translators: 1: number of units processed
-#: includes/Admin/SyncAdmin.php:139
+#: includes/Admin/SyncAdmin.php:140
 #, php-format
 msgid "Gallery file rename across %1$d units:"
 msgstr ""
 
-#: includes/Admin/SyncAdmin.php:144
+#: includes/Admin/SyncAdmin.php:145
 msgid "Gallery file rename:"
 msgstr ""
 
 #. translators: 1: renamed, 2: copied, 3: skipped, 4: failed
-#: includes/Admin/SyncAdmin.php:150
+#: includes/Admin/SyncAdmin.php:151
 #, php-format
 msgid "renamed %1$d, copied %2$d, skipped %3$d, failed %4$d."
 msgstr ""
 
-#: includes/Admin/SyncAdmin.php:174
+#: includes/Admin/SyncAdmin.php:175
 msgid "Sync & Import sections"
 msgstr ""
 
-#: includes/Admin/SyncAdmin.php:178
+#: includes/Admin/SyncAdmin.php:179
 msgid "Settings"
 msgstr ""
 
-#: includes/Admin/SyncAdmin.php:183
+#: includes/Admin/SyncAdmin.php:184
 msgid "Tools"
 msgstr ""
 
-#: includes/Admin/SyncAdmin.php:195
+#: includes/Admin/SyncAdmin.php:196
 msgid "Schedule"
 msgstr ""
 
-#: includes/Admin/SyncAdmin.php:196
+#: includes/Admin/SyncAdmin.php:197
 msgid "Scheduled sync uses WP-Cron; on low-traffic sites runs may be delayed until the next page view."
 msgstr ""
 
-#: includes/Admin/SyncAdmin.php:202
+#: includes/Admin/SyncAdmin.php:203
 msgid "Interval (hours)"
 msgstr ""
 
-#: includes/Admin/SyncAdmin.php:204
+#: includes/Admin/SyncAdmin.php:205
 msgid "How often the scheduled sync runs (1–168)."
 msgstr ""
 
-#: includes/Admin/SyncAdmin.php:216
+#: includes/Admin/SyncAdmin.php:217
 msgid "Kross booking engines"
 msgstr ""
 
-#: includes/Admin/SyncAdmin.php:217
+#: includes/Admin/SyncAdmin.php:218
 msgid "Sync only units whose Kross payload includes the room’s enabled booking-engine slugs (`be_enabled`). Matching any selected slug includes the unit. Leave all unchecked to sync every Kross room type from this property."
 msgstr ""
 
-#: includes/Admin/SyncAdmin.php:224
+#: includes/Admin/SyncAdmin.php:225
 msgid "Booking engines"
 msgstr ""
 
-#: includes/Admin/SyncAdmin.php:226
+#: includes/Admin/SyncAdmin.php:227
 msgid "Refresh booking engines list from Kross"
 msgstr ""
 
-#: includes/Admin/SyncAdmin.php:230
+#: includes/Admin/SyncAdmin.php:231
 msgid "Merges all `be_enabled` values discovered from `/v5/rooms/get-room-types` into the checklist below."
 msgstr ""
 
-#: includes/Admin/SyncAdmin.php:236
+#: includes/Admin/SyncAdmin.php:237
 msgid "No engines cached yet — use Refresh to populate this list."
 msgstr ""
 
-#: includes/Admin/SyncAdmin.php:241
+#: includes/Admin/SyncAdmin.php:242
 msgid "Kross booking engine slugs to include in sync"
 msgstr ""
 
-#: includes/Admin/SyncAdmin.php:267
+#: includes/Admin/SyncAdmin.php:268
 msgid "Gallery image filenames"
 msgstr ""
 
-#: includes/Admin/SyncAdmin.php:268
+#: includes/Admin/SyncAdmin.php:269
 msgid "Synced unit images are saved with: prefix + unit name (slug) + suffix + order index + file extension. Leave prefix and suffix empty to use only the unit name."
 msgstr ""
 
-#: includes/Admin/SyncAdmin.php:274
+#: includes/Admin/SyncAdmin.php:275
 msgid "Filename prefix"
 msgstr ""
 
-#: includes/Admin/SyncAdmin.php:276
+#: includes/Admin/SyncAdmin.php:277
 msgid "Optional text prepended to each file base name (safe characters only)."
 msgstr ""
 
-#: includes/Admin/SyncAdmin.php:278
+#: includes/Admin/SyncAdmin.php:279
 msgid "Filename suffix (before index)"
 msgstr ""
 
-#: includes/Admin/SyncAdmin.php:280
+#: includes/Admin/SyncAdmin.php:281
 msgid "Placed after the unit name slug, before the numeric index (e.g. \"-room\")."
 msgstr ""
 
-#: includes/Admin/SyncAdmin.php:287
+#: includes/Admin/SyncAdmin.php:288
 msgid "Save sync settings"
 msgstr ""
 
 #. translators: %s datetime
-#: includes/Admin/SyncAdmin.php:297
+#: includes/Admin/SyncAdmin.php:298
 #, php-format
 msgid "Last successful sync completion: %s"
 msgstr ""
 
-#: includes/Admin/SyncAdmin.php:304
+#: includes/Admin/SyncAdmin.php:305
 msgid "Import or update all units from the active provider. JavaScript shows live progress; without JS the standard admin-post fallback still runs."
 msgstr ""
 
-#: includes/Admin/SyncAdmin.php:312
+#: includes/Admin/SyncAdmin.php:313
 msgid "Run sync now"
 msgstr ""
 
-#: includes/Admin/SyncAdmin.php:316
+#: includes/Admin/SyncAdmin.php:317
 msgid "Sync progress"
 msgstr ""
 
-#: includes/Admin/SyncAdmin.php:324
+#: includes/Admin/SyncAdmin.php:325
 msgid "The sync lock prevents overlapping full syncs. If a run was interrupted you may see “Another sync is already running” until the lock expires or you clear it here."
 msgstr ""
 
-#: includes/Admin/SyncAdmin.php:330
+#: includes/Admin/SyncAdmin.php:331
 msgid "Current status:"
 msgstr ""
 
-#: includes/Admin/SyncAdmin.php:332
+#: includes/Admin/SyncAdmin.php:333
 msgid "Lock is set (a sync may be in progress or stale)."
 msgstr ""
 
-#: includes/Admin/SyncAdmin.php:333
+#: includes/Admin/SyncAdmin.php:334
 msgid "No lock is set."
 msgstr ""
 
-#: includes/Admin/SyncAdmin.php:336
+#: includes/Admin/SyncAdmin.php:337
 msgid "Clear the sync lock? Only do this if no sync is running. Active syncs may be affected."
 msgstr ""
 
-#: includes/Admin/SyncAdmin.php:343
+#: includes/Admin/SyncAdmin.php:344
 msgid "Clear sync lock"
 msgstr ""
 
-#: includes/Admin/SyncAdmin.php:351
+#: includes/Admin/SyncAdmin.php:352
 msgid "Gallery file rename"
 msgstr ""
 
-#: includes/Admin/SyncAdmin.php:352
+#: includes/Admin/SyncAdmin.php:353
 msgid "Apply the current filename prefix/suffix settings to images already stored in each unit’s gallery. Images shared by more than one unit are copied for this unit so other units are not affected. This may take a while on large sites."
 msgstr ""
 
-#: includes/Admin/SyncAdmin.php:360
+#: includes/Admin/SyncAdmin.php:361
 msgid "Rename all unit gallery files"
 msgstr ""
 
-#: includes/Admin/SyncAdmin.php:430
+#: includes/Admin/SyncAdmin.php:431
 msgid "Sync failed."
 msgstr ""
 
 #. translators: 1: created posts, 2: updated posts, 3: skipped posts
-#: includes/Admin/SyncAdmin.php:435
+#: includes/Admin/SyncAdmin.php:436
 #, php-format
 msgid "Created %1$d, updated %2$d, skipped %3$d."
 msgstr ""
 
-#: includes/Admin/SyncAdmin.php:439
+#: includes/Admin/SyncAdmin.php:440
 msgid "Sync request failed or returned an unexpected response. Try again or disable JavaScript to use the standard sync."
 msgstr ""
 
-#: includes/Admin/SyncAdmin.php:451
-#: includes/Admin/SyncAdmin.php:491
-#: includes/Admin/SyncAdmin.php:597
-#: includes/Admin/SyncAdmin.php:881
-#: includes/Admin/SyncAdmin.php:993
-#: includes/Admin/SyncAdmin.php:1019
-#: includes/Admin/SyncAdmin.php:1035
-#: includes/Admin/SyncAdmin.php:1055
-#: includes/Admin/SyncAdmin.php:1084
-#: includes/Admin/SyncAdmin.php:1099
-#: includes/Admin/SyncAdmin.php:1121
+#: includes/Admin/SyncAdmin.php:452
+#: includes/Admin/SyncAdmin.php:492
+#: includes/Admin/SyncAdmin.php:600
+#: includes/Admin/SyncAdmin.php:884
+#: includes/Admin/SyncAdmin.php:996
+#: includes/Admin/SyncAdmin.php:1022
+#: includes/Admin/SyncAdmin.php:1038
+#: includes/Admin/SyncAdmin.php:1058
+#: includes/Admin/SyncAdmin.php:1087
+#: includes/Admin/SyncAdmin.php:1102
+#: includes/Admin/SyncAdmin.php:1124
 msgid "Insufficient permissions."
 msgstr ""
 
-#: includes/Admin/SyncAdmin.php:476
+#: includes/Admin/SyncAdmin.php:477
 msgid "Waiting for sync to start…"
 msgstr ""
 
-#: includes/Admin/SyncAdmin.php:503
-#: includes/Admin/SyncAdmin.php:607
+#: includes/Admin/SyncAdmin.php:504
+#: includes/Admin/SyncAdmin.php:610
 msgid "Invalid sync run id."
 msgstr ""
 
-#: includes/Admin/SyncAdmin.php:513
+#: includes/Admin/SyncAdmin.php:514
 #: includes/Sync/SyncService.php:53
 msgid "Another sync is already running."
 msgstr ""
 
-#: includes/Admin/SyncAdmin.php:519
+#: includes/Admin/SyncAdmin.php:520
 #: includes/Sync/SyncService.php:31
 msgid "Starting sync…"
 msgstr ""
 
-#: includes/Admin/SyncAdmin.php:521
+#: includes/Admin/SyncAdmin.php:522
 msgid "Preparing batched sync (each step runs briefly so the browser does not time out)."
 msgstr ""
 
-#: includes/Admin/SyncAdmin.php:530
+#: includes/Admin/SyncAdmin.php:531
 #: includes/Sync/SyncService.php:77
 msgid "Provider credentials are incomplete."
 msgstr ""
 
-#: includes/Admin/SyncAdmin.php:574
+#: includes/Admin/SyncAdmin.php:577
 #: includes/Sync/SyncService.php:112
 msgid "No remote unit rows returned."
 msgstr ""
 
 #. translators: %d: number of remote rows to process
-#: includes/Admin/SyncAdmin.php:579
+#: includes/Admin/SyncAdmin.php:582
 #: includes/Sync/SyncService.php:117
 #, php-format
 msgid "%d remote unit row to process."
@@ -1196,87 +1196,87 @@ msgid_plural "%d remote unit rows to process."
 msgstr[0] ""
 msgstr[1] ""
 
-#: includes/Admin/SyncAdmin.php:618
+#: includes/Admin/SyncAdmin.php:621
 msgid "Sync lock was lost or this run expired. Start a new sync."
 msgstr ""
 
-#: includes/Admin/SyncAdmin.php:634
+#: includes/Admin/SyncAdmin.php:637
 msgid "Sync batch state expired or was cleared. Start a new sync."
 msgstr ""
 
 #. translators: %d: WordPress post ID
-#: includes/Admin/SyncAdmin.php:673
+#: includes/Admin/SyncAdmin.php:676
 #, php-format
 msgid "Starting deferred gallery import for unit #%d…"
 msgstr ""
 
 #. translators: %d: WordPress post ID
-#: includes/Admin/SyncAdmin.php:711
+#: includes/Admin/SyncAdmin.php:714
 #, php-format
 msgid "Gallery import finished for unit #%d."
 msgstr ""
 
 #. translators: 1: current index, 2: total rows
-#: includes/Admin/SyncAdmin.php:749
+#: includes/Admin/SyncAdmin.php:752
 #: includes/Sync/SyncService.php:139
 #, php-format
 msgid "Row %1$d/%2$d: skipped (no external ID)."
 msgstr ""
 
 #. translators: 1: current index, 2: total rows, 3: unit title
-#: includes/Admin/SyncAdmin.php:760
+#: includes/Admin/SyncAdmin.php:763
 #: includes/Sync/SyncService.php:155
 #, php-format
 msgid "Processing %1$d/%2$d: %3$s"
 msgstr ""
 
 #. translators: %s: external id
-#: includes/Admin/SyncAdmin.php:775
+#: includes/Admin/SyncAdmin.php:778
 #: includes/Sync/SyncService.php:172
 #, php-format
 msgid "Created unit for external ID %s."
 msgstr ""
 
 #. translators: %s: external id
-#: includes/Admin/SyncAdmin.php:784
+#: includes/Admin/SyncAdmin.php:787
 #: includes/Sync/SyncService.php:183
 #, php-format
 msgid "Updated unit for external ID %s."
 msgstr ""
 
 #. translators: %s: external id
-#: includes/Admin/SyncAdmin.php:793
+#: includes/Admin/SyncAdmin.php:796
 #: includes/Sync/SyncService.php:194
 #, php-format
 msgid "Skipped external ID %s."
 msgstr ""
 
-#: includes/Admin/SyncAdmin.php:940
+#: includes/Admin/SyncAdmin.php:943
 msgid "Sync now"
 msgstr ""
 
-#: includes/Admin/SyncAdmin.php:946
+#: includes/Admin/SyncAdmin.php:949
 msgid "Rename gallery files"
 msgstr ""
 
-#: includes/Admin/SyncAdmin.php:957
+#: includes/Admin/SyncAdmin.php:960
 msgid "Sync with provider"
 msgstr ""
 
-#: includes/Admin/SyncAdmin.php:1041
+#: includes/Admin/SyncAdmin.php:1044
 msgid "This action is disabled."
 msgstr ""
 
-#: includes/Admin/SyncAdmin.php:1131
+#: includes/Admin/SyncAdmin.php:1134
 msgid "Booking engine discovery is available only while Kross is the active provider."
 msgstr ""
 
-#: includes/Admin/SyncAdmin.php:1150
+#: includes/Admin/SyncAdmin.php:1153
 msgid "Complete Kross credentials on the Connection page before refreshing booking engines."
 msgstr ""
 
 #. translators: %d number of distinct booking-engine slugs cached after refresh
-#: includes/Admin/SyncAdmin.php:1176
+#: includes/Admin/SyncAdmin.php:1179
 #, php-format
 msgid "Booking engines list refreshed. %d slug cached."
 msgid_plural "Booking engines list refreshed. %d slugs cached."
@@ -1284,38 +1284,38 @@ msgstr[0] ""
 msgstr[1] ""
 
 #. translators: %s error detail
-#: includes/Admin/SyncAdmin.php:1206
+#: includes/Admin/SyncAdmin.php:1209
 #, php-format
 msgid "Could not refresh booking engines: %s"
 msgstr ""
 
-#: includes/Admin/SyncAdmin.php:1227
+#: includes/Admin/SyncAdmin.php:1230
 msgid "Sync settings saved."
 msgstr ""
 
-#: includes/Admin/SyncAdmin.php:1233
+#: includes/Admin/SyncAdmin.php:1236
 msgid "Sync lock was cleared."
 msgstr ""
 
 #. translators: %s error detail
-#: includes/Admin/SyncAdmin.php:1284
+#: includes/Admin/SyncAdmin.php:1287
 #, php-format
 msgid "Sync failed unexpectedly: %s"
 msgstr ""
 
 #: includes/Checkout/BookingCtaRenderer.php:32
-#: includes/Shortcodes/ShortcodeRegistry.php:492
+#: includes/Shortcodes/ShortcodeRegistry.php:494
 msgid "Available for your dates."
 msgstr ""
 
 #: includes/Checkout/BookingCtaRenderer.php:37
-#: includes/Shortcodes/ShortcodeRegistry.php:487
+#: includes/Shortcodes/ShortcodeRegistry.php:489
 msgid "No availability for these dates."
 msgstr ""
 
 #: includes/Checkout/CheckoutCtaHtml.php:24
-#: includes/Providers/Kross/KrossProvider.php:473
-#: includes/Providers/Kross/KrossProvider.php:478
+#: includes/Providers/Kross/KrossProvider.php:485
+#: includes/Providers/Kross/KrossProvider.php:490
 msgid "Book now"
 msgstr ""
 
@@ -1382,7 +1382,7 @@ msgstr ""
 msgid "from %1$s to %2$s"
 msgstr ""
 
-#: includes/Front/PublicAssets.php:164
+#: includes/Front/PublicAssets.php:165
 #: includes/UnitFilters/UnitFilterShortcodeRenderer.php:205
 #: includes/UnitFilters/UnitFilterShortcodeRenderer.php:404
 #: includes/UnitFilters/UnitFilterShortcodeRenderer.php:425
@@ -1391,15 +1391,15 @@ msgstr ""
 msgid "Any"
 msgstr ""
 
-#: includes/Front/PublicAssets.php:165
+#: includes/Front/PublicAssets.php:166
 #: includes/UnitFilters/UnitFilterShortcodeRenderer.php:273
 #: includes/UnitFilters/UnitFilterShortcodeRenderer.php:601
 msgid "Pick desired amenities"
 msgstr ""
 
 #. translators: 1: number of selected amenities, 2: total number of amenity choices.
-#: includes/Front/PublicAssets.php:167
-#: includes/Front/PublicAssets.php:174
+#: includes/Front/PublicAssets.php:168
+#: includes/Front/PublicAssets.php:175
 #: includes/UnitFilters/UnitFilterShortcodeRenderer.php:261
 #: includes/UnitFilters/UnitFilterShortcodeRenderer.php:609
 #, php-format
@@ -1409,32 +1409,32 @@ msgstr[0] ""
 msgstr[1] ""
 
 #. translators: %d number of adults when only adults are counted (singular)
-#: includes/Front/PublicAssets.php:195
+#: includes/Front/PublicAssets.php:196
 #, php-format
 msgid "%d adult"
 msgstr ""
 
 #. translators: %d number of adults when only adults are counted (plural)
-#: includes/Front/PublicAssets.php:197
+#: includes/Front/PublicAssets.php:198
 #, php-format
 msgid "%d adults"
 msgstr ""
 
 #. translators: 1: adults count, 2: children count
-#: includes/Front/PublicAssets.php:199
+#: includes/Front/PublicAssets.php:200
 #, php-format
 msgid "%1$d adults · %2$d children"
 msgstr ""
 
 #. translators: %d total guest count (singular)
-#: includes/Front/PublicAssets.php:201
+#: includes/Front/PublicAssets.php:202
 #, php-format
 msgid "%d guest"
 msgstr ""
 
 #. translators: %d total guest count (plural)
 #. translators: %d: total number of guests
-#: includes/Front/PublicAssets.php:203
+#: includes/Front/PublicAssets.php:204
 #: includes/Shortcodes/BookingSummary/BookingSummaryViewModelBuilder.php:777
 #, php-format
 msgid "%d guests"
@@ -1442,36 +1442,36 @@ msgstr ""
 
 #. translators: %d child index (display order starts at 1)
 #. translators: %d: child index (1-based)
-#: includes/Front/PublicAssets.php:205
+#: includes/Front/PublicAssets.php:206
 #: includes/Search/SearchForm.php:286
 #: includes/Search/SearchForm.php:431
 #, php-format
 msgid "Child %d age"
 msgstr ""
 
-#: includes/Front/PublicAssets.php:206
+#: includes/Front/PublicAssets.php:207
 #: includes/Search/SearchForm.php:439
 msgid "Age"
 msgstr ""
 
-#: includes/Front/PublicAssets.php:215
+#: includes/Front/PublicAssets.php:216
 #: includes/Search/SearchForm.php:455
 msgid "Apply"
 msgstr ""
 
-#: includes/Front/PublicAssets.php:216
+#: includes/Front/PublicAssets.php:217
 #: includes/Search/SearchForm.php:454
 msgid "Cancel"
 msgstr ""
 
-#: includes/Front/PublicAssets.php:217
+#: includes/Front/PublicAssets.php:218
 #: includes/Search/SearchForm.php:105
 #: includes/Search/SearchForm.php:124
 #: includes/Search/SearchForm.php:319
 msgid "Check-in"
 msgstr ""
 
-#: includes/Front/PublicAssets.php:218
+#: includes/Front/PublicAssets.php:219
 #: includes/Search/SearchForm.php:110
 #: includes/Search/SearchForm.php:129
 #: includes/Search/SearchForm.php:322
@@ -1479,16 +1479,16 @@ msgid "Check-out"
 msgstr ""
 
 #. translators: Label between displayed start/end dates where a range picker shows a textual range. Often an en dash with spaces.
-#: includes/Front/PublicAssets.php:220
+#: includes/Front/PublicAssets.php:221
 msgid " – "
 msgstr ""
 
-#: includes/Front/PublicAssets.php:221
+#: includes/Front/PublicAssets.php:222
 msgid "Custom"
 msgstr ""
 
 #. translators: Shown where check-in/out dates are not yet chosen (datepicker readout); use a short dash or “Select dates” style label.
-#: includes/Front/PublicAssets.php:223
+#: includes/Front/PublicAssets.php:224
 msgid "—"
 msgstr ""
 
@@ -1700,30 +1700,30 @@ msgstr ""
 msgid "Kross token response did not contain data.auth_token."
 msgstr ""
 
-#: includes/Providers/Kross/KrossProvider.php:183
+#: includes/Providers/Kross/KrossProvider.php:195
 msgid "Kross get-room-types request was not successful."
 msgstr ""
 
-#: includes/Providers/Kross/KrossProvider.php:226
+#: includes/Providers/Kross/KrossProvider.php:238
 msgid "Kross get-room-types-categories request was not successful."
 msgstr ""
 
-#: includes/Providers/Kross/KrossProvider.php:345
+#: includes/Providers/Kross/KrossProvider.php:357
 msgid "Search context must include check-in and check-out dates."
 msgstr ""
 
-#: includes/Providers/Kross/KrossProvider.php:393
+#: includes/Providers/Kross/KrossProvider.php:405
 msgid "Kross calendar/book request was not successful."
 msgstr ""
 
 #. translators: %d HTTP status
-#: includes/Providers/Kross/KrossProvider.php:565
+#: includes/Providers/Kross/KrossProvider.php:577
 #, php-format
 msgid "Kross API request failed (%d)."
 msgstr ""
 
 #. translators: %d Kross API error_code
-#: includes/Providers/Kross/KrossProvider.php:590
+#: includes/Providers/Kross/KrossProvider.php:602
 #, php-format
 msgid "(error_code %d)"
 msgstr ""
@@ -2108,8 +2108,8 @@ msgid "%1$s %2$s"
 msgstr ""
 
 #. translators: %s: formatted price including currency when applicable
-#: includes/Shortcodes/ShortcodeRegistry.php:340
-#: includes/Shortcodes/ShortcodeRegistry.php:505
+#: includes/Shortcodes/ShortcodeRegistry.php:342
+#: includes/Shortcodes/ShortcodeRegistry.php:507
 #, php-format
 msgid "From %s"
 msgstr ""
@@ -2224,7 +2224,7 @@ msgid "(unnamed)"
 msgstr ""
 
 #. translators: %s provider category external id
-#: includes/Sync/UnitCategorySync.php:474
+#: includes/Sync/UnitCategorySync.php:479
 #, php-format
 msgid "Category %s"
 msgstr ""

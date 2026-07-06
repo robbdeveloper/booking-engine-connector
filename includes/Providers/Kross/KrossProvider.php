@@ -81,6 +81,18 @@ final class KrossProvider implements ProviderInterface, BulkQuoteProviderInterfa
 	}
 
 	/**
+	 * @param array<string, mixed> $syncPayload
+	 * @param array<string, string> $atts
+	 * @param array<string, mixed> $context
+	 *
+	 * @return array{key: string, label: string, labels: array<string, string>, category?: string, icon?: string}|null
+	 */
+	public function getUnitAmenityItem(array $syncPayload, int $postId, string $amenityKey, array $atts, array $context): ?array
+	{
+		return KrossUnitAmenityResolver::resolve($syncPayload, $postId, $amenityKey, $atts, $context);
+	}
+
+	/**
 	 * @param array<string, mixed> $row
 	 *
 	 * @return array<string, mixed>

@@ -31,6 +31,7 @@ final class PublicAssets
 		'bec_quote',
 		'bec_fallback',
 		'bec_unit_info',
+		'bec_unit_amenity',
 		'bec_unit_filters',
 	];
 

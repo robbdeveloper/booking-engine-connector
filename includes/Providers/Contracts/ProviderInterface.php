@@ -105,4 +105,15 @@ interface ProviderInterface
 	 * @return string|int|float|null Null when the field is missing or not a valid scalar for the requested type.
 	 */
 	public function getUnitFieldValue(array $syncPayload, string $field, array $atts, array $context): string|int|float|null;
+
+	/**
+	 * Single amenity item for `[bec_unit_amenity]` when the unit has the requested key.
+	 *
+	 * @param array<string, mixed>    $syncPayload Decoded `bec_sync_payload` (normalised remote row, with `raw`).
+	 * @param array<string, string>   $atts        Pass-through shortcode attributes (`show_icon`, `font_pack`, …).
+	 * @param array<string, mixed>    $context      e.g. `provider`, `locale`.
+	 *
+	 * @return array{key: string, label: string, labels: array<string, string>, category?: string, icon?: string}|null Null when absent.
+	 */
+	public function getUnitAmenityItem(array $syncPayload, int $postId, string $amenityKey, array $atts, array $context): ?array;
 }
