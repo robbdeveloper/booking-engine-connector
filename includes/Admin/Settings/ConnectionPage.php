@@ -9,6 +9,7 @@ use BookingEngineConnector\Admin\AdminPageLayout;
 use BookingEngineConnector\Providers\Auth\CredentialField;
 use BookingEngineConnector\Providers\Contracts\ProviderException;
 use BookingEngineConnector\Providers\Kross\KrossAuthenticator;
+use BookingEngineConnector\Providers\Kross\KrossTestMode;
 use BookingEngineConnector\Providers\ProviderRegistry;
 
 /**
@@ -103,6 +104,30 @@ final class ConnectionPage
 		}
 
 		echo '</table>';
+
+		if ($slug === 'kross') {
+			$testMode = KrossTestMode::isEnabled();
+			echo '<h3 class="title">' . \esc_html__('Test mode', 'booking-engine-connector') . '</h3>';
+			echo '<table class="form-table" role="presentation">';
+			echo '<tr><th scope="row">' . \esc_html__('Inventory sync', 'booking-engine-connector') . '</th><td>';
+			echo '<label for="bec_kross_test_mode">';
+			echo '<input type="checkbox" name="bec_kross_test_mode" id="bec_kross_test_mode" value="1" ' . \checked($testMode, true, false) . ' /> ';
+			echo \esc_html__('Test mode (use placeholder inventory data)', 'booking-engine-connector');
+			echo '</label>';
+			echo '<p class="description">' . \esc_html__(
+				'When enabled, room type and category sync uses fictional placeholder data instead of calling the Kross API. Quotes, calendar, and checkout still require real credentials.',
+				'booking-engine-connector'
+			) . '</p>';
+			if ($testMode) {
+				echo '<div class="notice notice-warning inline"><p>' . \esc_html__(
+					'Test mode is active. Inventory sync will not contact the Kross API.',
+					'booking-engine-connector'
+				) . '</p></div>';
+			}
+			echo '</td></tr>';
+			echo '</table>';
+		}
+
 		AdminPageLayout::cardClose();
 
 		echo '<p class="submit">';
@@ -170,11 +195,19 @@ final class ConnectionPage
 			$values[ $field->key ] = $cb($incoming);
 		}
 
+		$testMode = $slug === 'kross' && isset($_POST['bec_kross_test_mode']);
+
 		if ($action === 'save') {
-			foreach ($fields as $field) {
-				if ($field->required && $values[ $field->key ] === '') {
-					self::setFlash('error', \__('Please fill in all required credential fields.', 'booking-engine-connector'));
-					self::redirectBack();
+			if ($slug === 'kross') {
+				KrossTestMode::setEnabled($testMode);
+			}
+
+			if (! $testMode) {
+				foreach ($fields as $field) {
+					if ($field->required && $values[ $field->key ] === '') {
+						self::setFlash('error', \__('Please fill in all required credential fields.', 'booking-engine-connector'));
+						self::redirectBack();
+					}
 				}
 			}
 
@@ -189,6 +222,14 @@ final class ConnectionPage
 		}
 
 		if ($action === 'test') {
+			if ($testMode || ( $slug === 'kross' && KrossTestMode::isEnabled() )) {
+				self::setFlash(
+					'success',
+					\__('Test mode active — using placeholder inventory data. No API credentials required for sync.', 'booking-engine-connector')
+				);
+				self::redirectBack();
+			}
+
 			foreach ($fields as $field) {
 				if ($values[ $field->key ] === '') {
 					self::setFlash('error', \__('Enter all required credentials (including API user and password) before running the connection test.', 'booking-engine-connector'));
@@ -276,6 +317,15 @@ final class ConnectionPage
 
 	private static function renderNotices(): void
 	{
+		if (ProviderRegistry::getActiveSlug() === 'kross' && KrossTestMode::isEnabled()) {
+			echo '<div class="notice notice-warning"><p>';
+			echo \esc_html__(
+				'Kross test mode is enabled. Room type and category sync uses placeholder data; quotes and checkout still need real API credentials.',
+				'booking-engine-connector'
+			);
+			echo '</p></div>';
+		}
+
 		if (! isset($_GET['bec_flash'])) {
 			return;
 		}

@@ -12,6 +12,7 @@ use BookingEngineConnector\Admin\Settings\UnitFiltersPage;
 use BookingEngineConnector\Admin\Settings\UnitPermalinkPage;
 use BookingEngineConnector\Fallback\FallbackSettings;
 use BookingEngineConnector\PostTypes\UnitPostType;
+use BookingEngineConnector\Providers\Kross\KrossTestMode;
 use BookingEngineConnector\Providers\ProviderRegistry;
 use BookingEngineConnector\Sync\SyncCron;
 use BookingEngineConnector\Sync\SyncLock;
@@ -136,6 +137,7 @@ final class AdminMenu
 		$providerSlug = ProviderRegistry::getActiveSlug();
 		$provider     = ProviderRegistry::getProvider($providerSlug);
 		$credsOk      = $provider->validateCredentials();
+		$krossTestMode = $providerSlug === 'kross' && KrossTestMode::isEnabled();
 
 		$lastSync = (string) \get_option('bec_sync_last_run_at', '');
 		$nextCron = \wp_next_scheduled(SyncCron::CRON_HOOK);
@@ -162,7 +164,9 @@ final class AdminMenu
 		AdminPageLayout::statusCard(
 			\__('Active provider', 'booking-engine-connector'),
 			\ucfirst($providerSlug),
-			'',
+			$krossTestMode
+				? AdminPageLayout::badge(\__('Test mode', 'booking-engine-connector'), 'warning')
+				: '',
 			'',
 			\admin_url('admin.php?page=' . ConnectionPage::PAGE_SLUG),
 			\__('Manage connection', 'booking-engine-connector')
@@ -170,16 +174,22 @@ final class AdminMenu
 
 		AdminPageLayout::statusCard(
 			\__('Credentials', 'booking-engine-connector'),
-			$credsOk
-				? \__('Complete', 'booking-engine-connector')
-				: \__('Incomplete', 'booking-engine-connector'),
+			$krossTestMode
+				? \__('Test mode (inventory only)', 'booking-engine-connector')
+				: ( $credsOk
+					? \__('Complete', 'booking-engine-connector')
+					: \__('Incomplete', 'booking-engine-connector') ),
 			AdminPageLayout::badge(
-				$credsOk
-					? \__('Ready', 'booking-engine-connector')
-					: \__('Action needed', 'booking-engine-connector'),
-				$credsOk ? 'success' : 'warning'
+				$krossTestMode
+					? \__('Test mode', 'booking-engine-connector')
+					: ( $credsOk
+						? \__('Ready', 'booking-engine-connector')
+						: \__('Action needed', 'booking-engine-connector') ),
+				$krossTestMode ? 'warning' : ( $credsOk ? 'success' : 'warning' )
 			),
-			'',
+			$krossTestMode
+				? \__('Placeholder inventory sync works without API credentials.', 'booking-engine-connector')
+				: '',
 			\admin_url('admin.php?page=' . ConnectionPage::PAGE_SLUG),
 			\__('Verify connection', 'booking-engine-connector')
 		);

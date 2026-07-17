@@ -11,6 +11,7 @@ use BookingEngineConnector\Media\RemoteGalleryImporter;
 use BookingEngineConnector\Providers\Contracts\ProviderException;
 use BookingEngineConnector\Providers\Kross\KrossBookingEngineSyncSettings;
 use BookingEngineConnector\Providers\Kross\KrossProvider;
+use BookingEngineConnector\Providers\Kross\KrossTestMode;
 use BookingEngineConnector\Providers\ProviderRegistry;
 use BookingEngineConnector\Sync\CoreUnitFieldRegistry;
 use BookingEngineConnector\Sync\SyncCron;
@@ -96,6 +97,15 @@ final class SyncAdmin
 			),
 			'bec-sync-admin'
 		);
+
+		if ($isKrossActive && KrossTestMode::isEnabled()) {
+			echo '<div class="notice notice-warning"><p>';
+			echo \esc_html__(
+				'Kross test mode is active. Sync imports placeholder room types and categories without calling the Kross API.',
+				'booking-engine-connector'
+			);
+			echo '</p></div>';
+		}
 
 		if ($isKrossActive) {
 			echo '<form id="bec-kross-booking-engine-refresh" method="post" action="' . \esc_url(\admin_url('admin-post.php')) . '" tabindex="-1" aria-hidden="true" style="position:absolute;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap;border-width:0;">';

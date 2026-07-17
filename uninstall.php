@@ -22,6 +22,7 @@ $options = [
 	'bec_kross_api_key',
 	'bec_kross_username',
 	'bec_kross_password',
+	'bec_kross_test_mode',
 	'bec_sync_interval_hours',
 	'bec_sync_last_run_at',
 	'bec_kross_checkout_base_url',

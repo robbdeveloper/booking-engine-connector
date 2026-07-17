@@ -49,6 +49,10 @@ final class KrossProvider implements ProviderInterface, BulkQuoteProviderInterfa
 
 	public function validateCredentials(): bool
 	{
+		if (KrossTestMode::isEnabled()) {
+			return true;
+		}
+
 		$h = (string) \get_option(KrossAuthenticator::OPTION_HOTEL_ID, '');
 		$k = (string) \get_option(KrossAuthenticator::OPTION_API_KEY, '');
 		$u = (string) \get_option(KrossAuthenticator::OPTION_USERNAME, '');
@@ -168,35 +172,39 @@ final class KrossProvider implements ProviderInterface, BulkQuoteProviderInterfa
 
 		$this->lastCategoryDescriptorMap = $categoryMap;
 
-		$payload = (array) \apply_filters(
-			'bec_kross_room_types_payload',
-			[
-				'with_be_info'            => true,
-				'with_custom_fields'      => true,
-				'with_images_full'        => true,
-				'with_mandatory_services' => true,
-				'with_additional_info'    => true,
-				'with_long_term'          => true,
-				'with_amenities'          => true,
-				'with_bed_bath_details'   => true,
-				'with_damage_deposit'     => true,
-			]
-		);
-
-		$response = $this->api->request('GET', '/v5/rooms/get-room-types', $payload);
-
-		$this->assertHttpOk($response);
-
-		$decoded = KrossResponseParser::decodeBody($response->getBody());
-
-		if (! KrossResponseParser::isSuccess($decoded)) {
-			throw new ProviderException(
-				self::formatEnvelopeFailure(
-					\__('Kross get-room-types request was not successful.', 'booking-engine-connector'),
-					$decoded
-				),
-				self::decodedErrorCategory($decoded)
+		if (KrossTestMode::isEnabled()) {
+			$decoded = KrossTestData::roomTypesEnvelope();
+		} else {
+			$payload = (array) \apply_filters(
+				'bec_kross_room_types_payload',
+				[
+					'with_be_info'            => true,
+					'with_custom_fields'      => true,
+					'with_images_full'        => true,
+					'with_mandatory_services' => true,
+					'with_additional_info'    => true,
+					'with_long_term'          => true,
+					'with_amenities'          => true,
+					'with_bed_bath_details'   => true,
+					'with_damage_deposit'     => true,
+				]
 			);
+
+			$response = $this->api->request('GET', '/v5/rooms/get-room-types', $payload);
+
+			$this->assertHttpOk($response);
+
+			$decoded = KrossResponseParser::decodeBody($response->getBody());
+
+			if (! KrossResponseParser::isSuccess($decoded)) {
+				throw new ProviderException(
+					self::formatEnvelopeFailure(
+						\__('Kross get-room-types request was not successful.', 'booking-engine-connector'),
+						$decoded
+					),
+					self::decodedErrorCategory($decoded)
+				);
+			}
 		}
 
 		$data = KrossResponseParser::getDataPayload($decoded);
@@ -224,22 +232,26 @@ final class KrossProvider implements ProviderInterface, BulkQuoteProviderInterfa
 	 */
 	private function fetchRoomTypeCategoriesMap(): array
 	{
-		$payload = (array) \apply_filters('bec_kross_room_type_categories_payload', []);
+		if (KrossTestMode::isEnabled()) {
+			$decoded = KrossTestData::categoriesEnvelope();
+		} else {
+			$payload = (array) \apply_filters('bec_kross_room_type_categories_payload', []);
 
-		$response = $this->api->request('GET', '/v5/rooms/get-room-types-categories', $payload);
+			$response = $this->api->request('GET', '/v5/rooms/get-room-types-categories', $payload);
 
-		$this->assertHttpOk($response);
+			$this->assertHttpOk($response);
 
-		$decoded = KrossResponseParser::decodeBody($response->getBody());
+			$decoded = KrossResponseParser::decodeBody($response->getBody());
 
-		if (! KrossResponseParser::isSuccess($decoded)) {
-			throw new ProviderException(
-				self::formatEnvelopeFailure(
-					\__('Kross get-room-types-categories request was not successful.', 'booking-engine-connector'),
-					$decoded
-				),
-				self::decodedErrorCategory($decoded)
-			);
+			if (! KrossResponseParser::isSuccess($decoded)) {
+				throw new ProviderException(
+					self::formatEnvelopeFailure(
+						\__('Kross get-room-types-categories request was not successful.', 'booking-engine-connector'),
+						$decoded
+					),
+					self::decodedErrorCategory($decoded)
+				);
+			}
 		}
 
 		$data = KrossResponseParser::getDataPayload($decoded);
