@@ -1,5 +1,13 @@
 # Changelog
 
+## 0.3.8 — 2026-07-17
+
+- **Kross — test mode (inventory sync)**: Per-provider **`bec_kross_test_mode`** option and **`KrossTestMode`** helper. When enabled, **`KrossProvider::validateCredentials()`** succeeds without API credentials; **`fetchRoomTypesDecodedAndRows()`** and **`fetchRoomTypeCategoriesMap()`** serve synthetic payloads from **`KrossTestData`** (4 fictional categories, 6 room types with multilingual `be_name` / `be_description`, amenities, and Unsplash image URLs) through the same normalization path as live API responses. Quotes, calendar, and checkout are unchanged and still require real credentials.
+- **Admin — Connection**: Checkbox **Test mode (use placeholder inventory data)** with warning notices; save allows empty credentials when test mode is on; **Verify connection** short-circuits to success when test mode is active.
+- **Admin — dashboard & sync**: **Test mode** badge on the dashboard provider/credentials cards and a warning notice on **Sync & Import** when test mode is active.
+- **Uninstall**: Remove **`bec_kross_test_mode`** on plugin uninstall.
+- **i18n**: Regenerated `languages/booking-engine-connector.pot`, merged and translated `booking-engine-connector-it_IT.po`, recompiled `booking-engine-connector-it_IT.mo`.
+
 ## 0.3.7 — 2026-07-06
 
 - **Shortcodes (`[bec_unit_amenity]`)**: Conditionally render a single unit amenity when the synced unit has it — returns empty output when absent (for template/Elementor conditional display). Attributes: **`key`** (required amenity code, e.g. `wifi`), **`unit_id`**, **`default`**, **`show_icon`** (`0` default), **`class`**, **`font_pack`**. Provider API: **`ProviderInterface::getUnitAmenityItem()`**; Kross implementation in **`KrossUnitAmenityResolver`** reads **`bec_core_amenities`** (fallback: sync payload), resolves the label from API locale maps via the active site locale, and applies **`bec_kross_unit_amenity_display_label`**. Filters **`bec_unit_amenity_item`**, **`bec_kross_unit_amenity_item`**, **`bec_shortcode_unit_amenity_html`**. Example: `[bec_unit_amenity key="wifi"]`. Amenity names are API-driven translations, not gettext strings.
