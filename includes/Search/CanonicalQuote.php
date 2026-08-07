@@ -4,6 +4,8 @@ declare(strict_types=1);
 
 namespace BookingEngineConnector\Search;
 
+use BookingEngineConnector\Providers\Kross\KrossLocalizedLabels;
+
 /**
  * Normalises provider-specific quote payloads into a shared shape so UI layers
  * can show rates and the price for the current {@see SearchContext} without
@@ -224,36 +226,6 @@ final class CanonicalQuote
 
 	private static function pickLocalizedLabel($value): string
 	{
-		if (\is_string($value)) {
-			return \trim($value);
-		}
-		if (! \is_array($value)) {
-			return '';
-		}
-
-		if (isset($value['main']) && \is_string($value['main']) && $value['main'] !== '') {
-			return \trim($value['main']);
-		}
-
-		$lang = \substr(\get_locale(), 0, 2);
-		if (isset($value[$lang]) && \is_string($value[$lang])) {
-			return \trim($value[$lang]);
-		}
-
-		$det = \function_exists('determine_locale') ? \determine_locale() : '';
-		if ($det !== '') {
-			$short = \substr($det, 0, 2);
-			if (isset($value[$short]) && \is_string($value[$short])) {
-				return \trim($value[$short]);
-			}
-		}
-
-		foreach ($value as $v) {
-			if (\is_string($v) && $v !== '') {
-				return \trim($v);
-			}
-		}
-
-		return '';
+		return KrossLocalizedLabels::resolve($value);
 	}
 }

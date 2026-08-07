@@ -1,5 +1,9 @@
 # Changelog
 
+## 0.3.9 — 2026-08-07
+
+- **Booking summary — Kross rate names**: `name_rate` from `calendar/book` is resolved via **`KrossLocalizedLabels`** — active site locale (`bec_provider_locale` / `Multilingual::filteredSiteLocale('kross_rate')`), then the first API translation, then `main`. Fixes rate labels when Kross returns locale maps without `main` (common when adults are not set) and prefers translated names over `main` when both exist.
+
 ## 0.3.8 — 2026-07-17
 
 - **Kross — test mode (inventory sync)**: Per-provider **`bec_kross_test_mode`** option and **`KrossTestMode`** helper. When enabled, **`KrossProvider::validateCredentials()`** succeeds without API credentials; **`fetchRoomTypesDecodedAndRows()`** and **`fetchRoomTypeCategoriesMap()`** serve synthetic payloads from **`KrossTestData`** (4 fictional categories, 6 room types with multilingual `be_name` / `be_description`, amenities, and Unsplash image URLs) through the same normalization path as live API responses. Quotes, calendar, and checkout are unchanged and still require real credentials.

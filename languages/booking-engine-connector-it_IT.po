@@ -1,6 +1,6 @@
 msgid ""
 msgstr ""
-"Project-Id-Version: Booking Engine Connector 0.3.8\n"
+"Project-Id-Version: Booking Engine Connector 0.3.9\n"
 "Report-Msgid-Bugs-To: https://wordpress.org/support/plugin/booking-engine-"
 "connector\n"
 "POT-Creation-Date: 2026-07-17T13:35:13+00:00\n"
