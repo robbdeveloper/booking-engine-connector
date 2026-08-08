@@ -2,14 +2,14 @@
 # This file is distributed under the GPL-2.0-or-later.
 msgid ""
 msgstr ""
-"Project-Id-Version: Booking Engine Connector 0.3.9\n"
+"Project-Id-Version: Booking Engine Connector 0.4.0\n"
 "Report-Msgid-Bugs-To: https://wordpress.org/support/plugin/booking-engine-connector\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"POT-Creation-Date: 2026-07-17T13:35:13+00:00\n"
+"POT-Creation-Date: 2026-08-08T12:54:14+00:00\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "X-Generator: WP-CLI 2.12.0\n"
 "X-Domain: booking-engine-connector\n"
@@ -59,7 +59,7 @@ msgstr ""
 
 #: includes/Admin/AdminMenu.php:69
 #: includes/Admin/AdminMenu.php:70
-#: includes/Admin/Settings/FrontendPage.php:40
+#: includes/Admin/Settings/FrontendPage.php:41
 msgid "Frontend"
 msgstr ""
 
@@ -255,6 +255,7 @@ msgid "Enabled — inline mode"
 msgstr ""
 
 #: includes/Admin/AdminMenu.php:272
+#: includes/Admin/Settings/FrontendPage.php:109
 msgid "Disabled"
 msgstr ""
 
@@ -642,111 +643,127 @@ msgstr ""
 msgid "Shown for “Inline content” mode. Shortcodes are supported."
 msgstr ""
 
-#: includes/Admin/Settings/FrontendPage.php:41
+#: includes/Admin/Settings/FrontendPage.php:42
 msgid "Configure how the availability search bar collects guests and how booking blocks appear on single unit pages."
 msgstr ""
 
-#: includes/Admin/Settings/FrontendPage.php:55
+#: includes/Admin/Settings/FrontendPage.php:56
 msgid "Search form"
 msgstr ""
 
-#: includes/Admin/Settings/FrontendPage.php:56
+#: includes/Admin/Settings/FrontendPage.php:57
 msgid "Controls the `[bec_search]` shortcode and embedded search inside `[bec_booking_summary]`."
 msgstr ""
 
-#: includes/Admin/Settings/FrontendPage.php:64
+#: includes/Admin/Settings/FrontendPage.php:65
 msgid "How guests are collected"
 msgstr ""
 
-#: includes/Admin/Settings/FrontendPage.php:66
+#: includes/Admin/Settings/FrontendPage.php:67
 msgid "Follow the active provider (default)"
 msgstr ""
 
-#: includes/Admin/Settings/FrontendPage.php:70
+#: includes/Admin/Settings/FrontendPage.php:71
 msgid "Single “Guests” count only"
 msgstr ""
 
-#: includes/Admin/Settings/FrontendPage.php:74
+#: includes/Admin/Settings/FrontendPage.php:75
 msgid "Adults and children (separate fields)"
 msgstr ""
 
-#: includes/Admin/Settings/FrontendPage.php:79
+#: includes/Admin/Settings/FrontendPage.php:80
 msgid "Controls the availability search bar. Use a single total or split adults/children, regardless of the provider. “Follow the active provider” uses each engine’s own rules (e.g. Kross can default to a simple guest count)."
 msgstr ""
 
-#: includes/Admin/Settings/FrontendPage.php:85
+#: includes/Admin/Settings/FrontendPage.php:86
 msgid "Child ages in search"
 msgstr ""
 
-#: includes/Admin/Settings/FrontendPage.php:87
+#: includes/Admin/Settings/FrontendPage.php:88
 msgid "Follow the active provider"
 msgstr ""
 
-#: includes/Admin/Settings/FrontendPage.php:91
+#: includes/Admin/Settings/FrontendPage.php:92
 msgid "Ask for each child’s age"
 msgstr ""
 
-#: includes/Admin/Settings/FrontendPage.php:95
+#: includes/Admin/Settings/FrontendPage.php:96
 msgid "Do not ask for child ages"
 msgstr ""
 
-#: includes/Admin/Settings/FrontendPage.php:100
+#: includes/Admin/Settings/FrontendPage.php:101
 msgid "Applies when the search form shows adults and children. Ignored when using only a single guest count."
 msgstr ""
 
-#: includes/Admin/Settings/FrontendPage.php:110
+#: includes/Admin/Settings/FrontendPage.php:107
+msgid "Calendar availability hints"
+msgstr ""
+
+#: includes/Admin/Settings/FrontendPage.php:113
+msgid "Single unit pages only"
+msgstr ""
+
+#: includes/Admin/Settings/FrontendPage.php:117
+msgid "All search forms"
+msgstr ""
+
+#: includes/Admin/Settings/FrontendPage.php:122
+msgid "Grey out unavailable dates in the enhanced search date picker using provider PMS availability. “Single unit pages only” matches the current unit; “All search forms” allows a date when at least one synced unit is available. Requires the enhanced search preset."
+msgstr ""
+
+#: includes/Admin/Settings/FrontendPage.php:132
 msgid "Single unit pages"
 msgstr ""
 
-#: includes/Admin/Settings/FrontendPage.php:111
+#: includes/Admin/Settings/FrontendPage.php:133
 msgid "Automatic content injection when viewing a synced unit. Disable these to place shortcodes manually in your template or block editor."
 msgstr ""
 
-#: includes/Admin/Settings/FrontendPage.php:118
+#: includes/Admin/Settings/FrontendPage.php:140
 msgid "Content injection"
 msgstr ""
 
-#: includes/Admin/Settings/FrontendPage.php:121
+#: includes/Admin/Settings/FrontendPage.php:143
 msgid "Insert the availability search form above the main post content"
 msgstr ""
 
-#: includes/Admin/Settings/FrontendPage.php:125
+#: includes/Admin/Settings/FrontendPage.php:147
 msgid "When disabled, place `[bec_search]` (or the booking summary shortcode) in your template or block editor instead."
 msgstr ""
 
-#: includes/Admin/Settings/FrontendPage.php:130
+#: includes/Admin/Settings/FrontendPage.php:152
 msgid "Append the booking quote and Continue button after the main post content when the URL has dates"
 msgstr ""
 
-#: includes/Admin/Settings/FrontendPage.php:134
+#: includes/Admin/Settings/FrontendPage.php:156
 msgid "When disabled, use `[bec_booking_summary]` or `[bec_quote]` where you want pricing and checkout."
 msgstr ""
 
-#: includes/Admin/Settings/FrontendPage.php:145
+#: includes/Admin/Settings/FrontendPage.php:167
 msgid "Multilingual"
 msgstr ""
 
-#: includes/Admin/Settings/FrontendPage.php:146
+#: includes/Admin/Settings/FrontendPage.php:168
 msgid "When WPML or Polylang is active, synced units can automatically receive linked translation posts from provider locale maps."
 msgstr ""
 
-#: includes/Admin/Settings/FrontendPage.php:153
+#: includes/Admin/Settings/FrontendPage.php:175
 msgid "Translation sync"
 msgstr ""
 
-#: includes/Admin/Settings/FrontendPage.php:156
+#: includes/Admin/Settings/FrontendPage.php:178
 msgid "Create and update linked translation posts on each unit sync"
 msgstr ""
 
-#: includes/Admin/Settings/FrontendPage.php:160
+#: includes/Admin/Settings/FrontendPage.php:182
 msgid "Uses Kross be_name and be_description locale maps when available. Title, description, and their core meta fields are language-specific; images, amenities, categories, and sync payload stay shared."
 msgstr ""
 
-#: includes/Admin/Settings/FrontendPage.php:170
+#: includes/Admin/Settings/FrontendPage.php:192
 msgid "Save frontend settings"
 msgstr ""
 
-#: includes/Admin/Settings/FrontendPage.php:233
+#: includes/Admin/Settings/FrontendPage.php:271
 msgid "Frontend settings saved."
 msgstr ""
 
@@ -1346,18 +1363,18 @@ msgid "Sync failed unexpectedly: %s"
 msgstr ""
 
 #: includes/Checkout/BookingCtaRenderer.php:32
-#: includes/Shortcodes/ShortcodeRegistry.php:494
+#: includes/Shortcodes/ShortcodeRegistry.php:502
 msgid "Available for your dates."
 msgstr ""
 
 #: includes/Checkout/BookingCtaRenderer.php:37
-#: includes/Shortcodes/ShortcodeRegistry.php:489
+#: includes/Shortcodes/ShortcodeRegistry.php:497
 msgid "No availability for these dates."
 msgstr ""
 
 #: includes/Checkout/CheckoutCtaHtml.php:24
-#: includes/Providers/Kross/KrossProvider.php:497
-#: includes/Providers/Kross/KrossProvider.php:502
+#: includes/Providers/Kross/KrossProvider.php:604
+#: includes/Providers/Kross/KrossProvider.php:609
 msgid "Book now"
 msgstr ""
 
@@ -1424,7 +1441,7 @@ msgstr ""
 msgid "from %1$s to %2$s"
 msgstr ""
 
-#: includes/Front/PublicAssets.php:165
+#: includes/Front/PublicAssets.php:166
 #: includes/UnitFilters/UnitFilterShortcodeRenderer.php:205
 #: includes/UnitFilters/UnitFilterShortcodeRenderer.php:404
 #: includes/UnitFilters/UnitFilterShortcodeRenderer.php:425
@@ -1433,15 +1450,15 @@ msgstr ""
 msgid "Any"
 msgstr ""
 
-#: includes/Front/PublicAssets.php:166
+#: includes/Front/PublicAssets.php:167
 #: includes/UnitFilters/UnitFilterShortcodeRenderer.php:273
 #: includes/UnitFilters/UnitFilterShortcodeRenderer.php:601
 msgid "Pick desired amenities"
 msgstr ""
 
 #. translators: 1: number of selected amenities, 2: total number of amenity choices.
-#: includes/Front/PublicAssets.php:168
-#: includes/Front/PublicAssets.php:175
+#: includes/Front/PublicAssets.php:169
+#: includes/Front/PublicAssets.php:176
 #: includes/UnitFilters/UnitFilterShortcodeRenderer.php:261
 #: includes/UnitFilters/UnitFilterShortcodeRenderer.php:609
 #, php-format
@@ -1451,32 +1468,32 @@ msgstr[0] ""
 msgstr[1] ""
 
 #. translators: %d number of adults when only adults are counted (singular)
-#: includes/Front/PublicAssets.php:196
+#: includes/Front/PublicAssets.php:197
 #, php-format
 msgid "%d adult"
 msgstr ""
 
 #. translators: %d number of adults when only adults are counted (plural)
-#: includes/Front/PublicAssets.php:198
+#: includes/Front/PublicAssets.php:199
 #, php-format
 msgid "%d adults"
 msgstr ""
 
 #. translators: 1: adults count, 2: children count
-#: includes/Front/PublicAssets.php:200
+#: includes/Front/PublicAssets.php:201
 #, php-format
 msgid "%1$d adults · %2$d children"
 msgstr ""
 
 #. translators: %d total guest count (singular)
-#: includes/Front/PublicAssets.php:202
+#: includes/Front/PublicAssets.php:203
 #, php-format
 msgid "%d guest"
 msgstr ""
 
 #. translators: %d total guest count (plural)
 #. translators: %d: total number of guests
-#: includes/Front/PublicAssets.php:204
+#: includes/Front/PublicAssets.php:205
 #: includes/Shortcodes/BookingSummary/BookingSummaryViewModelBuilder.php:777
 #, php-format
 msgid "%d guests"
@@ -1484,53 +1501,53 @@ msgstr ""
 
 #. translators: %d child index (display order starts at 1)
 #. translators: %d: child index (1-based)
-#: includes/Front/PublicAssets.php:206
-#: includes/Search/SearchForm.php:286
-#: includes/Search/SearchForm.php:431
+#: includes/Front/PublicAssets.php:207
+#: includes/Search/SearchForm.php:291
+#: includes/Search/SearchForm.php:445
 #, php-format
 msgid "Child %d age"
 msgstr ""
 
-#: includes/Front/PublicAssets.php:207
-#: includes/Search/SearchForm.php:439
+#: includes/Front/PublicAssets.php:208
+#: includes/Search/SearchForm.php:453
 msgid "Age"
 msgstr ""
 
-#: includes/Front/PublicAssets.php:216
-#: includes/Search/SearchForm.php:455
+#: includes/Front/PublicAssets.php:217
+#: includes/Search/SearchForm.php:469
 msgid "Apply"
 msgstr ""
 
-#: includes/Front/PublicAssets.php:217
-#: includes/Search/SearchForm.php:454
+#: includes/Front/PublicAssets.php:218
+#: includes/Search/SearchForm.php:468
 msgid "Cancel"
 msgstr ""
 
-#: includes/Front/PublicAssets.php:218
-#: includes/Search/SearchForm.php:105
-#: includes/Search/SearchForm.php:124
-#: includes/Search/SearchForm.php:319
+#: includes/Front/PublicAssets.php:219
+#: includes/Search/SearchForm.php:106
+#: includes/Search/SearchForm.php:125
+#: includes/Search/SearchForm.php:325
 msgid "Check-in"
 msgstr ""
 
-#: includes/Front/PublicAssets.php:219
-#: includes/Search/SearchForm.php:110
-#: includes/Search/SearchForm.php:129
-#: includes/Search/SearchForm.php:322
+#: includes/Front/PublicAssets.php:220
+#: includes/Search/SearchForm.php:111
+#: includes/Search/SearchForm.php:130
+#: includes/Search/SearchForm.php:328
 msgid "Check-out"
 msgstr ""
 
 #. translators: Label between displayed start/end dates where a range picker shows a textual range. Often an en dash with spaces.
-#: includes/Front/PublicAssets.php:221
+#: includes/Front/PublicAssets.php:222
 msgid " – "
 msgstr ""
 
-#: includes/Front/PublicAssets.php:222
+#: includes/Front/PublicAssets.php:223
 msgid "Custom"
 msgstr ""
 
 #. translators: Shown where check-in/out dates are not yet chosen (datepicker readout); use a short dash or “Select dates” style label.
-#: includes/Front/PublicAssets.php:224
+#: includes/Front/PublicAssets.php:225
 msgid "—"
 msgstr ""
 
@@ -1742,30 +1759,34 @@ msgstr ""
 msgid "Kross token response did not contain data.auth_token."
 msgstr ""
 
-#: includes/Providers/Kross/KrossProvider.php:202
+#: includes/Providers/Kross/KrossProvider.php:203
 msgid "Kross get-room-types request was not successful."
 msgstr ""
 
-#: includes/Providers/Kross/KrossProvider.php:249
+#: includes/Providers/Kross/KrossProvider.php:250
 msgid "Kross get-room-types-categories request was not successful."
 msgstr ""
 
-#: includes/Providers/Kross/KrossProvider.php:369
+#: includes/Providers/Kross/KrossProvider.php:397
+msgid "Kross calendar/get-availability request was not successful."
+msgstr ""
+
+#: includes/Providers/Kross/KrossProvider.php:476
 msgid "Search context must include check-in and check-out dates."
 msgstr ""
 
-#: includes/Providers/Kross/KrossProvider.php:417
+#: includes/Providers/Kross/KrossProvider.php:524
 msgid "Kross calendar/book request was not successful."
 msgstr ""
 
 #. translators: %d HTTP status
-#: includes/Providers/Kross/KrossProvider.php:589
+#: includes/Providers/Kross/KrossProvider.php:696
 #, php-format
 msgid "Kross API request failed (%d)."
 msgstr ""
 
 #. translators: %d Kross API error_code
-#: includes/Providers/Kross/KrossProvider.php:614
+#: includes/Providers/Kross/KrossProvider.php:721
 #, php-format
 msgid "(error_code %d)"
 msgstr ""
@@ -1932,57 +1953,57 @@ msgstr ""
 msgid "We could not retrieve a price from the booking provider. Please try again."
 msgstr ""
 
-#: includes/Search/SearchForm.php:115
-#: includes/Search/SearchForm.php:331
-#: includes/Search/SearchForm.php:355
-#: includes/Search/SearchForm.php:392
+#: includes/Search/SearchForm.php:116
+#: includes/Search/SearchForm.php:337
+#: includes/Search/SearchForm.php:361
+#: includes/Search/SearchForm.php:406
 msgid "Guests"
 msgstr ""
 
-#: includes/Search/SearchForm.php:134
-#: includes/Search/SearchForm.php:325
+#: includes/Search/SearchForm.php:135
+#: includes/Search/SearchForm.php:331
 msgid "Adults"
 msgstr ""
 
-#: includes/Search/SearchForm.php:140
-#: includes/Search/SearchForm.php:328
+#: includes/Search/SearchForm.php:141
+#: includes/Search/SearchForm.php:334
 msgid "Children"
 msgstr ""
 
-#: includes/Search/SearchForm.php:267
-#: includes/Search/SearchForm.php:462
+#: includes/Search/SearchForm.php:272
+#: includes/Search/SearchForm.php:476
 msgid "Search availability"
 msgstr ""
 
-#: includes/Search/SearchForm.php:364
+#: includes/Search/SearchForm.php:378
 msgid "Search stays"
 msgstr ""
 
-#: includes/Search/SearchForm.php:366
+#: includes/Search/SearchForm.php:380
 msgid "Select dates"
 msgstr ""
 
-#: includes/Search/SearchForm.php:402
+#: includes/Search/SearchForm.php:416
 msgid "Decrease guests"
 msgstr ""
 
-#: includes/Search/SearchForm.php:404
+#: includes/Search/SearchForm.php:418
 msgid "Increase guests"
 msgstr ""
 
-#: includes/Search/SearchForm.php:410
+#: includes/Search/SearchForm.php:424
 msgid "Decrease adults"
 msgstr ""
 
-#: includes/Search/SearchForm.php:412
+#: includes/Search/SearchForm.php:426
 msgid "Increase adults"
 msgstr ""
 
-#: includes/Search/SearchForm.php:418
+#: includes/Search/SearchForm.php:432
 msgid "Decrease children"
 msgstr ""
 
-#: includes/Search/SearchForm.php:420
+#: includes/Search/SearchForm.php:434
 msgid "Increase children"
 msgstr ""
 
@@ -2095,31 +2116,31 @@ msgstr ""
 msgid "Back"
 msgstr ""
 
-#: includes/Shortcodes/BookingSummary/BookingSummaryRenderer.php:789
+#: includes/Shortcodes/BookingSummary/BookingSummaryRenderer.php:791
 msgid "Per night"
 msgstr ""
 
-#: includes/Shortcodes/BookingSummary/BookingSummaryRenderer.php:839
-#: includes/Shortcodes/BookingSummary/BookingSummaryRenderer.php:908
+#: includes/Shortcodes/BookingSummary/BookingSummaryRenderer.php:841
+#: includes/Shortcodes/BookingSummary/BookingSummaryRenderer.php:910
 msgid "Total"
 msgstr ""
 
-#: includes/Shortcodes/BookingSummary/BookingSummaryRenderer.php:847
+#: includes/Shortcodes/BookingSummary/BookingSummaryRenderer.php:849
 #: includes/Shortcodes/BookingSummary/BookingSummaryViewModelBuilder.php:111
 msgid "Prepayment needed"
 msgstr ""
 
-#: includes/Shortcodes/BookingSummary/BookingSummaryRenderer.php:856
+#: includes/Shortcodes/BookingSummary/BookingSummaryRenderer.php:858
 #: includes/Shortcodes/BookingSummary/BookingSummaryViewModelBuilder.php:119
 msgid "Damage deposit"
 msgstr ""
 
-#: includes/Shortcodes/BookingSummary/BookingSummaryRenderer.php:879
+#: includes/Shortcodes/BookingSummary/BookingSummaryRenderer.php:881
 #: includes/Shortcodes/BookingSummary/BookingSummaryViewModelBuilder.php:78
 msgid "This rate includes"
 msgstr ""
 
-#: includes/Shortcodes/BookingSummary/BookingSummaryRenderer.php:880
+#: includes/Shortcodes/BookingSummary/BookingSummaryRenderer.php:882
 #: includes/Shortcodes/BookingSummary/BookingSummaryViewModelBuilder.php:85
 msgid "Cancellation and payments"
 msgstr ""
@@ -2150,8 +2171,8 @@ msgid "%1$s %2$s"
 msgstr ""
 
 #. translators: %s: formatted price including currency when applicable
-#: includes/Shortcodes/ShortcodeRegistry.php:342
-#: includes/Shortcodes/ShortcodeRegistry.php:507
+#: includes/Shortcodes/ShortcodeRegistry.php:350
+#: includes/Shortcodes/ShortcodeRegistry.php:515
 #, php-format
 msgid "From %s"
 msgstr ""

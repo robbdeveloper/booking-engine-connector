@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace BookingEngineConnector\Front;
 
 use BookingEngineConnector\PostTypes\UnitPostType;
+use BookingEngineConnector\Search\CalendarAvailabilityService;
 use BookingEngineConnector\Search\SearchContext;
 use BookingEngineConnector\Styling\StylingSettings;
 
@@ -222,6 +223,7 @@ final class PublicAssets
 			'customRangeLabel' => \__('Custom', 'booking-engine-connector'),
 			/* translators: Shown where check-in/out dates are not yet chosen (datepicker readout); use a short dash or “Select dates” style label. */
 			'datePlaceholder'  => \__('—', 'booking-engine-connector'),
+			'calendarAvailabilityEnabled' => CalendarAvailabilityService::isFeatureActive(),
 		];
 
 		/**

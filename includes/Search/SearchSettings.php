@@ -38,6 +38,17 @@ final class SearchSettings
 	/** Stored as 1 or 0; default off — use `[bec_search]` for manual placement. */
 	public const OPTION_AUTO_APPEND_SEARCH_FORM_SINGLE_UNIT = 'bec_auto_append_search_form_single_unit';
 
+	/** @var string Disable calendar availability hints in the search date picker. */
+	public const CALENDAR_AVAILABILITY_OFF = 'off';
+
+	/** @var string Show unavailable dates only on single `bec_unit` pages. */
+	public const CALENDAR_AVAILABILITY_SINGLE_UNIT = 'single_unit';
+
+	/** @var string Show unavailable dates on all search forms (union across units). */
+	public const CALENDAR_AVAILABILITY_ALL_SEARCH = 'all_search';
+
+	public const OPTION_CALENDAR_AVAILABILITY = 'bec_search_calendar_availability';
+
 	public static function register(): void
 	{
 		\add_filter('bec_search_guest_field_mode', [self::class, 'filterGuestFieldMode'], 20, 2);
@@ -71,6 +82,22 @@ final class SearchSettings
 	public static function isAutoAppendSearchFormOnSingleUnit(): bool
 	{
 		return (int) \get_option(self::OPTION_AUTO_APPEND_SEARCH_FORM_SINGLE_UNIT, 0) === 1;
+	}
+
+	/**
+	 * @return self::CALENDAR_AVAILABILITY_*
+	 */
+	public static function getCalendarAvailabilityMode(): string
+	{
+		$raw = (string) \get_option(self::OPTION_CALENDAR_AVAILABILITY, self::CALENDAR_AVAILABILITY_OFF);
+		$raw = \sanitize_key($raw);
+		$allowed = [
+			self::CALENDAR_AVAILABILITY_OFF,
+			self::CALENDAR_AVAILABILITY_SINGLE_UNIT,
+			self::CALENDAR_AVAILABILITY_ALL_SEARCH,
+		];
+
+		return \in_array($raw, $allowed, true) ? $raw : self::CALENDAR_AVAILABILITY_OFF;
 	}
 
 	/**

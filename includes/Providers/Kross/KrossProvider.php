@@ -9,6 +9,7 @@ use BookingEngineConnector\Api\HttpResponse;
 use BookingEngineConnector\Fallback\FallbackSettings;
 use BookingEngineConnector\Integrations\Multilingual;
 use BookingEngineConnector\Providers\Contracts\BulkQuoteProviderInterface;
+use BookingEngineConnector\Providers\Contracts\CalendarAvailabilityProviderInterface;
 use BookingEngineConnector\Providers\Contracts\ProviderErrorCategory;
 use BookingEngineConnector\Providers\Contracts\ProviderException;
 use BookingEngineConnector\Providers\Contracts\ProviderInterface;
@@ -18,7 +19,7 @@ use BookingEngineConnector\Taxonomies\UnitCategoryTaxonomy;
 /**
  * Kross API v5: room types + calendar availability (see docs/KROSS-API.md).
  */
-final class KrossProvider implements ProviderInterface, BulkQuoteProviderInterface
+final class KrossProvider implements ProviderInterface, BulkQuoteProviderInterface, CalendarAvailabilityProviderInterface
 {
 	private KrossAuthenticator $authenticator;
 
@@ -355,6 +356,112 @@ final class KrossProvider implements ProviderInterface, BulkQuoteProviderInterfa
 		$quote = $this->buildQuoteForRoomType($data, $remoteUnitId);
 
 		return \apply_filters('bec_kross_quote_result', $quote, $remoteUnitId, $searchContext, $bulk);
+	}
+
+	public function getBulkAvailabilityCacheKey(): string
+	{
+		$hotelId  = (string) \get_option(KrossAuthenticator::OPTION_HOTEL_ID, '');
+		$horizon  = self::calendarAvailabilityHorizon();
+		$payload  = [
+			'provider' => 'kross',
+			'hotel'    => $hotelId,
+			'from'     => $horizon['date_from'],
+			'to'       => $horizon['date_to'],
+		];
+
+		return 'bec_kross_availability_bulk_' . \md5((string) \wp_json_encode($payload));
+	}
+
+	public function fetchBulkAvailability(): mixed
+	{
+		$horizon = self::calendarAvailabilityHorizon();
+
+		$payload = [
+			'date_from' => $horizon['date_from'],
+			'date_to'   => $horizon['date_to'],
+		];
+
+		/**
+		 * @var array<string, mixed> $payload
+		 */
+		$payload = (array) \apply_filters('bec_kross_get_availability_payload', $payload);
+
+		$response = $this->api->request('GET', '/v5/calendar/get-availability', $payload);
+
+		$this->assertHttpOk($response);
+
+		$decoded = KrossResponseParser::decodeBody($response->getBody());
+		if (! KrossResponseParser::isSuccess($decoded)) {
+			throw new ProviderException(
+				self::formatEnvelopeFailure(
+					\__('Kross calendar/get-availability request was not successful.', 'booking-engine-connector'),
+					$decoded
+				),
+				self::decodedErrorCategory($decoded)
+			);
+		}
+
+		/**
+		 * @var mixed $decoded
+		 */
+		return \apply_filters('bec_kross_availability_bulk', $decoded);
+	}
+
+	public function normalizeBulkAvailability(mixed $bulk): array
+	{
+		if (! \is_array($bulk)) {
+			return [];
+		}
+
+		$data = KrossResponseParser::getDataPayload($bulk);
+		if (! \is_array($data)) {
+			return [];
+		}
+
+		$segments = [];
+		foreach ($data as $row) {
+			if (! \is_array($row)) {
+				continue;
+			}
+
+			$id = (string) ($row['id_room_type'] ?? '');
+			if ($id === '') {
+				continue;
+			}
+
+			$dateFrom = (string) ($row['date_from'] ?? $row['date_form'] ?? '');
+			$dateTo   = (string) ($row['date_to'] ?? '');
+			if ($dateFrom === '' || $dateTo === '') {
+				continue;
+			}
+
+			$available = (int) ($row['available'] ?? 0) > 0;
+
+			$segments[] = [
+				'remote_unit_id' => $id,
+				'date_from'      => $dateFrom,
+				'date_to'        => $dateTo,
+				'available'      => $available,
+			];
+		}
+
+		return $segments;
+	}
+
+	/**
+	 * @return array{date_from: string, date_to: string}
+	 */
+	private static function calendarAvailabilityHorizon(): array
+	{
+		$maxDays = (int) \apply_filters('bec_daterangepicker_max_date_from_today', 730, null);
+		if ($maxDays < 1) {
+			$maxDays = 730;
+		}
+
+		return [
+			'date_from' => \gmdate('Y-m-d'),
+			'date_to'   => \gmdate('Y-m-d', \strtotime('+' . $maxDays . ' days')),
+		];
 	}
 
 	/**

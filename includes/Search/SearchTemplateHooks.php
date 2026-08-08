@@ -72,7 +72,10 @@ final class SearchTemplateHooks
 
 		\ob_start();
 		\do_action('bec_before_search_form', 'single');
-		SearchForm::render(['context' => 'single']);
+		SearchForm::render([
+			'context' => 'single',
+			'unit_id' => $postId,
+		]);
 		\do_action('bec_after_search_form', 'single');
 		$form = (string) \ob_get_clean();
 

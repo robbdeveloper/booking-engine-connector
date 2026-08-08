@@ -10,6 +10,49 @@
 
 	/**
 	 * @param {HTMLFormElement} form
+	 * @returns {Array<{from: string, to: string}>}
+	 */
+	function getUnavailableRanges(form) {
+		var raw = form.getAttribute('data-bec-unavailable-ranges') || '';
+		if (!raw) {
+			return [];
+		}
+		try {
+			var parsed = JSON.parse(raw);
+			return Array.isArray(parsed) ? parsed : [];
+		} catch (err) {
+			return [];
+		}
+	}
+
+	/**
+	 * @param {import('moment').Moment} m
+	 * @param {Array<{from: string, to: string}>} ranges
+	 * @returns {boolean}
+	 */
+	function isDateInUnavailableRanges(m, ranges) {
+		if (!m || !m.isValid() || !ranges || !ranges.length) {
+			return false;
+		}
+		for (var i = 0; i < ranges.length; i++) {
+			var r = ranges[i];
+			if (!r || !r.from || !r.to) {
+				continue;
+			}
+			var from = moment(r.from, 'YYYY-MM-DD', true);
+			var to = moment(r.to, 'YYYY-MM-DD', true);
+			if (!from.isValid() || !to.isValid()) {
+				continue;
+			}
+			if (m.isBetween(from, to, 'day', '[]')) {
+				return true;
+			}
+		}
+		return false;
+	}
+
+	/**
+	 * @param {HTMLFormElement} form
 	 * @returns {'auto'|'up'|'down'}
 	 */
 	function getDaterangeDrops(form) {
@@ -204,6 +247,13 @@
 
 		if (typeof cfg.maxDateFromToday === 'number' && cfg.maxDateFromToday > 0) {
 			drpOpts.maxDate = moment().add(cfg.maxDateFromToday, 'days');
+		}
+
+		var unavailableRanges = getUnavailableRanges(form);
+		if (unavailableRanges.length) {
+			drpOpts.isInvalidDate = function (m) {
+				return isDateInUnavailableRanges(m, unavailableRanges);
+			};
 		}
 
 		$btn.daterangepicker(drpOpts);

@@ -32,6 +32,7 @@ final class FrontendPage
 
 		$guestInputMode = SearchSettings::getGuestInputModeOption();
 		$childAgesMode  = SearchSettings::getChildAgesModeOption();
+		$calendarAvail  = SearchSettings::getCalendarAvailabilityMode();
 		$autoSearchForm = SearchSettings::isAutoAppendSearchFormOnSingleUnit();
 		$appendBooking  = PublicContentSettings::isAppendBookingBlocksToContentEnabled();
 		$syncTranslations = MultilingualBridge::isFeatureEnabled();
@@ -99,6 +100,27 @@ final class FrontendPage
 		echo '</select>';
 		echo '<p class="description">' . \esc_html__(
 			'Applies when the search form shows adults and children. Ignored when using only a single guest count.',
+			'booking-engine-connector'
+		) . '</p>';
+		echo '</td></tr>';
+
+		echo '<tr><th scope="row"><label for="bec_search_calendar_availability">' . \esc_html__('Calendar availability hints', 'booking-engine-connector') . '</label></th><td>';
+		echo '<select name="bec_search_calendar_availability" id="bec_search_calendar_availability">';
+		echo '<option value="' . \esc_attr(SearchSettings::CALENDAR_AVAILABILITY_OFF) . '" ' . \selected($calendarAvail, SearchSettings::CALENDAR_AVAILABILITY_OFF, false) . '>' . \esc_html__(
+			'Disabled',
+			'booking-engine-connector'
+		) . '</option>';
+		echo '<option value="' . \esc_attr(SearchSettings::CALENDAR_AVAILABILITY_SINGLE_UNIT) . '" ' . \selected($calendarAvail, SearchSettings::CALENDAR_AVAILABILITY_SINGLE_UNIT, false) . '>' . \esc_html__(
+			'Single unit pages only',
+			'booking-engine-connector'
+		) . '</option>';
+		echo '<option value="' . \esc_attr(SearchSettings::CALENDAR_AVAILABILITY_ALL_SEARCH) . '" ' . \selected($calendarAvail, SearchSettings::CALENDAR_AVAILABILITY_ALL_SEARCH, false) . '>' . \esc_html__(
+			'All search forms',
+			'booking-engine-connector'
+		) . '</option>';
+		echo '</select>';
+		echo '<p class="description">' . \esc_html__(
+			'Grey out unavailable dates in the enhanced search date picker using provider PMS availability. “Single unit pages only” matches the current unit; “All search forms” allows a date when at least one synced unit is available. Requires the enhanced search preset.',
 			'booking-engine-connector'
 		) . '</p>';
 		echo '</td></tr>';
@@ -210,6 +232,22 @@ final class FrontendPage
 			$cMode = SearchSettings::CHILD_AGES_PROVIDER;
 		}
 		\update_option(SearchSettings::OPTION_CHILD_AGES_MODE, $cMode, false);
+
+		$calMode = isset($_POST['bec_search_calendar_availability'])
+			? \sanitize_key(\wp_unslash((string) $_POST['bec_search_calendar_availability']))
+			: SearchSettings::CALENDAR_AVAILABILITY_OFF;
+		if (! \in_array(
+			$calMode,
+			[
+				SearchSettings::CALENDAR_AVAILABILITY_OFF,
+				SearchSettings::CALENDAR_AVAILABILITY_SINGLE_UNIT,
+				SearchSettings::CALENDAR_AVAILABILITY_ALL_SEARCH,
+			],
+			true
+		)) {
+			$calMode = SearchSettings::CALENDAR_AVAILABILITY_OFF;
+		}
+		\update_option(SearchSettings::OPTION_CALENDAR_AVAILABILITY, $calMode, false);
 
 		\update_option(
 			SearchSettings::OPTION_AUTO_APPEND_SEARCH_FORM_SINGLE_UNIT,

@@ -34,6 +34,7 @@ final class SearchForm
 	 *   popover_placement?: string,
 	 *   daterange_format?: string,
 	 *   daterange_preset?: string,
+	 *   unit_id?: int,
 	 * } $args
 	 */
 	public static function render(array $args = []): void
@@ -188,6 +189,9 @@ final class SearchForm
 		);
 
 		if ($useEnhanced) {
+			$unitId = isset($args['unit_id']) ? (int) $args['unit_id'] : 0;
+			$unavailableRanges = self::resolveCalendarUnavailableRanges($unitId);
+
 			self::renderEnhanced(
 				$formId,
 				$htmlClass,
@@ -203,7 +207,8 @@ final class SearchForm
 				$guestFieldMode,
 				$showSubmit,
 				$popoverPlacement,
-				$daterangeDisplayFormat
+				$daterangeDisplayFormat,
+				$unavailableRanges
 			);
 
 			return;
@@ -310,7 +315,8 @@ final class SearchForm
 		string $guestFieldMode,
 		bool $showSubmit = true,
 		string $popoverPlacement = self::POPOVER_PLACEMENT_AUTO,
-		string $daterangeDisplayFormat = 'D MMM YYYY'
+		string $daterangeDisplayFormat = 'D MMM YYYY',
+		array $unavailableRanges = []
 	): void {
 		$popoverPlacement = self::normalizePopoverPlacement($popoverPlacement);
 
@@ -354,8 +360,16 @@ final class SearchForm
 
 		$guestsLbl = \esc_attr(\__('Guests', 'booking-engine-connector'));
 
+		$calendarAttrs = '';
+		if ($unavailableRanges !== []) {
+			$json = (string) \wp_json_encode($unavailableRanges);
+			if ($json !== '') {
+				$calendarAttrs = ' data-bec-calendar-availability="1" data-bec-unavailable-ranges="' . \esc_attr($json) . '"';
+			}
+		}
+
 		echo '<div class="' . \esc_attr($htmlClass) . '-wrap ' . \esc_attr($htmlClass) . '-wrap--enhanced">';
-		echo '<form class="' . \esc_attr($htmlClass) . ' ' . \esc_attr($htmlClass) . '--enhanced" id="' . \esc_attr($formId) . '" method="get" action="' . \esc_url($action) . '" data-bec-guest-mode="' . \esc_attr($guestFieldMode) . '" data-bec-popover-placement="' . \esc_attr($popoverPlacement) . '" data-bec-daterange-format="' . \esc_attr($daterangeDisplayFormat) . '">';
+		echo '<form class="' . \esc_attr($htmlClass) . ' ' . \esc_attr($htmlClass) . '--enhanced" id="' . \esc_attr($formId) . '" method="get" action="' . \esc_url($action) . '" data-bec-guest-mode="' . \esc_attr($guestFieldMode) . '" data-bec-popover-placement="' . \esc_attr($popoverPlacement) . '" data-bec-daterange-format="' . \esc_attr($daterangeDisplayFormat) . '"' . $calendarAttrs . '>';
 
 		if ($error instanceof \WP_Error) {
 			echo '<p class="bec-search-form__error" role="alert">' . \esc_html($error->get_error_message()) . '</p>';
@@ -467,6 +481,27 @@ final class SearchForm
 		echo '</form>';
 		echo '<div class="bec-search-form__backdrop" hidden aria-hidden="true"></div>';
 		echo '</div>';
+	}
+
+	/**
+	 * @return list<array{from: string, to: string}>
+	 */
+	private static function resolveCalendarUnavailableRanges(int $unitId): array
+	{
+		if (! CalendarAvailabilityService::isFeatureActive()) {
+			return [];
+		}
+
+		$mode = (string) \apply_filters(
+			'bec_search_calendar_availability_mode',
+			SearchSettings::getCalendarAvailabilityMode()
+		);
+
+		if ($mode === SearchSettings::CALENDAR_AVAILABILITY_SINGLE_UNIT && $unitId < 1) {
+			return [];
+		}
+
+		return CalendarAvailabilityService::getUnavailableRangesForContext($unitId > 0 ? $unitId : null);
 	}
 
 	/**

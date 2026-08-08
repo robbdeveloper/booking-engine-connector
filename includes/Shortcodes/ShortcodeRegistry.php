@@ -85,7 +85,8 @@ final class ShortcodeRegistry
 	 * Search form shortcode.
 	 *
 	 * Attributes: popover_placement (auto|top|bottom), daterange_format (PHP date_i18n format for the
-	 * calendar footer readout), daterange_preset (iso|short|medium|long|full when daterange_format is empty).
+	 * calendar footer readout), daterange_preset (iso|short|medium|long|full when daterange_format is empty),
+	 * unit_id (optional bec_unit post ID for calendar availability on single-unit mode).
 	 *
 	 * Filters: bec_search_form_daterange_format, bec_search_form_popover_placement.
 	 */
@@ -99,6 +100,7 @@ final class ShortcodeRegistry
 				'popover_placement' => SearchForm::POPOVER_PLACEMENT_AUTO,
 				'daterange_format'  => '',
 				'daterange_preset'  => 'medium',
+				'unit_id'           => '0',
 			],
 			\is_array($atts) ? $atts : [],
 			'bec_search'
@@ -121,6 +123,11 @@ final class ShortcodeRegistry
 		}
 		$formId = \wp_unique_id($formIdBase);
 
+		$unitId = (int) $a['unit_id'];
+		if ($unitId < 1 && \is_singular(UnitPostType::getSlug())) {
+			$unitId = (int) \get_the_ID();
+		}
+
 		\ob_start();
 		SearchForm::render(
 			[
@@ -130,6 +137,7 @@ final class ShortcodeRegistry
 				'popover_placement' => (string) $a['popover_placement'],
 				'daterange_format'  => (string) $a['daterange_format'],
 				'daterange_preset'  => (string) $a['daterange_preset'],
+				'unit_id'           => $unitId,
 			]
 		);
 

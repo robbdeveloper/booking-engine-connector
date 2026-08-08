@@ -1,5 +1,10 @@
 # Changelog
 
+## 0.4.0 — 2026-08-08
+
+- **Search — calendar availability hints**: Optional disabled dates in the enhanced `[bec_search]` daterangepicker using provider PMS availability. New **`CalendarAvailabilityProviderInterface`** and **`CalendarAvailabilityService`** (bulk transient cache, default 5 minutes). Kross implements **`/v5/calendar/get-availability`** via **`fetchBulkAvailability()`**. Admin setting **`bec_search_calendar_availability`**: off (default), single unit pages only, or all search forms (union — date selectable when any synced unit is available). Per-form **`data-bec-unavailable-ranges`** on enhanced search forms; **`public-search-daterange.js`** uses daterangepicker **`isInvalidDate`**. Filters: **`bec_search_calendar_availability_mode`**, **`bec_calendar_availability_cache_ttl`**, **`bec_calendar_unavailable_ranges`**, **`bec_kross_get_availability_payload`**, **`bec_kross_availability_bulk`**.
+- **i18n**: Regenerated `languages/booking-engine-connector.pot`, merged and translated `booking-engine-connector-it_IT.po`, recompiled `booking-engine-connector-it_IT.mo`.
+
 ## 0.3.9 — 2026-08-07
 
 - **Booking summary — Kross rate names**: `name_rate` from `calendar/book` is resolved via **`KrossLocalizedLabels`** — active site locale (`bec_provider_locale` / `Multilingual::filteredSiteLocale('kross_rate')`), then the first API translation, then `main`. Fixes rate labels when Kross returns locale maps without `main` (common when adults are not set) and prefers translated names over `main` when both exist.

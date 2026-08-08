@@ -282,7 +282,7 @@ final class BookingSummaryRenderer
 		$st = (string) ( $vm['state'] ?? 'unavailable' );
 		echo '<div class="bec-booking-summary__inner">';
 		self::printSummaryHead( $vm );
-		self::printSearch( $ctxArg, $instanceId, $ctx, '', $searchFormDaterangeArgs );
+		self::printSearch( $ctxArg, $instanceId, $ctx, $postId, '', $searchFormDaterangeArgs );
 		echo '<div class="bec-booking-summary__message bec-booking-summary__message--' . ( $st === 'error' ? 'error' : 'empty' ) . '">';
 		if ( $st === 'error' && isset( $vm['error'] ) && $vm['error'] instanceof \WP_Error ) {
 			echo '<p class="bec-booking-summary__message-text" role="alert">' . \esc_html( $vm['error']->get_error_message() ) . '</p>';
@@ -318,7 +318,7 @@ final class BookingSummaryRenderer
 	): void {
 		echo '<div class="bec-booking-summary__inner bec-booking-summary__inner--incomplete">';
 		self::printSummaryHead( [] );
-		self::printSearch( $ctxArg, $instanceId, $ctx, 'bec-booking-summary__search--incomplete', $searchFormDaterangeArgs );
+		self::printSearch( $ctxArg, $instanceId, $ctx, $postId, 'bec-booking-summary__search--incomplete', $searchFormDaterangeArgs );
 		self::renderActions( $postId, $ctx, $showEnquiry, $enquiryLabel, false, $instanceId, null, true, true );
 		echo '</div>';
 		self::printMobileShell(
@@ -382,7 +382,7 @@ final class BookingSummaryRenderer
 		if ( $isCompact ) {
 			$desktopSearchClass .= ' bec-booking-summary__search--preset-compact';
 		}
-		self::printSearch( $ctxArg, $instanceId, $ctx, $desktopSearchClass, $searchFormDaterangeArgs );
+		self::printSearch( $ctxArg, $instanceId, $ctx, $postId, $desktopSearchClass, $searchFormDaterangeArgs );
 
 		echo '<div class="bec-booking-summary__quote-results" data-bec-bsummary-quote-results>';
 		//self::printDatesGuestsBlock( $vm );
@@ -663,7 +663,7 @@ final class BookingSummaryRenderer
 
 		echo '<div class="bec-booking-summary__drawer-body">';
 		if ( $st === 'available' ) {
-			self::printSearch( $ctxArg, $instanceId . '-m', $ctx, 'bec-booking-summary__search--drawer', $searchFormDaterangeArgs );
+			self::printSearch( $ctxArg, $instanceId . '-m', $ctx, $postId, 'bec-booking-summary__search--drawer', $searchFormDaterangeArgs );
 			echo '<div class="bec-booking-summary__quote-results" data-bec-bsummary-quote-results>';
 			self::printMobileDrawerHero( $vm, $postId );
 			//self::printDatesGuestsBlock( $vm );
@@ -672,7 +672,7 @@ final class BookingSummaryRenderer
 			self::printPriceBreakdown( $vm, $cur );
 			echo '</div>';
 		} else {
-			self::printSearch( $ctxArg, $instanceId . '-m', $ctx, 'bec-booking-summary__search--drawer', $searchFormDaterangeArgs );
+			self::printSearch( $ctxArg, $instanceId . '-m', $ctx, $postId, 'bec-booking-summary__search--drawer', $searchFormDaterangeArgs );
 			self::printFallbackContentInPanel( $postId, $ctx, $mode, $vm );
 		}
 		echo '</div>';
@@ -753,6 +753,7 @@ final class BookingSummaryRenderer
 		string $context,
 		string $formId,
 		SearchContext $ctx,
+		int $postId,
 		string $extraClass = '',
 		array $daterangeArgs = []
 	): void {
@@ -764,6 +765,7 @@ final class BookingSummaryRenderer
 					'form_id'     => $formId,
 					'html_class'  => 'bec-search-form',
 					'show_submit' => false,
+					'unit_id'     => $postId,
 				],
 				$daterangeArgs
 			)

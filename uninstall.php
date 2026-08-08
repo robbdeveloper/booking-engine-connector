@@ -46,6 +46,7 @@ $options = [
 	'bec_search_guest_input_mode',
 	'bec_search_child_ages_mode',
 	'bec_auto_append_search_form_single_unit',
+	'bec_search_calendar_availability',
 	'bec_append_booking_blocks_to_content',
 	'bec_kross_sync_booking_engines',
 	'bec_kross_available_booking_engines',
