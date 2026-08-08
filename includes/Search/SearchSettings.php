@@ -49,10 +49,15 @@ final class SearchSettings
 
 	public const OPTION_CALENDAR_AVAILABILITY = 'bec_search_calendar_availability';
 
+	public const OPTION_MAX_DATE_FROM_TODAY = 'bec_search_max_date_from_today';
+
+	public const DEFAULT_MAX_DATE_FROM_TODAY = 730;
+
 	public static function register(): void
 	{
 		\add_filter('bec_search_guest_field_mode', [self::class, 'filterGuestFieldMode'], 20, 2);
 		\add_filter('bec_provider_requires_children_ages', [self::class, 'filterRequiresChildAges'], 20, 2);
+		\add_filter('bec_daterangepicker_max_date_from_today', [self::class, 'filterMaxDateFromToday'], 20, 2);
 	}
 
 	/**
@@ -98,6 +103,23 @@ final class SearchSettings
 		];
 
 		return \in_array($raw, $allowed, true) ? $raw : self::CALENDAR_AVAILABILITY_OFF;
+	}
+
+	public static function getMaxDateFromTodayOption(): int
+	{
+		$value = (int) \get_option(self::OPTION_MAX_DATE_FROM_TODAY, self::DEFAULT_MAX_DATE_FROM_TODAY);
+
+		return \max(1, $value);
+	}
+
+	/**
+	 * @param mixed $ctx
+	 */
+	public static function filterMaxDateFromToday(int $default, $ctx): int
+	{
+		unset($default, $ctx);
+
+		return self::getMaxDateFromTodayOption();
 	}
 
 	/**

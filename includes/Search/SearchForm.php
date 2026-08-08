@@ -364,7 +364,8 @@ final class SearchForm
 		if ($unavailableRanges !== []) {
 			$json = (string) \wp_json_encode($unavailableRanges);
 			if ($json !== '') {
-				$calendarAttrs = ' data-bec-calendar-availability="1" data-bec-unavailable-ranges="' . \esc_attr($json) . '"';
+				$horizonTo = CalendarAvailabilityService::getHorizonDateTo();
+				$calendarAttrs = ' data-bec-calendar-availability="1" data-bec-unavailable-ranges="' . \esc_attr($json) . '" data-bec-availability-horizon-to="' . \esc_attr($horizonTo) . '"';
 			}
 		}
 

@@ -53,6 +53,28 @@
 
 	/**
 	 * @param {HTMLFormElement} form
+	 * @returns {import('moment').Moment|null}
+	 */
+	function resolveMaxSelectable(form) {
+		var horizonTo = form.getAttribute('data-bec-availability-horizon-to') || '';
+		if (horizonTo) {
+			var fromAttr = moment(horizonTo, 'YYYY-MM-DD', true);
+			if (fromAttr.isValid()) {
+				return fromAttr;
+			}
+		}
+
+		var cfg = getCfg();
+		var maxDays = parseInt(cfg.maxDateFromToday, 10);
+		if (!isNaN(maxDays) && maxDays > 0) {
+			return moment().startOf('day').add(maxDays, 'days');
+		}
+
+		return null;
+	}
+
+	/**
+	 * @param {HTMLFormElement} form
 	 * @returns {'auto'|'up'|'down'}
 	 */
 	function getDaterangeDrops(form) {
@@ -245,13 +267,20 @@
 			drpOpts.minDate = moment().startOf('day');
 		}
 
-		if (typeof cfg.maxDateFromToday === 'number' && cfg.maxDateFromToday > 0) {
-			drpOpts.maxDate = moment().add(cfg.maxDateFromToday, 'days');
+		var maxSelectable = resolveMaxSelectable(form);
+		if (maxSelectable) {
+			drpOpts.maxDate = maxSelectable;
 		}
 
 		var unavailableRanges = getUnavailableRanges(form);
-		if (unavailableRanges.length) {
+		if (maxSelectable || unavailableRanges.length) {
 			drpOpts.isInvalidDate = function (m) {
+				if (maxSelectable && m.isAfter(maxSelectable, 'day')) {
+					return true;
+				}
+				if (drpOpts.minDate && m.isBefore(drpOpts.minDate, 'day')) {
+					return true;
+				}
 				return isDateInUnavailableRanges(m, unavailableRanges);
 			};
 		}
@@ -259,6 +288,11 @@
 		$btn.daterangepicker(drpOpts);
 
 		var drp = $btn.data('daterangepicker');
+
+		if (drp && maxSelectable) {
+			drp.maxDate = maxSelectable;
+			drp.maxYear = maxSelectable.year();
+		}
 
 		/**
 		 * Wrap calendar panes so mobile CSS can scroll only the calendars and keep .drp-buttons pinned.

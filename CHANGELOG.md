@@ -1,8 +1,15 @@
 # Changelog
 
+## 0.4.1 — 2026-08-08
+
+- **Search — calendar horizon setting**: Admin option **`bec_search_max_date_from_today`** (default 730 days) on **Booking Engine → Frontend → Search form**. Wired to **`bec_daterangepicker_max_date_from_today`** so the enhanced date picker max date, calendar availability fetch window, and Kross cache keys stay in sync.
+- **Uninstall**: Remove **`bec_search_max_date_from_today`** on plugin uninstall.
+- **i18n**: Regenerated `languages/booking-engine-connector.pot`, merged and translated `booking-engine-connector-it_IT.po`, recompiled `booking-engine-connector-it_IT.mo`.
+
 ## 0.4.0 — 2026-08-08
 
 - **Search — calendar availability hints**: Optional disabled dates in the enhanced `[bec_search]` daterangepicker using provider PMS availability. New **`CalendarAvailabilityProviderInterface`** and **`CalendarAvailabilityService`** (bulk transient cache, default 5 minutes). Kross implements **`/v5/calendar/get-availability`** via **`fetchBulkAvailability()`**. Admin setting **`bec_search_calendar_availability`**: off (default), single unit pages only, or all search forms (union — date selectable when any synced unit is available). Per-form **`data-bec-unavailable-ranges`** on enhanced search forms; **`public-search-daterange.js`** uses daterangepicker **`isInvalidDate`**. Filters: **`bec_search_calendar_availability_mode`**, **`bec_calendar_availability_cache_ttl`**, **`bec_calendar_unavailable_ranges`**, **`bec_kross_get_availability_payload`**, **`bec_kross_availability_bulk`**.
+- **Search — calendar horizon fix**: Dates beyond the 730-day picker horizon no longer appear selectable when calendar availability hints are on; **`isInvalidDate`** now clamps to **`maxDate`** / **`data-bec-availability-horizon-to`** and limits the year dropdown via **`maxYear`**.
 - **i18n**: Regenerated `languages/booking-engine-connector.pot`, merged and translated `booking-engine-connector-it_IT.po`, recompiled `booking-engine-connector-it_IT.mo`.
 
 ## 0.3.9 — 2026-08-07

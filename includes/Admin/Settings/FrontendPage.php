@@ -32,7 +32,8 @@ final class FrontendPage
 
 		$guestInputMode = SearchSettings::getGuestInputModeOption();
 		$childAgesMode  = SearchSettings::getChildAgesModeOption();
-		$calendarAvail  = SearchSettings::getCalendarAvailabilityMode();
+		$calendarAvail      = SearchSettings::getCalendarAvailabilityMode();
+		$maxDateFromToday   = SearchSettings::getMaxDateFromTodayOption();
 		$autoSearchForm = SearchSettings::isAutoAppendSearchFormOnSingleUnit();
 		$appendBooking  = PublicContentSettings::isAppendBookingBlocksToContentEnabled();
 		$syncTranslations = MultilingualBridge::isFeatureEnabled();
@@ -121,6 +122,14 @@ final class FrontendPage
 		echo '</select>';
 		echo '<p class="description">' . \esc_html__(
 			'Grey out unavailable dates in the enhanced search date picker using provider PMS availability. “Single unit pages only” matches the current unit; “All search forms” allows a date when at least one synced unit is available. Requires the enhanced search preset.',
+			'booking-engine-connector'
+		) . '</p>';
+		echo '</td></tr>';
+
+		echo '<tr><th scope="row"><label for="bec_search_max_date_from_today">' . \esc_html__('Calendar horizon (days ahead)', 'booking-engine-connector') . '</label></th><td>';
+		echo '<input type="number" min="1" name="bec_search_max_date_from_today" id="bec_search_max_date_from_today" value="' . \esc_attr((string) $maxDateFromToday) . '" />';
+		echo '<p class="description">' . \esc_html__(
+			'How many days ahead guests can select in the enhanced search date picker. When calendar availability hints are enabled, this also controls how far ahead availability is fetched from the PMS. Larger values increase API payload size.',
 			'booking-engine-connector'
 		) . '</p>';
 		echo '</td></tr>';
@@ -248,6 +257,12 @@ final class FrontendPage
 			$calMode = SearchSettings::CALENDAR_AVAILABILITY_OFF;
 		}
 		\update_option(SearchSettings::OPTION_CALENDAR_AVAILABILITY, $calMode, false);
+
+		$maxDays = isset($_POST['bec_search_max_date_from_today'])
+			? (int) \wp_unslash((string) $_POST['bec_search_max_date_from_today'])
+			: SearchSettings::DEFAULT_MAX_DATE_FROM_TODAY;
+		$maxDays = \max(1, $maxDays);
+		\update_option(SearchSettings::OPTION_MAX_DATE_FROM_TODAY, $maxDays, false);
 
 		\update_option(
 			SearchSettings::OPTION_AUTO_APPEND_SEARCH_FORM_SINGLE_UNIT,

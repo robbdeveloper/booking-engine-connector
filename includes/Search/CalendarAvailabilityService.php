@@ -86,6 +86,11 @@ final class CalendarAvailabilityService
 		return $provider instanceof CalendarAvailabilityProviderInterface;
 	}
 
+	public static function getHorizonDateTo(): string
+	{
+		return self::horizonDateTo();
+	}
+
 	private static function resolveUnitPostId(?int $unitPostId): int
 	{
 		if ($unitPostId !== null && $unitPostId > 0) {

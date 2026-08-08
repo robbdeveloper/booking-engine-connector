@@ -1,9 +1,9 @@
 msgid ""
 msgstr ""
-"Project-Id-Version: Booking Engine Connector 0.4.0\n"
+"Project-Id-Version: Booking Engine Connector 0.4.1\n"
 "Report-Msgid-Bugs-To: https://wordpress.org/support/plugin/booking-engine-"
 "connector\n"
-"POT-Creation-Date: 2026-08-08T12:54:14+00:00\n"
+"POT-Creation-Date: 2026-08-08T13:16:09+00:00\n"
 "PO-Revision-Date: 2026-08-08 14:55+0200\n"
 "Last-Translator: Booking Engine Connector\n"
 "Language-Team: Italian\n"
@@ -60,7 +60,7 @@ msgid "Connection"
 msgstr "Connessione"
 
 #: includes/Admin/AdminMenu.php:69 includes/Admin/AdminMenu.php:70
-#: includes/Admin/Settings/FrontendPage.php:41
+#: includes/Admin/Settings/FrontendPage.php:42
 msgid "Frontend"
 msgstr "Front-end"
 
@@ -250,7 +250,7 @@ msgid "Enabled — inline mode"
 msgstr "Abilitato — modalità inline"
 
 #: includes/Admin/AdminMenu.php:272
-#: includes/Admin/Settings/FrontendPage.php:109
+#: includes/Admin/Settings/FrontendPage.php:110
 msgid "Disabled"
 msgstr "Disabilitato"
 
@@ -737,7 +737,7 @@ msgstr ""
 "Visualizzato per la modalità \"Contenuto in linea\". Sono supportati gli "
 "shortcode."
 
-#: includes/Admin/Settings/FrontendPage.php:42
+#: includes/Admin/Settings/FrontendPage.php:43
 msgid ""
 "Configure how the availability search bar collects guests and how booking "
 "blocks appear on single unit pages."
@@ -745,11 +745,11 @@ msgstr ""
 "Configura come la barra di ricerca disponibilità raccoglie gli ospiti e come "
 "i blocchi prenotazione compaiono sulle pagine singola unità."
 
-#: includes/Admin/Settings/FrontendPage.php:56
+#: includes/Admin/Settings/FrontendPage.php:57
 msgid "Search form"
 msgstr "Form di ricerca"
 
-#: includes/Admin/Settings/FrontendPage.php:57
+#: includes/Admin/Settings/FrontendPage.php:58
 msgid ""
 "Controls the `[bec_search]` shortcode and embedded search inside "
 "`[bec_booking_summary]`."
@@ -757,23 +757,23 @@ msgstr ""
 "Controlla lo shortcode `[bec_search]` e la ricerca incorporata in "
 "`[bec_booking_summary]`."
 
-#: includes/Admin/Settings/FrontendPage.php:65
+#: includes/Admin/Settings/FrontendPage.php:66
 msgid "How guests are collected"
 msgstr "Come vengono raccolti gli ospiti"
 
-#: includes/Admin/Settings/FrontendPage.php:67
+#: includes/Admin/Settings/FrontendPage.php:68
 msgid "Follow the active provider (default)"
 msgstr "Segui il fornitore attivo (impostazione predefinita)"
 
-#: includes/Admin/Settings/FrontendPage.php:71
+#: includes/Admin/Settings/FrontendPage.php:72
 msgid "Single “Guests” count only"
 msgstr "Contano solo gli “Ospiti” singoli"
 
-#: includes/Admin/Settings/FrontendPage.php:75
+#: includes/Admin/Settings/FrontendPage.php:76
 msgid "Adults and children (separate fields)"
 msgstr "Adulti e bambini (campi separati)"
 
-#: includes/Admin/Settings/FrontendPage.php:80
+#: includes/Admin/Settings/FrontendPage.php:81
 msgid ""
 "Controls the availability search bar. Use a single total or split adults/"
 "children, regardless of the provider. “Follow the active provider” uses each "
@@ -784,23 +784,23 @@ msgstr ""
 "fornitore attivo\" utilizza le regole proprie di ciascun motore (ad esempio, "
 "Kross può impostare automaticamente un semplice conteggio degli ospiti)."
 
-#: includes/Admin/Settings/FrontendPage.php:86
+#: includes/Admin/Settings/FrontendPage.php:87
 msgid "Child ages in search"
 msgstr "Richiedi età per i bambini"
 
-#: includes/Admin/Settings/FrontendPage.php:88
+#: includes/Admin/Settings/FrontendPage.php:89
 msgid "Follow the active provider"
 msgstr "Segui il fornitore attivo"
 
-#: includes/Admin/Settings/FrontendPage.php:92
+#: includes/Admin/Settings/FrontendPage.php:93
 msgid "Ask for each child’s age"
 msgstr "Chiedi l’età di ogni bambino"
 
-#: includes/Admin/Settings/FrontendPage.php:96
+#: includes/Admin/Settings/FrontendPage.php:97
 msgid "Do not ask for child ages"
 msgstr "Non chiedere l'età dei bambini"
 
-#: includes/Admin/Settings/FrontendPage.php:101
+#: includes/Admin/Settings/FrontendPage.php:102
 msgid ""
 "Applies when the search form shows adults and children. Ignored when using "
 "only a single guest count."
@@ -808,19 +808,19 @@ msgstr ""
 "Si applica quando il modulo di ricerca mostra adulti e bambini. Ignorato "
 "quando si utilizza un solo conteggio degli ospiti."
 
-#: includes/Admin/Settings/FrontendPage.php:107
+#: includes/Admin/Settings/FrontendPage.php:108
 msgid "Calendar availability hints"
 msgstr "Indicazioni disponibilità nel calendario"
 
-#: includes/Admin/Settings/FrontendPage.php:113
+#: includes/Admin/Settings/FrontendPage.php:114
 msgid "Single unit pages only"
 msgstr "Solo pagine singola unità"
 
-#: includes/Admin/Settings/FrontendPage.php:117
+#: includes/Admin/Settings/FrontendPage.php:118
 msgid "All search forms"
 msgstr "Tutti i moduli di ricerca"
 
-#: includes/Admin/Settings/FrontendPage.php:122
+#: includes/Admin/Settings/FrontendPage.php:123
 msgid ""
 "Grey out unavailable dates in the enhanced search date picker using provider "
 "PMS availability. “Single unit pages only” matches the current unit; “All "
@@ -833,11 +833,27 @@ msgstr ""
 "meno un'unità sincronizzata è disponibile. Richiede il preset di ricerca "
 "avanzato."
 
-#: includes/Admin/Settings/FrontendPage.php:132
+#: includes/Admin/Settings/FrontendPage.php:129
+msgid "Calendar horizon (days ahead)"
+msgstr "Orizzonte calendario (giorni in avanti)"
+
+#: includes/Admin/Settings/FrontendPage.php:131
+msgid ""
+"How many days ahead guests can select in the enhanced search date picker. "
+"When calendar availability hints are enabled, this also controls how far "
+"ahead availability is fetched from the PMS. Larger values increase API "
+"payload size."
+msgstr ""
+"Quanti giorni in avanti gli ospiti possono selezionare nel selettore date "
+"avanzato. Quando le indicazioni di disponibilità nel calendario sono attive, "
+"controlla anche fino a quando viene recuperata la disponibilità dal PMS. "
+"Valori più alti aumentano la dimensione del payload API."
+
+#: includes/Admin/Settings/FrontendPage.php:141
 msgid "Single unit pages"
 msgstr "Pagine singola unità"
 
-#: includes/Admin/Settings/FrontendPage.php:133
+#: includes/Admin/Settings/FrontendPage.php:142
 msgid ""
 "Automatic content injection when viewing a synced unit. Disable these to "
 "place shortcodes manually in your template or block editor."
@@ -846,17 +862,17 @@ msgstr ""
 "sincronizzata. Disabilita per posizionare gli shortcode manualmente nel "
 "template o nell'editor a blocchi."
 
-#: includes/Admin/Settings/FrontendPage.php:140
+#: includes/Admin/Settings/FrontendPage.php:149
 msgid "Content injection"
 msgstr "Iniezione contenuto"
 
-#: includes/Admin/Settings/FrontendPage.php:143
+#: includes/Admin/Settings/FrontendPage.php:152
 msgid "Insert the availability search form above the main post content"
 msgstr ""
 "Inserisci il modulo di ricerca disponibilità sopra il contenuto del post "
 "principale"
 
-#: includes/Admin/Settings/FrontendPage.php:147
+#: includes/Admin/Settings/FrontendPage.php:156
 msgid ""
 "When disabled, place `[bec_search]` (or the booking summary shortcode) in "
 "your template or block editor instead."
@@ -864,7 +880,7 @@ msgstr ""
 "Se disabilitato, inserisci invece \"[bec_search]\" (o lo shortcode di "
 "riepilogo della prenotazione) nel tuo modello o nell'editor di blocchi."
 
-#: includes/Admin/Settings/FrontendPage.php:152
+#: includes/Admin/Settings/FrontendPage.php:161
 msgid ""
 "Append the booking quote and Continue button after the main post content "
 "when the URL has dates"
@@ -872,7 +888,7 @@ msgstr ""
 "Aggiungi il preventivo di prenotazione e il pulsante Continua dopo il "
 "contenuto del post principale quando l'URL ha delle date"
 
-#: includes/Admin/Settings/FrontendPage.php:156
+#: includes/Admin/Settings/FrontendPage.php:165
 msgid ""
 "When disabled, use `[bec_booking_summary]` or `[bec_quote]` where you want "
 "pricing and checkout."
@@ -880,11 +896,11 @@ msgstr ""
 "Quando disabilitato, utilizza \"[bec_booking_summary]\" o \"[bec_quote]\" "
 "dove desideri prezzi e checkout."
 
-#: includes/Admin/Settings/FrontendPage.php:167
+#: includes/Admin/Settings/FrontendPage.php:176
 msgid "Multilingual"
 msgstr "Multilingua"
 
-#: includes/Admin/Settings/FrontendPage.php:168
+#: includes/Admin/Settings/FrontendPage.php:177
 msgid ""
 "When WPML or Polylang is active, synced units can automatically receive "
 "linked translation posts from provider locale maps."
@@ -892,16 +908,16 @@ msgstr ""
 "Quando WPML o Polylang sono attivi, le unità sincronizzate possono ricevere "
 "automaticamente post di traduzione collegati dalle mappe locali del provider."
 
-#: includes/Admin/Settings/FrontendPage.php:175
+#: includes/Admin/Settings/FrontendPage.php:184
 msgid "Translation sync"
 msgstr "Sincronizzazione traduzioni"
 
-#: includes/Admin/Settings/FrontendPage.php:178
+#: includes/Admin/Settings/FrontendPage.php:187
 msgid "Create and update linked translation posts on each unit sync"
 msgstr ""
 "Crea e aggiorna post di traduzione collegati a ogni sincronizzazione unità"
 
-#: includes/Admin/Settings/FrontendPage.php:182
+#: includes/Admin/Settings/FrontendPage.php:191
 msgid ""
 "Uses Kross be_name and be_description locale maps when available. Title, "
 "description, and their core meta fields are language-specific; images, "
@@ -911,11 +927,11 @@ msgstr ""
 "Titolo, descrizione e relativi meta core sono specifici per lingua; "
 "immagini, servizi, categorie e payload di sync restano condivisi."
 
-#: includes/Admin/Settings/FrontendPage.php:192
+#: includes/Admin/Settings/FrontendPage.php:201
 msgid "Save frontend settings"
 msgstr "Salva impostazioni front-end"
 
-#: includes/Admin/Settings/FrontendPage.php:271
+#: includes/Admin/Settings/FrontendPage.php:286
 msgid "Frontend settings saved."
 msgstr "Impostazioni front-end salvate."
 
@@ -1817,20 +1833,20 @@ msgstr "%d ospiti"
 #. translators: %d child index (display order starts at 1)
 #. translators: %d: child index (1-based)
 #: includes/Front/PublicAssets.php:207 includes/Search/SearchForm.php:291
-#: includes/Search/SearchForm.php:445
+#: includes/Search/SearchForm.php:446
 #, php-format
 msgid "Child %d age"
 msgstr "Bambino %d età"
 
-#: includes/Front/PublicAssets.php:208 includes/Search/SearchForm.php:453
+#: includes/Front/PublicAssets.php:208 includes/Search/SearchForm.php:454
 msgid "Age"
 msgstr "Età"
 
-#: includes/Front/PublicAssets.php:217 includes/Search/SearchForm.php:469
+#: includes/Front/PublicAssets.php:217 includes/Search/SearchForm.php:470
 msgid "Apply"
 msgstr "Applica"
 
-#: includes/Front/PublicAssets.php:218 includes/Search/SearchForm.php:468
+#: includes/Front/PublicAssets.php:218 includes/Search/SearchForm.php:469
 msgid "Cancel"
 msgstr "Annulla"
 
@@ -2295,7 +2311,7 @@ msgstr ""
 "Per favore riprova."
 
 #: includes/Search/SearchForm.php:116 includes/Search/SearchForm.php:337
-#: includes/Search/SearchForm.php:361 includes/Search/SearchForm.php:406
+#: includes/Search/SearchForm.php:361 includes/Search/SearchForm.php:407
 msgid "Guests"
 msgstr "Ospiti"
 
@@ -2307,39 +2323,39 @@ msgstr "Adulti"
 msgid "Children"
 msgstr "Bambini"
 
-#: includes/Search/SearchForm.php:272 includes/Search/SearchForm.php:476
+#: includes/Search/SearchForm.php:272 includes/Search/SearchForm.php:477
 msgid "Search availability"
 msgstr "Cerca disponibilità"
 
-#: includes/Search/SearchForm.php:378
+#: includes/Search/SearchForm.php:379
 msgid "Search stays"
 msgstr "La ricerca resta"
 
-#: includes/Search/SearchForm.php:380
+#: includes/Search/SearchForm.php:381
 msgid "Select dates"
 msgstr "Seleziona le date"
 
-#: includes/Search/SearchForm.php:416
+#: includes/Search/SearchForm.php:417
 msgid "Decrease guests"
 msgstr "Diminuire gli ospiti"
 
-#: includes/Search/SearchForm.php:418
+#: includes/Search/SearchForm.php:419
 msgid "Increase guests"
 msgstr "Aumenta gli ospiti"
 
-#: includes/Search/SearchForm.php:424
+#: includes/Search/SearchForm.php:425
 msgid "Decrease adults"
 msgstr "Diminuire gli adulti"
 
-#: includes/Search/SearchForm.php:426
+#: includes/Search/SearchForm.php:427
 msgid "Increase adults"
 msgstr "Aumentano gli adulti"
 
-#: includes/Search/SearchForm.php:432
+#: includes/Search/SearchForm.php:433
 msgid "Decrease children"
 msgstr "Diminuire i bambini"
 
-#: includes/Search/SearchForm.php:434
+#: includes/Search/SearchForm.php:435
 msgid "Increase children"
 msgstr "Aumentare i bambini"
 
