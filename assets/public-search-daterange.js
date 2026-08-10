@@ -119,6 +119,49 @@
 	}
 
 	/**
+	 * @param {import('moment').Moment} start
+	 * @param {import('moment').Moment} end
+	 * @param {Array<{from: string, to: string}>} unavailableRanges
+	 * @returns {boolean}
+	 */
+	function isRangeInventoryValid(start, end, unavailableRanges) {
+		return !hasInventoryUnavailableNightBetween(start, end, unavailableRanges);
+	}
+
+	/**
+	 * @param {import('moment').Moment} start
+	 * @param {import('moment').Moment} end
+	 * @param {number} minNights
+	 * @returns {boolean}
+	 */
+	function isRangeMinStayValid(start, end, minNights) {
+		if (!start || !end || !start.isValid() || !end.isValid()) {
+			return false;
+		}
+		if (!end.isAfter(start, 'day')) {
+			return false;
+		}
+		return end.diff(start, 'days') >= minNights;
+	}
+
+	/**
+	 * @param {import('moment').Moment} start
+	 * @param {import('moment').Moment} end
+	 * @param {Array<{from: string, to: string}>} unavailableRanges
+	 * @param {number} minNights
+	 * @returns {boolean}
+	 */
+	function isRangeValid(start, end, unavailableRanges, minNights) {
+		if (!start || !end || !start.isValid() || !end.isValid()) {
+			return false;
+		}
+		if (!end.isAfter(start, 'day')) {
+			return false;
+		}
+		return isRangeInventoryValid(start, end, unavailableRanges) && isRangeMinStayValid(start, end, minNights);
+	}
+
+	/**
 	 * Daterangepicker sets endDate to null after the first click while selecting checkout.
 	 *
 	 * @param {object|null|undefined} picker
@@ -438,7 +481,7 @@
 						return isDateInUnavailableRanges(m, unavailableRanges);
 					}
 					if (m.isSame(picker.endDate, 'day')) {
-						return false;
+						return !isRangeValid(picker.startDate, picker.endDate, unavailableRanges, minNights);
 					}
 				}
 
@@ -450,6 +493,9 @@
 						return false;
 					}
 					if (isDateInUnavailableRanges(m, unavailableRanges)) {
+						return true;
+					}
+					if (m.isAfter(picker.startDate, 'day') && !isRangeValid(picker.startDate, m, unavailableRanges, minNights)) {
 						return true;
 					}
 					return false;
@@ -490,29 +536,22 @@
 		if (drp && calendarHintsActive) {
 			var origClickDate = drp.clickDate.bind(drp);
 			drp.clickDate = function (ev) {
-				var $target = $(ev.target);
-				if (!$target.hasClass('available')) {
+				var $cell = $(ev.target).closest('td.available');
+				if (!$cell.length) {
 					return origClickDate(ev);
 				}
 
-				if ($target.hasClass('bec-invalid-checkin') && !isPickingCheckout(drp)) {
+				if ($cell.hasClass('bec-invalid-checkin') && !isPickingCheckout(drp)) {
 					ev.stopPropagation();
 					return;
 				}
 
 				if (isPickingCheckout(drp) && drp.startDate) {
-					var clicked = parseDateFromCell($target, drp);
-					if (clicked && clicked.isValid && clicked.isValid()) {
-						if (clicked.isAfter(drp.startDate, 'day')) {
-							var nights = clicked.diff(drp.startDate, 'days');
-							if (minNights > 1 && nights < minNights) {
-								ev.stopPropagation();
-								return;
-							}
-							if (hasInventoryUnavailableNightBetween(drp.startDate, clicked, unavailableRanges)) {
-								ev.stopPropagation();
-								return;
-							}
+					var clicked = parseDateFromCell($cell, drp);
+					if (clicked && clicked.isValid && clicked.isValid() && clicked.isAfter(drp.startDate, 'day')) {
+						if (!isRangeValid(drp.startDate, clicked, unavailableRanges, minNights)) {
+							ev.stopPropagation();
+							return;
 						}
 					}
 				}
@@ -657,6 +696,16 @@
 		}
 
 		$btn.on('apply.daterangepicker', function (ev, picker) {
+			if (
+				calendarHintsActive &&
+				picker.startDate &&
+				picker.endDate &&
+				!isRangeValid(picker.startDate, picker.endDate, unavailableRanges, minNights)
+			) {
+				picker.updateView();
+				return;
+			}
+
 			$inCheckin.val(picker.startDate.format('YYYY-MM-DD'));
 			$inCheckout.val(picker.endDate.format('YYYY-MM-DD'));
 			dispatchBecNativeInputChange($inCheckin);
@@ -688,7 +737,12 @@
 			var e = $inCheckout.val() ? moment($inCheckout.val(), 'YYYY-MM-DD', true) : null;
 			if (s && s.isValid() && e && e.isValid()) {
 				drp.setStartDate(s);
-				drp.setEndDate(e);
+				if (calendarHintsActive && !isRangeValid(s, e, unavailableRanges, minNights)) {
+					drp.endDate = null;
+					drp.updateView();
+				} else {
+					drp.setEndDate(e);
+				}
 			}
 			syncBackdropWithDaterange(true);
 		});

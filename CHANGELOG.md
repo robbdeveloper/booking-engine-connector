@@ -1,5 +1,9 @@
 # Changelog
 
+## 0.4.4 — 2026-08-10
+
+- **Search — calendar range validation**: Block selecting or applying a stay that spans inventory-unavailable nights (e.g. check-in Sep 1 with checkout Sep 8 when Sep 4–7 are unavailable). **`public-search-daterange.js`** now validates the full occupancy path via **`isRangeValid()`** in **`isInvalidDate`**, the checkout click guard (using **`closest('td.available')`**), **Apply**, and on picker open for pre-filled URL ranges.
+
 ## 0.4.3 — 2026-08-10
 
 - **Search — minimum stay daterange visuals**: Fix misleading calendar styling when minimum-stay rules apply. Invalid check-in days now use soft class **`bec-invalid-checkin`** via **`isCustomDate`** instead of hard **`off`** disabling, so selected check-in dates and in-range bridge days keep proper range highlighting. **`isInvalidDate`** only hard-disables inventory-unavailable, past, and horizon dates; checkout min-nights and invalid-check-in clicks are enforced via a **`clickDate`** guard in **`public-search-daterange.js`**. New CSS in **`search-form-enhanced.css`** for **`.bec-invalid-checkin`** and **`.bec-invalid-checkin.in-range`**.
