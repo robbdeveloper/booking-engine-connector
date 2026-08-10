@@ -27,7 +27,7 @@ interface CalendarAvailabilityProviderInterface
 	/**
 	 * Normalize a bulk payload to provider-agnostic segments.
 	 *
-	 * @return list<array{remote_unit_id: string, date_from: string, date_to: string, available: bool}>
+	 * @return list<array{remote_unit_id: string, date_from: string, date_to: string, available: bool, minimum_stay?: int|null}>
 	 */
 	public function normalizeBulkAvailability(mixed $bulk): array;
 }

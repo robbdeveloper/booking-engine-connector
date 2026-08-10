@@ -48,6 +48,7 @@ $options = [
 	'bec_auto_append_search_form_single_unit',
 	'bec_search_calendar_availability',
 	'bec_search_max_date_from_today',
+	'bec_search_min_nights',
 	'bec_append_booking_blocks_to_content',
 	'bec_kross_sync_booking_engines',
 	'bec_kross_available_booking_engines',

@@ -190,7 +190,7 @@ final class SearchForm
 
 		if ($useEnhanced) {
 			$unitId = isset($args['unit_id']) ? (int) $args['unit_id'] : 0;
-			$unavailableRanges = self::resolveCalendarUnavailableRanges($unitId);
+			$calendarHints = self::resolveCalendarHints($unitId);
 
 			self::renderEnhanced(
 				$formId,
@@ -208,7 +208,7 @@ final class SearchForm
 				$showSubmit,
 				$popoverPlacement,
 				$daterangeDisplayFormat,
-				$unavailableRanges
+				$calendarHints
 			);
 
 			return;
@@ -316,7 +316,7 @@ final class SearchForm
 		bool $showSubmit = true,
 		string $popoverPlacement = self::POPOVER_PLACEMENT_AUTO,
 		string $daterangeDisplayFormat = 'D MMM YYYY',
-		array $unavailableRanges = []
+		array $calendarHints = []
 	): void {
 		$popoverPlacement = self::normalizePopoverPlacement($popoverPlacement);
 
@@ -360,14 +360,7 @@ final class SearchForm
 
 		$guestsLbl = \esc_attr(\__('Guests', 'booking-engine-connector'));
 
-		$calendarAttrs = '';
-		if ($unavailableRanges !== []) {
-			$json = (string) \wp_json_encode($unavailableRanges);
-			if ($json !== '') {
-				$horizonTo = CalendarAvailabilityService::getHorizonDateTo();
-				$calendarAttrs = ' data-bec-calendar-availability="1" data-bec-unavailable-ranges="' . \esc_attr($json) . '" data-bec-availability-horizon-to="' . \esc_attr($horizonTo) . '"';
-			}
-		}
+		$calendarAttrs = self::buildCalendarAvailabilityAttrs($calendarHints);
 
 		echo '<div class="' . \esc_attr($htmlClass) . '-wrap ' . \esc_attr($htmlClass) . '-wrap--enhanced">';
 		echo '<form class="' . \esc_attr($htmlClass) . ' ' . \esc_attr($htmlClass) . '--enhanced" id="' . \esc_attr($formId) . '" method="get" action="' . \esc_url($action) . '" data-bec-guest-mode="' . \esc_attr($guestFieldMode) . '" data-bec-popover-placement="' . \esc_attr($popoverPlacement) . '" data-bec-daterange-format="' . \esc_attr($daterangeDisplayFormat) . '"' . $calendarAttrs . '>';
@@ -485,12 +478,24 @@ final class SearchForm
 	}
 
 	/**
-	 * @return list<array{from: string, to: string}>
+	 * @return array{
+	 *     active: bool,
+	 *     unavailable_ranges: list<array{from: string, to: string}>,
+	 *     invalid_checkin_ranges: list<array{from: string, to: string}>,
+	 *     min_nights: int,
+	 *     horizon_to: string
+	 * }
 	 */
-	private static function resolveCalendarUnavailableRanges(int $unitId): array
+	private static function resolveCalendarHints(int $unitId): array
 	{
 		if (! CalendarAvailabilityService::isFeatureActive()) {
-			return [];
+			return [
+				'active'                 => false,
+				'unavailable_ranges'     => [],
+				'invalid_checkin_ranges' => [],
+				'min_nights'             => (int) \apply_filters('bec_search_min_nights', SearchSettings::DEFAULT_MIN_NIGHTS, null),
+				'horizon_to'             => CalendarAvailabilityService::getHorizonDateTo(),
+			];
 		}
 
 		$mode = (string) \apply_filters(
@@ -499,10 +504,56 @@ final class SearchForm
 		);
 
 		if ($mode === SearchSettings::CALENDAR_AVAILABILITY_SINGLE_UNIT && $unitId < 1) {
-			return [];
+			return [
+				'active'                 => false,
+				'unavailable_ranges'     => [],
+				'invalid_checkin_ranges' => [],
+				'min_nights'             => (int) \apply_filters('bec_search_min_nights', SearchSettings::DEFAULT_MIN_NIGHTS, null),
+				'horizon_to'             => CalendarAvailabilityService::getHorizonDateTo(),
+			];
 		}
 
-		return CalendarAvailabilityService::getUnavailableRangesForContext($unitId > 0 ? $unitId : null);
+		return CalendarAvailabilityService::getCalendarAvailabilityHints($unitId > 0 ? $unitId : null);
+	}
+
+	/**
+	 * @param array{
+	 *     active?: bool,
+	 *     unavailable_ranges?: list<array{from: string, to: string}>,
+	 *     invalid_checkin_ranges?: list<array{from: string, to: string}>,
+	 *     min_nights?: int,
+	 *     horizon_to?: string
+	 * } $calendarHints
+	 */
+	private static function buildCalendarAvailabilityAttrs(array $calendarHints): string
+	{
+		if (empty($calendarHints['active'])) {
+			return '';
+		}
+
+		$attrs      = ' data-bec-calendar-availability="1"';
+		$horizonTo  = (string) ($calendarHints['horizon_to'] ?? CalendarAvailabilityService::getHorizonDateTo());
+		$minNights  = (int) ($calendarHints['min_nights'] ?? 1);
+		$unavailableRanges = (array) ($calendarHints['unavailable_ranges'] ?? []);
+		$invalidCheckinRanges = (array) ($calendarHints['invalid_checkin_ranges'] ?? []);
+
+		$unavailableJson = (string) \wp_json_encode($unavailableRanges);
+		if ($unavailableJson !== '') {
+			$attrs .= ' data-bec-unavailable-ranges="' . \esc_attr($unavailableJson) . '"';
+		}
+
+		$checkinJson = (string) \wp_json_encode($invalidCheckinRanges);
+		if ($checkinJson !== '' && $invalidCheckinRanges !== []) {
+			$attrs .= ' data-bec-invalid-checkin-ranges="' . \esc_attr($checkinJson) . '"';
+		}
+
+		if ($minNights > 1) {
+			$attrs .= ' data-bec-min-nights="' . \esc_attr((string) $minNights) . '"';
+		}
+
+		$attrs .= ' data-bec-availability-horizon-to="' . \esc_attr($horizonTo) . '"';
+
+		return $attrs;
 	}
 
 	/**

@@ -34,6 +34,7 @@ final class FrontendPage
 		$childAgesMode  = SearchSettings::getChildAgesModeOption();
 		$calendarAvail      = SearchSettings::getCalendarAvailabilityMode();
 		$maxDateFromToday   = SearchSettings::getMaxDateFromTodayOption();
+		$minNights          = SearchSettings::getMinNightsOption();
 		$autoSearchForm = SearchSettings::isAutoAppendSearchFormOnSingleUnit();
 		$appendBooking  = PublicContentSettings::isAppendBookingBlocksToContentEnabled();
 		$syncTranslations = MultilingualBridge::isFeatureEnabled();
@@ -130,6 +131,14 @@ final class FrontendPage
 		echo '<input type="number" min="1" name="bec_search_max_date_from_today" id="bec_search_max_date_from_today" value="' . \esc_attr((string) $maxDateFromToday) . '" />';
 		echo '<p class="description">' . \esc_html__(
 			'How many days ahead guests can select in the enhanced search date picker. When calendar availability hints are enabled, this also controls how far ahead availability is fetched from the PMS. Larger values increase API payload size.',
+			'booking-engine-connector'
+		) . '</p>';
+		echo '</td></tr>';
+
+		echo '<tr><th scope="row"><label for="bec_search_min_nights">' . \esc_html__('Minimum stay (nights)', 'booking-engine-connector') . '</label></th><td>';
+		echo '<input type="number" min="1" name="bec_search_min_nights" id="bec_search_min_nights" value="' . \esc_attr((string) $minNights) . '" />';
+		echo '<p class="description">' . \esc_html__(
+			'Minimum number of nights per booking. Used when validating search submissions and, when calendar availability hints are enabled, to grey out check-in dates that cannot satisfy this stay length.',
 			'booking-engine-connector'
 		) . '</p>';
 		echo '</td></tr>';
@@ -263,6 +272,12 @@ final class FrontendPage
 			: SearchSettings::DEFAULT_MAX_DATE_FROM_TODAY;
 		$maxDays = \max(1, $maxDays);
 		\update_option(SearchSettings::OPTION_MAX_DATE_FROM_TODAY, $maxDays, false);
+
+		$minNights = isset($_POST['bec_search_min_nights'])
+			? (int) \wp_unslash((string) $_POST['bec_search_min_nights'])
+			: SearchSettings::DEFAULT_MIN_NIGHTS;
+		$minNights = \max(1, $minNights);
+		\update_option(SearchSettings::OPTION_MIN_NIGHTS, $minNights, false);
 
 		\update_option(
 			SearchSettings::OPTION_AUTO_APPEND_SEARCH_FORM_SINGLE_UNIT,

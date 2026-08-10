@@ -1,5 +1,11 @@
 # Changelog
 
+## 0.4.2 — 2026-08-10
+
+- **Search — minimum stay calendar hints**: Admin option **`bec_search_min_nights`** (default 1) on **Booking Engine → Frontend → Search form**, wired to **`bec_search_min_nights`** for form validation and calendar availability hints. When calendar hints are enabled, check-in dates that cannot satisfy the minimum stay (given consecutive PMS availability) are greyed out via **`data-bec-invalid-checkin-ranges`**; checkout selection enforces minimum nights and inventory gaps in **`public-search-daterange.js`**. Filters: **`bec_calendar_invalid_checkin_ranges`**, **`bec_calendar_availability_segments`**. Kross **`normalizeBulkAvailability()`** accepts optional per-row **`minimum_stay`** when the API provides it.
+- **Search — calendar availability (union mode)**: Fix fatal **`TypeError`** when computing minimum-stay check-in ranges in “All search forms” mode (numeric Kross room type IDs were passed as integers instead of strings).
+- **Uninstall**: Remove **`bec_search_min_nights`** on plugin uninstall.
+
 ## 0.4.1 — 2026-08-08
 
 - **Search — calendar horizon setting**: Admin option **`bec_search_max_date_from_today`** (default 730 days) on **Booking Engine → Frontend → Search form**. Wired to **`bec_daterangepicker_max_date_from_today`** so the enhanced date picker max date, calendar availability fetch window, and Kross cache keys stay in sync.

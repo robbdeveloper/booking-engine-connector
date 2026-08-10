@@ -10,15 +10,15 @@ namespace BookingEngineConnector\Search;
 final class CalendarAvailabilityRanges
 {
 	/**
-	 * @param list<array{remote_unit_id: string, date_from: string, date_to: string, available: bool}> $segments
+	 * @param list<array{remote_unit_id: string, date_from: string, date_to: string, available: bool, minimum_stay?: int|null}> $segments
 	 *
-	 * @return list<array{remote_unit_id: string, date_from: string, date_to: string, available: bool}>
+	 * @return list<array{remote_unit_id: string, date_from: string, date_to: string, available: bool, minimum_stay?: int|null}>
 	 */
 	public static function filterForUnit(array $segments, string $remoteUnitId): array
 	{
 		$out = [];
 		foreach ($segments as $segment) {
-			if (($segment['remote_unit_id'] ?? '') === $remoteUnitId) {
+			if ((string) ($segment['remote_unit_id'] ?? '') === $remoteUnitId) {
 				$out[] = $segment;
 			}
 		}
@@ -29,7 +29,7 @@ final class CalendarAvailabilityRanges
 	/**
 	 * Unavailable ranges for one unit: days not covered by an available segment within the horizon.
 	 *
-	 * @param list<array{remote_unit_id: string, date_from: string, date_to: string, available: bool}> $segments
+	 * @param list<array{remote_unit_id: string, date_from: string, date_to: string, available: bool, minimum_stay?: int|null}> $segments
 	 *
 	 * @return list<array{from: string, to: string}>
 	 */
@@ -48,7 +48,7 @@ final class CalendarAvailabilityRanges
 	/**
 	 * Union mode: a day is selectable when any unit has availability on that day.
 	 *
-	 * @param list<array{remote_unit_id: string, date_from: string, date_to: string, available: bool}> $segments
+	 * @param list<array{remote_unit_id: string, date_from: string, date_to: string, available: bool, minimum_stay?: int|null}> $segments
 	 *
 	 * @return list<array{from: string, to: string}>
 	 */
@@ -63,7 +63,138 @@ final class CalendarAvailabilityRanges
 	}
 
 	/**
-	 * @param list<array{remote_unit_id: string, date_from: string, date_to: string, available: bool}> $segments
+	 * Check-in dates that are inventory-available but cannot start a stay of at least minNights.
+	 *
+	 * @param list<array{remote_unit_id: string, date_from: string, date_to: string, available: bool, minimum_stay?: int|null}> $segments
+	 *
+	 * @return list<array{from: string, to: string}>
+	 */
+	public static function invalidCheckinRangesForUnit(
+		array $segments,
+		string $remoteUnitId,
+		string $dateFrom,
+		string $dateTo,
+		int $minNights
+	): array {
+		if ($minNights <= 1) {
+			return [];
+		}
+
+		$unitSegments  = self::filterForUnit($segments, $remoteUnitId);
+		$availableDays = self::collectAvailableDays($unitSegments, $dateFrom, $dateTo);
+		$minStayByDay  = self::collectMinStayByDay($unitSegments, $dateFrom, $dateTo, $minNights);
+
+		return self::invalidCheckinDaysToRanges(
+			self::collectInvalidCheckinDays($availableDays, $minStayByDay, $dateFrom, $dateTo),
+			$dateFrom,
+			$dateTo
+		);
+	}
+
+	/**
+	 * Union mode: a day is a valid check-in when any unit can satisfy the minimum stay from that day.
+	 *
+	 * @param list<array{remote_unit_id: string, date_from: string, date_to: string, available: bool, minimum_stay?: int|null}> $segments
+	 *
+	 * @return list<array{from: string, to: string}>
+	 */
+	public static function invalidCheckinRangesGlobalUnion(
+		array $segments,
+		string $dateFrom,
+		string $dateTo,
+		int $minNights
+	): array {
+		if ($minNights <= 1) {
+			return [];
+		}
+
+		$anyAvailableDays = self::collectAvailableDays($segments, $dateFrom, $dateTo);
+		$validCheckinDays = [];
+
+		$unitIdList = [];
+		foreach ($segments as $segment) {
+			$id = (string) ($segment['remote_unit_id'] ?? '');
+			if ($id !== '') {
+				$unitIdList[] = $id;
+			}
+		}
+		$unitIdList = \array_values(\array_unique($unitIdList));
+
+		foreach ($unitIdList as $remoteUnitId) {
+			$unitSegments  = self::filterForUnit($segments, $remoteUnitId);
+			$availableDays = self::collectAvailableDays($unitSegments, $dateFrom, $dateTo);
+			$minStayByDay  = self::collectMinStayByDay($unitSegments, $dateFrom, $dateTo, $minNights);
+
+			foreach ($availableDays as $day => $_) {
+				$required = $minStayByDay[$day] ?? $minNights;
+				if (self::countForwardAvailableRun($availableDays, $day, $dateTo) >= $required) {
+					$validCheckinDays[$day] = true;
+				}
+			}
+		}
+
+		$invalidDays = [];
+		foreach (self::iterateDays($dateFrom, $dateTo) as $day) {
+			if (isset($anyAvailableDays[$day]) && ! isset($validCheckinDays[$day])) {
+				$invalidDays[$day] = true;
+			}
+		}
+
+		return self::invalidCheckinDaysToRanges($invalidDays, $dateFrom, $dateTo);
+	}
+
+	/**
+	 * @param array<string, true> $availableDays
+	 * @param array<string, int>  $minStayByDay
+	 *
+	 * @return array<string, true>
+	 */
+	private static function collectInvalidCheckinDays(
+		array $availableDays,
+		array $minStayByDay,
+		string $dateFrom,
+		string $dateTo
+	): array {
+		$invalidDays = [];
+		foreach (self::iterateDays($dateFrom, $dateTo) as $day) {
+			if (! isset($availableDays[$day])) {
+				continue;
+			}
+
+			$required = $minStayByDay[$day] ?? 1;
+			if (self::countForwardAvailableRun($availableDays, $day, $dateTo) < $required) {
+				$invalidDays[$day] = true;
+			}
+		}
+
+		return $invalidDays;
+	}
+
+	/**
+	 * @param array<string, true> $availableDays
+	 */
+	public static function countForwardAvailableRun(array $availableDays, string $day, string $clipTo): int
+	{
+		$startTs = \strtotime($day . ' 00:00:00 UTC');
+		$endTs   = \strtotime($clipTo . ' 00:00:00 UTC');
+		if ($startTs === false || $endTs === false || $startTs > $endTs) {
+			return 0;
+		}
+
+		$count = 0;
+		for ($ts = $startTs; $ts <= $endTs; $ts += \DAY_IN_SECONDS) {
+			$currentDay = \gmdate('Y-m-d', $ts);
+			if (! isset($availableDays[$currentDay])) {
+				break;
+			}
+			++$count;
+		}
+
+		return $count;
+	}
+
+	/**
+	 * @param list<array{remote_unit_id: string, date_from: string, date_to: string, available: bool, minimum_stay?: int|null}> $segments
 	 *
 	 * @return array<string, true>
 	 */
@@ -85,6 +216,43 @@ final class CalendarAvailabilityRanges
 		}
 
 		return $availableDays;
+	}
+
+	/**
+	 * @param list<array{remote_unit_id: string, date_from: string, date_to: string, available: bool, minimum_stay?: int|null}> $segments
+	 *
+	 * @return array<string, int>
+	 */
+	private static function collectMinStayByDay(
+		array $segments,
+		string $clipFrom,
+		string $clipTo,
+		int $globalMinNights
+	): array {
+		$minStayByDay = [];
+		foreach ($segments as $segment) {
+			if (empty($segment['available'])) {
+				continue;
+			}
+
+			$segmentMin = isset($segment['minimum_stay']) ? (int) $segment['minimum_stay'] : 0;
+			if ($segmentMin < 1) {
+				$segmentMin = $globalMinNights;
+			}
+
+			foreach (self::expandRange(
+				(string) ($segment['date_from'] ?? ''),
+				(string) ($segment['date_to'] ?? ''),
+				$clipFrom,
+				$clipTo
+			) as $day) {
+				if (! isset($minStayByDay[$day]) || $segmentMin > $minStayByDay[$day]) {
+					$minStayByDay[$day] = $segmentMin;
+				}
+			}
+		}
+
+		return $minStayByDay;
 	}
 
 	/**
@@ -132,6 +300,72 @@ final class CalendarAvailabilityRanges
 		}
 
 		return self::mergeRanges($ranges);
+	}
+
+	/**
+	 * @param array<string, true> $invalidDays
+	 *
+	 * @return list<array{from: string, to: string}>
+	 */
+	private static function invalidCheckinDaysToRanges(
+		array $invalidDays,
+		string $dateFrom,
+		string $dateTo
+	): array {
+		if ($invalidDays === []) {
+			return [];
+		}
+
+		$ranges     = [];
+		$rangeStart = null;
+		foreach (self::iterateDays($dateFrom, $dateTo) as $day) {
+			$isInvalid = isset($invalidDays[$day]);
+			if ($isInvalid) {
+				if ($rangeStart === null) {
+					$rangeStart = $day;
+				}
+				continue;
+			}
+
+			if ($rangeStart !== null) {
+				$prevTs = \strtotime($day . ' 00:00:00 UTC');
+				if ($prevTs !== false) {
+					$ranges[] = [
+						'from' => $rangeStart,
+						'to'   => \gmdate('Y-m-d', $prevTs - \DAY_IN_SECONDS),
+					];
+				}
+				$rangeStart = null;
+			}
+		}
+
+		if ($rangeStart !== null) {
+			$ranges[] = [
+				'from' => $rangeStart,
+				'to'   => $dateTo,
+			];
+		}
+
+		return self::mergeRanges($ranges);
+	}
+
+	/**
+	 * @return list<string>
+	 */
+	private static function iterateDays(string $dateFrom, string $dateTo): array
+	{
+		$startTs = \strtotime($dateFrom . ' 00:00:00 UTC');
+		$endTs   = \strtotime($dateTo . ' 00:00:00 UTC');
+		if ($startTs === false || $endTs === false || $startTs > $endTs) {
+			return [];
+		}
+
+		$days = [];
+		for ($ts = $startTs; $ts <= $endTs; $ts += \DAY_IN_SECONDS) {
+			$days[] = \gmdate('Y-m-d', $ts);
+		}
+
+		return $days;
 	}
 
 	/**

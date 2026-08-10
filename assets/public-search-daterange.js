@@ -26,11 +26,49 @@
 	}
 
 	/**
+	 * @param {HTMLFormElement} form
+	 * @returns {Array<{from: string, to: string}>}
+	 */
+	function getInvalidCheckinRanges(form) {
+		var raw = form.getAttribute('data-bec-invalid-checkin-ranges') || '';
+		if (!raw) {
+			return [];
+		}
+		try {
+			var parsed = JSON.parse(raw);
+			return Array.isArray(parsed) ? parsed : [];
+		} catch (err) {
+			return [];
+		}
+	}
+
+	/**
+	 * @param {HTMLFormElement} form
+	 * @returns {number}
+	 */
+	function getMinNights(form) {
+		var raw = form.getAttribute('data-bec-min-nights') || '';
+		if (raw !== '') {
+			var fromAttr = parseInt(raw, 10);
+			if (!isNaN(fromAttr) && fromAttr > 0) {
+				return fromAttr;
+			}
+		}
+
+		var cfg = getCfg();
+		if (typeof cfg.minNights === 'number' && cfg.minNights > 0) {
+			return cfg.minNights;
+		}
+
+		return 1;
+	}
+
+	/**
 	 * @param {import('moment').Moment} m
 	 * @param {Array<{from: string, to: string}>} ranges
 	 * @returns {boolean}
 	 */
-	function isDateInUnavailableRanges(m, ranges) {
+	function isDateInRanges(m, ranges) {
 		if (!m || !m.isValid() || !ranges || !ranges.length) {
 			return false;
 		}
@@ -49,6 +87,51 @@
 			}
 		}
 		return false;
+	}
+
+	function isDateInUnavailableRanges(m, ranges) {
+		return isDateInRanges(m, ranges);
+	}
+
+	/**
+	 * @param {import('moment').Moment} start
+	 * @param {import('moment').Moment} end
+	 * @param {Array<{from: string, to: string}>} unavailableRanges
+	 * @returns {boolean}
+	 */
+	function hasInventoryUnavailableNightBetween(start, end, unavailableRanges) {
+		if (!start || !end || !start.isValid() || !end.isValid() || !unavailableRanges.length) {
+			return false;
+		}
+		if (!end.isAfter(start, 'day')) {
+			return false;
+		}
+
+		var cur = start.clone();
+		while (cur.isBefore(end, 'day')) {
+			if (isDateInUnavailableRanges(cur, unavailableRanges)) {
+				return true;
+			}
+			cur.add(1, 'day');
+		}
+
+		return false;
+	}
+
+	/**
+	 * Daterangepicker sets endDate to null after the first click while selecting checkout.
+	 *
+	 * @param {object|null|undefined} picker
+	 * @returns {boolean}
+	 */
+	function isPickingCheckout(picker) {
+		return !!(
+			picker &&
+			picker.startDate &&
+			picker.startDate.isValid &&
+			picker.startDate.isValid() &&
+			picker.endDate === null
+		);
 	}
 
 	/**
@@ -273,7 +356,15 @@
 		}
 
 		var unavailableRanges = getUnavailableRanges(form);
-		if (maxSelectable || unavailableRanges.length) {
+		var invalidCheckinRanges = getInvalidCheckinRanges(form);
+		var minNights = getMinNights(form);
+		var calendarHintsActive =
+			form.getAttribute('data-bec-calendar-availability') === '1' ||
+			unavailableRanges.length > 0 ||
+			invalidCheckinRanges.length > 0 ||
+			minNights > 1;
+
+		if (maxSelectable || calendarHintsActive) {
 			drpOpts.isInvalidDate = function (m) {
 				if (maxSelectable && m.isAfter(maxSelectable, 'day')) {
 					return true;
@@ -281,13 +372,45 @@
 				if (drpOpts.minDate && m.isBefore(drpOpts.minDate, 'day')) {
 					return true;
 				}
-				return isDateInUnavailableRanges(m, unavailableRanges);
+
+				var picker = $btn.data('daterangepicker');
+				if (isPickingCheckout(picker) && picker.startDate) {
+					if (!m.isAfter(picker.startDate, 'day')) {
+						return true;
+					}
+					var nights = m.diff(picker.startDate, 'days');
+					if (minNights > 1 && nights < minNights) {
+						return true;
+					}
+					if (hasInventoryUnavailableNightBetween(picker.startDate, m, unavailableRanges)) {
+						return true;
+					}
+					return false;
+				}
+
+				if (isDateInUnavailableRanges(m, unavailableRanges)) {
+					return true;
+				}
+				if (invalidCheckinRanges.length && isDateInRanges(m, invalidCheckinRanges)) {
+					return true;
+				}
+				return false;
 			};
 		}
 
 		$btn.daterangepicker(drpOpts);
 
 		var drp = $btn.data('daterangepicker');
+
+		if (drp && calendarHintsActive) {
+			drp.container.on('click.daterangepicker.becMinStay', 'td.available', function () {
+				window.setTimeout(function () {
+					if (drp && typeof drp.updateView === 'function') {
+						drp.updateView();
+					}
+				}, 0);
+			});
+		}
 
 		if (drp && maxSelectable) {
 			drp.maxDate = maxSelectable;

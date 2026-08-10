@@ -7,6 +7,7 @@ namespace BookingEngineConnector\Front;
 use BookingEngineConnector\PostTypes\UnitPostType;
 use BookingEngineConnector\Search\CalendarAvailabilityService;
 use BookingEngineConnector\Search\SearchContext;
+use BookingEngineConnector\Search\SearchSettings;
 use BookingEngineConnector\Styling\StylingSettings;
 
 /**
@@ -212,6 +213,7 @@ final class PublicAssets
 			'momentLocale'     => self::momentLocaleString($ctx),
 			'firstDayOfWeek'   => (int) \get_option('start_of_week', 0),
 			'maxNights'        => (int) \apply_filters('bec_search_max_nights', 365, $ctx),
+			'minNights'        => (int) \apply_filters('bec_search_min_nights', SearchSettings::DEFAULT_MIN_NIGHTS, $ctx),
 			'minDateToday'     => (bool) \apply_filters('bec_daterangepicker_min_date_today', true, $ctx),
 			'maxDateFromToday' => (int) \apply_filters('bec_daterangepicker_max_date_from_today', 730, $ctx),
 			'applyLabel'       => \__('Apply', 'booking-engine-connector'),

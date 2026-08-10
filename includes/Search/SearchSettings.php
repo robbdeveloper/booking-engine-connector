@@ -53,11 +53,16 @@ final class SearchSettings
 
 	public const DEFAULT_MAX_DATE_FROM_TODAY = 730;
 
+	public const OPTION_MIN_NIGHTS = 'bec_search_min_nights';
+
+	public const DEFAULT_MIN_NIGHTS = 1;
+
 	public static function register(): void
 	{
 		\add_filter('bec_search_guest_field_mode', [self::class, 'filterGuestFieldMode'], 20, 2);
 		\add_filter('bec_provider_requires_children_ages', [self::class, 'filterRequiresChildAges'], 20, 2);
 		\add_filter('bec_daterangepicker_max_date_from_today', [self::class, 'filterMaxDateFromToday'], 20, 2);
+		\add_filter('bec_search_min_nights', [self::class, 'filterMinNights'], 20, 2);
 	}
 
 	/**
@@ -110,6 +115,23 @@ final class SearchSettings
 		$value = (int) \get_option(self::OPTION_MAX_DATE_FROM_TODAY, self::DEFAULT_MAX_DATE_FROM_TODAY);
 
 		return \max(1, $value);
+	}
+
+	public static function getMinNightsOption(): int
+	{
+		$value = (int) \get_option(self::OPTION_MIN_NIGHTS, self::DEFAULT_MIN_NIGHTS);
+
+		return \max(1, $value);
+	}
+
+	/**
+	 * @param mixed $ctx
+	 */
+	public static function filterMinNights(int $default, $ctx): int
+	{
+		unset($default, $ctx);
+
+		return self::getMinNightsOption();
 	}
 
 	/**

@@ -437,12 +437,25 @@ final class KrossProvider implements ProviderInterface, BulkQuoteProviderInterfa
 
 			$available = (int) ($row['available'] ?? 0) > 0;
 
-			$segments[] = [
+			$minimumStay = null;
+			if (isset($row['minimum_stay']) && $row['minimum_stay'] !== null && $row['minimum_stay'] !== '') {
+				$minimumStay = (int) $row['minimum_stay'];
+				if ($minimumStay < 1) {
+					$minimumStay = null;
+				}
+			}
+
+			$segment = [
 				'remote_unit_id' => $id,
 				'date_from'      => $dateFrom,
 				'date_to'        => $dateTo,
 				'available'      => $available,
 			];
+			if ($minimumStay !== null) {
+				$segment['minimum_stay'] = $minimumStay;
+			}
+
+			$segments[] = $segment;
 		}
 
 		return $segments;

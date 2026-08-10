@@ -14,53 +14,91 @@ use BookingEngineConnector\Providers\ProviderRegistry;
  */
 final class CalendarAvailabilityService
 {
-	/** @var list<array{remote_unit_id: string, date_from: string, date_to: string, available: bool}>|null */
+	/** @var list<array{remote_unit_id: string, date_from: string, date_to: string, available: bool, minimum_stay?: int|null}>|null */
 	private static ?array $segmentsMemo = null;
 
 	/**
-	 * @return list<array{from: string, to: string}>
+	 * Calendar hint payload for the enhanced search daterangepicker.
+	 *
+	 * @return array{
+	 *     active: bool,
+	 *     unavailable_ranges: list<array{from: string, to: string}>,
+	 *     invalid_checkin_ranges: list<array{from: string, to: string}>,
+	 *     min_nights: int,
+	 *     horizon_to: string
+	 * }
 	 */
-	public static function getUnavailableRangesForContext(?int $unitPostId): array
+	public static function getCalendarAvailabilityHints(?int $unitPostId): array
 	{
+		$empty = [
+			'active'                 => false,
+			'unavailable_ranges'     => [],
+			'invalid_checkin_ranges' => [],
+			'min_nights'             => self::resolveMinNights(),
+			'horizon_to'             => self::horizonDateTo(),
+		];
+
+		if (! self::isFeatureActive()) {
+			return $empty;
+		}
+
 		$mode = (string) \apply_filters(
 			'bec_search_calendar_availability_mode',
 			SearchSettings::getCalendarAvailabilityMode()
 		);
-		if ($mode === SearchSettings::CALENDAR_AVAILABILITY_OFF) {
-			return [];
-		}
-
-		$provider = ProviderRegistry::getProvider();
-		if (! $provider instanceof CalendarAvailabilityProviderInterface) {
-			return [];
-		}
-
-		$dateFrom = self::horizonDateFrom();
-		$dateTo   = self::horizonDateTo();
 
 		if ($mode === SearchSettings::CALENDAR_AVAILABILITY_SINGLE_UNIT) {
 			$resolvedUnitId = self::resolveUnitPostId($unitPostId);
 			if ($resolvedUnitId < 1) {
-				return [];
+				return $empty;
 			}
 
 			$externalId = (string) \get_post_meta($resolvedUnitId, 'bec_external_id', true);
 			if ($externalId === '') {
-				return [];
+				return $empty;
 			}
 
-			$segments = self::getSegments($provider);
-			$ranges   = CalendarAvailabilityRanges::unavailableRangesForUnit(
+			$provider = ProviderRegistry::getProvider();
+			if (! $provider instanceof CalendarAvailabilityProviderInterface) {
+				return $empty;
+			}
+
+			$dateFrom   = self::horizonDateFrom();
+			$dateTo     = self::horizonDateTo();
+			$minNights  = self::resolveMinNights();
+			$segments   = self::getSegments($provider);
+			$ranges     = CalendarAvailabilityRanges::unavailableRangesForUnit(
 				$segments,
 				$externalId,
 				$dateFrom,
 				$dateTo
 			);
+			$checkinRanges = CalendarAvailabilityRanges::invalidCheckinRangesForUnit(
+				$segments,
+				$externalId,
+				$dateFrom,
+				$dateTo,
+				$minNights
+			);
 		} elseif ($mode === SearchSettings::CALENDAR_AVAILABILITY_ALL_SEARCH) {
-			$segments = self::getSegments($provider);
-			$ranges   = CalendarAvailabilityRanges::unavailableRangesGlobalUnion($segments, $dateFrom, $dateTo);
+			$provider = ProviderRegistry::getProvider();
+			if (! $provider instanceof CalendarAvailabilityProviderInterface) {
+				return $empty;
+			}
+
+			$dateFrom   = self::horizonDateFrom();
+			$dateTo     = self::horizonDateTo();
+			$minNights  = self::resolveMinNights();
+			$segments   = self::getSegments($provider);
+			$ranges     = CalendarAvailabilityRanges::unavailableRangesGlobalUnion($segments, $dateFrom, $dateTo);
+			$checkinRanges = CalendarAvailabilityRanges::invalidCheckinRangesGlobalUnion(
+				$segments,
+				$dateFrom,
+				$dateTo,
+				$minNights
+			);
 		} else {
-			return [];
+			return $empty;
 		}
 
 		/**
@@ -68,7 +106,28 @@ final class CalendarAvailabilityService
 		 */
 		$ranges = (array) \apply_filters('bec_calendar_unavailable_ranges', $ranges, $unitPostId);
 
-		return $ranges;
+		/**
+		 * @var list<array{from: string, to: string}> $checkinRanges
+		 */
+		$checkinRanges = (array) \apply_filters('bec_calendar_invalid_checkin_ranges', $checkinRanges, $unitPostId);
+
+		return [
+			'active'                 => true,
+			'unavailable_ranges'     => $ranges,
+			'invalid_checkin_ranges' => $checkinRanges,
+			'min_nights'             => $minNights,
+			'horizon_to'             => $dateTo,
+		];
+	}
+
+	/**
+	 * @return list<array{from: string, to: string}>
+	 */
+	public static function getUnavailableRangesForContext(?int $unitPostId): array
+	{
+		$hints = self::getCalendarAvailabilityHints($unitPostId);
+
+		return $hints['unavailable_ranges'];
 	}
 
 	public static function isFeatureActive(): bool
@@ -89,6 +148,13 @@ final class CalendarAvailabilityService
 	public static function getHorizonDateTo(): string
 	{
 		return self::horizonDateTo();
+	}
+
+	private static function resolveMinNights(): int
+	{
+		$min = (int) \apply_filters('bec_search_min_nights', SearchSettings::DEFAULT_MIN_NIGHTS, null);
+
+		return \max(1, $min);
 	}
 
 	private static function resolveUnitPostId(?int $unitPostId): int
@@ -120,7 +186,7 @@ final class CalendarAvailabilityService
 	}
 
 	/**
-	 * @return list<array{remote_unit_id: string, date_from: string, date_to: string, available: bool}>
+	 * @return list<array{remote_unit_id: string, date_from: string, date_to: string, available: bool, minimum_stay?: int|null}>
 	 */
 	private static function getSegments(CalendarAvailabilityProviderInterface $provider): array
 	{
@@ -145,7 +211,14 @@ final class CalendarAvailabilityService
 			}
 		}
 
-		self::$segmentsMemo = $provider->normalizeBulkAvailability($bulk);
+		$segments = $provider->normalizeBulkAvailability($bulk);
+
+		/**
+		 * @var list<array{remote_unit_id: string, date_from: string, date_to: string, available: bool, minimum_stay?: int|null}> $segments
+		 */
+		$segments = (array) \apply_filters('bec_calendar_availability_segments', $segments);
+
+		self::$segmentsMemo = $segments;
 
 		return self::$segmentsMemo;
 	}
