@@ -1,5 +1,9 @@
 # Changelog
 
+## 0.4.3 — 2026-08-10
+
+- **Search — minimum stay daterange visuals**: Fix misleading calendar styling when minimum-stay rules apply. Invalid check-in days now use soft class **`bec-invalid-checkin`** via **`isCustomDate`** instead of hard **`off`** disabling, so selected check-in dates and in-range bridge days keep proper range highlighting. **`isInvalidDate`** only hard-disables inventory-unavailable, past, and horizon dates; checkout min-nights and invalid-check-in clicks are enforced via a **`clickDate`** guard in **`public-search-daterange.js`**. New CSS in **`search-form-enhanced.css`** for **`.bec-invalid-checkin`** and **`.bec-invalid-checkin.in-range`**.
+
 ## 0.4.2 — 2026-08-10
 
 - **Search — minimum stay calendar hints**: Admin option **`bec_search_min_nights`** (default 1) on **Booking Engine → Frontend → Search form**, wired to **`bec_search_min_nights`** for form validation and calendar availability hints. When calendar hints are enabled, check-in dates that cannot satisfy the minimum stay (given consecutive PMS availability) are greyed out via **`data-bec-invalid-checkin-ranges`**; checkout selection enforces minimum nights and inventory gaps in **`public-search-daterange.js`**. Filters: **`bec_calendar_invalid_checkin_ranges`**, **`bec_calendar_availability_segments`**. Kross **`normalizeBulkAvailability()`** accepts optional per-row **`minimum_stay`** when the API provides it.

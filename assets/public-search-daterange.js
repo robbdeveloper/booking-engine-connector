@@ -135,6 +135,61 @@
 	}
 
 	/**
+	 * @param {import('moment').Moment} m
+	 * @param {import('moment').Moment} start
+	 * @param {import('moment').Moment} end
+	 * @returns {boolean}
+	 */
+	function isStrictlyBetweenStartAndEnd(m, start, end) {
+		return !!(
+			m &&
+			m.isValid &&
+			m.isValid() &&
+			start &&
+			start.isValid &&
+			start.isValid() &&
+			end &&
+			end.isValid &&
+			end.isValid() &&
+			m.isAfter(start, 'day') &&
+			m.isBefore(end, 'day')
+		);
+	}
+
+	/**
+	 * @param {JQuery} $cell
+	 * @param {object} picker
+	 * @returns {import('moment').Moment|null}
+	 */
+	function parseDateFromCell($cell, picker) {
+		if (!$cell || !$cell.length || !picker) {
+			return null;
+		}
+		var title = $cell.attr('data-title') || '';
+		if (title.length < 4) {
+			return null;
+		}
+		var row = parseInt(title.substr(1, 1), 10);
+		var col = parseInt(title.substr(3, 1), 10);
+		if (isNaN(row) || isNaN(col)) {
+			return null;
+		}
+		var cal = $cell.parents('.drp-calendar').hasClass('left') ? picker.leftCalendar : picker.rightCalendar;
+		if (!cal || !cal.calendar || !cal.calendar[row] || !cal.calendar[row][col]) {
+			return null;
+		}
+		return cal.calendar[row][col];
+	}
+
+	function scheduleDrpUpdateView(drp) {
+		window.setTimeout(function () {
+			if (drp && typeof drp.updateView === 'function') {
+				drp.updateView();
+			}
+		}, 0);
+	}
+
+	/**
 	 * @param {HTMLFormElement} form
 	 * @returns {import('moment').Moment|null}
 	 */
@@ -374,15 +429,27 @@
 				}
 
 				var picker = $btn.data('daterangepicker');
+
+				if (picker && picker.startDate && picker.endDate) {
+					if (isStrictlyBetweenStartAndEnd(m, picker.startDate, picker.endDate)) {
+						return isDateInUnavailableRanges(m, unavailableRanges);
+					}
+					if (m.isSame(picker.startDate, 'day')) {
+						return isDateInUnavailableRanges(m, unavailableRanges);
+					}
+					if (m.isSame(picker.endDate, 'day')) {
+						return false;
+					}
+				}
+
 				if (isPickingCheckout(picker) && picker.startDate) {
-					if (!m.isAfter(picker.startDate, 'day')) {
+					if (m.isBefore(picker.startDate, 'day')) {
 						return true;
 					}
-					var nights = m.diff(picker.startDate, 'days');
-					if (minNights > 1 && nights < minNights) {
-						return true;
+					if (m.isSame(picker.startDate, 'day')) {
+						return false;
 					}
-					if (hasInventoryUnavailableNightBetween(picker.startDate, m, unavailableRanges)) {
+					if (isDateInUnavailableRanges(m, unavailableRanges)) {
 						return true;
 					}
 					return false;
@@ -391,11 +458,29 @@
 				if (isDateInUnavailableRanges(m, unavailableRanges)) {
 					return true;
 				}
-				if (invalidCheckinRanges.length && isDateInRanges(m, invalidCheckinRanges)) {
-					return true;
-				}
 				return false;
 			};
+
+			if (invalidCheckinRanges.length) {
+				drpOpts.isCustomDate = function (m) {
+					var picker = $btn.data('daterangepicker');
+					if (
+						picker &&
+						picker.startDate &&
+						picker.endDate &&
+						isStrictlyBetweenStartAndEnd(m, picker.startDate, picker.endDate)
+					) {
+						return false;
+					}
+					if (isPickingCheckout(picker)) {
+						return false;
+					}
+					if (isDateInRanges(m, invalidCheckinRanges)) {
+						return 'bec-invalid-checkin';
+					}
+					return false;
+				};
+			}
 		}
 
 		$btn.daterangepicker(drpOpts);
@@ -403,12 +488,43 @@
 		var drp = $btn.data('daterangepicker');
 
 		if (drp && calendarHintsActive) {
-			drp.container.on('click.daterangepicker.becMinStay', 'td.available', function () {
-				window.setTimeout(function () {
-					if (drp && typeof drp.updateView === 'function') {
-						drp.updateView();
+			var origClickDate = drp.clickDate.bind(drp);
+			drp.clickDate = function (ev) {
+				var $target = $(ev.target);
+				if (!$target.hasClass('available')) {
+					return origClickDate(ev);
+				}
+
+				if ($target.hasClass('bec-invalid-checkin') && !isPickingCheckout(drp)) {
+					ev.stopPropagation();
+					return;
+				}
+
+				if (isPickingCheckout(drp) && drp.startDate) {
+					var clicked = parseDateFromCell($target, drp);
+					if (clicked && clicked.isValid && clicked.isValid()) {
+						if (clicked.isAfter(drp.startDate, 'day')) {
+							var nights = clicked.diff(drp.startDate, 'days');
+							if (minNights > 1 && nights < minNights) {
+								ev.stopPropagation();
+								return;
+							}
+							if (hasInventoryUnavailableNightBetween(drp.startDate, clicked, unavailableRanges)) {
+								ev.stopPropagation();
+								return;
+							}
+						}
 					}
-				}, 0);
+				}
+
+				return origClickDate(ev);
+			};
+
+			drp.container.on('click.daterangepicker.becMinStay', 'td.available', function () {
+				scheduleDrpUpdateView(drp);
+			});
+			drp.container.on('mouseenter.daterangepicker.becMinStay', 'td.available', function () {
+				scheduleDrpUpdateView(drp);
 			});
 		}
 

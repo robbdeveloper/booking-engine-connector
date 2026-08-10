@@ -889,6 +889,18 @@
 	opacity: 1 !important;
 }
 
+/* Min-stay: invalid check-in (soft restriction — not .off, can appear in-range) */
+.daterangepicker td.bec-invalid-checkin {
+	color: var(--bec-drp-day-muted) !important;
+	cursor: not-allowed;
+}
+
+.daterangepicker td.bec-invalid-checkin.in-range {
+	background-color: var(--bec-drp-range-bg) !important;
+	color: var(--bec-drp-range-edge) !important;
+	cursor: default;
+}
+
 /* Range bridge */
 .daterangepicker td.in-range {
 	background-color: var(--bec-drp-range-bg) !important;
