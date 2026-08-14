@@ -1,5 +1,9 @@
 # Changelog
 
+## 0.4.5 — 2026-08-14
+
+- **Search — minimum stay hover range gap**: Fix a visual break in the enhanced daterangepicker when minimum-stay rules block invalid checkout dates during hover preview. Days marked **`off`** by min-stay validation (e.g. the night after check-in when min stay is 2) now keep the range bridge background when **`in-range`** is applied by hover; border-radius selectors updated so the pill bar stays continuous in **`search-form-enhanced.css`**.
+
 ## 0.4.4 — 2026-08-10
 
 - **Search — calendar range validation**: Block selecting or applying a stay that spans inventory-unavailable nights (e.g. check-in Sep 1 with checkout Sep 8 when Sep 4–7 are unavailable). **`public-search-daterange.js`** now validates the full occupancy path via **`isRangeValid()`** in **`isInvalidDate`**, the checkout click guard (using **`closest('td.available')`**), **Apply**, and on picker open for pre-filled URL ranges.
