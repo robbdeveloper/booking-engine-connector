@@ -224,10 +224,10 @@
 		return cal.calendar[row][col];
 	}
 
-	function scheduleDrpUpdateView(drp) {
+	function scheduleDrpUpdateCalendars(drp) {
 		window.setTimeout(function () {
-			if (drp && typeof drp.updateView === 'function') {
-				drp.updateView();
+			if (drp && typeof drp.updateCalendars === 'function') {
+				drp.updateCalendars();
 			}
 		}, 0);
 	}
@@ -560,10 +560,7 @@
 			};
 
 			drp.container.on('click.daterangepicker.becMinStay', 'td.available', function () {
-				scheduleDrpUpdateView(drp);
-			});
-			drp.container.on('mouseenter.daterangepicker.becMinStay', 'td.available', function () {
-				scheduleDrpUpdateView(drp);
+				scheduleDrpUpdateCalendars(drp);
 			});
 		}
 
