@@ -879,14 +879,19 @@
 	color: var(--bec-drp-range-edge);
 }
 
-/* Other-month / padded days */
-.daterangepicker td.off,
-.daterangepicker td.off.in-range,
+/* Other-month / invalid-outside-range */
+.daterangepicker td.off:not(.in-range),
 .daterangepicker td.off.start-date,
 .daterangepicker td.off.end-date {
 	color: var(--bec-drp-day-muted) !important;
 	background-color: transparent !important;
 	opacity: 1 !important;
+}
+
+/* Min-stay bridge: disabled checkout candidates inside hover range */
+.daterangepicker td.off.in-range {
+	background-color: var(--bec-drp-range-bg) !important;
+	color: var(--bec-drp-range-edge) !important;
 }
 
 /* Min-stay: invalid check-in (soft restriction — not .off, can appear in-range) */
@@ -961,11 +966,11 @@
 }
 
 /* First td.in-range in the entire tbody */
-.daterangepicker tbody tr td.in-range:not(.start-date, .end-date, .off):first-of-type{
+.daterangepicker tbody tr td.in-range:not(.start-date, .end-date, .off:not(.in-range)):first-of-type{
   border-radius: var(--bec-drp-calendar-pill-radius) 0 0 var(--bec-drp-calendar-pill-radius);
 }
 
-.daterangepicker tbody tr td.in-range:not(.off):first-child{
+.daterangepicker tbody tr td.in-range:not(.off:not(.in-range)):first-child{
 	border-radius: var(--bec-drp-calendar-pill-radius) 0 0 var(--bec-drp-calendar-pill-radius);
 }
 
