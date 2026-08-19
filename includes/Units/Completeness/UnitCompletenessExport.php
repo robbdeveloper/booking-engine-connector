@@ -77,7 +77,7 @@ final class UnitCompletenessExport
 			];
 
 			foreach ($enabledFields as $fieldId) {
-				$status = $result['field_status'][ $fieldId ] ?? 'Missing';
+				$status = $result['field_status'][ $fieldId ] ?? \__('Missing', 'booking-engine-connector');
 				$row[]  = $status;
 			}
 

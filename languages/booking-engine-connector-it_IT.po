@@ -242,6 +242,8 @@ msgid "Not set"
 msgstr "Non impostato"
 
 #: includes/Admin/AdminMenu.php:323
+#: includes/Units/Completeness/UnitCompletenessChecker.php:364
+#: includes/Units/Completeness/UnitCompletenessExport.php:80
 msgid "Missing"
 msgstr "Mancante"
 
@@ -2709,13 +2711,13 @@ msgid "Data quality"
 msgstr "Qualità dati"
 
 #. translators: 1: current image count, 2: required minimum
-#: includes/Units/Completeness/UnitCompletenessChecker.php:281
+#: includes/Units/Completeness/UnitCompletenessChecker.php:261
 #, php-format
 msgid "%1$d/%2$d images"
 msgstr "%1$d/%2$d immagini"
 
 #. translators: 1: current image count, 2: required minimum
-#: includes/Units/Completeness/UnitCompletenessChecker.php:290
+#: includes/Units/Completeness/UnitCompletenessChecker.php:270
 #, php-format
 msgid "Missing (%1$d/%2$d)"
 msgstr "Mancante (%1$d/%2$d)"
@@ -2751,3 +2753,7 @@ msgstr "Media"
 #: includes/Units/Completeness/UnitMandatoryFieldRegistry.php:72
 msgid "Other"
 msgstr "Altro"
+
+#: includes/Units/Completeness/UnitCompletenessChecker.php:352
+msgid "OK"
+msgstr "OK"

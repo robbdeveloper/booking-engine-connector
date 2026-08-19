@@ -9,7 +9,7 @@ msgstr ""
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"POT-Creation-Date: 2026-08-19T15:05:43+00:00\n"
+"POT-Creation-Date: 2026-08-19T15:15:39+00:00\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "X-Generator: WP-CLI 2.12.0\n"
 "X-Domain: booking-engine-connector\n"
@@ -306,6 +306,8 @@ msgid "Not set"
 msgstr ""
 
 #: includes/Admin/AdminMenu.php:323
+#: includes/Units/Completeness/UnitCompletenessChecker.php:364
+#: includes/Units/Completeness/UnitCompletenessExport.php:80
 msgid "Missing"
 msgstr ""
 
@@ -2632,15 +2634,19 @@ msgid "Close amenities picker"
 msgstr ""
 
 #. translators: 1: current image count, 2: required minimum
-#: includes/Units/Completeness/UnitCompletenessChecker.php:281
+#: includes/Units/Completeness/UnitCompletenessChecker.php:261
 #, php-format
 msgid "%1$d/%2$d images"
 msgstr ""
 
 #. translators: 1: current image count, 2: required minimum
-#: includes/Units/Completeness/UnitCompletenessChecker.php:290
+#: includes/Units/Completeness/UnitCompletenessChecker.php:270
 #, php-format
 msgid "Missing (%1$d/%2$d)"
+msgstr ""
+
+#: includes/Units/Completeness/UnitCompletenessChecker.php:352
+msgid "OK"
 msgstr ""
 
 #: includes/Units/Completeness/UnitCompletenessExport.php:33

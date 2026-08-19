@@ -216,21 +216,13 @@ final class UnitCompletenessChecker
 
 		$def = UnitMandatoryFieldRegistry::definitionFor($fieldId);
 		if ($def === null || ! isset($def['semantic'])) {
-			return [
-				'complete' => true,
-				'status'   => 'OK',
-				'detail'   => '',
-			];
+			return self::okStatus();
 		}
 
 		$semantic = (string) $def['semantic'];
 		$metaKey  = CoreUnitMetaKeys::metaKeyForSemantic($semantic);
 		if ($metaKey === null) {
-			return [
-				'complete' => true,
-				'status'   => 'OK',
-				'detail'   => '',
-			];
+			return self::okStatus();
 		}
 
 		$type = (string) ( $def['type'] ?? 'string' );
@@ -246,18 +238,10 @@ final class UnitCompletenessChecker
 	{
 		$thumbId = (int) \get_post_thumbnail_id($postId);
 		if ($thumbId > 0 && \wp_attachment_is_image($thumbId)) {
-			return [
-				'complete' => true,
-				'status'   => 'OK',
-				'detail'   => '',
-			];
+			return self::okStatus();
 		}
 
-		return [
-			'complete' => false,
-			'status'   => 'Missing',
-			'detail'   => '',
-		];
+		return self::missingStatus();
 	}
 
 	/**
@@ -269,11 +253,7 @@ final class UnitCompletenessChecker
 		$count = \count($ids);
 
 		if ($count >= $galleryMin) {
-			return [
-				'complete' => true,
-				'status'   => 'OK',
-				'detail'   => '',
-			];
+			return self::okStatus();
 		}
 
 		$detail = \sprintf(
@@ -369,7 +349,7 @@ final class UnitCompletenessChecker
 	{
 		return [
 			'complete' => true,
-			'status'   => 'OK',
+			'status'   => \__('OK', 'booking-engine-connector'),
 			'detail'   => '',
 		];
 	}
@@ -381,7 +361,7 @@ final class UnitCompletenessChecker
 	{
 		return [
 			'complete' => false,
-			'status'   => 'Missing',
+			'status'   => \__('Missing', 'booking-engine-connector'),
 			'detail'   => '',
 		];
 	}
