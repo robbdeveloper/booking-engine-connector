@@ -1,5 +1,10 @@
 # Changelog
 
+## 0.4.6 — 2026-08-19
+
+- **Unit data quality**: New **Booking Engine → Unit data quality** settings page to configure mandatory canonical unit fields (`bec_core_*`, featured image, gallery minimum count). Incomplete units are flagged on the **Units** list table, the **Booking Engine** dashboard, and a **WordPress dashboard** widget. Export a CSV report (one row per unit) for client follow-up. Provider-independent checks run against stored WordPress data only; cache refreshes after sync and unit saves.
+- **i18n**: Italian translations (`booking-engine-connector-it_IT`) for the unit data quality feature.
+
 ## 0.4.5 — 2026-08-14
 
 - **Search — minimum stay hover range gap**: Fix a visual break in the enhanced daterangepicker when minimum-stay rules block invalid checkout dates during hover preview. Days marked **`off`** by min-stay validation (e.g. the night after check-in when min stay is 2) now keep the range bridge background when **`in-range`** is applied by hover; border-radius selectors updated so the pill bar stays continuous in **`search-form-enhanced.css`**.

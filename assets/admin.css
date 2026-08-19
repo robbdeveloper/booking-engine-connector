@@ -222,6 +222,44 @@
 	background: #fcf9e8;
 }
 
+.bec-admin-notice-inline--success {
+	border-left-color: #00a32a;
+	background: #edfaef;
+}
+
+.bec-completeness-badge {
+	display: inline-block;
+	padding: 0.1em 0.45em;
+	border-radius: 3px;
+	font-size: 12px;
+	font-weight: 600;
+	line-height: 1.4;
+	text-decoration: none;
+}
+
+.bec-completeness-badge--ok {
+	background: #edfaef;
+	color: #007017;
+}
+
+.bec-completeness-badge--warn {
+	background: #fcf9e8;
+	color: #8a6d1d;
+}
+
+.bec-unit-quality-admin__actions {
+	margin: 0 0 1rem;
+}
+
+.bec-unit-quality-admin__group-title {
+	margin: 1.25rem 0 0.5rem;
+	font-size: 1em;
+}
+
+.bec-unit-quality-admin__group-title:first-child {
+	margin-top: 0;
+}
+
 .bec-admin .bec-api-log-filters {
 	margin: 0 0 1rem;
 }

@@ -16,6 +16,7 @@ final class AdminPageLayout
 		'bec-frontend',
 		SyncAdmin::PAGE_SLUG,
 		Settings\UnitPermalinkPage::PAGE_SLUG,
+		Settings\UnitDataQualityPage::PAGE_SLUG,
 		Settings\UnitFiltersPage::PAGE_SLUG,
 		Settings\StylingPage::PAGE_SLUG,
 		Settings\FallbackPage::PAGE_SLUG,
@@ -188,6 +189,8 @@ final class AdminPageLayout
 		$class = 'bec-admin-notice-inline';
 		if ($variant === 'warning') {
 			$class .= ' bec-admin-notice-inline--warning';
+		} elseif ($variant === 'success') {
+			$class .= ' bec-admin-notice-inline--success';
 		}
 
 		echo '<div class="' . \esc_attr($class) . '">' . \esc_html($message) . '</div>';

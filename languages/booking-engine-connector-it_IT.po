@@ -1,16 +1,15 @@
 msgid ""
 msgstr ""
-"Project-Id-Version: Booking Engine Connector 0.4.5\n"
-"Report-Msgid-Bugs-To: https://wordpress.org/support/plugin/booking-engine-"
-"connector\n"
-"POT-Creation-Date: 2026-08-08T13:16:09+00:00\n"
-"PO-Revision-Date: 2026-08-08 14:55+0200\n"
+"Project-Id-Version: Booking Engine Connector 0.4.6\n"
+"Report-Msgid-Bugs-To: https://wordpress.org/support/plugin/booking-engine-connector\n"
 "Last-Translator: Booking Engine Connector\n"
 "Language-Team: Italian\n"
-"Language: it_IT\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
+"POT-Creation-Date: 2026-08-08T13:16:09+00:00\n"
+"PO-Revision-Date: 2026-08-19 17:10+0200\n"
+"Language: it_IT\n"
 "Plural-Forms: nplurals=2; plural=(n != 1);\n"
 "X-Domain: booking-engine-connector\n"
 "X-Generator: WP-CLI 2.12.0\n"
@@ -27,12 +26,8 @@ msgstr "https://bec-docs.apps.robb.cx"
 
 #. Description of the plugin
 #: booking-engine-connector.php
-msgid ""
-"Connects WordPress to external booking engines (Kross Booking and others) "
-"with sync, search context, and checkout links."
-msgstr ""
-"Collega WordPress a Booking Engines esterni (Kross Booking e altri) con "
-"collegamenti di sincronizzazione, contesto di ricerca e pagamento."
+msgid "Connects WordPress to external booking engines (Kross Booking and others) with sync, search context, and checkout links."
+msgstr "Collega WordPress a Booking Engines esterni (Kross Booking e altri) con collegamenti di sincronizzazione, contesto di ricerca e pagamento."
 
 #. Author of the plugin
 #: booking-engine-connector.php
@@ -44,332 +39,341 @@ msgstr "RobbDev"
 msgid "https://robbdev.com"
 msgstr "https://robbdev.com"
 
-#: includes/Admin/AdminMenu.php:40 includes/Admin/AdminMenu.php:41
+#: includes/Admin/AdminMenu.php:43
+#: includes/Admin/AdminMenu.php:44
 #: includes/Elementor/DynamicTagsRegistrar.php:32
 msgid "Booking Engine"
 msgstr "Booking Engine"
 
-#: includes/Admin/AdminMenu.php:51 includes/Admin/AdminMenu.php:52
-#: includes/Admin/AdminMenu.php:155
+#: includes/Admin/AdminMenu.php:54
+#: includes/Admin/AdminMenu.php:55
+#: includes/Admin/AdminMenu.php:167
 msgid "Dashboard"
 msgstr "Pannello di controllo"
 
-#: includes/Admin/AdminMenu.php:60 includes/Admin/AdminMenu.php:61
+#: includes/Admin/AdminMenu.php:63
+#: includes/Admin/AdminMenu.php:64
 #: includes/Admin/Settings/ConnectionPage.php:46
 msgid "Connection"
 msgstr "Connessione"
 
-#: includes/Admin/AdminMenu.php:69 includes/Admin/AdminMenu.php:70
-#: includes/Admin/Settings/FrontendPage.php:42
+#: includes/Admin/AdminMenu.php:72
+#: includes/Admin/AdminMenu.php:73
+#: includes/Admin/Settings/FrontendPage.php:43
 msgid "Frontend"
 msgstr "Front-end"
 
-#: includes/Admin/AdminMenu.php:78 includes/Admin/AdminMenu.php:79
+#: includes/Admin/AdminMenu.php:81
+#: includes/Admin/AdminMenu.php:82
 #: includes/Admin/SyncAdmin.php:93
 msgid "Sync & Import"
 msgstr "Sincronizzazione e importazione"
 
-#: includes/Admin/AdminMenu.php:87 includes/Admin/AdminMenu.php:88
+#: includes/Admin/AdminMenu.php:99
+#: includes/Admin/AdminMenu.php:100
 #: includes/Admin/Settings/UnitFiltersPage.php:93
 #: includes/Admin/Settings/UnitPermalinkPage.php:51
-#: includes/PostTypes/UnitPostType.php:112
+#: includes/PostTypes/UnitPostType.php:113
 msgid "Units"
 msgstr "Unità"
 
-#: includes/Admin/AdminMenu.php:96 includes/Admin/AdminMenu.php:97
+#: includes/Admin/AdminMenu.php:108
+#: includes/Admin/AdminMenu.php:109
 #: includes/Admin/Settings/UnitFiltersPage.php:40
 msgid "Listing Filters"
 msgstr "Elenco filtri"
 
-#: includes/Admin/AdminMenu.php:105 includes/Admin/AdminMenu.php:106
+#: includes/Admin/AdminMenu.php:117
+#: includes/Admin/AdminMenu.php:118
 #: includes/Admin/Settings/StylingPage.php:99
 msgid "Design"
 msgstr "Design"
 
-#: includes/Admin/AdminMenu.php:114 includes/Admin/AdminMenu.php:115
+#: includes/Admin/AdminMenu.php:126
+#: includes/Admin/AdminMenu.php:127
 #: includes/Admin/Settings/FallbackPage.php:46
 msgid "Checkout & Fallback"
 msgstr "Checkout e fallback"
 
-#: includes/Admin/AdminMenu.php:123 includes/Admin/AdminMenu.php:124
+#: includes/Admin/AdminMenu.php:135
+#: includes/Admin/AdminMenu.php:136
 #: includes/Admin/ApiLogPage.php:66
 msgid "Tools & Logs"
 msgstr "Strumenti e registri"
 
-#: includes/Admin/AdminMenu.php:156
-msgid ""
-"Overview of connection health, sync status, and quick links to configure the "
-"plugin."
-msgstr ""
-"Panoramica dello stato della connessione, della sincronizzazione e "
-"collegamenti rapidi per configurare il plugin."
+#: includes/Admin/AdminMenu.php:168
+msgid "Overview of connection health, sync status, and quick links to configure the plugin."
+msgstr "Panoramica dello stato della connessione, della sincronizzazione e collegamenti rapidi per configurare il plugin."
 
-#: includes/Admin/AdminMenu.php:165
+#: includes/Admin/AdminMenu.php:177
 msgid "Active provider"
 msgstr "Provider attivo"
 
-#: includes/Admin/AdminMenu.php:168 includes/Admin/AdminMenu.php:184
+#: includes/Admin/AdminMenu.php:180
+#: includes/Admin/AdminMenu.php:196
 #: includes/Admin/Settings/ConnectionPage.php:110
 msgid "Test mode"
 msgstr "Modalità test"
 
-#: includes/Admin/AdminMenu.php:172
+#: includes/Admin/AdminMenu.php:184
 msgid "Manage connection"
 msgstr "Gestisci connessione"
 
-#: includes/Admin/AdminMenu.php:176
+#: includes/Admin/AdminMenu.php:188
 msgid "Credentials"
 msgstr "Credenziali"
 
-#: includes/Admin/AdminMenu.php:178
+#: includes/Admin/AdminMenu.php:190
 msgid "Test mode (inventory only)"
 msgstr "Modalità test (solo inventario)"
 
-#: includes/Admin/AdminMenu.php:180
+#: includes/Admin/AdminMenu.php:192
+#: includes/Admin/AdminMenu.php:277
+#: includes/Admin/UnitCompletenessAdmin.php:277
 msgid "Complete"
 msgstr "Completato"
 
-#: includes/Admin/AdminMenu.php:181
+#: includes/Admin/AdminMenu.php:193
 msgid "Incomplete"
 msgstr "Incompleto"
 
-#: includes/Admin/AdminMenu.php:186 includes/Admin/AdminMenu.php:259
+#: includes/Admin/AdminMenu.php:198
+#: includes/Admin/AdminMenu.php:322
 msgid "Ready"
 msgstr "Pronto"
 
-#: includes/Admin/AdminMenu.php:187
+#: includes/Admin/AdminMenu.php:199
+#: includes/Admin/AdminMenu.php:276
 msgid "Action needed"
 msgstr "Intervento richiesto"
 
-#: includes/Admin/AdminMenu.php:191
+#: includes/Admin/AdminMenu.php:203
 msgid "Placeholder inventory sync works without API credentials."
-msgstr ""
-"La sincronizzazione inventario segnaposto funziona senza credenziali API."
+msgstr "La sincronizzazione inventario segnaposto funziona senza credenziali API."
 
-#: includes/Admin/AdminMenu.php:194
+#: includes/Admin/AdminMenu.php:206
 #: includes/Admin/Settings/ConnectionPage.php:135
 msgid "Verify connection"
 msgstr "Verificare la connessione"
 
-#: includes/Admin/AdminMenu.php:198 includes/PostTypes/UnitPostType.php:545
+#: includes/Admin/AdminMenu.php:210
+#: includes/PostTypes/UnitPostType.php:546
 msgid "Last sync"
 msgstr "Ultima sincronizzazione"
 
-#: includes/Admin/AdminMenu.php:201
+#: includes/Admin/AdminMenu.php:213
 msgid "Never completed"
 msgstr "Mai completata"
 
-#: includes/Admin/AdminMenu.php:204
+#: includes/Admin/AdminMenu.php:216
 msgid "Run a sync after configuring credentials."
 msgstr "Esegui una sincronizzazione dopo aver configurato le credenziali."
 
-#: includes/Admin/AdminMenu.php:207 includes/Admin/ApiLogPage.php:146
+#: includes/Admin/AdminMenu.php:219
+#: includes/Admin/ApiLogPage.php:146
 msgid "Open sync tools"
 msgstr "Apri strumenti sincronizzazione"
 
-#: includes/Admin/AdminMenu.php:212
+#: includes/Admin/AdminMenu.php:224
 msgid "Not scheduled"
 msgstr "Non programmata"
 
-#: includes/Admin/AdminMenu.php:215
+#: includes/Admin/AdminMenu.php:227
 msgid "Next scheduled sync"
 msgstr "Prossima sincronizzazione programmata"
 
 #. translators: %d: interval in hours
-#: includes/Admin/AdminMenu.php:220
+#: includes/Admin/AdminMenu.php:232
 #, php-format
 msgid "Every %d hours via WP-Cron."
 msgstr "Ogni %d ore tramite WP-Cron."
 
-#: includes/Admin/AdminMenu.php:224
+#: includes/Admin/AdminMenu.php:236
 msgid "Adjust schedule"
 msgstr "Modifica pianificazione"
 
-#: includes/Admin/AdminMenu.php:228 includes/Admin/SyncAdmin.php:334
+#: includes/Admin/AdminMenu.php:240
+#: includes/Admin/SyncAdmin.php:334
 msgid "Sync lock"
 msgstr "Blocco sincronizzazione"
 
-#: includes/Admin/AdminMenu.php:230
+#: includes/Admin/AdminMenu.php:242
 msgid "Lock is set"
 msgstr "Blocco attivo"
 
-#: includes/Admin/AdminMenu.php:231
+#: includes/Admin/AdminMenu.php:243
 msgid "No lock"
 msgstr "Nessun blocco"
 
-#: includes/Admin/AdminMenu.php:234
+#: includes/Admin/AdminMenu.php:246
 msgid "In progress or stale"
 msgstr "In corso o obsoleto"
 
-#: includes/Admin/AdminMenu.php:235
+#: includes/Admin/AdminMenu.php:247
 msgid "Idle"
 msgstr "Inattivo"
 
-#: includes/Admin/AdminMenu.php:240
+#: includes/Admin/AdminMenu.php:252
 msgid "Manage sync lock"
 msgstr "Gestisci blocco sincronizzazione"
 
-#: includes/Admin/AdminMenu.php:244
+#: includes/Admin/AdminMenu.php:256
 msgid "Synced units"
 msgstr "Unità sincronizzate"
 
-#: includes/Admin/AdminMenu.php:247
+#: includes/Admin/AdminMenu.php:259
 msgid "Published unit posts in WordPress."
 msgstr "Post unità pubblicati in WordPress."
 
-#: includes/Admin/AdminMenu.php:249
+#: includes/Admin/AdminMenu.php:261
 msgid "View units"
 msgstr "Visualizza unità"
 
-#: includes/Admin/AdminMenu.php:253
+#: includes/Admin/AdminMenu.php:316
 msgid "Checkout URL"
 msgstr "URL checkout"
 
-#: includes/Admin/AdminMenu.php:255
+#: includes/Admin/AdminMenu.php:318
 msgid "Configured"
 msgstr "Configurato"
 
-#: includes/Admin/AdminMenu.php:256
+#: includes/Admin/AdminMenu.php:319
 msgid "Not set"
 msgstr "Non impostato"
 
-#: includes/Admin/AdminMenu.php:260
+#: includes/Admin/AdminMenu.php:323
 msgid "Missing"
 msgstr "Mancante"
 
-#: includes/Admin/AdminMenu.php:265
+#: includes/Admin/AdminMenu.php:328
 msgid "Configure checkout"
 msgstr "Configura checkout"
 
-#: includes/Admin/AdminMenu.php:270
+#: includes/Admin/AdminMenu.php:333
 msgid "Enabled — link mode"
 msgstr "Abilitato — modalità link"
 
-#: includes/Admin/AdminMenu.php:271
+#: includes/Admin/AdminMenu.php:334
 msgid "Enabled — inline mode"
 msgstr "Abilitato — modalità inline"
 
-#: includes/Admin/AdminMenu.php:272
-#: includes/Admin/Settings/FrontendPage.php:110
+#: includes/Admin/AdminMenu.php:335
+#: includes/Admin/Settings/FrontendPage.php:111
 msgid "Disabled"
 msgstr "Disabilitato"
 
-#: includes/Admin/AdminMenu.php:275
+#: includes/Admin/AdminMenu.php:338
 msgid "Fallback"
 msgstr "Fallback"
 
-#: includes/Admin/AdminMenu.php:279
+#: includes/Admin/AdminMenu.php:342
 msgid "Active"
 msgstr "Attivo"
 
-#: includes/Admin/AdminMenu.php:280
+#: includes/Admin/AdminMenu.php:343
 msgid "Off"
 msgstr "Disattivo"
 
-#: includes/Admin/AdminMenu.php:285
+#: includes/Admin/AdminMenu.php:348
 msgid "Configure fallback"
 msgstr "Configura fallback"
 
-#: includes/Admin/AdminMenu.php:291
+#: includes/Admin/AdminMenu.php:354
 msgid "Quick actions"
 msgstr "Azioni rapide"
 
-#: includes/Admin/AdminMenu.php:292
+#: includes/Admin/AdminMenu.php:355
 msgid "Jump to the most common setup and maintenance tasks."
 msgstr "Vai alle attività di configurazione e manutenzione più comuni."
 
-#: includes/Admin/AdminMenu.php:298
+#: includes/Admin/AdminMenu.php:361
 msgid "Set up connection"
 msgstr "Configura connessione"
 
-#: includes/Admin/AdminMenu.php:299
+#: includes/Admin/AdminMenu.php:362
 msgid "Provider credentials and connection test."
 msgstr "Credenziali provider e test connessione."
 
-#: includes/Admin/AdminMenu.php:303 includes/Admin/SyncAdmin.php:314
+#: includes/Admin/AdminMenu.php:366
+#: includes/Admin/SyncAdmin.php:314
 msgid "Run sync"
 msgstr "Esegui sincronizzazione"
 
-#: includes/Admin/AdminMenu.php:304
+#: includes/Admin/AdminMenu.php:367
 msgid "Import or update units from the booking engine."
 msgstr "Importa o aggiorna unità dal booking engine."
 
-#: includes/Admin/AdminMenu.php:308
+#: includes/Admin/AdminMenu.php:371
 msgid "Frontend settings"
 msgstr "Impostazioni front-end"
 
-#: includes/Admin/AdminMenu.php:309
+#: includes/Admin/AdminMenu.php:372
 msgid "Search form guest fields and single-unit content."
 msgstr "Campi ospiti nel form di ricerca e contenuto pagine unità."
 
-#: includes/Admin/AdminMenu.php:313
+#: includes/Admin/AdminMenu.php:381
 #: includes/Admin/Settings/UnitPermalinkPage.php:88
 msgid "Unit URLs"
 msgstr "URL unità"
 
-#: includes/Admin/AdminMenu.php:314
+#: includes/Admin/AdminMenu.php:382
 msgid "Permalinks, archives, and URL structures."
 msgstr "Permalink, archivi e strutture URL."
 
-#: includes/Admin/AdminMenu.php:318
+#: includes/Admin/AdminMenu.php:386
 msgid "Listing filters"
 msgstr "Elenco filtri"
 
-#: includes/Admin/AdminMenu.php:319
+#: includes/Admin/AdminMenu.php:387
 msgid "Choose amenities for `[bec_unit_filters]`."
 msgstr "Scegli i servizi per `[bec_unit_filters]`."
 
-#: includes/Admin/AdminMenu.php:323
+#: includes/Admin/AdminMenu.php:391
 msgid "Design & styling"
 msgstr "Design e stile"
 
-#: includes/Admin/AdminMenu.php:324
+#: includes/Admin/AdminMenu.php:392
 msgid "Presets, tokens, and extra CSS."
 msgstr "Preset, token e CSS aggiuntivo."
 
-#: includes/Admin/AdminMenu.php:328
+#: includes/Admin/AdminMenu.php:396
 msgid "Checkout & fallback"
 msgstr "Checkout e fallback"
 
-#: includes/Admin/AdminMenu.php:329
+#: includes/Admin/AdminMenu.php:397
 msgid "External booking URL and contact fallback."
 msgstr "URL prenotazione esterno e fallback contatto."
 
-#: includes/Admin/AdminMenu.php:333 includes/Admin/ApiLogPage.php:74
+#: includes/Admin/AdminMenu.php:401
+#: includes/Admin/ApiLogPage.php:74
 msgid "API request log"
 msgstr "Registro delle richieste API"
 
-#: includes/Admin/AdminMenu.php:334
+#: includes/Admin/AdminMenu.php:402
 msgid "Review recent provider API calls."
 msgstr "Consulta le chiamate API recenti al provider."
 
-#: includes/Admin/AdminPageLayout.php:198
+#: includes/Admin/AdminPageLayout.php:201
 msgid "Secondary menu"
 msgstr "Menu secondario"
 
-#: includes/Admin/AdminPageLayout.php:242
+#: includes/Admin/AdminPageLayout.php:245
 msgid "Settings saved."
 msgstr "Impostazioni salvate."
 
 #: includes/Admin/ApiLogPage.php:67
-msgid ""
-"Review recent provider API requests and filter by provider or HTTP status."
-msgstr ""
-"Consulta le richieste API recenti al provider e filtra per provider o stato "
-"HTTP."
+msgid "Review recent provider API requests and filter by provider or HTTP status."
+msgstr "Consulta le richieste API recenti al provider e filtra per provider o stato HTTP."
 
 #: includes/Admin/ApiLogPage.php:75
-msgid ""
-"Auth/token rows are omitted by default unless the bec_log_auth_requests "
-"filter is enabled."
-msgstr ""
-"Le righe di autenticazione/token vengono omesse per impostazione predefinita "
-"a meno che il filtro bec_log_auth_requests non sia abilitato."
+msgid "Auth/token rows are omitted by default unless the bec_log_auth_requests filter is enabled."
+msgstr "Le righe di autenticazione/token vengono omesse per impostazione predefinita a meno che il filtro bec_log_auth_requests non sia abilitato."
 
-#: includes/Admin/ApiLogPage.php:84 includes/Admin/ApiLogPage.php:103
+#: includes/Admin/ApiLogPage.php:84
+#: includes/Admin/ApiLogPage.php:103
 #: includes/Admin/Settings/ConnectionPage.php:70
-#: includes/PostTypes/UnitPostType.php:455
-#: includes/PostTypes/UnitPostType.php:544
+#: includes/PostTypes/UnitPostType.php:456
+#: includes/PostTypes/UnitPostType.php:545
 msgid "Provider"
 msgstr "Fornitore"
 
@@ -428,41 +432,27 @@ msgstr "Risoluzione problemi"
 
 #: includes/Admin/ApiLogPage.php:139
 msgid "Quick links when diagnosing connection or sync issues."
-msgstr ""
-"Collegamenti rapidi per diagnosticare problemi di connessione o "
-"sincronizzazione."
+msgstr "Collegamenti rapidi per diagnosticare problemi di connessione o sincronizzazione."
 
 #: includes/Admin/ApiLogPage.php:142
 msgid "Verify provider connection"
 msgstr "Verifica connessione provider"
 
 #: includes/Admin/Settings/ConnectionPage.php:47
-msgid ""
-"Select the active booking provider and store API credentials. Use Verify "
-"connection to test the token exchange."
-msgstr ""
-"Seleziona il provider di prenotazione attivo e salva le credenziali API. Usa "
-"Verifica connessione per testare lo scambio del token."
+msgid "Select the active booking provider and store API credentials. Use Verify connection to test the token exchange."
+msgstr "Seleziona il provider di prenotazione attivo e salva le credenziali API. Usa Verifica connessione per testare lo scambio del token."
 
 #: includes/Admin/Settings/ConnectionPage.php:61
 msgid "Provider & credentials"
 msgstr "Provider e credenziali"
 
 #: includes/Admin/Settings/ConnectionPage.php:62
-msgid ""
-"Credentials are stored in the WordPress options table. Search and content "
-"settings are under Frontend."
-msgstr ""
-"Le credenziali sono salvate nella tabella opzioni di WordPress. Le "
-"impostazioni di ricerca e contenuto sono in Front-end."
+msgid "Credentials are stored in the WordPress options table. Search and content settings are under Frontend."
+msgstr "Le credenziali sono salvate nella tabella opzioni di WordPress. Le impostazioni di ricerca e contenuto sono in Front-end."
 
 #: includes/Admin/Settings/ConnectionPage.php:76
-msgid ""
-"Additional providers can be registered via the bec_registered_providers "
-"filter."
-msgstr ""
-"È possibile registrare ulteriori fornitori tramite il filtro "
-"bec_registered_providers."
+msgid "Additional providers can be registered via the bec_registered_providers filter."
+msgstr "È possibile registrare ulteriori fornitori tramite il filtro bec_registered_providers."
 
 #: includes/Admin/Settings/ConnectionPage.php:86
 msgid "required"
@@ -481,32 +471,20 @@ msgid "Test mode (use placeholder inventory data)"
 msgstr "Modalità test (usa dati inventario segnaposto)"
 
 #: includes/Admin/Settings/ConnectionPage.php:117
-msgid ""
-"When enabled, room type and category sync uses fictional placeholder data "
-"instead of calling the Kross API. Quotes, calendar, and checkout still "
-"require real credentials."
-msgstr ""
-"Se attivata, la sincronizzazione di tipologie e categorie usa dati "
-"segnaposto fittizi invece di chiamare l'API Kross. Preventivi, calendario e "
-"checkout richiedono ancora credenziali reali."
+msgid "When enabled, room type and category sync uses fictional placeholder data instead of calling the Kross API. Quotes, calendar, and checkout still require real credentials."
+msgstr "Se attivata, la sincronizzazione di tipologie e categorie usa dati segnaposto fittizi invece di chiamare l'API Kross. Preventivi, calendario e checkout richiedono ancora credenziali reali."
 
 #: includes/Admin/Settings/ConnectionPage.php:122
 msgid "Test mode is active. Inventory sync will not contact the Kross API."
-msgstr ""
-"Modalità test attiva. La sincronizzazione inventario non contatterà l'API "
-"Kross."
+msgstr "Modalità test attiva. La sincronizzazione inventario non contatterà l'API Kross."
 
 #: includes/Admin/Settings/ConnectionPage.php:134
 msgid "Save connection settings"
 msgstr "Salva le impostazioni di connessione"
 
 #: includes/Admin/Settings/ConnectionPage.php:137
-msgid ""
-"Save stores credentials in the database. Verify runs a token exchange "
-"against the configured auth endpoint without printing secrets."
-msgstr ""
-"Salva memorizza le credenziali nel database. Verify esegue uno scambio di "
-"token con l'endpoint di autenticazione configurato senza stampare i segreti."
+msgid "Save stores credentials in the database. Verify runs a token exchange against the configured auth endpoint without printing secrets."
+msgstr "Salva memorizza le credenziali nel database. Verify esegue uno scambio di token con l'endpoint di autenticazione configurato senza stampare i segreti."
 
 #: includes/Admin/Settings/ConnectionPage.php:208
 msgid "Please fill in all required credential fields."
@@ -517,20 +495,12 @@ msgid "Connection settings saved."
 msgstr "Impostazioni di connessione salvate."
 
 #: includes/Admin/Settings/ConnectionPage.php:228
-msgid ""
-"Test mode active — using placeholder inventory data. No API credentials "
-"required for sync."
-msgstr ""
-"Modalità test attiva — dati inventario segnaposto in uso. Nessuna "
-"credenziale API richiesta per la sincronizzazione."
+msgid "Test mode active — using placeholder inventory data. No API credentials required for sync."
+msgstr "Modalità test attiva — dati inventario segnaposto in uso. Nessuna credenziale API richiesta per la sincronizzazione."
 
 #: includes/Admin/Settings/ConnectionPage.php:235
-msgid ""
-"Enter all required credentials (including API user and password) before "
-"running the connection test."
-msgstr ""
-"Immettere tutte le credenziali richieste (inclusi utente API e password) "
-"prima di eseguire il test di connessione."
+msgid "Enter all required credentials (including API user and password) before running the connection test."
+msgstr "Immettere tutte le credenziali richieste (inclusi utente API e password) prima di eseguire il test di connessione."
 
 #: includes/Admin/Settings/ConnectionPage.php:254
 msgid "Connection test succeeded (token exchange OK)."
@@ -545,50 +515,28 @@ msgid "Kross Booking"
 msgstr "Kross Booking"
 
 #: includes/Admin/Settings/ConnectionPage.php:322
-msgid ""
-"Kross test mode is enabled. Room type and category sync uses placeholder "
-"data; quotes and checkout still need real API credentials."
-msgstr ""
-"La modalità test Kross è attiva. La sincronizzazione di tipologie e "
-"categorie usa dati segnaposto; preventivi e checkout richiedono ancora "
-"credenziali API reali."
+msgid "Kross test mode is enabled. Room type and category sync uses placeholder data; quotes and checkout still need real API credentials."
+msgstr "La modalità test Kross è attiva. La sincronizzazione di tipologie e categorie usa dati segnaposto; preventivi e checkout richiedono ancora credenziali API reali."
 
 #: includes/Admin/Settings/FallbackPage.php:47
-msgid ""
-"Configure the external booking URL pattern and when to show contact fallback "
-"instead of online booking."
-msgstr ""
-"Configura lo schema URL di prenotazione esterno e quando mostrare il "
-"fallback contatto al posto della prenotazione online."
+msgid "Configure the external booking URL pattern and when to show contact fallback instead of online booking."
+msgstr "Configura lo schema URL di prenotazione esterno e quando mostrare il fallback contatto al posto della prenotazione online."
 
 #: includes/Admin/Settings/FallbackPage.php:61
 msgid "Checkout (Kross)"
 msgstr "Cassa (Kross)"
 
 #: includes/Admin/Settings/FallbackPage.php:62
-msgid ""
-"Full URL to your Kross booking engine entry point. Parameters (hotel, room "
-"type, dates, guests) are sent as query string (GET) or POST fields."
-msgstr ""
-"URL completo del punto di ingresso del booking engine Kross. I parametri "
-"(hotel, tipo camera, date, ospiti) vengono inviati come query string (GET) o "
-"campi POST."
+msgid "Full URL to your Kross booking engine entry point. Parameters (hotel, room type, dates, guests) are sent as query string (GET) or POST fields."
+msgstr "URL completo del punto di ingresso del booking engine Kross. I parametri (hotel, tipo camera, date, ospiti) vengono inviati come query string (GET) o campi POST."
 
 #: includes/Admin/Settings/FallbackPage.php:68
 msgid "Booking engine base URL"
 msgstr "URL di base del Booking Engine"
 
 #: includes/Admin/Settings/FallbackPage.php:70
-msgid ""
-"Full URL to your Kross booking engine entry point. Leave empty to hide "
-"checkout links until configured. Parameters (hotel, room type, dates, "
-"guests) are sent as query string (GET) or as POST fields, depending on the "
-"option below."
-msgstr ""
-"URL completo al punto di ingresso del tuo Booking Engine Kross. Lascia vuoto "
-"per nascondere i collegamenti di pagamento finché non vengono configurati. I "
-"parametri (hotel, tipo di camera, date, ospiti) vengono inviati come stringa "
-"di query (GET) o come campi POST, a seconda dell'opzione seguente."
+msgid "Full URL to your Kross booking engine entry point. Leave empty to hide checkout links until configured. Parameters (hotel, room type, dates, guests) are sent as query string (GET) or as POST fields, depending on the option below."
+msgstr "URL completo al punto di ingresso del tuo Booking Engine Kross. Lascia vuoto per nascondere i collegamenti di pagamento finché non vengono configurati. I parametri (hotel, tipo di camera, date, ospiti) vengono inviati come stringa di query (GET) o come campi POST, a seconda dell'opzione seguente."
 
 #: includes/Admin/Settings/FallbackPage.php:76
 msgid "How to open the booking engine"
@@ -603,26 +551,16 @@ msgid "POST — submit parameters in the request body to this URL"
 msgstr "POST: invia i parametri nel corpo della richiesta a questo URL"
 
 #: includes/Admin/Settings/FallbackPage.php:87
-msgid ""
-"Use POST when your engine expects a form submission and then redirects the "
-"browser (e.g. middleware that builds the final booking URL from posted "
-"fields)."
-msgstr ""
-"Utilizza POST quando il tuo motore prevede l'invio di un modulo e quindi "
-"reindirizza il browser (ad esempio un middleware che crea l'URL di "
-"prenotazione finale dai campi pubblicati)."
+msgid "Use POST when your engine expects a form submission and then redirects the browser (e.g. middleware that builds the final booking URL from posted fields)."
+msgstr "Utilizza POST quando il tuo motore prevede l'invio di un modulo e quindi reindirizza il browser (ad esempio un middleware che crea l'URL di prenotazione finale dai campi pubblicati)."
 
 #: includes/Admin/Settings/FallbackPage.php:95
 msgid "Fallback behavior"
 msgstr "Comportamento fallback"
 
 #: includes/Admin/Settings/FallbackPage.php:96
-msgid ""
-"When rules match, show contact fallback instead of online booking or API "
-"error notices."
-msgstr ""
-"Quando le regole corrispondono, mostra il fallback contatto al posto della "
-"prenotazione online o degli avvisi di errore API."
+msgid "When rules match, show contact fallback instead of online booking or API error notices."
+msgstr "Quando le regole corrispondono, mostra il fallback contatto al posto della prenotazione online o degli avvisi di errore API."
 
 #: includes/Admin/Settings/FallbackPage.php:103
 msgid "Enable fallback"
@@ -637,11 +575,8 @@ msgid "Always use fallback"
 msgstr "Utilizzare sempre il fallback"
 
 #: includes/Admin/Settings/FallbackPage.php:110
-msgid ""
-"Ignore API availability and always show fallback (e.g. contact-only mode)."
-msgstr ""
-"Ignora la disponibilità dell'API e mostra sempre il fallback (ad esempio la "
-"modalità solo contatto)."
+msgid "Ignore API availability and always show fallback (e.g. contact-only mode)."
+msgstr "Ignora la disponibilità dell'API e mostra sempre il fallback (ad esempio la modalità solo contatto)."
 
 #: includes/Admin/Settings/FallbackPage.php:113
 msgid "Presentation"
@@ -657,15 +592,8 @@ msgid "Link only"
 msgstr "Solo collegamento"
 
 #: includes/Admin/Settings/FallbackPage.php:123
-msgid ""
-"Fallback URL, link text, and inline content can be translated per language "
-"below. Leave a translation empty to fall back to the default language value "
-"(or WPML/Polylang string translations when configured)."
-msgstr ""
-"URL, testo del collegamento e contenuto inline del fallback possono essere "
-"tradotti per lingua qui sotto. Lascia vuota una traduzione per usare il "
-"valore della lingua predefinita (o le traduzioni stringa WPML/Polylang se "
-"configurate)."
+msgid "Fallback URL, link text, and inline content can be translated per language below. Leave a translation empty to fall back to the default language value (or WPML/Polylang string translations when configured)."
+msgstr "URL, testo del collegamento e contenuto inline del fallback possono essere tradotti per lingua qui sotto. Lascia vuota una traduzione per usare il valore della lingua predefinita (o le traduzioni stringa WPML/Polylang se configurate)."
 
 #: includes/Admin/Settings/FallbackPage.php:130
 msgid "Fallback content languages"
@@ -681,24 +609,19 @@ msgstr "Attiva il fallback sulla disponibilità vuota"
 
 #: includes/Admin/Settings/FallbackPage.php:151
 msgid "When the provider reports no rooms available for the search."
-msgstr ""
-"Quando il fornitore segnala che non ci sono camere disponibili per la "
-"ricerca."
+msgstr "Quando il fornitore segnala che non ci sono camere disponibili per la ricerca."
 
 #: includes/Admin/Settings/FallbackPage.php:154
 msgid "Trigger on provider errors"
 msgstr "Attivazione in caso di errori del provider"
 
 #: includes/Admin/Settings/FallbackPage.php:160
-msgid ""
-"When the quote request fails with one of these categories, show fallback "
-"instead of an error notice."
-msgstr ""
-"Quando la richiesta di preventivo fallisce con una di queste categorie, "
-"mostra il fallback invece di un avviso di errore."
+msgid "When the quote request fails with one of these categories, show fallback instead of an error notice."
+msgstr "Quando la richiesta di preventivo fallisce con una di queste categorie, mostra il fallback invece di un avviso di errore."
 
 #: includes/Admin/Settings/FallbackPage.php:169
 #: includes/Admin/Settings/StylingPage.php:210
+#: includes/Admin/Settings/UnitDataQualityPage.php:145
 #: includes/Admin/Settings/UnitFiltersPage.php:130
 #: includes/Admin/Settings/UnitPermalinkPage.php:191
 msgid "Save changes"
@@ -709,256 +632,164 @@ msgid "Fallback link URL"
 msgstr "URL del collegamento di riserva"
 
 #: includes/Admin/Settings/FallbackPage.php:270
-msgid ""
-"Used when “Link only” is selected. Enter a full URL, a site path (e.g. /"
-"contact), query parameters (e.g. ?subject=enquiry), or an encoded hash link "
-"(e.g. Elementor popup triggers)."
-msgstr ""
-"Utilizzato quando è selezionato «Solo collegamento». Inserisci un URL "
-"completo, un percorso del sito (es. /contact), parametri di query (es. ?"
-"subject=enquiry) o un collegamento con hash codificato (es. trigger popup "
-"Elementor)."
+msgid "Used when “Link only” is selected. Enter a full URL, a site path (e.g. /contact), query parameters (e.g. ?subject=enquiry), or an encoded hash link (e.g. Elementor popup triggers)."
+msgstr "Utilizzato quando è selezionato «Solo collegamento». Inserisci un URL completo, un percorso del sito (es. /contact), parametri di query (es. ?subject=enquiry) o un collegamento con hash codificato (es. trigger popup Elementor)."
 
 #: includes/Admin/Settings/FallbackPage.php:276
 msgid "Fallback link text"
 msgstr "Testo del collegamento di riserva"
 
 #: includes/Admin/Settings/FallbackPage.php:278
-msgid ""
-"Leave empty to use the default contact label, which follows the active site "
-"language."
-msgstr ""
-"Lascia vuoto per utilizzare l'etichetta di contatto predefinita, che segue "
-"la lingua del sito attivo."
+msgid "Leave empty to use the default contact label, which follows the active site language."
+msgstr "Lascia vuoto per utilizzare l'etichetta di contatto predefinita, che segue la lingua del sito attivo."
 
 #: includes/Admin/Settings/FallbackPage.php:294
 msgid "Shown for “Inline content” mode. Shortcodes are supported."
-msgstr ""
-"Visualizzato per la modalità \"Contenuto in linea\". Sono supportati gli "
-"shortcode."
+msgstr "Visualizzato per la modalità \"Contenuto in linea\". Sono supportati gli shortcode."
 
-#: includes/Admin/Settings/FrontendPage.php:43
-msgid ""
-"Configure how the availability search bar collects guests and how booking "
-"blocks appear on single unit pages."
-msgstr ""
-"Configura come la barra di ricerca disponibilità raccoglie gli ospiti e come "
-"i blocchi prenotazione compaiono sulle pagine singola unità."
+#: includes/Admin/Settings/FrontendPage.php:44
+msgid "Configure how the availability search bar collects guests and how booking blocks appear on single unit pages."
+msgstr "Configura come la barra di ricerca disponibilità raccoglie gli ospiti e come i blocchi prenotazione compaiono sulle pagine singola unità."
 
-#: includes/Admin/Settings/FrontendPage.php:57
+#: includes/Admin/Settings/FrontendPage.php:58
 msgid "Search form"
 msgstr "Form di ricerca"
 
-#: includes/Admin/Settings/FrontendPage.php:58
-msgid ""
-"Controls the `[bec_search]` shortcode and embedded search inside "
-"`[bec_booking_summary]`."
-msgstr ""
-"Controlla lo shortcode `[bec_search]` e la ricerca incorporata in "
-"`[bec_booking_summary]`."
+#: includes/Admin/Settings/FrontendPage.php:59
+msgid "Controls the `[bec_search]` shortcode and embedded search inside `[bec_booking_summary]`."
+msgstr "Controlla lo shortcode `[bec_search]` e la ricerca incorporata in `[bec_booking_summary]`."
 
-#: includes/Admin/Settings/FrontendPage.php:66
+#: includes/Admin/Settings/FrontendPage.php:67
 msgid "How guests are collected"
 msgstr "Come vengono raccolti gli ospiti"
 
-#: includes/Admin/Settings/FrontendPage.php:68
+#: includes/Admin/Settings/FrontendPage.php:69
 msgid "Follow the active provider (default)"
 msgstr "Segui il fornitore attivo (impostazione predefinita)"
 
-#: includes/Admin/Settings/FrontendPage.php:72
+#: includes/Admin/Settings/FrontendPage.php:73
 msgid "Single “Guests” count only"
 msgstr "Contano solo gli “Ospiti” singoli"
 
-#: includes/Admin/Settings/FrontendPage.php:76
+#: includes/Admin/Settings/FrontendPage.php:77
 msgid "Adults and children (separate fields)"
 msgstr "Adulti e bambini (campi separati)"
 
-#: includes/Admin/Settings/FrontendPage.php:81
-msgid ""
-"Controls the availability search bar. Use a single total or split adults/"
-"children, regardless of the provider. “Follow the active provider” uses each "
-"engine’s own rules (e.g. Kross can default to a simple guest count)."
-msgstr ""
-"Controlla la barra di ricerca della disponibilità. Utilizza un unico totale "
-"o fraziona adulti/bambini, indipendentemente dal fornitore. \"Segui il "
-"fornitore attivo\" utilizza le regole proprie di ciascun motore (ad esempio, "
-"Kross può impostare automaticamente un semplice conteggio degli ospiti)."
+#: includes/Admin/Settings/FrontendPage.php:82
+msgid "Controls the availability search bar. Use a single total or split adults/children, regardless of the provider. “Follow the active provider” uses each engine’s own rules (e.g. Kross can default to a simple guest count)."
+msgstr "Controlla la barra di ricerca della disponibilità. Utilizza un unico totale o fraziona adulti/bambini, indipendentemente dal fornitore. \"Segui il fornitore attivo\" utilizza le regole proprie di ciascun motore (ad esempio, Kross può impostare automaticamente un semplice conteggio degli ospiti)."
 
-#: includes/Admin/Settings/FrontendPage.php:87
+#: includes/Admin/Settings/FrontendPage.php:88
 msgid "Child ages in search"
 msgstr "Richiedi età per i bambini"
 
-#: includes/Admin/Settings/FrontendPage.php:89
+#: includes/Admin/Settings/FrontendPage.php:90
 msgid "Follow the active provider"
 msgstr "Segui il fornitore attivo"
 
-#: includes/Admin/Settings/FrontendPage.php:93
+#: includes/Admin/Settings/FrontendPage.php:94
 msgid "Ask for each child’s age"
 msgstr "Chiedi l’età di ogni bambino"
 
-#: includes/Admin/Settings/FrontendPage.php:97
+#: includes/Admin/Settings/FrontendPage.php:98
 msgid "Do not ask for child ages"
 msgstr "Non chiedere l'età dei bambini"
 
-#: includes/Admin/Settings/FrontendPage.php:102
-msgid ""
-"Applies when the search form shows adults and children. Ignored when using "
-"only a single guest count."
-msgstr ""
-"Si applica quando il modulo di ricerca mostra adulti e bambini. Ignorato "
-"quando si utilizza un solo conteggio degli ospiti."
+#: includes/Admin/Settings/FrontendPage.php:103
+msgid "Applies when the search form shows adults and children. Ignored when using only a single guest count."
+msgstr "Si applica quando il modulo di ricerca mostra adulti e bambini. Ignorato quando si utilizza un solo conteggio degli ospiti."
 
-#: includes/Admin/Settings/FrontendPage.php:108
+#: includes/Admin/Settings/FrontendPage.php:109
 msgid "Calendar availability hints"
 msgstr "Indicazioni disponibilità nel calendario"
 
-#: includes/Admin/Settings/FrontendPage.php:114
+#: includes/Admin/Settings/FrontendPage.php:115
 msgid "Single unit pages only"
 msgstr "Solo pagine singola unità"
 
-#: includes/Admin/Settings/FrontendPage.php:118
+#: includes/Admin/Settings/FrontendPage.php:119
 msgid "All search forms"
 msgstr "Tutti i moduli di ricerca"
 
-#: includes/Admin/Settings/FrontendPage.php:123
-msgid ""
-"Grey out unavailable dates in the enhanced search date picker using provider "
-"PMS availability. “Single unit pages only” matches the current unit; “All "
-"search forms” allows a date when at least one synced unit is available. "
-"Requires the enhanced search preset."
-msgstr ""
-"Disattiva le date non disponibili nel selettore date avanzato usando la "
-"disponibilità PMS del provider. «Solo pagine singola unità» si riferisce "
-"all'unità corrente; «Tutti i moduli di ricerca» consente una data quando al "
-"meno un'unità sincronizzata è disponibile. Richiede il preset di ricerca "
-"avanzato."
+#: includes/Admin/Settings/FrontendPage.php:124
+msgid "Grey out unavailable dates in the enhanced search date picker using provider PMS availability. “Single unit pages only” matches the current unit; “All search forms” allows a date when at least one synced unit is available. Requires the enhanced search preset."
+msgstr "Disattiva le date non disponibili nel selettore date avanzato usando la disponibilità PMS del provider. «Solo pagine singola unità» si riferisce all'unità corrente; «Tutti i moduli di ricerca» consente una data quando al meno un'unità sincronizzata è disponibile. Richiede il preset di ricerca avanzato."
 
-#: includes/Admin/Settings/FrontendPage.php:129
+#: includes/Admin/Settings/FrontendPage.php:130
 msgid "Calendar horizon (days ahead)"
 msgstr "Orizzonte calendario (giorni in avanti)"
 
-#: includes/Admin/Settings/FrontendPage.php:131
-msgid ""
-"How many days ahead guests can select in the enhanced search date picker. "
-"When calendar availability hints are enabled, this also controls how far "
-"ahead availability is fetched from the PMS. Larger values increase API "
-"payload size."
-msgstr ""
-"Quanti giorni in avanti gli ospiti possono selezionare nel selettore date "
-"avanzato. Quando le indicazioni di disponibilità nel calendario sono attive, "
-"controlla anche fino a quando viene recuperata la disponibilità dal PMS. "
-"Valori più alti aumentano la dimensione del payload API."
+#: includes/Admin/Settings/FrontendPage.php:132
+msgid "How many days ahead guests can select in the enhanced search date picker. When calendar availability hints are enabled, this also controls how far ahead availability is fetched from the PMS. Larger values increase API payload size."
+msgstr "Quanti giorni in avanti gli ospiti possono selezionare nel selettore date avanzato. Quando le indicazioni di disponibilità nel calendario sono attive, controlla anche fino a quando viene recuperata la disponibilità dal PMS. Valori più alti aumentano la dimensione del payload API."
 
-#: includes/Admin/Settings/FrontendPage.php:141
+#: includes/Admin/Settings/FrontendPage.php:150
 msgid "Single unit pages"
 msgstr "Pagine singola unità"
 
-#: includes/Admin/Settings/FrontendPage.php:142
-msgid ""
-"Automatic content injection when viewing a synced unit. Disable these to "
-"place shortcodes manually in your template or block editor."
-msgstr ""
-"Iniezione automatica del contenuto quando si visualizza un'unità "
-"sincronizzata. Disabilita per posizionare gli shortcode manualmente nel "
-"template o nell'editor a blocchi."
+#: includes/Admin/Settings/FrontendPage.php:151
+msgid "Automatic content injection when viewing a synced unit. Disable these to place shortcodes manually in your template or block editor."
+msgstr "Iniezione automatica del contenuto quando si visualizza un'unità sincronizzata. Disabilita per posizionare gli shortcode manualmente nel template o nell'editor a blocchi."
 
-#: includes/Admin/Settings/FrontendPage.php:149
+#: includes/Admin/Settings/FrontendPage.php:158
 msgid "Content injection"
 msgstr "Iniezione contenuto"
 
-#: includes/Admin/Settings/FrontendPage.php:152
-msgid "Insert the availability search form above the main post content"
-msgstr ""
-"Inserisci il modulo di ricerca disponibilità sopra il contenuto del post "
-"principale"
-
-#: includes/Admin/Settings/FrontendPage.php:156
-msgid ""
-"When disabled, place `[bec_search]` (or the booking summary shortcode) in "
-"your template or block editor instead."
-msgstr ""
-"Se disabilitato, inserisci invece \"[bec_search]\" (o lo shortcode di "
-"riepilogo della prenotazione) nel tuo modello o nell'editor di blocchi."
-
 #: includes/Admin/Settings/FrontendPage.php:161
-msgid ""
-"Append the booking quote and Continue button after the main post content "
-"when the URL has dates"
-msgstr ""
-"Aggiungi il preventivo di prenotazione e il pulsante Continua dopo il "
-"contenuto del post principale quando l'URL ha delle date"
+msgid "Insert the availability search form above the main post content"
+msgstr "Inserisci il modulo di ricerca disponibilità sopra il contenuto del post principale"
 
 #: includes/Admin/Settings/FrontendPage.php:165
-msgid ""
-"When disabled, use `[bec_booking_summary]` or `[bec_quote]` where you want "
-"pricing and checkout."
-msgstr ""
-"Quando disabilitato, utilizza \"[bec_booking_summary]\" o \"[bec_quote]\" "
-"dove desideri prezzi e checkout."
+msgid "When disabled, place `[bec_search]` (or the booking summary shortcode) in your template or block editor instead."
+msgstr "Se disabilitato, inserisci invece \"[bec_search]\" (o lo shortcode di riepilogo della prenotazione) nel tuo modello o nell'editor di blocchi."
 
-#: includes/Admin/Settings/FrontendPage.php:176
+#: includes/Admin/Settings/FrontendPage.php:170
+msgid "Append the booking quote and Continue button after the main post content when the URL has dates"
+msgstr "Aggiungi il preventivo di prenotazione e il pulsante Continua dopo il contenuto del post principale quando l'URL ha delle date"
+
+#: includes/Admin/Settings/FrontendPage.php:174
+msgid "When disabled, use `[bec_booking_summary]` or `[bec_quote]` where you want pricing and checkout."
+msgstr "Quando disabilitato, utilizza \"[bec_booking_summary]\" o \"[bec_quote]\" dove desideri prezzi e checkout."
+
+#: includes/Admin/Settings/FrontendPage.php:185
 msgid "Multilingual"
 msgstr "Multilingua"
 
-#: includes/Admin/Settings/FrontendPage.php:177
-msgid ""
-"When WPML or Polylang is active, synced units can automatically receive "
-"linked translation posts from provider locale maps."
-msgstr ""
-"Quando WPML o Polylang sono attivi, le unità sincronizzate possono ricevere "
-"automaticamente post di traduzione collegati dalle mappe locali del provider."
+#: includes/Admin/Settings/FrontendPage.php:186
+msgid "When WPML or Polylang is active, synced units can automatically receive linked translation posts from provider locale maps."
+msgstr "Quando WPML o Polylang sono attivi, le unità sincronizzate possono ricevere automaticamente post di traduzione collegati dalle mappe locali del provider."
 
-#: includes/Admin/Settings/FrontendPage.php:184
+#: includes/Admin/Settings/FrontendPage.php:193
 msgid "Translation sync"
 msgstr "Sincronizzazione traduzioni"
 
-#: includes/Admin/Settings/FrontendPage.php:187
+#: includes/Admin/Settings/FrontendPage.php:196
 msgid "Create and update linked translation posts on each unit sync"
-msgstr ""
-"Crea e aggiorna post di traduzione collegati a ogni sincronizzazione unità"
+msgstr "Crea e aggiorna post di traduzione collegati a ogni sincronizzazione unità"
 
-#: includes/Admin/Settings/FrontendPage.php:191
-msgid ""
-"Uses Kross be_name and be_description locale maps when available. Title, "
-"description, and their core meta fields are language-specific; images, "
-"amenities, categories, and sync payload stay shared."
-msgstr ""
-"Utilizza le mappe locali Kross be_name e be_description quando disponibili. "
-"Titolo, descrizione e relativi meta core sono specifici per lingua; "
-"immagini, servizi, categorie e payload di sync restano condivisi."
+#: includes/Admin/Settings/FrontendPage.php:200
+msgid "Uses Kross be_name and be_description locale maps when available. Title, description, and their core meta fields are language-specific; images, amenities, categories, and sync payload stay shared."
+msgstr "Utilizza le mappe locali Kross be_name e be_description quando disponibili. Titolo, descrizione e relativi meta core sono specifici per lingua; immagini, servizi, categorie e payload di sync restano condivisi."
 
-#: includes/Admin/Settings/FrontendPage.php:201
+#: includes/Admin/Settings/FrontendPage.php:210
 msgid "Save frontend settings"
 msgstr "Salva impostazioni front-end"
 
-#: includes/Admin/Settings/FrontendPage.php:286
+#: includes/Admin/Settings/FrontendPage.php:301
 msgid "Frontend settings saved."
 msgstr "Impostazioni front-end salvate."
 
 #: includes/Admin/Settings/StylingPage.php:100
-msgid ""
-"Tune shortcode appearance with layout presets, shared design tokens, and "
-"optional extra CSS. Preset layout CSS loads first; shared tokens and Extra "
-"CSS load last."
-msgstr ""
-"Personalizza l'aspetto degli shortcode con preset di layout, token di design "
-"condivisi e CSS aggiuntivo facoltativo. Il CSS del preset layout viene "
-"caricato per primo; token condivisi e CSS aggiuntivo per ultimi."
+msgid "Tune shortcode appearance with layout presets, shared design tokens, and optional extra CSS. Preset layout CSS loads first; shared tokens and Extra CSS load last."
+msgstr "Personalizza l'aspetto degli shortcode con preset di layout, token di design condivisi e CSS aggiuntivo facoltativo. Il CSS del preset layout viene caricato per primo; token condivisi e CSS aggiuntivo per ultimi."
 
 #: includes/Admin/Settings/StylingPage.php:114
 msgid "Design system (shared tokens)"
 msgstr "Sistema di progettazione (token condivisi)"
 
 #: includes/Admin/Settings/StylingPage.php:115
-msgid ""
-"Edit semantic tokens (--bec-font-family, --bec-color-*, --bec-radius-*). "
-"Plain properties are applied on :root in late CSS so they reach portaled "
-"pickers; paste a full selector block for narrower scoping."
-msgstr ""
-"Modifica i token semantici (--bec-font-family, --bec-color-*, --bec-radius-"
-"*). Le proprietà semplici vengono applicate su :root nel CSS tardivo per "
-"raggiungere i picker portati; incolla un blocco selettore completo per un "
-"ambito più ristretto."
+msgid "Edit semantic tokens (--bec-font-family, --bec-color-*, --bec-radius-*). Plain properties are applied on :root in late CSS so they reach portaled pickers; paste a full selector block for narrower scoping."
+msgstr "Modifica i token semantici (--bec-font-family, --bec-color-*, --bec-radius-*). Le proprietà semplici vengono applicate su :root nel CSS tardivo per raggiungere i picker portati; incolla un blocco selettore completo per un ambito più ristretto."
 
 #: includes/Admin/Settings/StylingPage.php:124
 msgid "Search bar"
@@ -966,11 +797,8 @@ msgstr "Barra di ricerca"
 
 #: includes/Admin/Settings/StylingPage.php:125
 #: includes/Admin/Settings/StylingPage.php:142
-msgid ""
-"Applies to [bec_search] and embedded search inside [bec_booking_summary]."
-msgstr ""
-"Si applica a [bec_search] e alla ricerca incorporata all'interno di "
-"[bec_booking_summary]."
+msgid "Applies to [bec_search] and embedded search inside [bec_booking_summary]."
+msgstr "Si applica a [bec_search] e alla ricerca incorporata all'interno di [bec_booking_summary]."
 
 #: includes/Admin/Settings/StylingPage.php:131
 #: includes/Admin/Settings/StylingPage.php:161
@@ -990,12 +818,8 @@ msgid "Search — extra CSS"
 msgstr "Ricerca: CSS extra"
 
 #: includes/Admin/Settings/StylingPage.php:149
-msgid ""
-"Optional. Target classes such as .bec-search-form, .bec-search-form-wrap--"
-"enhanced, .daterangepicker."
-msgstr ""
-"Opzionale. Classi di destinazione come .bec-search-form, .bec-search-form-"
-"wrap--enhanced, .daterangepicker."
+msgid "Optional. Target classes such as .bec-search-form, .bec-search-form-wrap--enhanced, .daterangepicker."
+msgstr "Opzionale. Classi di destinazione come .bec-search-form, .bec-search-form-wrap--enhanced, .daterangepicker."
 
 #: includes/Admin/Settings/StylingPage.php:157
 #: includes/Shortcodes/BookingSummary/BookingSummaryRenderer.php:658
@@ -1003,12 +827,8 @@ msgid "Booking summary"
 msgstr "Riepilogo della prenotazione"
 
 #: includes/Admin/Settings/StylingPage.php:158
-msgid ""
-"Layout, rate-detail accordions, and optional extra CSS for "
-"[bec_booking_summary]."
-msgstr ""
-"Layout, accordioni dettagli tariffa e CSS aggiuntivo facoltativo per "
-"[bec_booking_summary]."
+msgid "Layout, rate-detail accordions, and optional extra CSS for [bec_booking_summary]."
+msgstr "Layout, accordioni dettagli tariffa e CSS aggiuntivo facoltativo per [bec_booking_summary]."
 
 #: includes/Admin/Settings/StylingPage.php:163
 msgid "Default — search panel above summary content"
@@ -1024,13 +844,11 @@ msgstr "Dettagli della tariffa fisarmoniche"
 
 #: includes/Admin/Settings/StylingPage.php:176
 msgid "Show the inclusions accordion when the rate provides text."
-msgstr ""
-"Mostra la fisarmonica delle inclusioni quando la tariffa fornisce testo."
+msgstr "Mostra la fisarmonica delle inclusioni quando la tariffa fornisce testo."
 
 #: includes/Admin/Settings/StylingPage.php:178
 msgid "Show the conditions accordion when the rate provides text."
-msgstr ""
-"Mostra la fisarmonica delle condizioni quando la tariffa fornisce il testo."
+msgstr "Mostra la fisarmonica delle condizioni quando la tariffa fornisce il testo."
 
 #: includes/Admin/Settings/StylingPage.php:181
 msgid "Booking summary — extra CSS"
@@ -1045,41 +863,24 @@ msgid "Unit filters"
 msgstr "Filtri unità"
 
 #: includes/Admin/Settings/StylingPage.php:192
-msgid ""
-"Styles for [bec_unit_filters]. Enable which amenities appear under Listing "
-"Filters."
-msgstr ""
-"Stili per [bec_unit_filters]. Abilita i servizi che compaiono in Filtri "
-"elenco."
+msgid "Styles for [bec_unit_filters]. Enable which amenities appear under Listing Filters."
+msgstr "Stili per [bec_unit_filters]. Abilita i servizi che compaiono in Filtri elenco."
 
 #: includes/Admin/Settings/StylingPage.php:198
 msgid "Unit filters — extra CSS"
 msgstr "Filtri unità — CSS aggiuntivo"
 
 #: includes/Admin/Settings/StylingPage.php:203
-msgid ""
-"Optional. Target .bec-unit-filters, .bec-unit-filters__field, .bec-unit-"
-"filters__checkboxes, .bec-unit-filters__actions."
-msgstr ""
-"Opzionale. Selettori .bec-unit-filters, .bec-unit-filters__field, .bec-unit-"
-"filters__checkboxes, .bec-unit-filters__actions."
+msgid "Optional. Target .bec-unit-filters, .bec-unit-filters__field, .bec-unit-filters__checkboxes, .bec-unit-filters__actions."
+msgstr "Opzionale. Selettori .bec-unit-filters, .bec-unit-filters__field, .bec-unit-filters__checkboxes, .bec-unit-filters__actions."
 
 #: includes/Admin/Settings/UnitFiltersPage.php:41
-msgid ""
-"Choose which indexed amenities appear in the [bec_unit_filters] shortcode. "
-"Styling for the filter form is under Design."
-msgstr ""
-"Scegli quali servizi indicizzati compaiono nello shortcode "
-"[bec_unit_filters]. Lo stile del form filtri è in Design."
+msgid "Choose which indexed amenities appear in the [bec_unit_filters] shortcode. Styling for the filter form is under Design."
+msgstr "Scegli quali servizi indicizzati compaiono nello shortcode [bec_unit_filters]. Lo stile del form filtri è in Design."
 
 #: includes/Admin/Settings/UnitFiltersPage.php:52
-msgid ""
-"Amenity index is still building in the background. Options may be incomplete "
-"until indexing finishes. Run a sync if the list stays empty."
-msgstr ""
-"L'indice dei servizi è ancora in costruzione in background. Le opzioni "
-"possono essere incomplete finché l'indicizzazione non termina. Esegui una "
-"sincronizzazione se l'elenco resta vuoto."
+msgid "Amenity index is still building in the background. Options may be incomplete until indexing finishes. Run a sync if the list stays empty."
+msgstr "L'indice dei servizi è ancora in costruzione in background. Le opzioni possono essere incomplete finché l'indicizzazione non termina. Esegui una sincronizzazione se l'elenco resta vuoto."
 
 #: includes/Admin/Settings/UnitFiltersPage.php:61
 #: includes/Admin/Settings/UnitFiltersPage.php:67
@@ -1102,13 +903,8 @@ msgid "Amenities"
 msgstr "Servizi"
 
 #: includes/Admin/Settings/UnitFiltersPage.php:82
-msgid ""
-"Enable amenities for the filter shortcode and optionally override display "
-"labels. Unit counts reflect indexed taxonomy terms."
-msgstr ""
-"Abilita i servizi per lo shortcode filtri e, facoltativamente, sovrascrivi "
-"le etichette. I conteggi unità riflettono i termini della tassonomia "
-"indicizzata."
+msgid "Enable amenities for the filter shortcode and optionally override display labels. Unit counts reflect indexed taxonomy terms."
+msgstr "Abilita i servizi per lo shortcode filtri e, facoltativamente, sovrascrivi le etichette. I conteggi unità riflettono i termini della tassonomia indicizzata."
 
 #: includes/Admin/Settings/UnitFiltersPage.php:91
 msgid "Amenity"
@@ -1123,20 +919,12 @@ msgid "Display label (optional)"
 msgstr "Etichetta visualizzata (opzionale)"
 
 #: includes/Admin/Settings/UnitFiltersPage.php:98
-msgid ""
-"No indexed amenities yet. Sync units from the booking engine first, then "
-"return here to curate the filter list."
-msgstr ""
-"Nessun servizio indicizzato. Sincronizza prima le unità dal booking engine, "
-"poi torna qui per selezionare l'elenco filtri."
+msgid "No indexed amenities yet. Sync units from the booking engine first, then return here to curate the filter list."
+msgstr "Nessun servizio indicizzato. Sincronizza prima le unità dal booking engine, poi torna qui per selezionare l'elenco filtri."
 
 #: includes/Admin/Settings/UnitPermalinkPage.php:52
-msgid ""
-"Configure public URL slugs, archives, categories, and URL structures for "
-"synced units. The internal post type name in the database stays unchanged."
-msgstr ""
-"Configura slug URL pubblici, archivi, categorie e strutture URL per le unità "
-"sincronizzate. Il nome del post type interno nel database resta invariato."
+msgid "Configure public URL slugs, archives, categories, and URL structures for synced units. The internal post type name in the database stays unchanged."
+msgstr "Configura slug URL pubblici, archivi, categorie e strutture URL per le unità sincronizzate. Il nome del post type interno nel database resta invariato."
 
 #: includes/Admin/Settings/UnitPermalinkPage.php:68
 msgid "Related screens"
@@ -1144,8 +932,7 @@ msgstr "Schermate correlate"
 
 #: includes/Admin/Settings/UnitPermalinkPage.php:69
 msgid "Manage synced content and listing filters from WordPress admin."
-msgstr ""
-"Gestisci contenuti sincronizzati e filtri elenco dall'admin di WordPress."
+msgstr "Gestisci contenuti sincronizzati e filtri elenco dall'admin di WordPress."
 
 #: includes/Admin/Settings/UnitPermalinkPage.php:72
 msgid "View all units"
@@ -1156,12 +943,8 @@ msgid "Listing filters — amenity curation for [bec_unit_filters]"
 msgstr "Elenco filtri — selezione servizi per [bec_unit_filters]"
 
 #: includes/Admin/Settings/UnitPermalinkPage.php:89
-msgid ""
-"Changing slugs or URL structures updates rewrite rules on save. Test "
-"permalinks after major changes."
-msgstr ""
-"La modifica degli slug o delle strutture URL aggiorna le rewrite rule al "
-"salvataggio. Testa i permalink dopo modifiche importanti."
+msgid "Changing slugs or URL structures updates rewrite rules on save. Test permalinks after major changes."
+msgstr "La modifica degli slug o delle strutture URL aggiorna le rewrite rule al salvataggio. Testa i permalink dopo modifiche importanti."
 
 #: includes/Admin/Settings/UnitPermalinkPage.php:96
 msgid "URL slug"
@@ -1170,12 +953,8 @@ msgstr "Slug dell'URL"
 #. translators: %s: example URL prefix for current slug
 #: includes/Admin/Settings/UnitPermalinkPage.php:102
 #, php-format
-msgid ""
-"With your current settings, URLs begin with %s. Leave the field empty to use "
-"the default slug “bec_unit”."
-msgstr ""
-"Con le impostazioni attuali, gli URL iniziano con %s. Lascia il campo vuoto "
-"per utilizzare lo slug predefinito \"bec_unit\"."
+msgid "With your current settings, URLs begin with %s. Leave the field empty to use the default slug “bec_unit”."
+msgstr "Con le impostazioni attuali, gli URL iniziano con %s. Lascia il campo vuoto per utilizzare lo slug predefinito \"bec_unit\"."
 
 #: includes/Admin/Settings/UnitPermalinkPage.php:107
 msgid "Unit URL structure"
@@ -1184,12 +963,8 @@ msgstr "Struttura URL unità"
 #. translators: %s: example unit URL
 #: includes/Admin/Settings/UnitPermalinkPage.php:118
 #, php-format
-msgid ""
-"Example single unit URL: %s. Units without a category fall back to /{unit "
-"slug}/{unit name}."
-msgstr ""
-"Esempio URL unità singola: %s. Le unità senza categoria usano /{slug unità}/"
-"{nome unità}."
+msgid "Example single unit URL: %s. Units without a category fall back to /{unit slug}/{unit name}."
+msgstr "Esempio URL unità singola: %s. Le unità senza categoria usano /{slug unità}/{nome unità}."
 
 #: includes/Admin/Settings/UnitPermalinkPage.php:127
 #: includes/Admin/Settings/UnitPermalinkPage.php:134
@@ -1201,19 +976,12 @@ msgid "When disabled, only single unit URLs are registered."
 msgstr "Se disabilitato, vengono registrati solo gli URL delle singole unità."
 
 #: includes/Admin/Settings/UnitPermalinkPage.php:136
-msgid ""
-"Enable the public archive page for units (listing URL at the slug above)."
-msgstr ""
-"Abilita la pagina di archivio pubblico per le unità (elenco URL nello slug "
-"sopra)."
+msgid "Enable the public archive page for units (listing URL at the slug above)."
+msgstr "Abilita la pagina di archivio pubblico per le unità (elenco URL nello slug sopra)."
 
 #: includes/Admin/Settings/UnitPermalinkPage.php:137
-msgid ""
-"When disabled, only single unit URLs are registered. Changing this updates "
-"rewrite rules."
-msgstr ""
-"Se disabilitato, vengono registrati solo gli URL di singole unità. La "
-"modifica di questo aggiornamento riscrive le regole."
+msgid "When disabled, only single unit URLs are registered. Changing this updates rewrite rules."
+msgstr "Se disabilitato, vengono registrati solo gli URL di singole unità. La modifica di questo aggiornamento riscrive le regole."
 
 #: includes/Admin/Settings/UnitPermalinkPage.php:146
 #: includes/Admin/Settings/UnitPermalinkPage.php:153
@@ -1222,24 +990,12 @@ msgid "Unit categories"
 msgstr "Categorie unità"
 
 #: includes/Admin/Settings/UnitPermalinkPage.php:147
-msgid ""
-"Top-level category URLs can conflict with pages or posts that share the same "
-"slug. WordPress core content is preferred when a URL is ambiguous. "
-"Multilingual plugins (WPML, Polylang) continue to add language prefixes such "
-"as /it/ or /es/ automatically."
-msgstr ""
-"Gli URL categoria di primo livello possono entrare in conflitto con pagine o "
-"post che condividono lo stesso slug. In caso di ambiguità ha priorità il "
-"contenuto WordPress. I plugin multilingua (WPML, Polylang) continuano ad "
-"aggiungere automaticamente prefissi lingua come /it/ o /es/."
+msgid "Top-level category URLs can conflict with pages or posts that share the same slug. WordPress core content is preferred when a URL is ambiguous. Multilingual plugins (WPML, Polylang) continue to add language prefixes such as /it/ or /es/ automatically."
+msgstr "Gli URL categoria di primo livello possono entrare in conflitto con pagine o post che condividono lo stesso slug. In caso di ambiguità ha priorità il contenuto WordPress. I plugin multilingua (WPML, Polylang) continuano ad aggiungere automaticamente prefissi lingua come /it/ o /es/."
 
 #: includes/Admin/Settings/UnitPermalinkPage.php:155
-msgid ""
-"Enable the Unit Category taxonomy (sync assigns categories from the booking "
-"engine when supported)."
-msgstr ""
-"Abilita la tassonomia Categoria unità (la sincronizzazione assegna le "
-"categorie dal motore di prenotazione quando supportato)."
+msgid "Enable the Unit Category taxonomy (sync assigns categories from the booking engine when supported)."
+msgstr "Abilita la tassonomia Categoria unità (la sincronizzazione assegna le categorie dal motore di prenotazione quando supportato)."
 
 #. translators: %s: internal taxonomy key (fixed in the database)
 #: includes/Admin/Settings/UnitPermalinkPage.php:158
@@ -1254,12 +1010,8 @@ msgstr "Slug URL della categoria"
 #. translators: 1: default slug
 #: includes/Admin/Settings/UnitPermalinkPage.php:167
 #, php-format
-msgid ""
-"Used when category URLs include a dedicated base segment. Leave empty to use "
-"the default base “%s”."
-msgstr ""
-"Usato quando gli URL categoria includono un segmento base dedicato. Lascia "
-"vuoto per usare la base predefinita «%s»."
+msgid "Used when category URLs include a dedicated base segment. Leave empty to use the default base “%s”."
+msgstr "Usato quando gli URL categoria includono un segmento base dedicato. Lascia vuoto per usare la base predefinita «%s»."
 
 #: includes/Admin/Settings/UnitPermalinkPage.php:172
 msgid "Category URL structure"
@@ -1272,20 +1024,12 @@ msgid "Example category archive URL: %s."
 msgstr "Esempio URL archivio categoria: %s."
 
 #: includes/Admin/SyncAdmin.php:94
-msgid ""
-"Schedule automatic syncs, filter Kross booking engines, run manual imports, "
-"and manage gallery filenames."
-msgstr ""
-"Pianifica sincronizzazioni automatiche, filtra i booking engine Kross, "
-"esegui importazioni manuali e gestisci i nomi file della galleria."
+msgid "Schedule automatic syncs, filter Kross booking engines, run manual imports, and manage gallery filenames."
+msgstr "Pianifica sincronizzazioni automatiche, filtra i booking engine Kross, esegui importazioni manuali e gestisci i nomi file della galleria."
 
 #: includes/Admin/SyncAdmin.php:103
-msgid ""
-"Kross test mode is active. Sync imports placeholder room types and "
-"categories without calling the Kross API."
-msgstr ""
-"Modalità test Kross attiva. La sincronizzazione importa tipologie e "
-"categorie segnaposto senza chiamare l'API Kross."
+msgid "Kross test mode is active. Sync imports placeholder room types and categories without calling the Kross API."
+msgstr "Modalità test Kross attiva. La sincronizzazione importa tipologie e categorie segnaposto senza chiamare l'API Kross."
 
 #. translators: 1: created count, 2: updated, 3: skipped
 #: includes/Admin/SyncAdmin.php:122
@@ -1332,13 +1076,8 @@ msgid "Schedule"
 msgstr "Programma"
 
 #: includes/Admin/SyncAdmin.php:207
-msgid ""
-"Scheduled sync uses WP-Cron; on low-traffic sites runs may be delayed until "
-"the next page view."
-msgstr ""
-"La sincronizzazione pianificata utilizza WP-Cron; sui siti a basso traffico "
-"l'esecuzione potrebbe essere ritardata fino alla visualizzazione della "
-"pagina successiva."
+msgid "Scheduled sync uses WP-Cron; on low-traffic sites runs may be delayed until the next page view."
+msgstr "La sincronizzazione pianificata utilizza WP-Cron; sui siti a basso traffico l'esecuzione potrebbe essere ritardata fino alla visualizzazione della pagina successiva."
 
 #: includes/Admin/SyncAdmin.php:213
 msgid "Interval (hours)"
@@ -1346,23 +1085,15 @@ msgstr "Intervallo (ore)"
 
 #: includes/Admin/SyncAdmin.php:215
 msgid "How often the scheduled sync runs (1–168)."
-msgstr ""
-"La frequenza con cui viene eseguita la sincronizzazione pianificata (1–168)."
+msgstr "La frequenza con cui viene eseguita la sincronizzazione pianificata (1–168)."
 
 #: includes/Admin/SyncAdmin.php:227
 msgid "Kross booking engines"
 msgstr "Booking Engines Kross"
 
 #: includes/Admin/SyncAdmin.php:228
-msgid ""
-"Sync only units whose Kross payload includes the room’s enabled booking-"
-"engine slugs (`be_enabled`). Matching any selected slug includes the unit. "
-"Leave all unchecked to sync every Kross room type from this property."
-msgstr ""
-"Sincronizza solo le unità il cui payload Kross include gli slug booking-"
-"engine abilitati della camera (`be_enabled`). Se corrisponde a uno slug "
-"selezionato, l'unità viene inclusa. Lascia tutto deselezionato per "
-"sincronizzare ogni tipologia camera Kross di questa struttura."
+msgid "Sync only units whose Kross payload includes the room’s enabled booking-engine slugs (`be_enabled`). Matching any selected slug includes the unit. Leave all unchecked to sync every Kross room type from this property."
+msgstr "Sincronizza solo le unità il cui payload Kross include gli slug booking-engine abilitati della camera (`be_enabled`). Se corrisponde a uno slug selezionato, l'unità viene inclusa. Lascia tutto deselezionato per sincronizzare ogni tipologia camera Kross di questa struttura."
 
 #: includes/Admin/SyncAdmin.php:235
 msgid "Booking engines"
@@ -1373,18 +1104,12 @@ msgid "Refresh booking engines list from Kross"
 msgstr "Aggiorna l'elenco dei Booking Engines di Kross"
 
 #: includes/Admin/SyncAdmin.php:241
-msgid ""
-"Merges all `be_enabled` values discovered from `/v5/rooms/get-room-types` "
-"into the checklist below."
-msgstr ""
-"Unisce tutti i valori \"be_enabled\" scoperti da \"/v5/rooms/get-room-"
-"types\" nell'elenco di controllo seguente."
+msgid "Merges all `be_enabled` values discovered from `/v5/rooms/get-room-types` into the checklist below."
+msgstr "Unisce tutti i valori \"be_enabled\" scoperti da \"/v5/rooms/get-room-types\" nell'elenco di controllo seguente."
 
 #: includes/Admin/SyncAdmin.php:247
 msgid "No engines cached yet — use Refresh to populate this list."
-msgstr ""
-"Nessun motore ancora memorizzato nella cache: utilizza Aggiorna per popolare "
-"questo elenco."
+msgstr "Nessun motore ancora memorizzato nella cache: utilizza Aggiorna per popolare questo elenco."
 
 #: includes/Admin/SyncAdmin.php:252
 msgid "Kross booking engine slugs to include in sync"
@@ -1395,14 +1120,8 @@ msgid "Gallery image filenames"
 msgstr "Nomi dei file delle immagini della Galleria"
 
 #: includes/Admin/SyncAdmin.php:279
-msgid ""
-"Synced unit images are saved with: prefix + unit name (slug) + suffix + "
-"order index + file extension. Leave prefix and suffix empty to use only the "
-"unit name."
-msgstr ""
-"Le immagini delle unità sincronizzate vengono salvate con: prefisso + nome "
-"dell'unità (slug) + suffisso + indice dell'ordine + estensione del file. "
-"Lasciare prefisso e suffisso vuoti per utilizzare solo il nome dell'unità."
+msgid "Synced unit images are saved with: prefix + unit name (slug) + suffix + order index + file extension. Leave prefix and suffix empty to use only the unit name."
+msgstr "Le immagini delle unità sincronizzate vengono salvate con: prefisso + nome dell'unità (slug) + suffisso + indice dell'ordine + estensione del file. Lasciare prefisso e suffisso vuoti per utilizzare solo il nome dell'unità."
 
 #: includes/Admin/SyncAdmin.php:285
 msgid "Filename prefix"
@@ -1410,20 +1129,15 @@ msgstr "Prefisso del nome file"
 
 #: includes/Admin/SyncAdmin.php:287
 msgid "Optional text prepended to each file base name (safe characters only)."
-msgstr ""
-"Testo facoltativo anteposto a ciascun nome di base del file (solo caratteri "
-"sicuri)."
+msgstr "Testo facoltativo anteposto a ciascun nome di base del file (solo caratteri sicuri)."
 
 #: includes/Admin/SyncAdmin.php:289
 msgid "Filename suffix (before index)"
 msgstr "Suffisso del nome file (prima dell'indice)"
 
 #: includes/Admin/SyncAdmin.php:291
-msgid ""
-"Placed after the unit name slug, before the numeric index (e.g. \"-room\")."
-msgstr ""
-"Posizionato dopo lo slug del nome dell'unità, prima dell'indice numerico (ad "
-"esempio \"-room\")."
+msgid "Placed after the unit name slug, before the numeric index (e.g. \"-room\")."
+msgstr "Posizionato dopo lo slug del nome dell'unità, prima dell'indice numerico (ad esempio \"-room\")."
 
 #: includes/Admin/SyncAdmin.php:298
 msgid "Save sync settings"
@@ -1436,13 +1150,8 @@ msgid "Last successful sync completion: %s"
 msgstr "Ultimo completamento della sincronizzazione riuscita: %s"
 
 #: includes/Admin/SyncAdmin.php:315
-msgid ""
-"Import or update all units from the active provider. JavaScript shows live "
-"progress; without JS the standard admin-post fallback still runs."
-msgstr ""
-"Importa o aggiorna tutte le unità dal provider attivo. JavaScript mostra "
-"l'avanzamento in tempo reale; senza JS funziona ancora il fallback admin-"
-"post standard."
+msgid "Import or update all units from the active provider. JavaScript shows live progress; without JS the standard admin-post fallback still runs."
+msgstr "Importa o aggiorna tutte le unità dal provider attivo. JavaScript mostra l'avanzamento in tempo reale; senza JS funziona ancora il fallback admin-post standard."
 
 #: includes/Admin/SyncAdmin.php:323
 msgid "Run sync now"
@@ -1453,14 +1162,8 @@ msgid "Sync progress"
 msgstr "Progressi sincronizzazione"
 
 #: includes/Admin/SyncAdmin.php:335
-msgid ""
-"The sync lock prevents overlapping full syncs. If a run was interrupted you "
-"may see “Another sync is already running” until the lock expires or you "
-"clear it here."
-msgstr ""
-"Il blocco sincronizzazione impedisce esecuzioni sovrapposte. Se un run è "
-"stato interrotto può comparire «È già in esecuzione un’altra "
-"sincronizzazione» fino alla scadenza del blocco o finché non lo cancelli qui."
+msgid "The sync lock prevents overlapping full syncs. If a run was interrupted you may see “Another sync is already running” until the lock expires or you clear it here."
+msgstr "Il blocco sincronizzazione impedisce esecuzioni sovrapposte. Se un run è stato interrotto può comparire «È già in esecuzione un’altra sincronizzazione» fino alla scadenza del blocco o finché non lo cancelli qui."
 
 #: includes/Admin/SyncAdmin.php:341
 msgid "Current status:"
@@ -1468,20 +1171,15 @@ msgstr "Stato attuale:"
 
 #: includes/Admin/SyncAdmin.php:343
 msgid "Lock is set (a sync may be in progress or stale)."
-msgstr ""
-"Blocco attivo (una sincronizzazione potrebbe essere in corso o residua)."
+msgstr "Blocco attivo (una sincronizzazione potrebbe essere in corso o residua)."
 
 #: includes/Admin/SyncAdmin.php:344
 msgid "No lock is set."
 msgstr "Nessun blocco impostato."
 
 #: includes/Admin/SyncAdmin.php:347
-msgid ""
-"Clear the sync lock? Only do this if no sync is running. Active syncs may be "
-"affected."
-msgstr ""
-"Eliminare il blocco sincronizzazione? Fallo solo se nessuna sincronizzazione "
-"è in corso. Una sync attiva potrebbe essere compromessa."
+msgid "Clear the sync lock? Only do this if no sync is running. Active syncs may be affected."
+msgstr "Eliminare il blocco sincronizzazione? Fallo solo se nessuna sincronizzazione è in corso. Una sync attiva potrebbe essere compromessa."
 
 #: includes/Admin/SyncAdmin.php:354
 msgid "Clear sync lock"
@@ -1492,17 +1190,8 @@ msgid "Gallery file rename"
 msgstr "Rinomina file galleria"
 
 #: includes/Admin/SyncAdmin.php:363
-msgid ""
-"Apply the current filename prefix/suffix settings to images already stored "
-"in each unit’s gallery. Images shared by more than one unit are copied for "
-"this unit so other units are not affected. This may take a while on large "
-"sites."
-msgstr ""
-"Applica le impostazioni correnti del prefisso/suffisso del nome file alle "
-"immagini già archiviate nella galleria di ciascuna unità. Le immagini "
-"condivise da più di un'unità vengono copiate per questa unità in modo che le "
-"altre unità non vengano influenzate. Questa operazione potrebbe richiedere "
-"del tempo su siti di grandi dimensioni."
+msgid "Apply the current filename prefix/suffix settings to images already stored in each unit’s gallery. Images shared by more than one unit are copied for this unit so other units are not affected. This may take a while on large sites."
+msgstr "Applica le impostazioni correnti del prefisso/suffisso del nome file alle immagini già archiviate nella galleria di ciascuna unità. Le immagini condivise da più di un'unità vengono copiate per questa unità in modo che le altre unità non vengano influenzate. Questa operazione potrebbe richiedere del tempo su siti di grandi dimensioni."
 
 #: includes/Admin/SyncAdmin.php:371
 msgid "Rename all unit gallery files"
@@ -1519,19 +1208,19 @@ msgid "Created %1$d, updated %2$d, skipped %3$d."
 msgstr "Creato %1$d, aggiornato %2$d, saltato %3$d."
 
 #: includes/Admin/SyncAdmin.php:450
-msgid ""
-"Sync request failed or returned an unexpected response. Try again or disable "
-"JavaScript to use the standard sync."
-msgstr ""
-"La richiesta di sincronizzazione non è riuscita o ha restituito una risposta "
-"imprevista. Riprova o disabilita JavaScript per utilizzare la "
-"sincronizzazione standard."
+msgid "Sync request failed or returned an unexpected response. Try again or disable JavaScript to use the standard sync."
+msgstr "La richiesta di sincronizzazione non è riuscita o ha restituito una risposta imprevista. Riprova o disabilita JavaScript per utilizzare la sincronizzazione standard."
 
-#: includes/Admin/SyncAdmin.php:462 includes/Admin/SyncAdmin.php:502
-#: includes/Admin/SyncAdmin.php:610 includes/Admin/SyncAdmin.php:894
-#: includes/Admin/SyncAdmin.php:1006 includes/Admin/SyncAdmin.php:1032
-#: includes/Admin/SyncAdmin.php:1048 includes/Admin/SyncAdmin.php:1068
-#: includes/Admin/SyncAdmin.php:1097 includes/Admin/SyncAdmin.php:1112
+#: includes/Admin/SyncAdmin.php:462
+#: includes/Admin/SyncAdmin.php:502
+#: includes/Admin/SyncAdmin.php:610
+#: includes/Admin/SyncAdmin.php:894
+#: includes/Admin/SyncAdmin.php:1006
+#: includes/Admin/SyncAdmin.php:1032
+#: includes/Admin/SyncAdmin.php:1048
+#: includes/Admin/SyncAdmin.php:1068
+#: includes/Admin/SyncAdmin.php:1097
+#: includes/Admin/SyncAdmin.php:1112
 #: includes/Admin/SyncAdmin.php:1134
 msgid "Insufficient permissions."
 msgstr "Autorizzazioni insufficienti."
@@ -1540,36 +1229,38 @@ msgstr "Autorizzazioni insufficienti."
 msgid "Waiting for sync to start…"
 msgstr "In attesa dell'avvio della sincronizzazione..."
 
-#: includes/Admin/SyncAdmin.php:514 includes/Admin/SyncAdmin.php:620
+#: includes/Admin/SyncAdmin.php:514
+#: includes/Admin/SyncAdmin.php:620
 msgid "Invalid sync run id."
 msgstr "ID esecuzione sincronizzazione non valido."
 
-#: includes/Admin/SyncAdmin.php:524 includes/Sync/SyncService.php:53
+#: includes/Admin/SyncAdmin.php:524
+#: includes/Sync/SyncService.php:53
 msgid "Another sync is already running."
 msgstr "Un'altra sincronizzazione è già in esecuzione."
 
-#: includes/Admin/SyncAdmin.php:530 includes/Sync/SyncService.php:31
+#: includes/Admin/SyncAdmin.php:530
+#: includes/Sync/SyncService.php:31
 msgid "Starting sync…"
 msgstr "Avvio della sincronizzazione…"
 
 #: includes/Admin/SyncAdmin.php:532
-msgid ""
-"Preparing batched sync (each step runs briefly so the browser does not time "
-"out)."
-msgstr ""
-"Preparazione sincronizzazione a step brevi (ogni richiesta evita timeout del "
-"browser)."
+msgid "Preparing batched sync (each step runs briefly so the browser does not time out)."
+msgstr "Preparazione sincronizzazione a step brevi (ogni richiesta evita timeout del browser)."
 
-#: includes/Admin/SyncAdmin.php:541 includes/Sync/SyncService.php:77
+#: includes/Admin/SyncAdmin.php:541
+#: includes/Sync/SyncService.php:77
 msgid "Provider credentials are incomplete."
 msgstr "Le credenziali del fornitore sono incomplete."
 
-#: includes/Admin/SyncAdmin.php:587 includes/Sync/SyncService.php:112
+#: includes/Admin/SyncAdmin.php:587
+#: includes/Sync/SyncService.php:112
 msgid "No remote unit rows returned."
 msgstr "Nessuna riga di unità remota restituita."
 
 #. translators: %d: number of remote rows to process
-#: includes/Admin/SyncAdmin.php:592 includes/Sync/SyncService.php:117
+#: includes/Admin/SyncAdmin.php:592
+#: includes/Sync/SyncService.php:117
 #, php-format
 msgid "%d remote unit row to process."
 msgid_plural "%d remote unit rows to process."
@@ -1578,15 +1269,11 @@ msgstr[1] "%d righe dell'unità remota da elaborare."
 
 #: includes/Admin/SyncAdmin.php:631
 msgid "Sync lock was lost or this run expired. Start a new sync."
-msgstr ""
-"Il blocco sincronizzazione è scaduto o è stato perso. Avvia una nuova "
-"sincronizzazione."
+msgstr "Il blocco sincronizzazione è scaduto o è stato perso. Avvia una nuova sincronizzazione."
 
 #: includes/Admin/SyncAdmin.php:647
 msgid "Sync batch state expired or was cleared. Start a new sync."
-msgstr ""
-"Lo stato della sincronizzazione batch è scaduto o è stato cancellato. Avvia "
-"una nuova sincronizzazione."
+msgstr "Lo stato della sincronizzazione batch è scaduto o è stato cancellato. Avvia una nuova sincronizzazione."
 
 #. translators: %d: WordPress post ID
 #: includes/Admin/SyncAdmin.php:686
@@ -1601,31 +1288,36 @@ msgid "Gallery import finished for unit #%d."
 msgstr "Importazione galleria completata per l’unità #%d."
 
 #. translators: 1: current index, 2: total rows
-#: includes/Admin/SyncAdmin.php:762 includes/Sync/SyncService.php:139
+#: includes/Admin/SyncAdmin.php:762
+#: includes/Sync/SyncService.php:139
 #, php-format
 msgid "Row %1$d/%2$d: skipped (no external ID)."
 msgstr "Riga %1$d/%2$d: saltata (nessun ID esterno)."
 
 #. translators: 1: current index, 2: total rows, 3: unit title
-#: includes/Admin/SyncAdmin.php:773 includes/Sync/SyncService.php:155
+#: includes/Admin/SyncAdmin.php:773
+#: includes/Sync/SyncService.php:155
 #, php-format
 msgid "Processing %1$d/%2$d: %3$s"
 msgstr "Elaborazione %1$d/%2$d: %3$s"
 
 #. translators: %s: external id
-#: includes/Admin/SyncAdmin.php:788 includes/Sync/SyncService.php:172
+#: includes/Admin/SyncAdmin.php:788
+#: includes/Sync/SyncService.php:172
 #, php-format
 msgid "Created unit for external ID %s."
 msgstr "Unità creata per l'ID esterno %s."
 
 #. translators: %s: external id
-#: includes/Admin/SyncAdmin.php:797 includes/Sync/SyncService.php:183
+#: includes/Admin/SyncAdmin.php:797
+#: includes/Sync/SyncService.php:183
 #, php-format
 msgid "Updated unit for external ID %s."
 msgstr "Unità aggiornata per ID esterno %s."
 
 #. translators: %s: external id
-#: includes/Admin/SyncAdmin.php:806 includes/Sync/SyncService.php:194
+#: includes/Admin/SyncAdmin.php:806
+#: includes/Sync/SyncService.php:194
 #, php-format
 msgid "Skipped external ID %s."
 msgstr "ID esterno %s saltato."
@@ -1647,30 +1339,20 @@ msgid "This action is disabled."
 msgstr "Questa azione è disabilitata."
 
 #: includes/Admin/SyncAdmin.php:1144
-msgid ""
-"Booking engine discovery is available only while Kross is the active "
-"provider."
-msgstr ""
-"La scoperta del Booking Engine è disponibile solo mentre Kross è il "
-"fornitore attivo."
+msgid "Booking engine discovery is available only while Kross is the active provider."
+msgstr "La scoperta del Booking Engine è disponibile solo mentre Kross è il fornitore attivo."
 
 #: includes/Admin/SyncAdmin.php:1163
-msgid ""
-"Complete Kross credentials on the Connection page before refreshing booking "
-"engines."
-msgstr ""
-"Completa le credenziali Kross nella pagina Connessione prima di aggiornare i "
-"Booking Engines."
+msgid "Complete Kross credentials on the Connection page before refreshing booking engines."
+msgstr "Completa le credenziali Kross nella pagina Connessione prima di aggiornare i Booking Engines."
 
 #. translators: %d number of distinct booking-engine slugs cached after refresh
 #: includes/Admin/SyncAdmin.php:1189
 #, php-format
 msgid "Booking engines list refreshed. %d slug cached."
 msgid_plural "Booking engines list refreshed. %d slugs cached."
-msgstr[0] ""
-"Elenco dei Booking Engines aggiornato. %d slug memorizzato nella cache."
-msgstr[1] ""
-"Elenco dei Booking Engines aggiornato. %d slug memorizzati nella cache."
+msgstr[0] "Elenco dei Booking Engines aggiornato. %d slug memorizzato nella cache."
+msgstr[1] "Elenco dei Booking Engines aggiornato. %d slug memorizzati nella cache."
 
 #. translators: %s error detail
 #: includes/Admin/SyncAdmin.php:1219
@@ -1703,8 +1385,8 @@ msgid "No availability for these dates."
 msgstr "Nessuna disponibilità per queste date."
 
 #: includes/Checkout/CheckoutCtaHtml.php:24
-#: includes/Providers/Kross/KrossProvider.php:604
-#: includes/Providers/Kross/KrossProvider.php:609
+#: includes/Providers/Kross/KrossProvider.php:617
+#: includes/Providers/Kross/KrossProvider.php:622
 msgid "Book now"
 msgstr "Prenota ora"
 
@@ -1742,8 +1424,7 @@ msgstr "ID unità"
 
 #: includes/Elementor/DynamicTags/UnitGalleryTag.php:72
 msgid "Leave empty to use the current post (single unit or loop item)."
-msgstr ""
-"Lascia vuoto per usare il post corrente (unità singola o elemento del loop)."
+msgstr "Lascia vuoto per usare il post corrente (unità singola o elemento del loop)."
 
 #. translators: Default fallback link label when none is saved in settings.
 #: includes/Fallback/FallbackRenderer.php:22
@@ -1753,8 +1434,7 @@ msgstr "Contattaci"
 
 #: includes/Fallback/FallbackRenderer.php:36
 msgid "Add fallback content or link in Booking Engine → Fallback."
-msgstr ""
-"Aggiungi contenuto o collegamento fallback in Booking Engine → Fallback."
+msgstr "Aggiungi contenuto o collegamento fallback in Booking Engine → Fallback."
 
 #: includes/Formatting/DateFormatter.php:121
 #, php-format
@@ -1773,7 +1453,7 @@ msgstr "Dal %1$s al %2$s"
 msgid "from %1$s to %2$s"
 msgstr "da %1$s a %2$s"
 
-#: includes/Front/PublicAssets.php:166
+#: includes/Front/PublicAssets.php:167
 #: includes/UnitFilters/UnitFilterShortcodeRenderer.php:205
 #: includes/UnitFilters/UnitFilterShortcodeRenderer.php:404
 #: includes/UnitFilters/UnitFilterShortcodeRenderer.php:425
@@ -1782,14 +1462,15 @@ msgstr "da %1$s a %2$s"
 msgid "Any"
 msgstr "Qualsiasi"
 
-#: includes/Front/PublicAssets.php:167
+#: includes/Front/PublicAssets.php:168
 #: includes/UnitFilters/UnitFilterShortcodeRenderer.php:273
 #: includes/UnitFilters/UnitFilterShortcodeRenderer.php:601
 msgid "Pick desired amenities"
 msgstr "Scegli i servizi desiderati"
 
 #. translators: 1: number of selected amenities, 2: total number of amenity choices.
-#: includes/Front/PublicAssets.php:169 includes/Front/PublicAssets.php:176
+#: includes/Front/PublicAssets.php:170
+#: includes/Front/PublicAssets.php:177
 #: includes/UnitFilters/UnitFilterShortcodeRenderer.php:261
 #: includes/UnitFilters/UnitFilterShortcodeRenderer.php:609
 #, php-format
@@ -1799,32 +1480,32 @@ msgstr[0] "%1$d di %2$d selezionato"
 msgstr[1] "%1$d di %2$d selezionati"
 
 #. translators: %d number of adults when only adults are counted (singular)
-#: includes/Front/PublicAssets.php:197
+#: includes/Front/PublicAssets.php:198
 #, php-format
 msgid "%d adult"
 msgstr "%d adulto"
 
 #. translators: %d number of adults when only adults are counted (plural)
-#: includes/Front/PublicAssets.php:199
+#: includes/Front/PublicAssets.php:200
 #, php-format
 msgid "%d adults"
 msgstr "%d adulti"
 
 #. translators: 1: adults count, 2: children count
-#: includes/Front/PublicAssets.php:201
+#: includes/Front/PublicAssets.php:202
 #, php-format
 msgid "%1$d adults · %2$d children"
 msgstr "%1$d adulti · %2$d bambini"
 
 #. translators: %d total guest count (singular)
-#: includes/Front/PublicAssets.php:203
+#: includes/Front/PublicAssets.php:204
 #, php-format
 msgid "%d guest"
 msgstr "%d ospite"
 
 #. translators: %d total guest count (plural)
 #. translators: %d: total number of guests
-#: includes/Front/PublicAssets.php:205
+#: includes/Front/PublicAssets.php:206
 #: includes/Shortcodes/BookingSummary/BookingSummaryViewModelBuilder.php:777
 #, php-format
 msgid "%d guests"
@@ -1832,45 +1513,53 @@ msgstr "%d ospiti"
 
 #. translators: %d child index (display order starts at 1)
 #. translators: %d: child index (1-based)
-#: includes/Front/PublicAssets.php:207 includes/Search/SearchForm.php:291
-#: includes/Search/SearchForm.php:446
+#: includes/Front/PublicAssets.php:208
+#: includes/Search/SearchForm.php:291
+#: includes/Search/SearchForm.php:439
 #, php-format
 msgid "Child %d age"
 msgstr "Bambino %d età"
 
-#: includes/Front/PublicAssets.php:208 includes/Search/SearchForm.php:454
+#: includes/Front/PublicAssets.php:209
+#: includes/Search/SearchForm.php:447
 msgid "Age"
 msgstr "Età"
 
-#: includes/Front/PublicAssets.php:217 includes/Search/SearchForm.php:470
+#: includes/Front/PublicAssets.php:219
+#: includes/Search/SearchForm.php:463
 msgid "Apply"
 msgstr "Applica"
 
-#: includes/Front/PublicAssets.php:218 includes/Search/SearchForm.php:469
+#: includes/Front/PublicAssets.php:220
+#: includes/Search/SearchForm.php:462
 msgid "Cancel"
 msgstr "Annulla"
 
-#: includes/Front/PublicAssets.php:219 includes/Search/SearchForm.php:106
-#: includes/Search/SearchForm.php:125 includes/Search/SearchForm.php:325
+#: includes/Front/PublicAssets.php:221
+#: includes/Search/SearchForm.php:106
+#: includes/Search/SearchForm.php:125
+#: includes/Search/SearchForm.php:325
 msgid "Check-in"
 msgstr "Check-in"
 
-#: includes/Front/PublicAssets.php:220 includes/Search/SearchForm.php:111
-#: includes/Search/SearchForm.php:130 includes/Search/SearchForm.php:328
+#: includes/Front/PublicAssets.php:222
+#: includes/Search/SearchForm.php:111
+#: includes/Search/SearchForm.php:130
+#: includes/Search/SearchForm.php:328
 msgid "Check-out"
 msgstr "Check-out"
 
 #. translators: Label between displayed start/end dates where a range picker shows a textual range. Often an en dash with spaces.
-#: includes/Front/PublicAssets.php:222
+#: includes/Front/PublicAssets.php:224
 msgid " – "
 msgstr " – "
 
-#: includes/Front/PublicAssets.php:223
+#: includes/Front/PublicAssets.php:225
 msgid "Custom"
 msgstr "Personalizzato"
 
 #. translators: Shown where check-in/out dates are not yet chosen (datepicker readout); use a short dash or “Select dates” style label.
-#: includes/Front/PublicAssets.php:225
+#: includes/Front/PublicAssets.php:227
 msgid "—"
 msgstr "—"
 
@@ -1878,166 +1567,157 @@ msgstr "—"
 msgid "Invalid gallery import state."
 msgstr "Stato importazione galleria non valido."
 
-#: includes/PostTypes/UnitPostType.php:103
+#: includes/PostTypes/UnitPostType.php:104
 msgctxt "post type general name"
 msgid "Units"
 msgstr "Unità"
 
-#: includes/PostTypes/UnitPostType.php:104
+#: includes/PostTypes/UnitPostType.php:105
 msgctxt "post type singular name"
 msgid "Unit"
 msgstr "Unità"
 
-#: includes/PostTypes/UnitPostType.php:105
+#: includes/PostTypes/UnitPostType.php:106
 msgctxt "Admin Menu text"
 msgid "Units"
 msgstr "Unità"
 
-#: includes/PostTypes/UnitPostType.php:106
+#: includes/PostTypes/UnitPostType.php:107
 msgctxt "Add New on Toolbar"
 msgid "Unit"
 msgstr "Unità"
 
-#: includes/PostTypes/UnitPostType.php:107
+#: includes/PostTypes/UnitPostType.php:108
 msgid "Add New"
 msgstr "Aggiungi nuovo"
 
-#: includes/PostTypes/UnitPostType.php:108
+#: includes/PostTypes/UnitPostType.php:109
 msgid "Add New Unit"
 msgstr "Aggiungi nuova unità"
 
-#: includes/PostTypes/UnitPostType.php:109
+#: includes/PostTypes/UnitPostType.php:110
 msgid "New Unit"
 msgstr "Nuova Unità"
 
-#: includes/PostTypes/UnitPostType.php:110
+#: includes/PostTypes/UnitPostType.php:111
 msgid "Edit Unit"
 msgstr "Modifica unità"
 
-#: includes/PostTypes/UnitPostType.php:111
+#: includes/PostTypes/UnitPostType.php:112
 msgid "View Unit"
 msgstr "Visualizza unità"
 
-#: includes/PostTypes/UnitPostType.php:113
+#: includes/PostTypes/UnitPostType.php:114
 msgid "Search Units"
 msgstr "Unità di ricerca"
 
-#: includes/PostTypes/UnitPostType.php:114
+#: includes/PostTypes/UnitPostType.php:115
 msgid "Parent Units:"
 msgstr "Unità Genitori:"
 
-#: includes/PostTypes/UnitPostType.php:115
+#: includes/PostTypes/UnitPostType.php:116
 msgid "No units found."
 msgstr "Nessuna unità trovata."
 
-#: includes/PostTypes/UnitPostType.php:116
+#: includes/PostTypes/UnitPostType.php:117
 msgid "No units found in Trash."
 msgstr "Nessuna unità trovata nel Cestino."
 
-#: includes/PostTypes/UnitPostType.php:117
+#: includes/PostTypes/UnitPostType.php:118
 msgctxt "Overrides “Featured Image”"
 msgid "Unit featured image"
 msgstr "Immagine in evidenza dell'unità"
 
-#: includes/PostTypes/UnitPostType.php:118
+#: includes/PostTypes/UnitPostType.php:119
 msgctxt "Overrides “Set featured image”"
 msgid "Set unit image"
 msgstr "Imposta l'immagine dell'unità"
 
-#: includes/PostTypes/UnitPostType.php:119
+#: includes/PostTypes/UnitPostType.php:120
 msgctxt "Overrides “Remove featured image”"
 msgid "Remove unit image"
 msgstr "Rimuovi l'immagine dell'unità"
 
-#: includes/PostTypes/UnitPostType.php:120
+#: includes/PostTypes/UnitPostType.php:121
 msgctxt "Overrides “Use as featured image”"
 msgid "Use as unit image"
 msgstr "Utilizzare come immagine dell'unità"
 
-#: includes/PostTypes/UnitPostType.php:121
+#: includes/PostTypes/UnitPostType.php:122
 msgctxt "Post type archive label in nav menus"
 msgid "Unit archives"
 msgstr "Archivi dell'Unità"
 
-#: includes/PostTypes/UnitPostType.php:122
+#: includes/PostTypes/UnitPostType.php:123
 msgctxt "Overrides “Insert into post”"
 msgid "Insert into unit"
 msgstr "Inserire nell'unità"
 
-#: includes/PostTypes/UnitPostType.php:123
+#: includes/PostTypes/UnitPostType.php:124
 msgctxt "Overrides “Uploaded to this post”"
 msgid "Uploaded to this unit"
 msgstr "Caricato su questa unità"
 
-#: includes/PostTypes/UnitPostType.php:124
+#: includes/PostTypes/UnitPostType.php:125
 msgctxt "Screen reader text for filter links"
 msgid "Filter units list"
 msgstr "Elenco delle unità di filtro"
 
-#: includes/PostTypes/UnitPostType.php:125
+#: includes/PostTypes/UnitPostType.php:126
 msgctxt "Screen reader text for pagination"
 msgid "Units list navigation"
 msgstr "Navigazione nell'elenco delle unità"
 
-#: includes/PostTypes/UnitPostType.php:126
+#: includes/PostTypes/UnitPostType.php:127
 msgctxt "Screen reader text for items list"
 msgid "Units list"
 msgstr "Elenco delle unità"
 
-#: includes/PostTypes/UnitPostType.php:427
+#: includes/PostTypes/UnitPostType.php:428
 msgid "Booking engine — synced data"
 msgstr "Booking Engine: dati sincronizzati"
 
-#: includes/PostTypes/UnitPostType.php:454
-#: includes/PostTypes/UnitPostType.php:543
+#: includes/PostTypes/UnitPostType.php:455
+#: includes/PostTypes/UnitPostType.php:544
 msgid "External ID"
 msgstr "ID esterno"
 
-#: includes/PostTypes/UnitPostType.php:456
+#: includes/PostTypes/UnitPostType.php:457
 msgid "Last sync (stored)"
 msgstr "Ultima sincronizzazione (memorizzata)"
 
-#: includes/PostTypes/UnitPostType.php:457
+#: includes/PostTypes/UnitPostType.php:458
 msgid "Sync enabled"
 msgstr "Sincronizzazione abilitata"
 
-#: includes/PostTypes/UnitPostType.php:460
-msgid ""
-"Read-only fields from the booking engine sync. Use the JSON below to see "
-"every key returned for this unit (e.g. for templates and shortcodes)."
-msgstr ""
-"Campi di sola lettura dalla sincronizzazione del Booking Engine. Utilizza il "
-"JSON riportato di seguito per visualizzare tutte le chiavi restituite per "
-"questa unità (ad esempio per modelli e codici brevi)."
+#: includes/PostTypes/UnitPostType.php:461
+msgid "Read-only fields from the booking engine sync. Use the JSON below to see every key returned for this unit (e.g. for templates and shortcodes)."
+msgstr "Campi di sola lettura dalla sincronizzazione del Booking Engine. Utilizza il JSON riportato di seguito per visualizzare tutte le chiavi restituite per questa unità (ad esempio per modelli e codici brevi)."
 
-#: includes/PostTypes/UnitPostType.php:471
-#: includes/PostTypes/UnitPostType.php:573
+#: includes/PostTypes/UnitPostType.php:472
+#: includes/PostTypes/UnitPostType.php:575
 msgid "Yes"
 msgstr "SÌ"
 
-#: includes/PostTypes/UnitPostType.php:471
-#: includes/PostTypes/UnitPostType.php:574
+#: includes/PostTypes/UnitPostType.php:472
+#: includes/PostTypes/UnitPostType.php:576
 msgid "No"
 msgstr "NO"
 
-#: includes/PostTypes/UnitPostType.php:495
+#: includes/PostTypes/UnitPostType.php:496
 msgid "Remote row (JSON)"
 msgstr "Riga remota (JSON)"
 
-#: includes/PostTypes/UnitPostType.php:498
-msgid ""
-"No payload stored yet. After the next successful sync, the full remote row "
-"will appear here."
-msgstr ""
-"Nessun carico utile ancora memorizzato. Dopo la successiva sincronizzazione "
-"riuscita, la riga remota completa verrà visualizzata qui."
+#: includes/PostTypes/UnitPostType.php:499
+msgid "No payload stored yet. After the next successful sync, the full remote row will appear here."
+msgstr "Nessun carico utile ancora memorizzato. Dopo la successiva sincronizzazione riuscita, la riga remota completa verrà visualizzata qui."
 
-#: includes/PostTypes/UnitPostType.php:546
+#: includes/PostTypes/UnitPostType.php:547
 msgid "Request only"
 msgstr "Solo su richiesta"
 
 #. translators: Kross API field indicating which booking engine slugs enable this unit.
-#: includes/PostTypes/UnitPostType.php:550
+#: includes/PostTypes/UnitPostType.php:552
 msgid "Kross BE enabled"
 msgstr "Kross BE abilitato"
 
@@ -2074,17 +1754,12 @@ msgid "API user password for token exchange."
 msgstr "Password utente API per lo scambio di token."
 
 #: includes/Providers/Kross/KrossAuthenticator.php:91
-msgid ""
-"Kross credentials are not complete (hotel, API key, username, password)."
-msgstr ""
-"Le credenziali Kross non sono complete (hotel, chiave API, nome utente, "
-"password)."
+msgid "Kross credentials are not complete (hotel, API key, username, password)."
+msgstr "Le credenziali Kross non sono complete (hotel, chiave API, nome utente, password)."
 
 #: includes/Providers/Kross/KrossAuthenticator.php:203
 msgid "Kross auth endpoint is not configured (bec_kross_auth_endpoint)."
-msgstr ""
-"L'endpoint di autenticazione Kross non è configurato "
-"(bec_kross_auth_endpoint)."
+msgstr "L'endpoint di autenticazione Kross non è configurato (bec_kross_auth_endpoint)."
 
 #. translators: %d HTTP status
 #: includes/Providers/Kross/KrossAuthenticator.php:237
@@ -2102,31 +1777,28 @@ msgstr "La richiesta dei tipi di stanza di Kross non è andata a buon fine."
 
 #: includes/Providers/Kross/KrossProvider.php:250
 msgid "Kross get-room-types-categories request was not successful."
-msgstr ""
-"La richiesta delle categorie dei tipi di stanza di Kross non è andata a buon "
-"fine."
+msgstr "La richiesta delle categorie dei tipi di stanza di Kross non è andata a buon fine."
 
 #: includes/Providers/Kross/KrossProvider.php:397
 msgid "Kross calendar/get-availability request was not successful."
-msgstr ""
-"La richiesta calendar/get-availability di Kross non è andata a buon fine."
+msgstr "La richiesta calendar/get-availability di Kross non è andata a buon fine."
 
-#: includes/Providers/Kross/KrossProvider.php:476
+#: includes/Providers/Kross/KrossProvider.php:489
 msgid "Search context must include check-in and check-out dates."
 msgstr "Il contesto di ricerca deve includere le date di check-in e check-out."
 
-#: includes/Providers/Kross/KrossProvider.php:524
+#: includes/Providers/Kross/KrossProvider.php:537
 msgid "Kross calendar/book request was not successful."
 msgstr "La richiesta di calendario/libro di Kross non è andata a buon fine."
 
 #. translators: %d HTTP status
-#: includes/Providers/Kross/KrossProvider.php:696
+#: includes/Providers/Kross/KrossProvider.php:709
 #, php-format
 msgid "Kross API request failed (%d)."
 msgstr "Richiesta API Kross non riuscita (%d)."
 
 #. translators: %d Kross API error_code
-#: includes/Providers/Kross/KrossProvider.php:721
+#: includes/Providers/Kross/KrossProvider.php:734
 #, php-format
 msgid "(error_code %d)"
 msgstr "(codice_errore %d)"
@@ -2263,37 +1935,22 @@ msgid "/{term name}"
 msgstr "/{nome termine}"
 
 #: includes/Routing/UnitPermalinkSettings.php:140
-msgid ""
-"Category URLs under the unit slug cannot be used together with unit URLs in "
-"the “/{unit slug}/{unit name}” format, because both use two URL segments and "
-"cannot be distinguished."
-msgstr ""
-"Gli URL categoria sotto lo slug unità non possono essere usati insieme agli "
-"URL unità nel formato «/{slug unità}/{nome unità}», perché entrambi usano "
-"due segmenti URL e non sono distinguibili."
+msgid "Category URLs under the unit slug cannot be used together with unit URLs in the “/{unit slug}/{unit name}” format, because both use two URL segments and cannot be distinguished."
+msgstr "Gli URL categoria sotto lo slug unità non possono essere usati insieme agli URL unità nel formato «/{slug unità}/{nome unità}», perché entrambi usano due segmenti URL e non sono distinguibili."
 
 #: includes/Routing/UnitPermalinkSettings.php:148
 msgid "The selected unit URL structure requires unit categories to be enabled."
-msgstr ""
-"La struttura URL unità selezionata richiede che le categorie unità siano "
-"abilitate."
+msgstr "La struttura URL unità selezionata richiede che le categorie unità siano abilitate."
 
 #: includes/Routing/UnitPermalinkSettings.php:155
-msgid ""
-"The selected category URL structure requires unit categories to be enabled."
-msgstr ""
-"La struttura URL categoria selezionata richiede che le categorie unità siano "
-"abilitate."
+msgid "The selected category URL structure requires unit categories to be enabled."
+msgstr "La struttura URL categoria selezionata richiede che le categorie unità siano abilitate."
 
 #. translators: %s: comma-separated list of conflicting slugs
 #: includes/Routing/UnitPermalinkSettings.php:167
 #, php-format
-msgid ""
-"Top-level category URLs may conflict with existing content slugs: %s. "
-"Resolve these conflicts or choose a different structure."
-msgstr ""
-"Gli URL categoria di primo livello possono entrare in conflitto con slug di "
-"contenuto esistenti: %s. Risolvi i conflitti o scegli una struttura diversa."
+msgid "Top-level category URLs may conflict with existing content slugs: %s. Resolve these conflicts or choose a different structure."
+msgstr "Gli URL categoria di primo livello possono entrare in conflitto con slug di contenuto esistenti: %s. Risolvi i conflitti o scegli una struttura diversa."
 
 #: includes/Search/QuoteService.php:37
 msgid "Search parameters are incomplete."
@@ -2303,59 +1960,62 @@ msgstr "I parametri di ricerca sono incompleti."
 msgid "This unit is not linked to the booking provider."
 msgstr "Questa unità non è collegata al fornitore della prenotazione."
 
-#: includes/Search/QuoteService.php:85 includes/Search/QuoteService.php:119
-msgid ""
-"We could not retrieve a price from the booking provider. Please try again."
-msgstr ""
-"Non siamo riusciti a recuperare un prezzo dal fornitore della prenotazione. "
-"Per favore riprova."
+#: includes/Search/QuoteService.php:85
+#: includes/Search/QuoteService.php:119
+msgid "We could not retrieve a price from the booking provider. Please try again."
+msgstr "Non siamo riusciti a recuperare un prezzo dal fornitore della prenotazione. Per favore riprova."
 
-#: includes/Search/SearchForm.php:116 includes/Search/SearchForm.php:337
-#: includes/Search/SearchForm.php:361 includes/Search/SearchForm.php:407
+#: includes/Search/SearchForm.php:116
+#: includes/Search/SearchForm.php:337
+#: includes/Search/SearchForm.php:361
+#: includes/Search/SearchForm.php:400
 msgid "Guests"
 msgstr "Ospiti"
 
-#: includes/Search/SearchForm.php:135 includes/Search/SearchForm.php:331
+#: includes/Search/SearchForm.php:135
+#: includes/Search/SearchForm.php:331
 msgid "Adults"
 msgstr "Adulti"
 
-#: includes/Search/SearchForm.php:141 includes/Search/SearchForm.php:334
+#: includes/Search/SearchForm.php:141
+#: includes/Search/SearchForm.php:334
 msgid "Children"
 msgstr "Bambini"
 
-#: includes/Search/SearchForm.php:272 includes/Search/SearchForm.php:477
+#: includes/Search/SearchForm.php:272
+#: includes/Search/SearchForm.php:470
 msgid "Search availability"
 msgstr "Cerca disponibilità"
 
-#: includes/Search/SearchForm.php:379
+#: includes/Search/SearchForm.php:372
 msgid "Search stays"
 msgstr "La ricerca resta"
 
-#: includes/Search/SearchForm.php:381
+#: includes/Search/SearchForm.php:374
 msgid "Select dates"
 msgstr "Seleziona le date"
 
-#: includes/Search/SearchForm.php:417
+#: includes/Search/SearchForm.php:410
 msgid "Decrease guests"
 msgstr "Diminuire gli ospiti"
 
-#: includes/Search/SearchForm.php:419
+#: includes/Search/SearchForm.php:412
 msgid "Increase guests"
 msgstr "Aumenta gli ospiti"
 
-#: includes/Search/SearchForm.php:425
+#: includes/Search/SearchForm.php:418
 msgid "Decrease adults"
 msgstr "Diminuire gli adulti"
 
-#: includes/Search/SearchForm.php:427
+#: includes/Search/SearchForm.php:420
 msgid "Increase adults"
 msgstr "Aumentano gli adulti"
 
-#: includes/Search/SearchForm.php:433
+#: includes/Search/SearchForm.php:426
 msgid "Decrease children"
 msgstr "Diminuire i bambini"
 
-#: includes/Search/SearchForm.php:435
+#: includes/Search/SearchForm.php:428
 msgid "Increase children"
 msgstr "Aumentare i bambini"
 
@@ -2534,27 +2194,16 @@ msgid "Unit — core fields (canonical)"
 msgstr "Unità: campi principali (canonici)"
 
 #: includes/Sync/CoreUnitFieldRegistry.php:446
-msgid ""
-"Provider-independent fields used in themes and shortcodes. Sync overwrites "
-"these on each run unless disabled via filter."
-msgstr ""
-"Campi indipendenti dal provider utilizzati in temi e shortcode. La "
-"sincronizzazione li sovrascrive a ogni esecuzione, a meno che non venga "
-"disabilitata tramite filtro."
+msgid "Provider-independent fields used in themes and shortcodes. Sync overwrites these on each run unless disabled via filter."
+msgstr "Campi indipendenti dal provider utilizzati in temi e shortcode. La sincronizzazione li sovrascrive a ogni esecuzione, a meno che non venga disabilitata tramite filtro."
 
 #: includes/Sync/CoreUnitFieldRegistry.php:488
-msgid ""
-"Array of items: key, labels per locale, optional icon. Override via "
-"bec_provider_amenities_from_row / bec_kross_amenities_from_raw."
-msgstr ""
-"Serie di elementi: chiave, etichette per locale, icona opzionale. "
-"Sostituisci tramite bec_provider_amenities_from_row / "
-"bec_kross_amenities_from_raw."
+msgid "Array of items: key, labels per locale, optional icon. Override via bec_provider_amenities_from_row / bec_kross_amenities_from_raw."
+msgstr "Serie di elementi: chiave, etichette per locale, icona opzionale. Sostituisci tramite bec_provider_amenities_from_row / bec_kross_amenities_from_raw."
 
 #: includes/Sync/CoreUnitFieldRegistry.php:498
 msgid "Derived from latitude and longitude on sync or save."
-msgstr ""
-"Derivato da latitudine e longitudine alla sincronizzazione o al salvataggio."
+msgstr "Derivato da latitudine e longitudine alla sincronizzazione o al salvataggio."
 
 #: includes/Sync/CoreUnitFieldRegistry.php:507
 msgid "Use decimals if needed (e.g. 1.5)."
@@ -2574,12 +2223,8 @@ msgid "Close"
 msgstr "Chiudi"
 
 #: includes/Sync/CoreUnitFieldRegistry.php:608
-msgid ""
-"No images yet. Gallery images are filled by sync (attachment IDs in post "
-"meta)."
-msgstr ""
-"Ancora nessuna immagine. La galleria viene compilata dalla sincronizzazione "
-"(ID allegati nei meta del post)."
+msgid "No images yet. Gallery images are filled by sync (attachment IDs in post meta)."
+msgstr "Ancora nessuna immagine. La galleria viene compilata dalla sincronizzazione (ID allegati nei meta del post)."
 
 #. translators: %d: attachment post ID
 #: includes/Sync/CoreUnitFieldRegistry.php:633
@@ -2625,7 +2270,8 @@ msgstr "Blocco acquisito."
 msgid "Fetching remote units…"
 msgstr "Recupero unità remote…"
 
-#: includes/Sync/SyncService.php:234 includes/Sync/SyncService.php:242
+#: includes/Sync/SyncService.php:234
+#: includes/Sync/SyncService.php:242
 msgid "Invalid unit post."
 msgstr "Posta unitaria non valida."
 
@@ -2642,7 +2288,8 @@ msgid "Remote unit not found for this external ID."
 msgstr "Unità remota non trovata per questo ID esterno."
 
 #. translators: %s external id
-#: includes/Sync/SyncService.php:360 includes/Sync/SyncService.php:504
+#: includes/Sync/SyncService.php:360
+#: includes/Sync/SyncService.php:504
 #, php-format
 msgid "Unit %s"
 msgstr "Unità %s"
@@ -2662,33 +2309,16 @@ msgid "Booking engine — unit fields"
 msgstr "Booking Engine: campi unitari"
 
 #: includes/Sync/UnitSyncFieldRegistry.php:259
-msgid ""
-"Save the unit after sync so the provider is set; mapped fields appear per "
-"active provider."
-msgstr ""
-"Salvare l'unità dopo la sincronizzazione in modo che il provider sia "
-"impostato; i campi mappati vengono visualizzati per fornitore attivo."
+msgid "Save the unit after sync so the provider is set; mapped fields appear per active provider."
+msgstr "Salvare l'unità dopo la sincronizzazione in modo che il provider sia impostato; i campi mappati vengono visualizzati per fornitore attivo."
 
 #: includes/Sync/UnitSyncFieldRegistry.php:269
-msgid ""
-"No extra provider-specific fields are registered. Use the filter "
-"bec_unit_sync_field_definitions (or implement getUnitSyncFieldDefinitions) "
-"for client-specific mappings. Core fields are in “Unit — core fields "
-"(canonical)”."
-msgstr ""
-"Non sono registrati campi aggiuntivi specifici del provider. Utilizza il "
-"filtro bec_unit_sync_field_definitions (o implementa "
-"getUnitSyncFieldDefinitions) per mappature specifiche del client. I campi "
-"principali si trovano in \"Unità - campi principali (canonici)\"."
+msgid "No extra provider-specific fields are registered. Use the filter bec_unit_sync_field_definitions (or implement getUnitSyncFieldDefinitions) for client-specific mappings. Core fields are in “Unit — core fields (canonical)”."
+msgstr "Non sono registrati campi aggiuntivi specifici del provider. Utilizza il filtro bec_unit_sync_field_definitions (o implementa getUnitSyncFieldDefinitions) per mappature specifiche del client. I campi principali si trovano in \"Unità - campi principali (canonici)\"."
 
 #: includes/Sync/UnitSyncFieldRegistry.php:279
-msgid ""
-"Optional provider-specific meta (in addition to core fields). Values refresh "
-"on sync; you can override here for the site."
-msgstr ""
-"Meta facoltativo specifico del fornitore (oltre ai campi principali). I "
-"valori si aggiornano durante la sincronizzazione; puoi eseguire l'override "
-"qui per il sito."
+msgid "Optional provider-specific meta (in addition to core fields). Values refresh on sync; you can override here for the site."
+msgstr "Meta facoltativo specifico del fornitore (oltre ai campi principali). I valori si aggiornano durante la sincronizzazione; puoi eseguire l'override qui per il sito."
 
 #: includes/Taxonomies/UnitAmenityTaxonomy.php:60
 msgctxt "taxonomy general name"
@@ -2895,6 +2525,7 @@ msgstr "Superficie (m²)"
 msgid "Amenities (JSON)"
 msgstr "Servizi (JSON)"
 
+#: includes/Units/Completeness/UnitMandatoryFieldRegistry.php:50
 #: includes/Units/CoreUnitMetaKeys.php:100
 msgid "Gallery"
 msgstr "Galleria"
@@ -2911,5 +2542,212 @@ msgstr "Prenotabile solo su richiesta"
 msgid "Starting from price"
 msgstr "Prezzo a partire da"
 
-#~ msgid "Used when “Link only” is selected."
-#~ msgstr "Utilizzato quando è selezionato “Solo collegamento”."
+#: includes/Admin/AdminMenu.php:90
+#: includes/Admin/AdminMenu.php:91
+#: includes/Admin/AdminMenu.php:294
+#: includes/Admin/AdminMenu.php:376
+#: includes/Admin/Settings/UnitDataQualityPage.php:44
+msgid "Unit data quality"
+msgstr "Qualità dati unità"
+
+#. translators: %d: incomplete unit count
+#: includes/Admin/AdminMenu.php:268
+#, php-format
+msgid "%d incomplete"
+msgid_plural "%d incomplete"
+msgstr[0] "%d incompleta"
+msgstr[1] "%d incomplete"
+
+#: includes/Admin/AdminMenu.php:271
+msgid "All complete"
+msgstr "Tutto completo"
+
+#: includes/Admin/AdminMenu.php:273
+msgid "No units"
+msgstr "Nessuna unità"
+
+#. translators: 1: incomplete count, 2: total count
+#: includes/Admin/AdminMenu.php:283
+#, php-format
+msgid "%1$d of %2$d units missing mandatory fields."
+msgstr "%1$d unità su %2$d non hanno tutti i campi obbligatori."
+
+#: includes/Admin/AdminMenu.php:287
+msgid "Configure mandatory fields to validate synced unit data."
+msgstr "Configura i campi obbligatori per validare i dati delle unità sincronizzate."
+
+#: includes/Admin/AdminMenu.php:300
+#: includes/Admin/Settings/UnitDataQualityPage.php:79
+msgid "View incomplete units"
+msgstr "Vedi unità incomplete"
+
+#: includes/Admin/AdminMenu.php:301
+#: includes/Admin/UnitCompletenessAdmin.php:101
+#: includes/Admin/UnitCompletenessAdmin.php:249
+msgid "Configure fields"
+msgstr "Configura campi"
+
+#: includes/Admin/AdminMenu.php:306
+msgid "Completeness export"
+msgstr "Esportazione completezza"
+
+#: includes/Admin/AdminMenu.php:307
+msgid "CSV report"
+msgstr "Report CSV"
+
+#: includes/Admin/AdminMenu.php:309
+msgid "Download a spreadsheet of units and missing mandatory fields for client follow-up."
+msgstr "Scarica un foglio di calcolo con le unità e i campi obbligatori mancanti da inviare al cliente."
+
+#: includes/Admin/AdminMenu.php:311
+#: includes/Admin/Settings/UnitDataQualityPage.php:82
+#: includes/Admin/UnitCompletenessAdmin.php:104
+#: includes/Admin/UnitCompletenessAdmin.php:252
+msgid "Download CSV"
+msgstr "Scarica CSV"
+
+#: includes/Admin/AdminMenu.php:377
+msgid "Mandatory field checks, warnings, and CSV export."
+msgstr "Controlli campi obbligatori, avvisi ed esportazione CSV."
+
+#: includes/Admin/Settings/FrontendPage.php:138
+msgid "Minimum stay (nights)"
+msgstr ""
+
+#: includes/Admin/Settings/FrontendPage.php:140
+msgid "Minimum number of nights per booking. Used when validating search submissions and, when calendar availability hints are enabled, to grey out check-in dates that cannot satisfy this stay length."
+msgstr ""
+
+#: includes/Admin/Settings/UnitDataQualityPage.php:45
+msgid "Choose which canonical unit fields must be filled after sync. Incomplete units are flagged in the admin and can be exported as CSV for client follow-up."
+msgstr "Scegli quali campi canonici dell'unità devono essere compilati dopo la sincronizzazione. Le unità incomplete vengono segnalate nell'admin e possono essere esportate in CSV per il follow-up con il cliente."
+
+#. translators: 1: incomplete count, 2: total count
+#: includes/Admin/Settings/UnitDataQualityPage.php:59
+#, php-format
+msgid "%1$d of %2$d published units are missing one or more mandatory fields."
+msgstr "%1$d unità pubblicate su %2$d non hanno uno o più campi obbligatori."
+
+#. translators: %d: total unit count
+#: includes/Admin/Settings/UnitDataQualityPage.php:69
+#: includes/Admin/UnitCompletenessAdmin.php:204
+#, php-format
+msgid "All %d published units have the required fields."
+msgstr "Tutte le %d unità pubblicate hanno i campi richiesti."
+
+#: includes/Admin/Settings/UnitDataQualityPage.php:91
+msgid "Mandatory fields"
+msgstr "Campi obbligatori"
+
+#: includes/Admin/Settings/UnitDataQualityPage.php:92
+msgid "Checked fields must be present on each published unit (canonical posts only when translations exist). Provider data is not queried — only what is stored in WordPress after sync."
+msgstr "I campi selezionati devono essere presenti su ogni unità pubblicata (solo post canonici quando esistono traduzioni). I dati del provider non vengono interrogati — solo ciò che è memorizzato in WordPress dopo la sincronizzazione."
+
+#: includes/Admin/Settings/UnitDataQualityPage.php:135
+msgid "Minimum gallery images"
+msgstr "Numero minimo immagini galleria"
+
+#: includes/Admin/Settings/UnitDataQualityPage.php:137
+msgid "Applies when Gallery is mandatory. Featured image is checked separately."
+msgstr "Si applica quando la Galleria è obbligatoria. L'immagine in evidenza viene controllata separatamente."
+
+#: includes/Admin/UnitCompletenessAdmin.php:76
+msgid "All published units have the required mandatory fields."
+msgstr "Tutte le unità pubblicate hanno i campi obbligatori richiesti."
+
+#: includes/Admin/UnitCompletenessAdmin.php:81
+#: includes/Admin/UnitCompletenessAdmin.php:186
+msgid "Configure mandatory fields"
+msgstr "Configura campi obbligatori"
+
+#. translators: 1: incomplete count, 2: total count
+#: includes/Admin/UnitCompletenessAdmin.php:92
+#: includes/Admin/UnitCompletenessAdmin.php:212
+#, php-format
+msgid "%1$d of %2$d units are missing mandatory fields."
+msgstr "%1$d unità su %2$d non hanno i campi obbligatori."
+
+#: includes/Admin/UnitCompletenessAdmin.php:98
+#: includes/Admin/UnitCompletenessAdmin.php:256
+msgid "View incomplete"
+msgstr "Vedi incomplete"
+
+#. translators: %s: number of incomplete units
+#: includes/Admin/UnitCompletenessAdmin.php:131
+#, php-format
+msgid "Incomplete <span class=\"count\">(%s)</span>"
+msgstr "Incomplete <span class=\"count\">(%s)</span>"
+
+#: includes/Admin/UnitCompletenessAdmin.php:173
+msgid "Booking Engine — unit data quality"
+msgstr "Booking Engine — qualità dati unità"
+
+#: includes/Admin/UnitCompletenessAdmin.php:181
+msgid "No mandatory fields are configured yet."
+msgstr "Nessun campo obbligatorio è ancora configurato."
+
+#: includes/Admin/UnitCompletenessAdmin.php:195
+msgid "No published units yet."
+msgstr "Nessuna unità pubblicata."
+
+#. translators: %d: additional incomplete unit count
+#: includes/Admin/UnitCompletenessAdmin.php:239
+#, php-format
+msgid "…and %d more."
+msgstr "…e altre %d."
+
+#. translators: %d: number of missing mandatory fields
+#: includes/Admin/UnitCompletenessAdmin.php:285
+#, php-format
+msgid "Missing (%d)"
+msgid_plural "Missing (%d)"
+msgstr[0] "Mancante (%d)"
+msgstr[1] "Mancanti (%d)"
+
+#: includes/PostTypes/UnitPostType.php:548
+msgid "Data quality"
+msgstr "Qualità dati"
+
+#. translators: 1: current image count, 2: required minimum
+#: includes/Units/Completeness/UnitCompletenessChecker.php:281
+#, php-format
+msgid "%1$d/%2$d images"
+msgstr "%1$d/%2$d immagini"
+
+#. translators: 1: current image count, 2: required minimum
+#: includes/Units/Completeness/UnitCompletenessChecker.php:290
+#, php-format
+msgid "Missing (%1$d/%2$d)"
+msgstr "Mancante (%1$d/%2$d)"
+
+#: includes/Units/Completeness/UnitCompletenessExport.php:33
+msgid "You do not have permission to export unit data."
+msgstr "Non hai l'autorizzazione per esportare i dati delle unità."
+
+#: includes/Units/Completeness/UnitCompletenessExport.php:49
+msgid "Could not open export stream."
+msgstr "Impossibile aprire il flusso di esportazione."
+
+#: includes/Units/Completeness/UnitMandatoryFieldRegistry.php:43
+msgid "Featured image"
+msgstr "Immagine in evidenza"
+
+#: includes/Units/Completeness/UnitMandatoryFieldRegistry.php:68
+msgid "Content"
+msgstr "Contenuto"
+
+#: includes/Units/Completeness/UnitMandatoryFieldRegistry.php:69
+msgid "Location"
+msgstr "Posizione"
+
+#: includes/Units/Completeness/UnitMandatoryFieldRegistry.php:70
+msgid "Capacity"
+msgstr "Capacità"
+
+#: includes/Units/Completeness/UnitMandatoryFieldRegistry.php:71
+msgid "Media"
+msgstr "Media"
+
+#: includes/Units/Completeness/UnitMandatoryFieldRegistry.php:72
+msgid "Other"
+msgstr "Altro"

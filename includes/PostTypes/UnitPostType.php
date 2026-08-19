@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace BookingEngineConnector\PostTypes;
 
 use BookingEngineConnector\Providers\ProviderRegistry;
+use BookingEngineConnector\Admin\UnitCompletenessAdmin;
 use BookingEngineConnector\Sync\JsonExtensionFlags;
 use BookingEngineConnector\Sync\SyncPayloadEncoder;
 use BookingEngineConnector\Units\UnitBookingMode;
@@ -544,6 +545,7 @@ final class UnitPostType
 				$out['bec_provider_slug']      = __('Provider', 'booking-engine-connector');
 				$out['bec_last_sync_at']       = __('Last sync', 'booking-engine-connector');
 				$out['bec_core_only_request']  = __('Request only', 'booking-engine-connector');
+				$out['bec_completeness']       = __('Data quality', 'booking-engine-connector');
 
 				if (ProviderRegistry::getActiveSlug() === 'kross') {
 					/* translators: Kross API field indicating which booking engine slugs enable this unit. */
@@ -579,6 +581,9 @@ final class UnitPostType
 					break;
 				}
 				echo self::formatKrossBeEnabledListCell($post_id);
+				break;
+			case 'bec_completeness':
+				UnitCompletenessAdmin::renderListColumn($post_id);
 				break;
 		}
 	}

@@ -8,6 +8,7 @@ use BookingEngineConnector\Admin\Settings\ConnectionPage;
 use BookingEngineConnector\Admin\Settings\FallbackPage;
 use BookingEngineConnector\Admin\Settings\FrontendPage;
 use BookingEngineConnector\Admin\Settings\StylingPage;
+use BookingEngineConnector\Admin\Settings\UnitDataQualityPage;
 use BookingEngineConnector\Admin\Settings\UnitFiltersPage;
 use BookingEngineConnector\Admin\Settings\UnitPermalinkPage;
 use BookingEngineConnector\Fallback\FallbackSettings;
@@ -16,6 +17,8 @@ use BookingEngineConnector\Providers\Kross\KrossTestMode;
 use BookingEngineConnector\Providers\ProviderRegistry;
 use BookingEngineConnector\Sync\SyncCron;
 use BookingEngineConnector\Sync\SyncLock;
+use BookingEngineConnector\Units\Completeness\UnitCompletenessExport;
+use BookingEngineConnector\Units\Completeness\UnitCompletenessReport;
 
 /**
  * Registers top-level admin menu and subpages.
@@ -80,6 +83,15 @@ final class AdminMenu
 			self::CAPABILITY,
 			SyncAdmin::PAGE_SLUG,
 			[SyncAdmin::class, 'renderPage']
+		);
+
+		\add_submenu_page(
+			'bec-dashboard',
+			\__('Unit data quality', 'booking-engine-connector'),
+			\__('Unit data quality', 'booking-engine-connector'),
+			self::CAPABILITY,
+			UnitDataQualityPage::PAGE_SLUG,
+			[UnitDataQualityPage::class, 'render']
 		);
 
 		\add_submenu_page(
@@ -249,6 +261,57 @@ final class AdminMenu
 			\__('View units', 'booking-engine-connector')
 		);
 
+		$qualitySummary = UnitCompletenessReport::getSummary();
+		$qualityValue   = $qualitySummary['incomplete'] > 0
+			? \sprintf(
+				/* translators: %d: incomplete unit count */
+				\_n('%d incomplete', '%d incomplete', (int) $qualitySummary['incomplete'], 'booking-engine-connector'),
+				(int) $qualitySummary['incomplete']
+			)
+			: \__('All complete', 'booking-engine-connector');
+		$qualityBadge   = $qualitySummary['total'] === 0
+			? AdminPageLayout::badge(\__('No units', 'booking-engine-connector'), 'neutral')
+			: AdminPageLayout::badge(
+				$qualitySummary['incomplete'] > 0
+					? \__('Action needed', 'booking-engine-connector')
+					: \__('Complete', 'booking-engine-connector'),
+				$qualitySummary['incomplete'] > 0 ? 'warning' : 'success'
+			);
+		$qualityDetail  = $qualitySummary['total'] > 0
+			? \sprintf(
+				/* translators: 1: incomplete count, 2: total count */
+				\__('%1$d of %2$d units missing mandatory fields.', 'booking-engine-connector'),
+				(int) $qualitySummary['incomplete'],
+				(int) $qualitySummary['total']
+			)
+			: \__('Configure mandatory fields to validate synced unit data.', 'booking-engine-connector');
+
+		$qualityLink = $qualitySummary['incomplete'] > 0
+			? \admin_url('edit.php?post_type=' . UnitPostType::getSlug() . '&bec_incomplete=1')
+			: \admin_url('admin.php?page=' . UnitDataQualityPage::PAGE_SLUG);
+
+		AdminPageLayout::statusCard(
+			\__('Unit data quality', 'booking-engine-connector'),
+			$qualityValue,
+			$qualityBadge,
+			$qualityDetail,
+			$qualityLink,
+			$qualitySummary['incomplete'] > 0
+				? \__('View incomplete units', 'booking-engine-connector')
+				: \__('Configure fields', 'booking-engine-connector')
+		);
+
+		if ($qualitySummary['incomplete'] > 0) {
+			AdminPageLayout::statusCard(
+				\__('Completeness export', 'booking-engine-connector'),
+				\__('CSV report', 'booking-engine-connector'),
+				'',
+				\__('Download a spreadsheet of units and missing mandatory fields for client follow-up.', 'booking-engine-connector'),
+				UnitCompletenessExport::downloadUrl(),
+				\__('Download CSV', 'booking-engine-connector')
+			);
+		}
+
 		AdminPageLayout::statusCard(
 			\__('Checkout URL', 'booking-engine-connector'),
 			$checkoutUrl !== ''
@@ -307,6 +370,11 @@ final class AdminMenu
 			\admin_url('admin.php?page=' . FrontendPage::PAGE_SLUG),
 			\__('Frontend settings', 'booking-engine-connector'),
 			\__('Search form guest fields and single-unit content.', 'booking-engine-connector')
+		);
+		AdminPageLayout::quickAction(
+			\admin_url('admin.php?page=' . UnitDataQualityPage::PAGE_SLUG),
+			\__('Unit data quality', 'booking-engine-connector'),
+			\__('Mandatory field checks, warnings, and CSV export.', 'booking-engine-connector')
 		);
 		AdminPageLayout::quickAction(
 			\admin_url('admin.php?page=' . UnitPermalinkPage::PAGE_SLUG),
