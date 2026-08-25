@@ -483,6 +483,7 @@ final class SearchForm
 	 *     unavailable_ranges: list<array{from: string, to: string}>,
 	 *     invalid_checkin_ranges: list<array{from: string, to: string}>,
 	 *     invalid_checkout_ranges?: list<array{from: string, to: string}>,
+	 *     checkout_only_ranges?: list<array{from: string, to: string}>,
 	 *     stay_rules?: array<string, array{mi?: int, ma?: int}>,
 	 *     min_nights: int,
 	 *     horizon_to: string
@@ -496,6 +497,7 @@ final class SearchForm
 				'unavailable_ranges'      => [],
 				'invalid_checkin_ranges'  => [],
 				'invalid_checkout_ranges' => [],
+				'checkout_only_ranges'    => [],
 				'stay_rules'              => [],
 				'min_nights'              => (int) \apply_filters('bec_search_min_nights', SearchSettings::DEFAULT_MIN_NIGHTS, null),
 				'horizon_to'              => CalendarAvailabilityService::getHorizonDateTo(),
@@ -513,6 +515,7 @@ final class SearchForm
 				'unavailable_ranges'      => [],
 				'invalid_checkin_ranges'  => [],
 				'invalid_checkout_ranges' => [],
+				'checkout_only_ranges'    => [],
 				'stay_rules'              => [],
 				'min_nights'              => (int) \apply_filters('bec_search_min_nights', SearchSettings::DEFAULT_MIN_NIGHTS, null),
 				'horizon_to'              => CalendarAvailabilityService::getHorizonDateTo(),
@@ -528,6 +531,7 @@ final class SearchForm
 	 *     unavailable_ranges?: list<array{from: string, to: string}>,
 	 *     invalid_checkin_ranges?: list<array{from: string, to: string}>,
 	 *     invalid_checkout_ranges?: list<array{from: string, to: string}>,
+	 *     checkout_only_ranges?: list<array{from: string, to: string}>,
 	 *     stay_rules?: array<string, array{mi?: int, ma?: int}>,
 	 *     min_nights?: int,
 	 *     horizon_to?: string
@@ -545,6 +549,7 @@ final class SearchForm
 		$unavailableRanges = (array) ($calendarHints['unavailable_ranges'] ?? []);
 		$invalidCheckinRanges = (array) ($calendarHints['invalid_checkin_ranges'] ?? []);
 		$invalidCheckoutRanges = (array) ($calendarHints['invalid_checkout_ranges'] ?? []);
+		$checkoutOnlyRanges = (array) ($calendarHints['checkout_only_ranges'] ?? []);
 		$stayRules = (array) ($calendarHints['stay_rules'] ?? []);
 
 		$unavailableJson = (string) \wp_json_encode($unavailableRanges);
@@ -560,6 +565,11 @@ final class SearchForm
 		$checkoutJson = (string) \wp_json_encode($invalidCheckoutRanges);
 		if ($checkoutJson !== '' && $invalidCheckoutRanges !== []) {
 			$attrs .= ' data-bec-invalid-checkout-ranges="' . \esc_attr($checkoutJson) . '"';
+		}
+
+		$checkoutOnlyJson = (string) \wp_json_encode($checkoutOnlyRanges);
+		if ($checkoutOnlyJson !== '' && $checkoutOnlyRanges !== []) {
+			$attrs .= ' data-bec-checkout-only-ranges="' . \esc_attr($checkoutOnlyJson) . '"';
 		}
 
 		$stayRulesJson = (string) \wp_json_encode($stayRules);

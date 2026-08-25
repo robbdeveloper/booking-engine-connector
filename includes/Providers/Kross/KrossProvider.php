@@ -521,37 +521,48 @@ final class KrossProvider implements ProviderInterface, BulkQuoteProviderInterfa
 	 *     unavailable_ranges: list<array{from: string, to: string}>,
 	 *     invalid_checkin_ranges: list<array{from: string, to: string}>,
 	 *     invalid_checkout_ranges: list<array{from: string, to: string}>,
+	 *     checkout_only_ranges: list<array{from: string, to: string}>,
 	 *     stay_rules: array<string, array{mi: int, ma?: int}>
 	 * }
 	 */
-	public static function normalizeGetAvaAvailability(mixed $payload, string $dateFrom, string $dateTo): array
-	{
+	public static function normalizeGetAvaAvailability(
+		mixed $payload,
+		string $dateFrom,
+		string $dateTo,
+		int $globalMinNights = 1
+	): array {
 		$availability = [];
 		if (\is_array($payload) && isset($payload['availability']) && \is_array($payload['availability'])) {
 			$availability = $payload['availability'];
 		}
 
-		$unavailableDays  = [];
-		$invalidCheckin   = [];
+		$globalMinNights = \max(1, $globalMinNights);
+		$pluginMaxNights = (int) \apply_filters('bec_search_max_nights', 365, null);
+		if ($pluginMaxNights < 1) {
+			$pluginMaxNights = 365;
+		}
+
+		$presentDays      = [];
 		$invalidCheckout  = [];
 		$stayRules        = [];
+		$closedCheckin    = [];
 
-		foreach (self::iterateCalendarDays($dateFrom, $dateTo) as $day) {
-			if (! isset($availability[$day]) || ! \is_array($availability[$day])) {
-				$unavailableDays[$day] = true;
+		foreach ($availability as $day => $row) {
+			if (! \is_string($day) || ! \is_array($row)) {
+				continue;
+			}
+			if ($day < $dateFrom || $day > $dateTo) {
 				continue;
 			}
 
-			$row = $availability[$day];
-			$mi  = isset($row['mi']) ? (int) $row['mi'] : 0;
-			$ma  = isset($row['ma']) ? (int) $row['ma'] : 0;
-			$ca  = self::widgetFlagIsSet($row['ca'] ?? null);
-			$cd  = self::widgetFlagIsSet($row['cd'] ?? null);
+			$presentDays[$day] = true;
 
-			if ($ca) {
-				$invalidCheckin[$day] = true;
+			$mi = isset($row['mi']) ? (int) $row['mi'] : 0;
+			$ma = isset($row['ma']) ? (int) $row['ma'] : 0;
+			if (self::widgetFlagIsSet($row['ca'] ?? null)) {
+				$closedCheckin[$day] = true;
 			}
-			if ($cd) {
+			if (self::widgetFlagIsSet($row['cd'] ?? null)) {
 				$invalidCheckout[$day] = true;
 			}
 
@@ -567,12 +578,205 @@ final class KrossProvider implements ProviderInterface, BulkQuoteProviderInterfa
 			}
 		}
 
+		$checkoutOnly = self::deriveGetAvaCheckoutOnlyDays($presentDays, $dateFrom, $dateTo);
+		$invalidCheckin = [];
+		$presentRuns    = self::contiguousPresentRuns($presentDays, $dateFrom, $dateTo);
+
+		foreach ($presentRuns as $run) {
+			$runLength = \count($run);
+			foreach ($run as $day) {
+				if (isset($closedCheckin[$day])) {
+					$invalidCheckin[$day] = true;
+					continue;
+				}
+
+				$isValidCheckin = self::getAvaDayHasLegalCheckout(
+					$day,
+					$presentDays,
+					$checkoutOnly,
+					$invalidCheckout,
+					$stayRules,
+					$globalMinNights,
+					$pluginMaxNights,
+					$dateTo
+				);
+
+				if ($isValidCheckin) {
+					continue;
+				}
+
+				$invalidCheckin[$day] = true;
+
+				if ($runLength > 1 && $day !== $run[0] && ! isset($checkoutOnly[$day])) {
+					$checkoutOnly[$day] = true;
+				}
+			}
+		}
+
+		$unavailableDays = [];
+		foreach (self::iterateCalendarDays($dateFrom, $dateTo) as $day) {
+			if (isset($presentDays[$day]) || isset($checkoutOnly[$day])) {
+				continue;
+			}
+			$unavailableDays[$day] = true;
+		}
+
 		return [
 			'unavailable_ranges'      => self::markedDaysToRanges($unavailableDays, $dateFrom, $dateTo),
 			'invalid_checkin_ranges'  => self::markedDaysToRanges($invalidCheckin, $dateFrom, $dateTo),
 			'invalid_checkout_ranges' => self::markedDaysToRanges($invalidCheckout, $dateFrom, $dateTo),
+			'checkout_only_ranges'    => self::markedDaysToRanges($checkoutOnly, $dateFrom, $dateTo),
 			'stay_rules'              => $stayRules,
 		];
+	}
+
+	/**
+	 * Bridge departure days immediately after each inventory run (not present in JSON).
+	 *
+	 * @param array<string, true> $presentDays
+	 *
+	 * @return array<string, true>
+	 */
+	private static function deriveGetAvaCheckoutOnlyDays(
+		array $presentDays,
+		string $dateFrom,
+		string $dateTo
+	): array {
+		$checkoutOnly = [];
+
+		foreach (self::iterateCalendarDays($dateFrom, $dateTo) as $day) {
+			if (isset($presentDays[$day])) {
+				continue;
+			}
+
+			$prevTs = \strtotime($day . ' 00:00:00 UTC');
+			if ($prevTs === false) {
+				continue;
+			}
+			$prevDay = \gmdate('Y-m-d', $prevTs - \DAY_IN_SECONDS);
+			if (isset($presentDays[$prevDay])) {
+				$checkoutOnly[$day] = true;
+			}
+		}
+
+		return $checkoutOnly;
+	}
+
+	/**
+	 * @param array<string, true> $presentDays
+	 *
+	 * @return list<list<string>>
+	 */
+	private static function contiguousPresentRuns(
+		array $presentDays,
+		string $dateFrom,
+		string $dateTo
+	): array {
+		$runs     = [];
+		$current  = [];
+
+		foreach (self::iterateCalendarDays($dateFrom, $dateTo) as $day) {
+			if (isset($presentDays[$day])) {
+				$current[] = $day;
+				continue;
+			}
+
+			if ($current !== []) {
+				$runs[]  = $current;
+				$current = [];
+			}
+		}
+
+		if ($current !== []) {
+			$runs[] = $current;
+		}
+
+		return $runs;
+	}
+
+	/**
+	 * @param array<string, true>                              $presentDays
+	 * @param array<string, true>                              $checkoutOnlyDays
+	 * @param array<string, true>                              $invalidCheckoutDays
+	 * @param array<string, array{mi?: int, ma?: int}>           $stayRules
+	 */
+	private static function getAvaDayHasLegalCheckout(
+		string $checkinDay,
+		array $presentDays,
+		array $checkoutOnlyDays,
+		array $invalidCheckoutDays,
+		array $stayRules,
+		int $globalMinNights,
+		int $pluginMaxNights,
+		string $dateTo
+	): bool {
+		$rule         = $stayRules[$checkinDay] ?? [];
+		$effectiveMin = $globalMinNights;
+		if (isset($rule['mi']) && (int) $rule['mi'] > $effectiveMin) {
+			$effectiveMin = (int) $rule['mi'];
+		}
+
+		$effectiveMax = $pluginMaxNights;
+		if (isset($rule['ma']) && (int) $rule['ma'] > 0) {
+			$effectiveMax = \min($pluginMaxNights, (int) $rule['ma']);
+		}
+
+		$checkinTs = \strtotime($checkinDay . ' 00:00:00 UTC');
+		$endTs     = \strtotime($dateTo . ' 00:00:00 UTC');
+		if ($checkinTs === false || $endTs === false) {
+			return false;
+		}
+
+		for ($nights = $effectiveMin; $nights <= $effectiveMax; $nights++) {
+			$checkoutTs = $checkinTs + ($nights * \DAY_IN_SECONDS);
+			if ($checkoutTs > $endTs) {
+				break;
+			}
+
+			$checkoutDay = \gmdate('Y-m-d', $checkoutTs);
+			if (isset($invalidCheckoutDays[$checkoutDay])) {
+				continue;
+			}
+
+			if (! self::getAvaOccupiedNightsArePresent($checkinDay, $checkoutDay, $presentDays)) {
+				continue;
+			}
+
+			if (
+				isset($presentDays[$checkoutDay])
+				|| isset($checkoutOnlyDays[$checkoutDay])
+			) {
+				return true;
+			}
+		}
+
+		return false;
+	}
+
+	/**
+	 * Occupied nights are [check-in, check-out) — checkout day is not an occupied night.
+	 *
+	 * @param array<string, true> $presentDays
+	 */
+	private static function getAvaOccupiedNightsArePresent(
+		string $checkinDay,
+		string $checkoutDay,
+		array $presentDays
+	): bool {
+		$startTs = \strtotime($checkinDay . ' 00:00:00 UTC');
+		$endTs   = \strtotime($checkoutDay . ' 00:00:00 UTC');
+		if ($startTs === false || $endTs === false || $endTs <= $startTs) {
+			return false;
+		}
+
+		for ($ts = $startTs; $ts < $endTs; $ts += \DAY_IN_SECONDS) {
+			$night = \gmdate('Y-m-d', $ts);
+			if (! isset($presentDays[$night])) {
+				return false;
+			}
+		}
+
+		return true;
 	}
 
 	/**

@@ -220,6 +220,7 @@ final class PublicAssets
 			'cancelLabel'      => \__('Cancel', 'booking-engine-connector'),
 			'checkinLabel'     => \__('Check-in', 'booking-engine-connector'),
 			'checkoutLabel'    => \__('Check-out', 'booking-engine-connector'),
+			'checkoutOnlyLabel' => \__('Check-out only', 'booking-engine-connector'),
 			/* translators: Label between displayed start/end dates where a range picker shows a textual range. Often an en dash with spaces. */
 			'dateRangeSeparator' => \__(' – ', 'booking-engine-connector'),
 			'customRangeLabel' => \__('Custom', 'booking-engine-connector'),

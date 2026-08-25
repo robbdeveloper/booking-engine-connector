@@ -27,6 +27,7 @@ final class CalendarAvailabilityService
 	 *     unavailable_ranges: list<array{from: string, to: string}>,
 	 *     invalid_checkin_ranges: list<array{from: string, to: string}>,
 	 *     invalid_checkout_ranges: list<array{from: string, to: string}>,
+	 *     checkout_only_ranges: list<array{from: string, to: string}>,
 	 *     stay_rules: array<string, array{mi?: int, ma?: int}>,
 	 *     min_nights: int,
 	 *     horizon_to: string
@@ -39,6 +40,7 @@ final class CalendarAvailabilityService
 			'unavailable_ranges'      => [],
 			'invalid_checkin_ranges'  => [],
 			'invalid_checkout_ranges' => [],
+			'checkout_only_ranges'    => [],
 			'stay_rules'              => [],
 			'min_nights'              => self::resolveMinNights(),
 			'horizon_to'              => self::horizonDateTo(),
@@ -134,6 +136,7 @@ final class CalendarAvailabilityService
 			'unavailable_ranges'      => $ranges,
 			'invalid_checkin_ranges'  => $checkinRanges,
 			'invalid_checkout_ranges' => [],
+			'checkout_only_ranges'    => [],
 			'stay_rules'              => [],
 			'min_nights'              => $minNights,
 			'horizon_to'              => $dateTo,
@@ -218,6 +221,7 @@ final class CalendarAvailabilityService
 	 *     unavailable_ranges: list<array{from: string, to: string}>,
 	 *     invalid_checkin_ranges: list<array{from: string, to: string}>,
 	 *     invalid_checkout_ranges: list<array{from: string, to: string}>,
+	 *     checkout_only_ranges: list<array{from: string, to: string}>,
 	 *     stay_rules: array<string, array{mi?: int, ma?: int}>,
 	 *     min_nights: int,
 	 *     horizon_to: string
@@ -228,6 +232,7 @@ final class CalendarAvailabilityService
 	 *     unavailable_ranges: list<array{from: string, to: string}>,
 	 *     invalid_checkin_ranges: list<array{from: string, to: string}>,
 	 *     invalid_checkout_ranges: list<array{from: string, to: string}>,
+	 *     checkout_only_ranges: list<array{from: string, to: string}>,
 	 *     stay_rules: array<string, array{mi?: int, ma?: int}>,
 	 *     min_nights: int,
 	 *     horizon_to: string
@@ -273,7 +278,7 @@ final class CalendarAvailabilityService
 			}
 		}
 
-		$mapped = KrossProvider::normalizeGetAvaAvailability($payload, $dateFrom, $dateTo);
+		$mapped = KrossProvider::normalizeGetAvaAvailability($payload, $dateFrom, $dateTo, $minNights);
 
 		/**
 		 * @var list<array{from: string, to: string}> $ranges
@@ -298,11 +303,21 @@ final class CalendarAvailabilityService
 			$unitPostId
 		);
 
+		/**
+		 * @var list<array{from: string, to: string}> $checkoutOnlyRanges
+		 */
+		$checkoutOnlyRanges = (array) \apply_filters(
+			'bec_calendar_checkout_only_ranges',
+			$mapped['checkout_only_ranges'],
+			$unitPostId
+		);
+
 		return [
 			'active'                  => true,
 			'unavailable_ranges'      => $ranges,
 			'invalid_checkin_ranges'  => $checkinRanges,
 			'invalid_checkout_ranges' => $checkoutRanges,
+			'checkout_only_ranges'    => $checkoutOnlyRanges,
 			'stay_rules'              => $mapped['stay_rules'],
 			'min_nights'              => $minNights,
 			'horizon_to'              => $dateTo,

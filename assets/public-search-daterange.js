@@ -61,6 +61,23 @@
 
 	/**
 	 * @param {HTMLFormElement} form
+	 * @returns {Array<{from: string, to: string}>}
+	 */
+	function getCheckoutOnlyRanges(form) {
+		var raw = form.getAttribute('data-bec-checkout-only-ranges') || '';
+		if (!raw) {
+			return [];
+		}
+		try {
+			var parsed = JSON.parse(raw);
+			return Array.isArray(parsed) ? parsed : [];
+		} catch (err) {
+			return [];
+		}
+	}
+
+	/**
+	 * @param {HTMLFormElement} form
 	 * @returns {Record<string, {mi?: number, ma?: number}>}
 	 */
 	function getCheckinStayRules(form) {
@@ -307,7 +324,24 @@
 			if (drp && typeof drp.updateCalendars === 'function') {
 				drp.updateCalendars();
 			}
+			applyCheckoutOnlyHints(drp);
 		}, 0);
+	}
+
+	/**
+	 * @param {object|null|undefined} drp
+	 */
+	function applyCheckoutOnlyHints(drp) {
+		if (!drp || !drp.container || !drp.container.length) {
+			return;
+		}
+		var cfg = getCfg();
+		var label = cfg.checkoutOnlyLabel || 'Check-out only';
+		drp.container.find('td.bec-checkout-only').each(function () {
+			var $cell = $(this);
+			$cell.attr('title', label);
+			$cell.attr('aria-label', label);
+		});
 	}
 
 	/**
@@ -534,6 +568,7 @@
 		var unavailableRanges = getUnavailableRanges(form);
 		var invalidCheckinRanges = getInvalidCheckinRanges(form);
 		var invalidCheckoutRanges = getInvalidCheckoutRanges(form);
+		var checkoutOnlyRanges = getCheckoutOnlyRanges(form);
 		var stayRules = getCheckinStayRules(form);
 		var minNights = getMinNights(form);
 		var calendarHintsActive =
@@ -541,6 +576,7 @@
 			unavailableRanges.length > 0 ||
 			invalidCheckinRanges.length > 0 ||
 			invalidCheckoutRanges.length > 0 ||
+			checkoutOnlyRanges.length > 0 ||
 			Object.keys(stayRules).length > 0 ||
 			minNights > 1;
 
@@ -598,6 +634,16 @@
 					if (isDateInUnavailableRanges(m, unavailableRanges)) {
 						return true;
 					}
+					if (isDateInRanges(m, checkoutOnlyRanges)) {
+						return !isRangeValid(
+							picker.startDate,
+							m,
+							unavailableRanges,
+							minNights,
+							stayRules,
+							maxNights
+						);
+					}
 					if (
 						m.isAfter(picker.startDate, 'day') &&
 						!isRangeValid(picker.startDate, m, unavailableRanges, minNights, stayRules, maxNights)
@@ -607,13 +653,17 @@
 					return false;
 				}
 
+				if (isDateInRanges(m, checkoutOnlyRanges)) {
+					return true;
+				}
+
 				if (isDateInUnavailableRanges(m, unavailableRanges)) {
 					return true;
 				}
 				return false;
 			};
 
-			if (invalidCheckinRanges.length || invalidCheckoutRanges.length) {
+			if (invalidCheckinRanges.length || invalidCheckoutRanges.length || checkoutOnlyRanges.length) {
 				drpOpts.isCustomDate = function (m) {
 					var picker = $btn.data('daterangepicker');
 					if (
@@ -626,6 +676,9 @@
 					}
 					if (isPickingCheckout(picker)) {
 						return false;
+					}
+					if (checkoutOnlyRanges.length && isDateInRanges(m, checkoutOnlyRanges)) {
+						return 'bec-checkout-only';
 					}
 					if (invalidCheckinRanges.length && isDateInRanges(m, invalidCheckinRanges)) {
 						return 'bec-invalid-checkin';
@@ -651,6 +704,11 @@
 				}
 
 				if ($cell.hasClass('bec-invalid-checkin') && !isPickingCheckout(drp)) {
+					ev.stopPropagation();
+					return;
+				}
+
+				if ($cell.hasClass('bec-checkout-only') && !isPickingCheckout(drp)) {
 					ev.stopPropagation();
 					return;
 				}
@@ -851,6 +909,7 @@
 				}
 			}
 			syncBackdropWithDaterange(true);
+			applyCheckoutOnlyHints(drp);
 		});
 	}
 

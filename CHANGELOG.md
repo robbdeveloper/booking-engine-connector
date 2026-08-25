@@ -2,6 +2,8 @@
 
 ## 0.4.8 — 2026-08-24
 
+- **Search — get-ava min-stay check-in hints**: Fix orphaned inventory-present dates (e.g. a single available night with `mi: 2`) appearing as selectable check-in in the enhanced search calendar. **`KrossProvider::normalizeGetAvaAvailability()`** now marks check-in dates invalid when consecutive available nights are fewer than effective minimum stay (`max(bec_search_min_nights, date.mi)`), matching bulk **`get-availability`** behavior and the Kross booking bar widget.
+- **Search — get-ava check-out only dates**: Bridge days after each available block (absent from JSON but valid departure dates) and end-of-run present nights that cannot start a stay are exposed as **`checkout_only_ranges`** / **`data-bec-checkout-only-ranges`**, styled with **`bec-checkout-only`** and a “Check-out only” tooltip. Checkout selection allows these dates when the stay path is valid. Filter: **`bec_calendar_checkout_only_ranges`**.
 - **Admin — Clear API cache**: New **Clear API cache** action on **Booking Engine → Tools & Logs**. Deletes quote, calendar availability, and Kross token transients (`bec_quote_*`, `bec_kross_quote_bulk_*`, `bec_kross_availability_bulk_*`, `bec_kross_get_ava_*`, `bec_kross_access_token`) without touching the sync lock or admin flash notices. Filter: **`bec_transient_purge_protected_prefixes`**.
 - **Uninstall**: Remove all `bec_*` transients (not only the Kross token keys).
 - **i18n**: Regenerated `languages/booking-engine-connector.pot`, merged and translated `booking-engine-connector-it_IT.po`, recompiled `booking-engine-connector-it_IT.mo`.

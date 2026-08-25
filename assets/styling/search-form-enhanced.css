@@ -917,6 +917,26 @@
 	cursor: default;
 }
 
+.daterangepicker td.bec-checkout-only {
+	color: var(--bec-drp-day-muted) !important;
+	cursor: not-allowed;
+}
+
+.daterangepicker td.bec-checkout-only.off {
+	color: var(--bec-drp-day-muted) !important;
+}
+
+.daterangepicker td.bec-checkout-only.in-range {
+	background-color: var(--bec-drp-range-bg) !important;
+	color: var(--bec-drp-range-edge) !important;
+	cursor: default;
+}
+
+.daterangepicker td.bec-checkout-only.end-date:not(.off) {
+	color: var(--bec-drp-range-edge-text) !important;
+	cursor: pointer;
+}
+
 /* Range bridge */
 .daterangepicker td.in-range {
 	background-color: var(--bec-drp-range-bg) !important;
