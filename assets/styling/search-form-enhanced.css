@@ -894,6 +894,32 @@
 	color: var(--bec-drp-range-edge) !important;
 }
 
+/* Adjacent-month filler days — hide duplicates shown in prev/next month columns */
+.daterangepicker td.ends {
+	visibility: hidden !important;
+	pointer-events: none !important;
+	background-color: transparent !important;
+	border-radius: 0 !important;
+	cursor: default !important;
+}
+
+.daterangepicker td.ends:before {
+	display: none !important;
+	content: none !important;
+}
+
+.daterangepicker td.ends.in-range,
+.daterangepicker td.ends.off.in-range,
+.daterangepicker td.ends.start-date,
+.daterangepicker td.ends.end-date,
+.daterangepicker td.ends.off.start-date,
+.daterangepicker td.ends.off.end-date {
+	visibility: hidden !important;
+	background-color: transparent !important;
+	color: transparent !important;
+	border-radius: 0 !important;
+}
+
 /* Min-stay: invalid check-in (soft restriction — not .off, can appear in-range) */
 .daterangepicker td.bec-invalid-checkin {
 	color: var(--bec-drp-day-muted) !important;
