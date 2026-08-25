@@ -219,9 +219,7 @@ final class SyncAdmin
 		if ($isKrossActive) {
 			$selectedList   = KrossBookingEngineSyncSettings::getSelectedBookingEngines();
 			$selectedFlip   = \array_fill_keys($selectedList, true);
-			$cachedList     = KrossBookingEngineSyncSettings::getCachedAvailableEngines();
-			$displayEngines = \array_unique(\array_merge($cachedList, $selectedList));
-			\sort($displayEngines, \SORT_STRING);
+			$displayEngines = KrossBookingEngineSyncSettings::getCachedAvailableEngines();
 
 			AdminPageLayout::cardOpen(
 				\__('Kross booking engines', 'booking-engine-connector'),
@@ -239,7 +237,7 @@ final class SyncAdmin
 				'booking-engine-connector'
 			) . '</button>';
 			echo ' <span class="description">' . \esc_html__(
-				'Merges all `be_enabled` values discovered from `/v5/rooms/get-room-types` into the checklist below.',
+				'Replaces the checklist with `be_enabled` slugs from the current Kross connection (`/v5/rooms/get-room-types`). Stale selections are cleared automatically.',
 				'booking-engine-connector'
 			) . '</span></p>';
 

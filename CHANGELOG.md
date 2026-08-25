@@ -1,5 +1,16 @@
 # Changelog
 
+## 0.4.8 — 2026-08-24
+
+- **Admin — Clear API cache**: New **Clear API cache** action on **Booking Engine → Tools & Logs**. Deletes quote, calendar availability, and Kross token transients (`bec_quote_*`, `bec_kross_quote_bulk_*`, `bec_kross_availability_bulk_*`, `bec_kross_get_ava_*`, `bec_kross_access_token`) without touching the sync lock or admin flash notices. Filter: **`bec_transient_purge_protected_prefixes`**.
+- **Uninstall**: Remove all `bec_*` transients (not only the Kross token keys).
+- **i18n**: Regenerated `languages/booking-engine-connector.pot`, merged and translated `booking-engine-connector-it_IT.po`, recompiled `booking-engine-connector-it_IT.mo`.
+
+## 0.4.7 — 2026-08-24
+
+- **Search — Kross widget get-ava calendar**: Optional calendar availability source for single-unit enhanced search forms. New Kross settings on **Booking Engine → Frontend → Search form**: **`bec_kross_calendar_availability_method`** (`get-ava` default, or `get-availability` fallback) and **`bec_kross_calendar_get_ava_be_id`** (booking engine slug for the widget). **`CalendarAvailabilityService`** fetches `endpoint.krossbooking.com/widget/get-ava/` via **`KrossProvider::fetchWidgetGetAva()`**, maps `mi`/`ma`/`ca`/`cd` to daterangepicker hints, and skips hints in archive/union mode when using get-ava. New form attrs **`data-bec-invalid-checkout-ranges`** and **`data-bec-checkin-stay-rules`**; **`public-search-daterange.js`** enforces per-date min/max stay and checkout blocks. Filters: **`bec_kross_get_ava_base_url`**, **`bec_kross_get_ava_query`**, **`bec_kross_get_ava_payload`**, **`bec_calendar_invalid_checkout_ranges`**. Uninstall removes the new options.
+- **i18n**: Regenerated `languages/booking-engine-connector.pot`, merged and translated `booking-engine-connector-it_IT.po`, recompiled `booking-engine-connector-it_IT.mo`.
+
 ## 0.4.6 — 2026-08-19
 
 - **Unit data quality**: New **Booking Engine → Unit data quality** settings page to configure mandatory canonical unit fields (`bec_core_*`, featured image, gallery minimum count). Incomplete units are flagged on the **Units** list table, the **Booking Engine** dashboard, and a **WordPress dashboard** widget. Export a CSV report (one row per unit) for client follow-up. Provider-independent checks run against stored WordPress data only; cache refreshes after sync and unit saves.

@@ -20,7 +20,7 @@ final class AdminPageLayout
 		Settings\UnitFiltersPage::PAGE_SLUG,
 		Settings\StylingPage::PAGE_SLUG,
 		Settings\FallbackPage::PAGE_SLUG,
-		'bec-api-log',
+		ApiLogPage::PAGE_SLUG,
 	];
 
 	public static function register(): void

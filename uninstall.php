@@ -52,6 +52,8 @@ $options = [
 	'bec_append_booking_blocks_to_content',
 	'bec_kross_sync_booking_engines',
 	'bec_kross_available_booking_engines',
+	'bec_kross_calendar_availability_method',
+	'bec_kross_calendar_get_ava_be_id',
 ];
 
 foreach ($options as $option) {
@@ -62,6 +64,6 @@ $table = $wpdb->prefix . 'bec_api_log';
 // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- table name from trusted prefix.
 $wpdb->query("DROP TABLE IF EXISTS {$table}");
 
-delete_transient('bec_kross_access_token');
-delete_transient('bec_kross_access_token_exp');
-delete_transient('bec_kross_token_lock');
+require_once __DIR__ . '/includes/Cache/TransientPurge.php';
+
+\BookingEngineConnector\Cache\TransientPurge::purgeAll();

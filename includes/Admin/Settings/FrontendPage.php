@@ -8,6 +8,8 @@ use BookingEngineConnector\Admin\AdminMenu;
 use BookingEngineConnector\Admin\AdminPageLayout;
 use BookingEngineConnector\Front\PublicContentSettings;
 use BookingEngineConnector\Integrations\MultilingualBridge;
+use BookingEngineConnector\Providers\Kross\KrossCalendarAvailabilitySettings;
+use BookingEngineConnector\Providers\ProviderRegistry;
 use BookingEngineConnector\Search\SearchSettings;
 
 /**
@@ -38,6 +40,10 @@ final class FrontendPage
 		$autoSearchForm = SearchSettings::isAutoAppendSearchFormOnSingleUnit();
 		$appendBooking  = PublicContentSettings::isAppendBookingBlocksToContentEnabled();
 		$syncTranslations = MultilingualBridge::isFeatureEnabled();
+		$isKrossActive    = ProviderRegistry::getActiveSlug() === 'kross';
+		$krossCalMethod   = KrossCalendarAvailabilitySettings::getMethod();
+		$krossGetAvaBeId  = KrossCalendarAvailabilitySettings::getGetAvaBeId();
+		$krossBeEngines   = KrossCalendarAvailabilitySettings::getEngineOptionsForSelect();
 
 		AdminPageLayout::wrapOpen(
 			\__('Frontend', 'booking-engine-connector'),
@@ -126,6 +132,45 @@ final class FrontendPage
 			'booking-engine-connector'
 		) . '</p>';
 		echo '</td></tr>';
+
+		if ($isKrossActive) {
+			echo '<tr><th scope="row"><label for="bec_kross_calendar_availability_method">' . \esc_html__('Calendar availability source', 'booking-engine-connector') . '</label></th><td>';
+			echo '<select name="bec_kross_calendar_availability_method" id="bec_kross_calendar_availability_method">';
+			echo '<option value="' . \esc_attr(KrossCalendarAvailabilitySettings::METHOD_GET_AVA) . '" ' . \selected($krossCalMethod, KrossCalendarAvailabilitySettings::METHOD_GET_AVA, false) . '>' . \esc_html__(
+				'Kross booking bar widget (get-ava)',
+				'booking-engine-connector'
+			) . '</option>';
+			echo '<option value="' . \esc_attr(KrossCalendarAvailabilitySettings::METHOD_GET_AVAILABILITY) . '" ' . \selected($krossCalMethod, KrossCalendarAvailabilitySettings::METHOD_GET_AVAILABILITY, false) . '>' . \esc_html__(
+				'Kross API bulk (get-availability)',
+				'booking-engine-connector'
+			) . '</option>';
+			echo '</select>';
+			echo '<p class="description">' . \esc_html__(
+				'How calendar hints are fetched from Kross. The widget endpoint is single-unit only and is used by default. Use the API bulk method for archive search forms or when the widget is unavailable.',
+				'booking-engine-connector'
+			) . '</p>';
+			echo '</td></tr>';
+
+			echo '<tr><th scope="row"><label for="bec_kross_calendar_get_ava_be_id">' . \esc_html__('Booking engine for get-ava', 'booking-engine-connector') . '</label></th><td>';
+			echo '<select name="bec_kross_calendar_get_ava_be_id" id="bec_kross_calendar_get_ava_be_id">';
+			echo '<option value="">' . \esc_html__('— Select —', 'booking-engine-connector') . '</option>';
+			foreach ($krossBeEngines as $engineSlug) {
+				echo '<option value="' . \esc_attr($engineSlug) . '" ' . \selected($krossGetAvaBeId, $engineSlug, false) . '>' . \esc_html($engineSlug) . '</option>';
+			}
+			echo '</select>';
+			if ($krossBeEngines === []) {
+				echo '<p class="description">' . \esc_html__(
+					'Run a sync first to discover booking engines from Kross room types.',
+					'booking-engine-connector'
+				) . '</p>';
+			} else {
+				echo '<p class="description">' . \esc_html__(
+					'Booking engine slug passed as be_id to the get-ava widget. Required when using the widget source on single unit pages.',
+					'booking-engine-connector'
+				) . '</p>';
+			}
+			echo '</td></tr>';
+		}
 
 		echo '<tr><th scope="row"><label for="bec_search_max_date_from_today">' . \esc_html__('Calendar horizon (days ahead)', 'booking-engine-connector') . '</label></th><td>';
 		echo '<input type="number" min="1" name="bec_search_max_date_from_today" id="bec_search_max_date_from_today" value="' . \esc_attr((string) $maxDateFromToday) . '" />';
@@ -266,6 +311,28 @@ final class FrontendPage
 			$calMode = SearchSettings::CALENDAR_AVAILABILITY_OFF;
 		}
 		\update_option(SearchSettings::OPTION_CALENDAR_AVAILABILITY, $calMode, false);
+
+		if (ProviderRegistry::getActiveSlug() === 'kross') {
+			$krossMethod = isset($_POST['bec_kross_calendar_availability_method'])
+				? \sanitize_key(\wp_unslash((string) $_POST['bec_kross_calendar_availability_method']))
+				: KrossCalendarAvailabilitySettings::METHOD_GET_AVA;
+			if (! \in_array(
+				$krossMethod,
+				[
+					KrossCalendarAvailabilitySettings::METHOD_GET_AVA,
+					KrossCalendarAvailabilitySettings::METHOD_GET_AVAILABILITY,
+				],
+				true
+			)) {
+				$krossMethod = KrossCalendarAvailabilitySettings::METHOD_GET_AVA;
+			}
+			KrossCalendarAvailabilitySettings::setMethod($krossMethod);
+
+			$beId = isset($_POST['bec_kross_calendar_get_ava_be_id'])
+				? \sanitize_key(\wp_unslash((string) $_POST['bec_kross_calendar_get_ava_be_id']))
+				: '';
+			KrossCalendarAvailabilitySettings::setGetAvaBeId($beId);
+		}
 
 		$maxDays = isset($_POST['bec_search_max_date_from_today'])
 			? (int) \wp_unslash((string) $_POST['bec_search_max_date_from_today'])

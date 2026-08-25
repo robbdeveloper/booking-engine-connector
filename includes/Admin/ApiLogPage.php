@@ -4,11 +4,43 @@ declare(strict_types=1);
 
 namespace BookingEngineConnector\Admin;
 
+use BookingEngineConnector\Cache\TransientPurge;
+
 /**
  * Admin UI for structured API request logs (TASK-LOG-003 minimal).
  */
 final class ApiLogPage
 {
+	public const PAGE_SLUG = 'bec-api-log';
+
+	public static function register(): void
+	{
+		\add_action('admin_post_bec_purge_transients', [self::class, 'handlePurgeTransients']);
+	}
+
+	public static function handlePurgeTransients(): void
+	{
+		if (! \current_user_can(AdminMenu::CAPABILITY)) {
+			\wp_die(\esc_html__('Insufficient permissions.', 'booking-engine-connector'));
+		}
+
+		\check_admin_referer('bec_purge_transients', 'bec_purge_transients_nonce');
+
+		$count = TransientPurge::purgeApiCache();
+
+		$url = \add_query_arg(
+			[
+				'page'              => self::PAGE_SLUG,
+				'bec_cache_cleared' => '1',
+				'bec_cache_count'   => (string) $count,
+			],
+			\admin_url('admin.php')
+		);
+
+		\wp_safe_redirect($url);
+		exit;
+	}
+
 	public static function render(): void
 	{
 		if (! \current_user_can(AdminMenu::CAPABILITY)) {
@@ -70,6 +102,27 @@ final class ApiLogPage
 			)
 		);
 
+		self::renderCacheClearedNotice();
+
+		AdminPageLayout::cardOpen(
+			\__('API cache', 'booking-engine-connector'),
+			\__(
+				'Quotes, calendar availability, and the Kross access token are stored as transients. Clear them to force fresh API data on the next request. The sync lock is not cleared.',
+				'booking-engine-connector'
+			)
+		);
+		echo '<form method="post" action="' . \esc_url(\admin_url('admin-post.php')) . '" onsubmit="return window.confirm(\'' . \esc_js(
+			\__(
+				'Clear cached API responses? The next search or calendar load will call the booking provider again.',
+				'booking-engine-connector'
+			)
+		) . '\');">';
+		\wp_nonce_field('bec_purge_transients', 'bec_purge_transients_nonce');
+		echo '<input type="hidden" name="action" value="bec_purge_transients" />';
+		\submit_button(\__('Clear API cache', 'booking-engine-connector'), 'secondary', 'submit', false);
+		echo '</form>';
+		AdminPageLayout::cardClose();
+
 		AdminPageLayout::cardOpen(
 			\__('API request log', 'booking-engine-connector'),
 			\__(
@@ -79,7 +132,7 @@ final class ApiLogPage
 		);
 
 		echo '<form method="get" class="bec-api-log-filters">';
-		echo '<input type="hidden" name="page" value="bec-api-log" />';
+		echo '<input type="hidden" name="page" value="' . \esc_attr(self::PAGE_SLUG) . '" />';
 
 		echo '<label for="bec_provider">' . \esc_html__('Provider', 'booking-engine-connector') . '</label> ';
 		echo '<select name="bec_provider" id="bec_provider">';
@@ -151,5 +204,38 @@ final class ApiLogPage
 		AdminPageLayout::cardClose();
 
 		AdminPageLayout::wrapClose();
+	}
+
+	private static function renderCacheClearedNotice(): void
+	{
+		if (! isset($_GET['bec_cache_cleared'])) {
+			return;
+		}
+
+		$flag = \sanitize_text_field(\wp_unslash((string) $_GET['bec_cache_cleared']));
+		if ($flag !== '1') {
+			return;
+		}
+
+		$count = isset($_GET['bec_cache_count'])
+			? (int) \wp_unslash((string) $_GET['bec_cache_count'])
+			: 0;
+
+		if ($count < 1) {
+			$message = \__('API cache was cleared. No cached responses were stored.', 'booking-engine-connector');
+		} else {
+			$message = \sprintf(
+				/* translators: %d: number of transients deleted */
+				\_n(
+					'API cache cleared. %d cached response was deleted.',
+					'API cache cleared. %d cached responses were deleted.',
+					$count,
+					'booking-engine-connector'
+				),
+				$count
+			);
+		}
+
+		echo '<div class="notice notice-success is-dismissible"><p>' . \esc_html($message) . '</p></div>';
 	}
 }

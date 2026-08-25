@@ -40,7 +40,7 @@ final class KrossBookingEngineSyncSettings
 	}
 
 	/**
-	 * Engines discovered from the last `/rooms/get-room-types` normalization (merged across rows).
+	 * Engines discovered from the last live `/rooms/get-room-types` normalization.
 	 *
 	 * @return list<string>
 	 */
@@ -52,31 +52,36 @@ final class KrossBookingEngineSyncSettings
 	}
 
 	/**
-	 * Merges new slugs into the cached catalog and persists.
+	 * Replaces the cached catalog with the given slugs.
 	 *
 	 * @param list<string>|array<int|string, mixed> $engines
 	 */
-	public static function mergeIntoCachedAvailableEngines(array $engines): void
+	public static function setCachedAvailableEngines(array $engines): void
 	{
-		$incoming = self::sanitizeEngineSlugList($engines);
-		if ($incoming === []) {
+		$list = self::sanitizeEngineSlugList($engines);
+		if ($list === []) {
+			\delete_option(self::OPTION_AVAILABLE_BOOKING_ENGINES);
+
 			return;
 		}
 
-		$merged = \array_unique(
-			\array_merge(self::getCachedAvailableEngines(), $incoming)
-		);
-		\sort($merged, \SORT_STRING);
-
-		\update_option(self::OPTION_AVAILABLE_BOOKING_ENGINES, $merged, false);
+		\update_option(self::OPTION_AVAILABLE_BOOKING_ENGINES, $list, false);
 	}
 
 	/**
+	 * Replaces the cached catalog from normalized rows and prunes stale selections.
+	 *
+	 * Skipped while Kross test mode is active so placeholder `be_enabled` slugs do not overwrite live data.
+	 *
 	 * @param array<int, array<string, mixed>> $normalizedRows Output of {@see KrossProvider} normalize step (includes `raw`)
 	 */
 	public static function updateAvailableEnginesFromNormalizedRows(array $normalizedRows): void
 	{
-		$merged = [];
+		if (KrossTestMode::isEnabled()) {
+			return;
+		}
+
+		$discovered = [];
 
 		foreach ($normalizedRows as $row) {
 			if (! \is_array($row)) {
@@ -85,11 +90,42 @@ final class KrossBookingEngineSyncSettings
 			$raw = isset($row['raw']) && \is_array($row['raw']) ? $row['raw'] : [];
 
 			foreach (self::extractBeEnabledSlugsFromRaw($raw) as $slug) {
-				$merged[] = $slug;
+				$discovered[] = $slug;
 			}
 		}
 
-		self::mergeIntoCachedAvailableEngines($merged);
+		self::setCachedAvailableEngines($discovered);
+		self::pruneSelectedBookingEnginesToAvailable();
+	}
+
+	/**
+	 * Drops selected slugs that are no longer in the cached available catalog.
+	 */
+	public static function pruneSelectedBookingEnginesToAvailable(): void
+	{
+		$available = self::getCachedAvailableEngines();
+		$selected  = self::getSelectedBookingEngines();
+
+		if ($selected === []) {
+			return;
+		}
+
+		if ($available === []) {
+			self::setSelectedBookingEngines([]);
+
+			return;
+		}
+
+		$availableFlip = \array_fill_keys($available, true);
+		$pruned        = [];
+
+		foreach ($selected as $slug) {
+			if (isset($availableFlip[ $slug ])) {
+				$pruned[] = $slug;
+			}
+		}
+
+		self::setSelectedBookingEngines($pruned);
 	}
 
 	/**

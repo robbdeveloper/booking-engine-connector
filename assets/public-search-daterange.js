@@ -44,6 +44,40 @@
 
 	/**
 	 * @param {HTMLFormElement} form
+	 * @returns {Array<{from: string, to: string}>}
+	 */
+	function getInvalidCheckoutRanges(form) {
+		var raw = form.getAttribute('data-bec-invalid-checkout-ranges') || '';
+		if (!raw) {
+			return [];
+		}
+		try {
+			var parsed = JSON.parse(raw);
+			return Array.isArray(parsed) ? parsed : [];
+		} catch (err) {
+			return [];
+		}
+	}
+
+	/**
+	 * @param {HTMLFormElement} form
+	 * @returns {Record<string, {mi?: number, ma?: number}>}
+	 */
+	function getCheckinStayRules(form) {
+		var raw = form.getAttribute('data-bec-checkin-stay-rules') || '';
+		if (!raw) {
+			return {};
+		}
+		try {
+			var parsed = JSON.parse(raw);
+			return parsed && typeof parsed === 'object' && !Array.isArray(parsed) ? parsed : {};
+		} catch (err) {
+			return {};
+		}
+	}
+
+	/**
+	 * @param {HTMLFormElement} form
 	 * @returns {number}
 	 */
 	function getMinNights(form) {
@@ -61,6 +95,42 @@
 		}
 
 		return 1;
+	}
+
+	/**
+	 * @param {import('moment').Moment} checkin
+	 * @param {number} baseMinNights
+	 * @param {Record<string, {mi?: number, ma?: number}>} stayRules
+	 * @returns {number}
+	 */
+	function getEffectiveMinNights(checkin, baseMinNights, stayRules) {
+		if (!checkin || !checkin.isValid || !checkin.isValid()) {
+			return baseMinNights;
+		}
+		var key = checkin.format('YYYY-MM-DD');
+		var rule = stayRules[key];
+		if (rule && typeof rule.mi === 'number' && rule.mi > 0) {
+			return Math.max(baseMinNights, rule.mi);
+		}
+		return baseMinNights;
+	}
+
+	/**
+	 * @param {import('moment').Moment} checkin
+	 * @param {number} pluginMaxNights
+	 * @param {Record<string, {mi?: number, ma?: number}>} stayRules
+	 * @returns {number}
+	 */
+	function getEffectiveMaxNights(checkin, pluginMaxNights, stayRules) {
+		if (!checkin || !checkin.isValid || !checkin.isValid()) {
+			return pluginMaxNights;
+		}
+		var key = checkin.format('YYYY-MM-DD');
+		var rule = stayRules[key];
+		if (rule && typeof rule.ma === 'number' && rule.ma > 0) {
+			return Math.min(pluginMaxNights, rule.ma);
+		}
+		return pluginMaxNights;
 	}
 
 	/**
@@ -149,16 +219,24 @@
 	 * @param {import('moment').Moment} end
 	 * @param {Array<{from: string, to: string}>} unavailableRanges
 	 * @param {number} minNights
+	 * @param {Record<string, {mi?: number, ma?: number}>} stayRules
+	 * @param {number} pluginMaxNights
 	 * @returns {boolean}
 	 */
-	function isRangeValid(start, end, unavailableRanges, minNights) {
+	function isRangeValid(start, end, unavailableRanges, minNights, stayRules, pluginMaxNights) {
 		if (!start || !end || !start.isValid() || !end.isValid()) {
 			return false;
 		}
 		if (!end.isAfter(start, 'day')) {
 			return false;
 		}
-		return isRangeInventoryValid(start, end, unavailableRanges) && isRangeMinStayValid(start, end, minNights);
+		var effectiveMin = getEffectiveMinNights(start, minNights, stayRules || {});
+		var effectiveMax = getEffectiveMaxNights(start, pluginMaxNights, stayRules || {});
+		var nights = end.diff(start, 'days');
+		if (nights < effectiveMin || nights > effectiveMax) {
+			return false;
+		}
+		return isRangeInventoryValid(start, end, unavailableRanges);
 	}
 
 	/**
@@ -455,11 +533,15 @@
 
 		var unavailableRanges = getUnavailableRanges(form);
 		var invalidCheckinRanges = getInvalidCheckinRanges(form);
+		var invalidCheckoutRanges = getInvalidCheckoutRanges(form);
+		var stayRules = getCheckinStayRules(form);
 		var minNights = getMinNights(form);
 		var calendarHintsActive =
 			form.getAttribute('data-bec-calendar-availability') === '1' ||
 			unavailableRanges.length > 0 ||
 			invalidCheckinRanges.length > 0 ||
+			invalidCheckoutRanges.length > 0 ||
+			Object.keys(stayRules).length > 0 ||
 			minNights > 1;
 
 		if (maxSelectable || calendarHintsActive) {
@@ -481,21 +563,45 @@
 						return isDateInUnavailableRanges(m, unavailableRanges);
 					}
 					if (m.isSame(picker.endDate, 'day')) {
-						return !isRangeValid(picker.startDate, picker.endDate, unavailableRanges, minNights);
+						return !isRangeValid(
+							picker.startDate,
+							picker.endDate,
+							unavailableRanges,
+							minNights,
+							stayRules,
+							maxNights
+						);
 					}
 				}
 
 				if (isPickingCheckout(picker) && picker.startDate) {
+					var effectiveMin = getEffectiveMinNights(picker.startDate, minNights, stayRules);
+					var effectiveMax = getEffectiveMaxNights(picker.startDate, maxNights, stayRules);
+					var earliestCheckout = picker.startDate.clone().add(effectiveMin, 'days');
+					var latestCheckout = picker.startDate.clone().add(effectiveMax, 'days');
+
 					if (m.isBefore(picker.startDate, 'day')) {
 						return true;
 					}
 					if (m.isSame(picker.startDate, 'day')) {
 						return false;
 					}
+					if (m.isBefore(earliestCheckout, 'day')) {
+						return true;
+					}
+					if (m.isAfter(latestCheckout, 'day')) {
+						return true;
+					}
+					if (isDateInRanges(m, invalidCheckoutRanges)) {
+						return true;
+					}
 					if (isDateInUnavailableRanges(m, unavailableRanges)) {
 						return true;
 					}
-					if (m.isAfter(picker.startDate, 'day') && !isRangeValid(picker.startDate, m, unavailableRanges, minNights)) {
+					if (
+						m.isAfter(picker.startDate, 'day') &&
+						!isRangeValid(picker.startDate, m, unavailableRanges, minNights, stayRules, maxNights)
+					) {
 						return true;
 					}
 					return false;
@@ -507,7 +613,7 @@
 				return false;
 			};
 
-			if (invalidCheckinRanges.length) {
+			if (invalidCheckinRanges.length || invalidCheckoutRanges.length) {
 				drpOpts.isCustomDate = function (m) {
 					var picker = $btn.data('daterangepicker');
 					if (
@@ -521,8 +627,11 @@
 					if (isPickingCheckout(picker)) {
 						return false;
 					}
-					if (isDateInRanges(m, invalidCheckinRanges)) {
+					if (invalidCheckinRanges.length && isDateInRanges(m, invalidCheckinRanges)) {
 						return 'bec-invalid-checkin';
+					}
+					if (invalidCheckoutRanges.length && isDateInRanges(m, invalidCheckoutRanges)) {
+						return 'bec-invalid-checkout';
 					}
 					return false;
 				};
@@ -549,7 +658,7 @@
 				if (isPickingCheckout(drp) && drp.startDate) {
 					var clicked = parseDateFromCell($cell, drp);
 					if (clicked && clicked.isValid && clicked.isValid() && clicked.isAfter(drp.startDate, 'day')) {
-						if (!isRangeValid(drp.startDate, clicked, unavailableRanges, minNights)) {
+						if (!isRangeValid(drp.startDate, clicked, unavailableRanges, minNights, stayRules, maxNights)) {
 							ev.stopPropagation();
 							return;
 						}
@@ -697,7 +806,7 @@
 				calendarHintsActive &&
 				picker.startDate &&
 				picker.endDate &&
-				!isRangeValid(picker.startDate, picker.endDate, unavailableRanges, minNights)
+				!isRangeValid(picker.startDate, picker.endDate, unavailableRanges, minNights, stayRules, maxNights)
 			) {
 				picker.updateView();
 				return;
@@ -734,7 +843,7 @@
 			var e = $inCheckout.val() ? moment($inCheckout.val(), 'YYYY-MM-DD', true) : null;
 			if (s && s.isValid() && e && e.isValid()) {
 				drp.setStartDate(s);
-				if (calendarHintsActive && !isRangeValid(s, e, unavailableRanges, minNights)) {
+				if (calendarHintsActive && !isRangeValid(s, e, unavailableRanges, minNights, stayRules, maxNights)) {
 					drp.endDate = null;
 					drp.updateView();
 				} else {

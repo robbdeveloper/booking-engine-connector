@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace BookingEngineConnector\Core;
 
 use BookingEngineConnector\Admin\AdminMenu;
+use BookingEngineConnector\Admin\ApiLogPage;
 use BookingEngineConnector\Admin\Settings\ConnectionPage;
 use BookingEngineConnector\Admin\Settings\FallbackPage;
 use BookingEngineConnector\Admin\Settings\FrontendPage;
@@ -94,6 +95,7 @@ final class Plugin
 		UnitListingQueryResolver::register();
 		DynamicTagsRegistrar::register();
 		AdminMenu::register();
+		ApiLogPage::register();
 		StylingSettings::register();
 		ConnectionPage::register();
 		FrontendPage::register();

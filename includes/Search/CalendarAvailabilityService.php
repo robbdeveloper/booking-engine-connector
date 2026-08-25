@@ -7,6 +7,8 @@ namespace BookingEngineConnector\Search;
 use BookingEngineConnector\PostTypes\UnitPostType;
 use BookingEngineConnector\Providers\Contracts\CalendarAvailabilityProviderInterface;
 use BookingEngineConnector\Providers\Contracts\ProviderException;
+use BookingEngineConnector\Providers\Kross\KrossCalendarAvailabilitySettings;
+use BookingEngineConnector\Providers\Kross\KrossProvider;
 use BookingEngineConnector\Providers\ProviderRegistry;
 
 /**
@@ -24,6 +26,8 @@ final class CalendarAvailabilityService
 	 *     active: bool,
 	 *     unavailable_ranges: list<array{from: string, to: string}>,
 	 *     invalid_checkin_ranges: list<array{from: string, to: string}>,
+	 *     invalid_checkout_ranges: list<array{from: string, to: string}>,
+	 *     stay_rules: array<string, array{mi?: int, ma?: int}>,
 	 *     min_nights: int,
 	 *     horizon_to: string
 	 * }
@@ -31,11 +35,13 @@ final class CalendarAvailabilityService
 	public static function getCalendarAvailabilityHints(?int $unitPostId): array
 	{
 		$empty = [
-			'active'                 => false,
-			'unavailable_ranges'     => [],
-			'invalid_checkin_ranges' => [],
-			'min_nights'             => self::resolveMinNights(),
-			'horizon_to'             => self::horizonDateTo(),
+			'active'                  => false,
+			'unavailable_ranges'      => [],
+			'invalid_checkin_ranges'  => [],
+			'invalid_checkout_ranges' => [],
+			'stay_rules'              => [],
+			'min_nights'              => self::resolveMinNights(),
+			'horizon_to'              => self::horizonDateTo(),
 		];
 
 		if (! self::isFeatureActive()) {
@@ -46,6 +52,18 @@ final class CalendarAvailabilityService
 			'bec_search_calendar_availability_mode',
 			SearchSettings::getCalendarAvailabilityMode()
 		);
+
+		if ($mode === SearchSettings::CALENDAR_AVAILABILITY_OFF) {
+			return $empty;
+		}
+
+		if (self::usesGetAvaMethod()) {
+			if ($mode === SearchSettings::CALENDAR_AVAILABILITY_ALL_SEARCH) {
+				return $empty;
+			}
+
+			return self::getGetAvaCalendarHints($unitPostId, $empty);
+		}
 
 		if ($mode === SearchSettings::CALENDAR_AVAILABILITY_SINGLE_UNIT) {
 			$resolvedUnitId = self::resolveUnitPostId($unitPostId);
@@ -112,11 +130,13 @@ final class CalendarAvailabilityService
 		$checkinRanges = (array) \apply_filters('bec_calendar_invalid_checkin_ranges', $checkinRanges, $unitPostId);
 
 		return [
-			'active'                 => true,
-			'unavailable_ranges'     => $ranges,
-			'invalid_checkin_ranges' => $checkinRanges,
-			'min_nights'             => $minNights,
-			'horizon_to'             => $dateTo,
+			'active'                  => true,
+			'unavailable_ranges'      => $ranges,
+			'invalid_checkin_ranges'  => $checkinRanges,
+			'invalid_checkout_ranges' => [],
+			'stay_rules'              => [],
+			'min_nights'              => $minNights,
+			'horizon_to'              => $dateTo,
 		];
 	}
 
@@ -183,6 +203,110 @@ final class CalendarAvailabilityService
 		}
 
 		return \gmdate('Y-m-d', \strtotime('+' . $maxDays . ' days'));
+	}
+
+	private static function usesGetAvaMethod(): bool
+	{
+		$provider = ProviderRegistry::getProvider();
+
+		return $provider instanceof KrossProvider && KrossCalendarAvailabilitySettings::isGetAvaMethod();
+	}
+
+	/**
+	 * @param array{
+	 *     active: bool,
+	 *     unavailable_ranges: list<array{from: string, to: string}>,
+	 *     invalid_checkin_ranges: list<array{from: string, to: string}>,
+	 *     invalid_checkout_ranges: list<array{from: string, to: string}>,
+	 *     stay_rules: array<string, array{mi?: int, ma?: int}>,
+	 *     min_nights: int,
+	 *     horizon_to: string
+	 * } $empty
+	 *
+	 * @return array{
+	 *     active: bool,
+	 *     unavailable_ranges: list<array{from: string, to: string}>,
+	 *     invalid_checkin_ranges: list<array{from: string, to: string}>,
+	 *     invalid_checkout_ranges: list<array{from: string, to: string}>,
+	 *     stay_rules: array<string, array{mi?: int, ma?: int}>,
+	 *     min_nights: int,
+	 *     horizon_to: string
+	 * }
+	 */
+	private static function getGetAvaCalendarHints(?int $unitPostId, array $empty): array
+	{
+		$resolvedUnitId = self::resolveUnitPostId($unitPostId);
+		if ($resolvedUnitId < 1) {
+			return $empty;
+		}
+
+		$externalId = (string) \get_post_meta($resolvedUnitId, 'bec_external_id', true);
+		if ($externalId === '') {
+			return $empty;
+		}
+
+		$beId = KrossCalendarAvailabilitySettings::getGetAvaBeId();
+		if ($beId === '') {
+			return $empty;
+		}
+
+		$provider = ProviderRegistry::getProvider();
+		if (! $provider instanceof KrossProvider) {
+			return $empty;
+		}
+
+		$dateFrom  = self::horizonDateFrom();
+		$dateTo    = self::horizonDateTo();
+		$minNights = self::resolveMinNights();
+		$key       = $provider->getGetAvaCacheKey($beId, $externalId);
+		$ttl       = (int) \apply_filters('bec_calendar_availability_cache_ttl', 5 * \MINUTE_IN_SECONDS);
+
+		$payload = \get_transient($key);
+		if ($payload === false) {
+			try {
+				$payload = $provider->fetchWidgetGetAva($beId, $externalId);
+				if ($ttl > 0) {
+					\set_transient($key, $payload, $ttl);
+				}
+			} catch (ProviderException $e) {
+				return $empty;
+			}
+		}
+
+		$mapped = KrossProvider::normalizeGetAvaAvailability($payload, $dateFrom, $dateTo);
+
+		/**
+		 * @var list<array{from: string, to: string}> $ranges
+		 */
+		$ranges = (array) \apply_filters('bec_calendar_unavailable_ranges', $mapped['unavailable_ranges'], $unitPostId);
+
+		/**
+		 * @var list<array{from: string, to: string}> $checkinRanges
+		 */
+		$checkinRanges = (array) \apply_filters(
+			'bec_calendar_invalid_checkin_ranges',
+			$mapped['invalid_checkin_ranges'],
+			$unitPostId
+		);
+
+		/**
+		 * @var list<array{from: string, to: string}> $checkoutRanges
+		 */
+		$checkoutRanges = (array) \apply_filters(
+			'bec_calendar_invalid_checkout_ranges',
+			$mapped['invalid_checkout_ranges'],
+			$unitPostId
+		);
+
+		return [
+			'active'                  => true,
+			'unavailable_ranges'      => $ranges,
+			'invalid_checkin_ranges'  => $checkinRanges,
+			'invalid_checkout_ranges' => $checkoutRanges,
+			'stay_rules'              => $mapped['stay_rules'],
+			'min_nights'              => $minNights,
+			'horizon_to'              => $dateTo,
+		];
 	}
 
 	/**

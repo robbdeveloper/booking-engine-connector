@@ -135,7 +135,7 @@ final class AdminMenu
 			\__('Tools & Logs', 'booking-engine-connector'),
 			\__('Tools & Logs', 'booking-engine-connector'),
 			self::CAPABILITY,
-			'bec-api-log',
+			ApiLogPage::PAGE_SLUG,
 			[ApiLogPage::class, 'render']
 		);
 	}

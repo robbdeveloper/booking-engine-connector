@@ -906,6 +906,17 @@
 	cursor: default;
 }
 
+.daterangepicker td.bec-invalid-checkout {
+	color: var(--bec-drp-day-muted) !important;
+	cursor: not-allowed;
+}
+
+.daterangepicker td.bec-invalid-checkout.in-range {
+	background-color: var(--bec-drp-range-bg) !important;
+	color: var(--bec-drp-range-edge) !important;
+	cursor: default;
+}
+
 /* Range bridge */
 .daterangepicker td.in-range {
 	background-color: var(--bec-drp-range-bg) !important;

@@ -2,14 +2,14 @@
 # This file is distributed under the GPL-2.0-or-later.
 msgid ""
 msgstr ""
-"Project-Id-Version: Booking Engine Connector 0.4.6\n"
+"Project-Id-Version: Booking Engine Connector 0.4.8\n"
 "Report-Msgid-Bugs-To: https://wordpress.org/support/plugin/booking-engine-connector\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"POT-Creation-Date: 2026-08-19T15:15:39+00:00\n"
+"POT-Creation-Date: 2026-08-24T19:31:43+00:00\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "X-Generator: WP-CLI 2.12.0\n"
 "X-Domain: booking-engine-connector\n"
@@ -59,7 +59,7 @@ msgstr ""
 
 #: includes/Admin/AdminMenu.php:72
 #: includes/Admin/AdminMenu.php:73
-#: includes/Admin/Settings/FrontendPage.php:43
+#: includes/Admin/Settings/FrontendPage.php:49
 msgid "Frontend"
 msgstr ""
 
@@ -105,7 +105,7 @@ msgstr ""
 
 #: includes/Admin/AdminMenu.php:135
 #: includes/Admin/AdminMenu.php:136
-#: includes/Admin/ApiLogPage.php:66
+#: includes/Admin/ApiLogPage.php:98
 msgid "Tools & Logs"
 msgstr ""
 
@@ -178,7 +178,7 @@ msgid "Run a sync after configuring credentials."
 msgstr ""
 
 #: includes/Admin/AdminMenu.php:219
-#: includes/Admin/ApiLogPage.php:146
+#: includes/Admin/ApiLogPage.php:199
 msgid "Open sync tools"
 msgstr ""
 
@@ -324,7 +324,7 @@ msgid "Enabled — inline mode"
 msgstr ""
 
 #: includes/Admin/AdminMenu.php:335
-#: includes/Admin/Settings/FrontendPage.php:111
+#: includes/Admin/Settings/FrontendPage.php:117
 msgid "Disabled"
 msgstr ""
 
@@ -415,7 +415,7 @@ msgid "External booking URL and contact fallback."
 msgstr ""
 
 #: includes/Admin/AdminMenu.php:401
-#: includes/Admin/ApiLogPage.php:74
+#: includes/Admin/ApiLogPage.php:127
 msgid "API request log"
 msgstr ""
 
@@ -431,82 +431,125 @@ msgstr ""
 msgid "Settings saved."
 msgstr ""
 
-#: includes/Admin/ApiLogPage.php:67
+#: includes/Admin/ApiLogPage.php:24
+#: includes/Admin/SyncAdmin.php:462
+#: includes/Admin/SyncAdmin.php:502
+#: includes/Admin/SyncAdmin.php:610
+#: includes/Admin/SyncAdmin.php:894
+#: includes/Admin/SyncAdmin.php:1006
+#: includes/Admin/SyncAdmin.php:1032
+#: includes/Admin/SyncAdmin.php:1048
+#: includes/Admin/SyncAdmin.php:1068
+#: includes/Admin/SyncAdmin.php:1097
+#: includes/Admin/SyncAdmin.php:1112
+#: includes/Admin/SyncAdmin.php:1134
+msgid "Insufficient permissions."
+msgstr ""
+
+#: includes/Admin/ApiLogPage.php:99
 msgid "Review recent provider API requests and filter by provider or HTTP status."
 msgstr ""
 
-#: includes/Admin/ApiLogPage.php:75
+#: includes/Admin/ApiLogPage.php:108
+msgid "API cache"
+msgstr ""
+
+#: includes/Admin/ApiLogPage.php:109
+msgid "Quotes, calendar availability, and the Kross access token are stored as transients. Clear them to force fresh API data on the next request. The sync lock is not cleared."
+msgstr ""
+
+#: includes/Admin/ApiLogPage.php:115
+msgid "Clear cached API responses? The next search or calendar load will call the booking provider again."
+msgstr ""
+
+#: includes/Admin/ApiLogPage.php:122
+msgid "Clear API cache"
+msgstr ""
+
+#: includes/Admin/ApiLogPage.php:128
 msgid "Auth/token rows are omitted by default unless the bec_log_auth_requests filter is enabled."
 msgstr ""
 
-#: includes/Admin/ApiLogPage.php:84
-#: includes/Admin/ApiLogPage.php:103
+#: includes/Admin/ApiLogPage.php:137
+#: includes/Admin/ApiLogPage.php:156
 #: includes/Admin/Settings/ConnectionPage.php:70
 #: includes/PostTypes/UnitPostType.php:456
 #: includes/PostTypes/UnitPostType.php:545
 msgid "Provider"
 msgstr ""
 
-#: includes/Admin/ApiLogPage.php:86
+#: includes/Admin/ApiLogPage.php:139
 msgid "All"
 msgstr ""
 
-#: includes/Admin/ApiLogPage.php:93
+#: includes/Admin/ApiLogPage.php:146
 msgid "HTTP status"
 msgstr ""
 
-#: includes/Admin/ApiLogPage.php:96
+#: includes/Admin/ApiLogPage.php:149
 #: includes/UnitFilters/UnitFilterShortcodeRenderer.php:299
 msgid "Filter"
 msgstr ""
 
-#: includes/Admin/ApiLogPage.php:101
+#: includes/Admin/ApiLogPage.php:154
 msgid "ID"
 msgstr ""
 
-#: includes/Admin/ApiLogPage.php:102
+#: includes/Admin/ApiLogPage.php:155
 msgid "Time"
 msgstr ""
 
-#: includes/Admin/ApiLogPage.php:104
+#: includes/Admin/ApiLogPage.php:157
 msgid "Method"
 msgstr ""
 
-#: includes/Admin/ApiLogPage.php:105
+#: includes/Admin/ApiLogPage.php:158
 msgid "Endpoint"
 msgstr ""
 
-#: includes/Admin/ApiLogPage.php:106
+#: includes/Admin/ApiLogPage.php:159
 msgid "Status"
 msgstr ""
 
-#: includes/Admin/ApiLogPage.php:107
+#: includes/Admin/ApiLogPage.php:160
 msgid "Duration (ms)"
 msgstr ""
 
-#: includes/Admin/ApiLogPage.php:108
+#: includes/Admin/ApiLogPage.php:161
 msgid "Correlation"
 msgstr ""
 
-#: includes/Admin/ApiLogPage.php:109
+#: includes/Admin/ApiLogPage.php:162
 msgid "Message"
 msgstr ""
 
-#: includes/Admin/ApiLogPage.php:117
+#: includes/Admin/ApiLogPage.php:170
 msgid "No log entries yet."
 msgstr ""
 
-#: includes/Admin/ApiLogPage.php:138
+#: includes/Admin/ApiLogPage.php:191
 msgid "Troubleshooting"
 msgstr ""
 
-#: includes/Admin/ApiLogPage.php:139
+#: includes/Admin/ApiLogPage.php:192
 msgid "Quick links when diagnosing connection or sync issues."
 msgstr ""
 
-#: includes/Admin/ApiLogPage.php:142
+#: includes/Admin/ApiLogPage.php:195
 msgid "Verify provider connection"
 msgstr ""
+
+#: includes/Admin/ApiLogPage.php:225
+msgid "API cache was cleared. No cached responses were stored."
+msgstr ""
+
+#. translators: %d: number of transients deleted
+#: includes/Admin/ApiLogPage.php:229
+#, php-format
+msgid "API cache cleared. %d cached response was deleted."
+msgid_plural "API cache cleared. %d cached responses were deleted."
+msgstr[0] ""
+msgstr[1] ""
 
 #: includes/Admin/Settings/ConnectionPage.php:47
 msgid "Select the active booking provider and store API credentials. Use Verify connection to test the token exchange."
@@ -717,143 +760,175 @@ msgstr ""
 msgid "Shown for “Inline content” mode. Shortcodes are supported."
 msgstr ""
 
-#: includes/Admin/Settings/FrontendPage.php:44
+#: includes/Admin/Settings/FrontendPage.php:50
 msgid "Configure how the availability search bar collects guests and how booking blocks appear on single unit pages."
 msgstr ""
 
-#: includes/Admin/Settings/FrontendPage.php:58
+#: includes/Admin/Settings/FrontendPage.php:64
 msgid "Search form"
 msgstr ""
 
-#: includes/Admin/Settings/FrontendPage.php:59
+#: includes/Admin/Settings/FrontendPage.php:65
 msgid "Controls the `[bec_search]` shortcode and embedded search inside `[bec_booking_summary]`."
 msgstr ""
 
-#: includes/Admin/Settings/FrontendPage.php:67
+#: includes/Admin/Settings/FrontendPage.php:73
 msgid "How guests are collected"
 msgstr ""
 
-#: includes/Admin/Settings/FrontendPage.php:69
+#: includes/Admin/Settings/FrontendPage.php:75
 msgid "Follow the active provider (default)"
 msgstr ""
 
-#: includes/Admin/Settings/FrontendPage.php:73
+#: includes/Admin/Settings/FrontendPage.php:79
 msgid "Single “Guests” count only"
 msgstr ""
 
-#: includes/Admin/Settings/FrontendPage.php:77
+#: includes/Admin/Settings/FrontendPage.php:83
 msgid "Adults and children (separate fields)"
 msgstr ""
 
-#: includes/Admin/Settings/FrontendPage.php:82
+#: includes/Admin/Settings/FrontendPage.php:88
 msgid "Controls the availability search bar. Use a single total or split adults/children, regardless of the provider. “Follow the active provider” uses each engine’s own rules (e.g. Kross can default to a simple guest count)."
 msgstr ""
 
-#: includes/Admin/Settings/FrontendPage.php:88
+#: includes/Admin/Settings/FrontendPage.php:94
 msgid "Child ages in search"
 msgstr ""
 
-#: includes/Admin/Settings/FrontendPage.php:90
+#: includes/Admin/Settings/FrontendPage.php:96
 msgid "Follow the active provider"
 msgstr ""
 
-#: includes/Admin/Settings/FrontendPage.php:94
+#: includes/Admin/Settings/FrontendPage.php:100
 msgid "Ask for each child’s age"
 msgstr ""
 
-#: includes/Admin/Settings/FrontendPage.php:98
+#: includes/Admin/Settings/FrontendPage.php:104
 msgid "Do not ask for child ages"
 msgstr ""
 
-#: includes/Admin/Settings/FrontendPage.php:103
+#: includes/Admin/Settings/FrontendPage.php:109
 msgid "Applies when the search form shows adults and children. Ignored when using only a single guest count."
 msgstr ""
 
-#: includes/Admin/Settings/FrontendPage.php:109
+#: includes/Admin/Settings/FrontendPage.php:115
 msgid "Calendar availability hints"
 msgstr ""
 
-#: includes/Admin/Settings/FrontendPage.php:115
+#: includes/Admin/Settings/FrontendPage.php:121
 msgid "Single unit pages only"
 msgstr ""
 
-#: includes/Admin/Settings/FrontendPage.php:119
+#: includes/Admin/Settings/FrontendPage.php:125
 msgid "All search forms"
 msgstr ""
 
-#: includes/Admin/Settings/FrontendPage.php:124
+#: includes/Admin/Settings/FrontendPage.php:130
 msgid "Grey out unavailable dates in the enhanced search date picker using provider PMS availability. “Single unit pages only” matches the current unit; “All search forms” allows a date when at least one synced unit is available. Requires the enhanced search preset."
 msgstr ""
 
-#: includes/Admin/Settings/FrontendPage.php:130
+#: includes/Admin/Settings/FrontendPage.php:137
+msgid "Calendar availability source"
+msgstr ""
+
+#: includes/Admin/Settings/FrontendPage.php:139
+msgid "Kross booking bar widget (get-ava)"
+msgstr ""
+
+#: includes/Admin/Settings/FrontendPage.php:143
+msgid "Kross API bulk (get-availability)"
+msgstr ""
+
+#: includes/Admin/Settings/FrontendPage.php:148
+msgid "How calendar hints are fetched from Kross. The widget endpoint is single-unit only and is used by default. Use the API bulk method for archive search forms or when the widget is unavailable."
+msgstr ""
+
+#: includes/Admin/Settings/FrontendPage.php:154
+msgid "Booking engine for get-ava"
+msgstr ""
+
+#: includes/Admin/Settings/FrontendPage.php:156
+msgid "— Select —"
+msgstr ""
+
+#: includes/Admin/Settings/FrontendPage.php:162
+msgid "Run a sync first to discover booking engines from Kross room types."
+msgstr ""
+
+#: includes/Admin/Settings/FrontendPage.php:167
+msgid "Booking engine slug passed as be_id to the get-ava widget. Required when using the widget source on single unit pages."
+msgstr ""
+
+#: includes/Admin/Settings/FrontendPage.php:175
 msgid "Calendar horizon (days ahead)"
 msgstr ""
 
-#: includes/Admin/Settings/FrontendPage.php:132
+#: includes/Admin/Settings/FrontendPage.php:177
 msgid "How many days ahead guests can select in the enhanced search date picker. When calendar availability hints are enabled, this also controls how far ahead availability is fetched from the PMS. Larger values increase API payload size."
 msgstr ""
 
-#: includes/Admin/Settings/FrontendPage.php:138
+#: includes/Admin/Settings/FrontendPage.php:183
 msgid "Minimum stay (nights)"
 msgstr ""
 
-#: includes/Admin/Settings/FrontendPage.php:140
+#: includes/Admin/Settings/FrontendPage.php:185
 msgid "Minimum number of nights per booking. Used when validating search submissions and, when calendar availability hints are enabled, to grey out check-in dates that cannot satisfy this stay length."
 msgstr ""
 
-#: includes/Admin/Settings/FrontendPage.php:150
+#: includes/Admin/Settings/FrontendPage.php:195
 msgid "Single unit pages"
 msgstr ""
 
-#: includes/Admin/Settings/FrontendPage.php:151
+#: includes/Admin/Settings/FrontendPage.php:196
 msgid "Automatic content injection when viewing a synced unit. Disable these to place shortcodes manually in your template or block editor."
 msgstr ""
 
-#: includes/Admin/Settings/FrontendPage.php:158
+#: includes/Admin/Settings/FrontendPage.php:203
 msgid "Content injection"
 msgstr ""
 
-#: includes/Admin/Settings/FrontendPage.php:161
+#: includes/Admin/Settings/FrontendPage.php:206
 msgid "Insert the availability search form above the main post content"
 msgstr ""
 
-#: includes/Admin/Settings/FrontendPage.php:165
+#: includes/Admin/Settings/FrontendPage.php:210
 msgid "When disabled, place `[bec_search]` (or the booking summary shortcode) in your template or block editor instead."
 msgstr ""
 
-#: includes/Admin/Settings/FrontendPage.php:170
+#: includes/Admin/Settings/FrontendPage.php:215
 msgid "Append the booking quote and Continue button after the main post content when the URL has dates"
 msgstr ""
 
-#: includes/Admin/Settings/FrontendPage.php:174
+#: includes/Admin/Settings/FrontendPage.php:219
 msgid "When disabled, use `[bec_booking_summary]` or `[bec_quote]` where you want pricing and checkout."
 msgstr ""
 
-#: includes/Admin/Settings/FrontendPage.php:185
+#: includes/Admin/Settings/FrontendPage.php:230
 msgid "Multilingual"
 msgstr ""
 
-#: includes/Admin/Settings/FrontendPage.php:186
+#: includes/Admin/Settings/FrontendPage.php:231
 msgid "When WPML or Polylang is active, synced units can automatically receive linked translation posts from provider locale maps."
 msgstr ""
 
-#: includes/Admin/Settings/FrontendPage.php:193
+#: includes/Admin/Settings/FrontendPage.php:238
 msgid "Translation sync"
 msgstr ""
 
-#: includes/Admin/Settings/FrontendPage.php:196
+#: includes/Admin/Settings/FrontendPage.php:241
 msgid "Create and update linked translation posts on each unit sync"
 msgstr ""
 
-#: includes/Admin/Settings/FrontendPage.php:200
+#: includes/Admin/Settings/FrontendPage.php:245
 msgid "Uses Kross be_name and be_description locale maps when available. Title, description, and their core meta fields are language-specific; images, amenities, categories, and sync payload stay shared."
 msgstr ""
 
-#: includes/Admin/Settings/FrontendPage.php:210
+#: includes/Admin/Settings/FrontendPage.php:255
 msgid "Save frontend settings"
 msgstr ""
 
-#: includes/Admin/Settings/FrontendPage.php:301
+#: includes/Admin/Settings/FrontendPage.php:368
 msgid "Frontend settings saved."
 msgstr ""
 
@@ -1215,7 +1290,7 @@ msgid "Refresh booking engines list from Kross"
 msgstr ""
 
 #: includes/Admin/SyncAdmin.php:241
-msgid "Merges all `be_enabled` values discovered from `/v5/rooms/get-room-types` into the checklist below."
+msgid "Replaces the checklist with `be_enabled` slugs from the current Kross connection (`/v5/rooms/get-room-types`). Stale selections are cleared automatically."
 msgstr ""
 
 #: includes/Admin/SyncAdmin.php:247
@@ -1320,20 +1395,6 @@ msgstr ""
 
 #: includes/Admin/SyncAdmin.php:450
 msgid "Sync request failed or returned an unexpected response. Try again or disable JavaScript to use the standard sync."
-msgstr ""
-
-#: includes/Admin/SyncAdmin.php:462
-#: includes/Admin/SyncAdmin.php:502
-#: includes/Admin/SyncAdmin.php:610
-#: includes/Admin/SyncAdmin.php:894
-#: includes/Admin/SyncAdmin.php:1006
-#: includes/Admin/SyncAdmin.php:1032
-#: includes/Admin/SyncAdmin.php:1048
-#: includes/Admin/SyncAdmin.php:1068
-#: includes/Admin/SyncAdmin.php:1097
-#: includes/Admin/SyncAdmin.php:1112
-#: includes/Admin/SyncAdmin.php:1134
-msgid "Insufficient permissions."
 msgstr ""
 
 #: includes/Admin/SyncAdmin.php:487
@@ -1549,8 +1610,8 @@ msgid "No availability for these dates."
 msgstr ""
 
 #: includes/Checkout/CheckoutCtaHtml.php:24
-#: includes/Providers/Kross/KrossProvider.php:617
-#: includes/Providers/Kross/KrossProvider.php:622
+#: includes/Providers/Kross/KrossProvider.php:811
+#: includes/Providers/Kross/KrossProvider.php:816
 msgid "Book now"
 msgstr ""
 
@@ -1951,22 +2012,22 @@ msgstr ""
 msgid "Kross calendar/get-availability request was not successful."
 msgstr ""
 
-#: includes/Providers/Kross/KrossProvider.php:489
+#: includes/Providers/Kross/KrossProvider.php:683
 msgid "Search context must include check-in and check-out dates."
 msgstr ""
 
-#: includes/Providers/Kross/KrossProvider.php:537
+#: includes/Providers/Kross/KrossProvider.php:731
 msgid "Kross calendar/book request was not successful."
 msgstr ""
 
 #. translators: %d HTTP status
-#: includes/Providers/Kross/KrossProvider.php:709
+#: includes/Providers/Kross/KrossProvider.php:903
 #, php-format
 msgid "Kross API request failed (%d)."
 msgstr ""
 
 #. translators: %d Kross API error_code
-#: includes/Providers/Kross/KrossProvider.php:734
+#: includes/Providers/Kross/KrossProvider.php:928
 #, php-format
 msgid "(error_code %d)"
 msgstr ""

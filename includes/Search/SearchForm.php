@@ -482,6 +482,8 @@ final class SearchForm
 	 *     active: bool,
 	 *     unavailable_ranges: list<array{from: string, to: string}>,
 	 *     invalid_checkin_ranges: list<array{from: string, to: string}>,
+	 *     invalid_checkout_ranges?: list<array{from: string, to: string}>,
+	 *     stay_rules?: array<string, array{mi?: int, ma?: int}>,
 	 *     min_nights: int,
 	 *     horizon_to: string
 	 * }
@@ -490,11 +492,13 @@ final class SearchForm
 	{
 		if (! CalendarAvailabilityService::isFeatureActive()) {
 			return [
-				'active'                 => false,
-				'unavailable_ranges'     => [],
-				'invalid_checkin_ranges' => [],
-				'min_nights'             => (int) \apply_filters('bec_search_min_nights', SearchSettings::DEFAULT_MIN_NIGHTS, null),
-				'horizon_to'             => CalendarAvailabilityService::getHorizonDateTo(),
+				'active'                  => false,
+				'unavailable_ranges'      => [],
+				'invalid_checkin_ranges'  => [],
+				'invalid_checkout_ranges' => [],
+				'stay_rules'              => [],
+				'min_nights'              => (int) \apply_filters('bec_search_min_nights', SearchSettings::DEFAULT_MIN_NIGHTS, null),
+				'horizon_to'              => CalendarAvailabilityService::getHorizonDateTo(),
 			];
 		}
 
@@ -505,11 +509,13 @@ final class SearchForm
 
 		if ($mode === SearchSettings::CALENDAR_AVAILABILITY_SINGLE_UNIT && $unitId < 1) {
 			return [
-				'active'                 => false,
-				'unavailable_ranges'     => [],
-				'invalid_checkin_ranges' => [],
-				'min_nights'             => (int) \apply_filters('bec_search_min_nights', SearchSettings::DEFAULT_MIN_NIGHTS, null),
-				'horizon_to'             => CalendarAvailabilityService::getHorizonDateTo(),
+				'active'                  => false,
+				'unavailable_ranges'      => [],
+				'invalid_checkin_ranges'  => [],
+				'invalid_checkout_ranges' => [],
+				'stay_rules'              => [],
+				'min_nights'              => (int) \apply_filters('bec_search_min_nights', SearchSettings::DEFAULT_MIN_NIGHTS, null),
+				'horizon_to'              => CalendarAvailabilityService::getHorizonDateTo(),
 			];
 		}
 
@@ -521,6 +527,8 @@ final class SearchForm
 	 *     active?: bool,
 	 *     unavailable_ranges?: list<array{from: string, to: string}>,
 	 *     invalid_checkin_ranges?: list<array{from: string, to: string}>,
+	 *     invalid_checkout_ranges?: list<array{from: string, to: string}>,
+	 *     stay_rules?: array<string, array{mi?: int, ma?: int}>,
 	 *     min_nights?: int,
 	 *     horizon_to?: string
 	 * } $calendarHints
@@ -536,6 +544,8 @@ final class SearchForm
 		$minNights  = (int) ($calendarHints['min_nights'] ?? 1);
 		$unavailableRanges = (array) ($calendarHints['unavailable_ranges'] ?? []);
 		$invalidCheckinRanges = (array) ($calendarHints['invalid_checkin_ranges'] ?? []);
+		$invalidCheckoutRanges = (array) ($calendarHints['invalid_checkout_ranges'] ?? []);
+		$stayRules = (array) ($calendarHints['stay_rules'] ?? []);
 
 		$unavailableJson = (string) \wp_json_encode($unavailableRanges);
 		if ($unavailableJson !== '') {
@@ -545,6 +555,16 @@ final class SearchForm
 		$checkinJson = (string) \wp_json_encode($invalidCheckinRanges);
 		if ($checkinJson !== '' && $invalidCheckinRanges !== []) {
 			$attrs .= ' data-bec-invalid-checkin-ranges="' . \esc_attr($checkinJson) . '"';
+		}
+
+		$checkoutJson = (string) \wp_json_encode($invalidCheckoutRanges);
+		if ($checkoutJson !== '' && $invalidCheckoutRanges !== []) {
+			$attrs .= ' data-bec-invalid-checkout-ranges="' . \esc_attr($checkoutJson) . '"';
+		}
+
+		$stayRulesJson = (string) \wp_json_encode($stayRules);
+		if ($stayRulesJson !== '' && $stayRules !== []) {
+			$attrs .= ' data-bec-checkin-stay-rules="' . \esc_attr($stayRulesJson) . '"';
 		}
 
 		if ($minNights > 1) {

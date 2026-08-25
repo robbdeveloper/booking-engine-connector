@@ -144,7 +144,7 @@ final class KrossProvider implements ProviderInterface, BulkQuoteProviderInterfa
 	}
 
 	/**
-	 * Calls `/v5/rooms/get-room-types` and merges discovered `be_enabled` slugs into the cached catalog.
+	 * Calls `/v5/rooms/get-room-types` and replaces the cached catalog with discovered `be_enabled` slugs.
 	 *
 	 * @return list<string> Cached available engine slugs after merge.
 	 *
@@ -459,6 +459,200 @@ final class KrossProvider implements ProviderInterface, BulkQuoteProviderInterfa
 		}
 
 		return $segments;
+	}
+
+	public function getGetAvaCacheKey(string $beId, string $roomTypeId): string
+	{
+		return 'bec_kross_get_ava_' . \md5($beId . '|' . $roomTypeId);
+	}
+
+	/**
+	 * @throws ProviderException
+	 */
+	public function fetchWidgetGetAva(string $beId, string $roomTypeId): mixed
+	{
+		if (KrossTestMode::isEnabled()) {
+			return [];
+		}
+
+		$baseUrl = (string) \apply_filters(
+			'bec_kross_get_ava_base_url',
+			'https://endpoint.krossbooking.com/widget/get-ava/'
+		);
+
+		$query = [
+			'be_id' => $beId,
+			'idrt'  => $roomTypeId,
+		];
+
+		/**
+		 * @var array<string, scalar|null> $query
+		 */
+		$query = (array) \apply_filters('bec_kross_get_ava_query', $query, $beId, $roomTypeId);
+
+		$url = \add_query_arg($query, $baseUrl);
+
+		$http     = new HttpClient();
+		$response = $http->request(
+			'GET',
+			$url,
+			[
+				'bec_skip_auth'     => true,
+				'bec_log_profile'   => 'business',
+				'bec_provider_slug' => 'kross',
+				'bec_log_message'   => 'Kross widget get-ava',
+			]
+		);
+
+		$this->assertHttpOk($response);
+
+		$decoded = KrossResponseParser::decodeBody($response->getBody());
+
+		/**
+		 * @var mixed $decoded
+		 */
+		return \apply_filters('bec_kross_get_ava_payload', $decoded, $beId, $roomTypeId);
+	}
+
+	/**
+	 * Map widget get-ava JSON to daterangepicker hint structures.
+	 *
+	 * @return array{
+	 *     unavailable_ranges: list<array{from: string, to: string}>,
+	 *     invalid_checkin_ranges: list<array{from: string, to: string}>,
+	 *     invalid_checkout_ranges: list<array{from: string, to: string}>,
+	 *     stay_rules: array<string, array{mi: int, ma?: int}>
+	 * }
+	 */
+	public static function normalizeGetAvaAvailability(mixed $payload, string $dateFrom, string $dateTo): array
+	{
+		$availability = [];
+		if (\is_array($payload) && isset($payload['availability']) && \is_array($payload['availability'])) {
+			$availability = $payload['availability'];
+		}
+
+		$unavailableDays  = [];
+		$invalidCheckin   = [];
+		$invalidCheckout  = [];
+		$stayRules        = [];
+
+		foreach (self::iterateCalendarDays($dateFrom, $dateTo) as $day) {
+			if (! isset($availability[$day]) || ! \is_array($availability[$day])) {
+				$unavailableDays[$day] = true;
+				continue;
+			}
+
+			$row = $availability[$day];
+			$mi  = isset($row['mi']) ? (int) $row['mi'] : 0;
+			$ma  = isset($row['ma']) ? (int) $row['ma'] : 0;
+			$ca  = self::widgetFlagIsSet($row['ca'] ?? null);
+			$cd  = self::widgetFlagIsSet($row['cd'] ?? null);
+
+			if ($ca) {
+				$invalidCheckin[$day] = true;
+			}
+			if ($cd) {
+				$invalidCheckout[$day] = true;
+			}
+
+			$rule = [];
+			if ($mi > 0) {
+				$rule['mi'] = $mi;
+			}
+			if ($ma > 0) {
+				$rule['ma'] = $ma;
+			}
+			if ($rule !== []) {
+				$stayRules[$day] = $rule;
+			}
+		}
+
+		return [
+			'unavailable_ranges'      => self::markedDaysToRanges($unavailableDays, $dateFrom, $dateTo),
+			'invalid_checkin_ranges'  => self::markedDaysToRanges($invalidCheckin, $dateFrom, $dateTo),
+			'invalid_checkout_ranges' => self::markedDaysToRanges($invalidCheckout, $dateFrom, $dateTo),
+			'stay_rules'              => $stayRules,
+		];
+	}
+
+	/**
+	 * @return list<string>
+	 */
+	private static function iterateCalendarDays(string $dateFrom, string $dateTo): array
+	{
+		$startTs = \strtotime($dateFrom . ' 00:00:00 UTC');
+		$endTs   = \strtotime($dateTo . ' 00:00:00 UTC');
+		if ($startTs === false || $endTs === false || $startTs > $endTs) {
+			return [];
+		}
+
+		$days = [];
+		for ($ts = $startTs; $ts <= $endTs; $ts += \DAY_IN_SECONDS) {
+			$days[] = \gmdate('Y-m-d', $ts);
+		}
+
+		return $days;
+	}
+
+	private static function widgetFlagIsSet(mixed $value): bool
+	{
+		if ($value === null || $value === '' || $value === false) {
+			return false;
+		}
+
+		if (\is_numeric($value)) {
+			return (int) $value > 0;
+		}
+
+		if (\is_string($value)) {
+			return \trim($value) !== '' && \trim($value) !== '0';
+		}
+
+		return (bool) $value;
+	}
+
+	/**
+	 * @param array<string, true> $markedDays
+	 *
+	 * @return list<array{from: string, to: string}>
+	 */
+	private static function markedDaysToRanges(array $markedDays, string $dateFrom, string $dateTo): array
+	{
+		if ($markedDays === []) {
+			return [];
+		}
+
+		$ranges     = [];
+		$rangeStart = null;
+
+		foreach (self::iterateCalendarDays($dateFrom, $dateTo) as $day) {
+			if (isset($markedDays[$day])) {
+				if ($rangeStart === null) {
+					$rangeStart = $day;
+				}
+				continue;
+			}
+
+			if ($rangeStart !== null) {
+				$prevTs = \strtotime($day . ' 00:00:00 UTC');
+				if ($prevTs !== false) {
+					$ranges[] = [
+						'from' => $rangeStart,
+						'to'   => \gmdate('Y-m-d', $prevTs - \DAY_IN_SECONDS),
+					];
+				}
+				$rangeStart = null;
+			}
+		}
+
+		if ($rangeStart !== null) {
+			$ranges[] = [
+				'from' => $rangeStart,
+				'to'   => $dateTo,
+			];
+		}
+
+		return $ranges;
 	}
 
 	/**
