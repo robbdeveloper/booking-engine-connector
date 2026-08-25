@@ -968,24 +968,25 @@
 	background-color: var(--bec-drp-range-bg) !important;
 	color: var(--bec-drp-range-edge) !important;
 }
-.daterangepicker td.start-date:not(.off){
+.daterangepicker td.start-date:not(.off) {
 	color: var(--bec-drp-range-edge-text) !important;
 	background-color: var(--bec-drp-range-bg) !important;
+	border-radius: var(--bec-drp-calendar-pill-radius);
+}
+
+.daterangepicker tbody tr td.start-date:not(.off):not(.end-date):has(+ td.in-range) {
 	border-radius: var(--bec-drp-calendar-pill-radius) 0 0 var(--bec-drp-calendar-pill-radius);
 }
 
-
-.daterangepicker td.end-date:not(.off){
+.daterangepicker td.end-date:not(.off) {
 	color: var(--bec-drp-range-edge-text) !important;
 	background-color: var(--bec-drp-range-bg) !important;
-	border-radius: 0 var(--bec-drp-calendar-pill-radius) var(--bec-drp-calendar-pill-radius) 0;
+	border-radius: var(--bec-drp-calendar-pill-radius);
 }
 
-.daterangepicker td.end-date:not(.off):not(.start-date):not(.end-date):hover{
+.daterangepicker tbody tr td.in-range + td.end-date:not(.off):not(.start-date) {
 	border-radius: 0 var(--bec-drp-calendar-pill-radius) var(--bec-drp-calendar-pill-radius) 0;
 }
-
-
 
 .daterangepicker td.start-date:not(.off):before,
 .daterangepicker td.end-date:not(.off):before{
@@ -1013,30 +1014,19 @@
 	border: 1px solid var(--bec-drp-range-ends) !important;
 }
 
-.daterangepicker tbody td.in-range {
+/* Bridge cells between start/end caps */
+.daterangepicker tbody td.in-range:not(.start-date):not(.end-date) {
 	border-radius: 0;
 }
-  
-  /* Only the VERY LAST td.in-range in the tbody */
-.daterangepicker tbody td.in-range:not(:has(~ tr td.in-range, ~ td.in-range)):not(.start-date):not(.end-date){
+
+/* Row-end bridge: round right only when the range does not continue on the next row */
+.daterangepicker tbody tr:not(:has(+ tr td.in-range, + tr td.end-date)) td.in-range:not(.start-date):not(.end-date):not(:has(+ td.in-range)) {
 	border-radius: 0 var(--bec-drp-calendar-pill-radius) var(--bec-drp-calendar-pill-radius) 0;
 }
 
-/* First td.in-range in the entire tbody */
-.daterangepicker tbody tr td.in-range:not(.start-date, .end-date, .off:not(.in-range)):first-of-type{
-  border-radius: var(--bec-drp-calendar-pill-radius) 0 0 var(--bec-drp-calendar-pill-radius);
-}
-
-.daterangepicker tbody tr td.in-range:not(.off:not(.in-range)):first-child{
-	border-radius: var(--bec-drp-calendar-pill-radius) 0 0 var(--bec-drp-calendar-pill-radius);
-}
-
-.daterangepicker tbody tr td.in-range:not(.start-date):not(.end-date):first-of-type:not(:has(~ td.in-range)),
-.daterangepicker tbody tr td.in-range.start-date,
-.daterangepicker tbody tr td.start-date:last-of-type,
-.daterangepicker tbody tr td.in-range.end-date:first-of-type,
-.daterangepicker tbody tr td.start-date.end-date{
-	border-radius: var(--bec-drp-calendar-pill-radius);
+/* Keep row-end bridges square when the selection continues on the next row */
+.daterangepicker tbody tr:has(+ tr td.in-range, + tr td.end-date) td.in-range:not(.start-date):not(.end-date):not(:has(+ td.in-range)) {
+	border-radius: 0 !important;
 }
 
 /* Footer: undo theme button/input rules */
