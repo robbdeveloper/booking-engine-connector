@@ -35,8 +35,8 @@ final class UnitCompletenessExport
 
 		\check_admin_referer(self::NONCE_ACTION);
 
-		$enabledFields = UnitMandatoryFieldSettings::getEnabledFields();
-		$postIds       = UnitCompletenessChecker::getScopedPostIds();
+		$enabledFields    = UnitMandatoryFieldSettings::getEnabledFields();
+		$incompleteUnits = UnitCompletenessChecker::scanIncomplete();
 
 		$filename = 'bec-unit-completeness-' . \gmdate('Y-m-d') . '.csv';
 
@@ -66,9 +66,8 @@ final class UnitCompletenessExport
 
 		\fputcsv($output, $header);
 
-		foreach ($postIds as $postId) {
-			$result = UnitCompletenessChecker::checkUnit($postId);
-			$row    = [
+		foreach ($incompleteUnits as $result) {
+			$row = [
 				(string) $result['post_id'],
 				$result['title'],
 				$result['external_id'],

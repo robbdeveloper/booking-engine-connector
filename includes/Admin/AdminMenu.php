@@ -306,7 +306,7 @@ final class AdminMenu
 				\__('Completeness export', 'booking-engine-connector'),
 				\__('CSV report', 'booking-engine-connector'),
 				'',
-				\__('Download a spreadsheet of units and missing mandatory fields for client follow-up.', 'booking-engine-connector'),
+				\__('Download a spreadsheet of incomplete units and missing mandatory fields for client follow-up.', 'booking-engine-connector'),
 				UnitCompletenessExport::downloadUrl(),
 				\__('Download CSV', 'booking-engine-connector')
 			);

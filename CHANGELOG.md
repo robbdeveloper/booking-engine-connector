@@ -1,5 +1,9 @@
 # Changelog
 
+## 0.4.9 — 2026-09-08
+
+- **Unit data quality — CSV export**: Export only units with at least one missing mandatory field. Complete units are no longer included in the completeness CSV download.
+
 ## 0.4.8 — 2026-08-24
 
 - **Search — get-ava min-stay check-in hints**: Fix orphaned inventory-present dates (e.g. a single available night with `mi: 2`) appearing as selectable check-in in the enhanced search calendar. **`KrossProvider::normalizeGetAvaAvailability()`** now marks check-in dates invalid when consecutive available nights are fewer than effective minimum stay (`max(bec_search_min_nights, date.mi)`), matching bulk **`get-availability`** behavior and the Kross booking bar widget.
