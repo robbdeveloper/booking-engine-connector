@@ -44,7 +44,8 @@ jobs:
           cd "${PARENT}"
           zip -r "${ROOT}/dist/booking-engine-connector-${VERSION}.zip" "${REPO_NAME}" \
             -x "${REPO_NAME}/.git/*" \
-            -x "${REPO_NAME}/dist/*"
+            -x "${REPO_NAME}/dist/*" \
+            -x "${REPO_NAME}/scripts/*"
 
       - name: Upload release asset
         uses: softprops/action-gh-release@v2
