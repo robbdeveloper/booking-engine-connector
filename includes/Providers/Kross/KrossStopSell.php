@@ -22,6 +22,9 @@ final class KrossStopSell
 	/** @var list<int>|null */
 	private static ?array $hiddenListingIdsMemo = null;
 
+	/** Re-entrancy guard: resolving hidden IDs must not run {@see \WP_Query} (triggers {@see \pre_get_posts}). */
+	private static bool $hiddenListingIdsInProgress = false;
+
 	public static function register(): void
 	{
 		\add_action('pre_get_posts', [self::class, 'onPreGetPosts'], 25);
@@ -155,50 +158,19 @@ final class KrossStopSell
 			return self::$hiddenListingIdsMemo;
 		}
 
-		self::maybeBackfillAllFromPayloads();
-
-		$today = self::todaySiteDate();
-
-		$q = new \WP_Query(
-			[
-				'post_type'              => UnitPostType::getSlug(),
-				'post_status'            => 'publish',
-				'posts_per_page'         => -1,
-				'fields'                 => 'ids',
-				'no_found_rows'          => true,
-				'update_post_meta_cache' => false,
-				'update_post_term_cache' => false,
-				'suppress_filters'       => true,
-				'meta_query'             => [
-					'relation' => 'AND',
-					[
-						'key'     => 'bec_provider_slug',
-						'value'   => 'kross',
-						'compare' => '=',
-					],
-					[
-						'key'     => self::META_KEY,
-						'value'   => '',
-						'compare' => '!=',
-					],
-					[
-						'key'     => self::META_KEY,
-						'value'   => $today,
-						'compare' => '<=',
-						'type'    => 'DATE',
-					],
-				],
-			]
-		);
-
-		$ids = [];
-		if (\is_array($q->posts)) {
-			foreach ($q->posts as $id) {
-				$ids[] = (int) $id;
-			}
+		if (self::$hiddenListingIdsInProgress) {
+			return [];
 		}
 
-		self::$hiddenListingIdsMemo = $ids;
+		self::$hiddenListingIdsInProgress = true;
+
+		try {
+			self::maybeBackfillAllFromPayloads();
+
+			self::$hiddenListingIdsMemo = self::queryHiddenPostIdsViaDb(self::todaySiteDate());
+		} finally {
+			self::$hiddenListingIdsInProgress = false;
+		}
 
 		return self::$hiddenListingIdsMemo;
 	}
@@ -226,6 +198,10 @@ final class KrossStopSell
 	public static function onPreGetPosts(\WP_Query $query): void
 	{
 		if (\is_admin()) {
+			return;
+		}
+
+		if (self::$hiddenListingIdsInProgress) {
 			return;
 		}
 
@@ -298,32 +274,10 @@ final class KrossStopSell
 			return;
 		}
 
-		$page = 1;
-		do {
-			$q = new \WP_Query(
-				[
-					'post_type'              => UnitPostType::getSlug(),
-					'post_status'            => 'any',
-					'posts_per_page'         => 200,
-					'paged'                  => $page,
-					'fields'                 => 'ids',
-					'no_found_rows'          => true,
-					'update_post_meta_cache' => false,
-					'update_post_term_cache' => false,
-					'suppress_filters'       => true,
-					'meta_query'             => [
-						'relation' => 'AND',
-						[
-							'key'     => 'bec_provider_slug',
-							'value'   => 'kross',
-							'compare' => '=',
-						],
-						MultilingualBridge::canonicalOnlyMetaQueryBranch(),
-					],
-				]
-			);
+		$lastId = 0;
 
-			$batch = \is_array($q->posts) ? $q->posts : [];
+		do {
+			$batch = self::queryCanonicalKrossUnitIdsForBackfill($lastId, 200);
 			if ($batch === []) {
 				break;
 			}
@@ -343,9 +297,94 @@ final class KrossStopSell
 				\update_post_meta($postId, self::META_KEY, $fromPayload);
 			}
 
-			++$page;
+			$lastId = (int) max($batch);
 		} while (\count($batch) === 200);
 
 		\update_option(self::OPTION_BACKFILL_DONE, true, false);
+	}
+
+	/**
+	 * @return list<int>
+	 */
+	private static function queryHiddenPostIdsViaDb(string $today): array
+	{
+		global $wpdb;
+
+		$postType   = \esc_sql(UnitPostType::getSlug());
+		$providerKey = \esc_sql('bec_provider_slug');
+		$stopKey    = \esc_sql(self::META_KEY);
+
+		$sql = $wpdb->prepare(
+			"SELECT DISTINCT p.ID
+			FROM {$wpdb->posts} AS p
+			INNER JOIN {$wpdb->postmeta} AS pm_provider
+				ON pm_provider.post_id = p.ID
+				AND pm_provider.meta_key = %s
+				AND pm_provider.meta_value = %s
+			INNER JOIN {$wpdb->postmeta} AS pm_stop
+				ON pm_stop.post_id = p.ID
+				AND pm_stop.meta_key = %s
+				AND pm_stop.meta_value <> ''
+				AND pm_stop.meta_value <= %s
+			WHERE p.post_type = %s
+			AND p.post_status = 'publish'",
+			$providerKey,
+			'kross',
+			$stopKey,
+			$today,
+			$postType
+		);
+
+		$col = $wpdb->get_col($sql);
+		if (! \is_array($col)) {
+			return [];
+		}
+
+		return \array_values(\array_map('intval', $col));
+	}
+
+	/**
+	 * Canonical Kross unit IDs for one-time stop_sell meta backfill (no {@see \WP_Query}).
+	 *
+	 * @return list<int>
+	 */
+	private static function queryCanonicalKrossUnitIdsForBackfill(int $afterId, int $limit): array
+	{
+		global $wpdb;
+
+		$postType        = \esc_sql(UnitPostType::getSlug());
+		$providerKey     = \esc_sql('bec_provider_slug');
+		$translationKey  = \esc_sql(MultilingualBridge::META_TRANSLATION_OF);
+		$limit           = $limit > 0 ? $limit : 200;
+
+		$sql = $wpdb->prepare(
+			"SELECT p.ID
+			FROM {$wpdb->posts} AS p
+			INNER JOIN {$wpdb->postmeta} AS pm_provider
+				ON pm_provider.post_id = p.ID
+				AND pm_provider.meta_key = %s
+				AND pm_provider.meta_value = %s
+			LEFT JOIN {$wpdb->postmeta} AS pm_tr
+				ON pm_tr.post_id = p.ID
+				AND pm_tr.meta_key = %s
+			WHERE p.post_type = %s
+			AND pm_tr.meta_id IS NULL
+			AND p.ID > %d
+			ORDER BY p.ID ASC
+			LIMIT %d",
+			$providerKey,
+			'kross',
+			$translationKey,
+			$postType,
+			$afterId,
+			$limit
+		);
+
+		$col = $wpdb->get_col($sql);
+		if (! \is_array($col)) {
+			return [];
+		}
+
+		return \array_values(\array_map('intval', $col));
 	}
 }
