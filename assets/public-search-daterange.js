@@ -348,22 +348,46 @@
 	 * @param {HTMLFormElement} form
 	 * @returns {import('moment').Moment|null}
 	 */
+	function getStopSellMoment(form) {
+		var raw = form.getAttribute('data-bec-stop-sell') || '';
+		if (!raw) {
+			return null;
+		}
+		var m = moment(raw, 'YYYY-MM-DD', true);
+		return m.isValid() ? m : null;
+	}
+
+	/**
+	 * @param {HTMLFormElement} form
+	 * @returns {import('moment').Moment|null}
+	 */
 	function resolveMaxSelectable(form) {
+		var horizonCap = null;
 		var horizonTo = form.getAttribute('data-bec-availability-horizon-to') || '';
 		if (horizonTo) {
 			var fromAttr = moment(horizonTo, 'YYYY-MM-DD', true);
 			if (fromAttr.isValid()) {
-				return fromAttr;
+				horizonCap = fromAttr;
 			}
 		}
 
-		var cfg = getCfg();
-		var maxDays = parseInt(cfg.maxDateFromToday, 10);
-		if (!isNaN(maxDays) && maxDays > 0) {
-			return moment().startOf('day').add(maxDays, 'days');
+		if (!horizonCap) {
+			var cfg = getCfg();
+			var maxDays = parseInt(cfg.maxDateFromToday, 10);
+			if (!isNaN(maxDays) && maxDays > 0) {
+				horizonCap = moment().startOf('day').add(maxDays, 'days');
+			}
 		}
 
-		return null;
+		var stopSell = getStopSellMoment(form);
+		if (stopSell && horizonCap) {
+			return stopSell.isBefore(horizonCap, 'day') ? stopSell : horizonCap;
+		}
+		if (stopSell) {
+			return stopSell;
+		}
+
+		return horizonCap;
 	}
 
 	/**
@@ -573,6 +597,7 @@
 		var minNights = getMinNights(form);
 		var calendarHintsActive =
 			form.getAttribute('data-bec-calendar-availability') === '1' ||
+			(form.getAttribute('data-bec-stop-sell') || '') !== '' ||
 			unavailableRanges.length > 0 ||
 			invalidCheckinRanges.length > 0 ||
 			invalidCheckoutRanges.length > 0 ||

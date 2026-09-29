@@ -6,6 +6,7 @@ namespace BookingEngineConnector\Integrations;
 
 use BookingEngineConnector\Media\RemoteGalleryImporter;
 use BookingEngineConnector\PostTypes\UnitPostType;
+use BookingEngineConnector\Providers\Kross\KrossStopSell;
 use BookingEngineConnector\Sync\UnitCategorySync;
 use BookingEngineConnector\Taxonomies\UnitAmenityTaxonomy;
 use BookingEngineConnector\Taxonomies\UnitCategoryTaxonomy;
@@ -313,6 +314,7 @@ final class UnitTranslationSync
 			'bec_sync_enabled',
 			'bec_last_sync_at',
 			'bec_sync_payload',
+			KrossStopSell::META_KEY,
 			RemoteGalleryImporter::SOURCE_HASH_META,
 			RemoteGalleryImporter::IMAGE_SET_HASH_META,
 			RemoteGalleryImporter::IMAGE_ORDER_HASH_META,

@@ -9,6 +9,7 @@ use BookingEngineConnector\Formatting\MomentFormatMapper;
 use BookingEngineConnector\Integrations\MultilingualBridge;
 use BookingEngineConnector\PostTypes\UnitPostType;
 use BookingEngineConnector\Providers\Contracts\SearchGuestFieldMode;
+use BookingEngineConnector\Providers\Kross\KrossStopSell;
 use BookingEngineConnector\Providers\ProviderRegistry;
 use BookingEngineConnector\Styling\StylingSettings;
 use BookingEngineConnector\Taxonomies\UnitCategoryTaxonomy;
@@ -188,8 +189,9 @@ final class SearchForm
 			$daterangeFormatOptions
 		);
 
+		$unitId = isset($args['unit_id']) ? (int) $args['unit_id'] : 0;
+
 		if ($useEnhanced) {
-			$unitId = isset($args['unit_id']) ? (int) $args['unit_id'] : 0;
 			$calendarHints = self::resolveCalendarHints($unitId);
 
 			self::renderEnhanced(
@@ -208,7 +210,8 @@ final class SearchForm
 				$showSubmit,
 				$popoverPlacement,
 				$daterangeDisplayFormat,
-				$calendarHints
+				$calendarHints,
+				$unitId
 			);
 
 			return;
@@ -223,7 +226,8 @@ final class SearchForm
 			$ctx,
 			$needsChildAges,
 			$guestFieldMode,
-			$showSubmit
+			$showSubmit,
+			$unitId
 		);
 	}
 
@@ -239,8 +243,10 @@ final class SearchForm
 		SearchContext $ctx,
 		bool $needsChildAges,
 		string $guestFieldMode,
-		bool $showSubmit = true
+		bool $showSubmit = true,
+		int $unitId = 0
 	): void {
+		$stopSellMax = $unitId > 0 ? KrossStopSell::getStopSellDateForPost($unitId) : '';
 		echo '<div class="' . \esc_attr($htmlClass) . '-wrap">';
 		echo '<form class="' . \esc_attr($htmlClass) . '" id="' . \esc_attr($formId) . '" method="get" action="' . \esc_url($action) . '" data-bec-guest-mode="' . \esc_attr($guestFieldMode) . '">';
 
@@ -259,6 +265,13 @@ final class SearchForm
 			echo '<input id="' . \esc_attr($formId . '-' . $name) . '" name="' . \esc_attr($name) . '" type="' . \esc_attr($type) . '" value="' . \esc_attr($val) . '"';
 			if ($min !== '') {
 				echo ' min="' . \esc_attr($min) . '"';
+			}
+			if (
+				$stopSellMax !== ''
+				&& $type === 'date'
+				&& ( $name === SearchContext::PARAM_CHECKIN || $name === SearchContext::PARAM_CHECKOUT )
+			) {
+				echo ' max="' . \esc_attr($stopSellMax) . '"';
 			}
 			echo ' />';
 			echo '</p>';
@@ -316,7 +329,8 @@ final class SearchForm
 		bool $showSubmit = true,
 		string $popoverPlacement = self::POPOVER_PLACEMENT_AUTO,
 		string $daterangeDisplayFormat = 'D MMM YYYY',
-		array $calendarHints = []
+		array $calendarHints = [],
+		int $unitId = 0
 	): void {
 		$popoverPlacement = self::normalizePopoverPlacement($popoverPlacement);
 
@@ -361,6 +375,7 @@ final class SearchForm
 		$guestsLbl = \esc_attr(\__('Guests', 'booking-engine-connector'));
 
 		$calendarAttrs = self::buildCalendarAvailabilityAttrs($calendarHints);
+		$calendarAttrs .= self::buildStopSellFormAttr($unitId);
 
 		echo '<div class="' . \esc_attr($htmlClass) . '-wrap ' . \esc_attr($htmlClass) . '-wrap--enhanced">';
 		echo '<form class="' . \esc_attr($htmlClass) . ' ' . \esc_attr($htmlClass) . '--enhanced" id="' . \esc_attr($formId) . '" method="get" action="' . \esc_url($action) . '" data-bec-guest-mode="' . \esc_attr($guestFieldMode) . '" data-bec-popover-placement="' . \esc_attr($popoverPlacement) . '" data-bec-daterange-format="' . \esc_attr($daterangeDisplayFormat) . '"' . $calendarAttrs . '>';
@@ -584,6 +599,20 @@ final class SearchForm
 		$attrs .= ' data-bec-availability-horizon-to="' . \esc_attr($horizonTo) . '"';
 
 		return $attrs;
+	}
+
+	private static function buildStopSellFormAttr(int $unitId): string
+	{
+		if ($unitId < 1) {
+			return '';
+		}
+
+		$stopSell = KrossStopSell::getStopSellDateForPost($unitId);
+		if ($stopSell === '') {
+			return '';
+		}
+
+		return ' data-bec-stop-sell="' . \esc_attr($stopSell) . '"';
 	}
 
 	/**

@@ -24,6 +24,7 @@ use BookingEngineConnector\Integrations\Multilingual;
 use BookingEngineConnector\Integrations\MultilingualBridge;
 use BookingEngineConnector\Integrations\UnitTranslationSync;
 use BookingEngineConnector\Providers\Kross\KrossCategoryTranslations;
+use BookingEngineConnector\Providers\Kross\KrossStopSell;
 use BookingEngineConnector\Providers\Kross\KrossUnitTranslations;
 use BookingEngineConnector\Front\PublicContentBlocks;
 use BookingEngineConnector\PostTypes\UnitPostType;
@@ -82,6 +83,7 @@ final class Plugin
 		UnitTranslationSync::register();
 		KrossUnitTranslations::register();
 		KrossCategoryTranslations::register();
+		KrossStopSell::register();
 
 		PluginScreenLinks::register();
 		PluginUpdater::register();

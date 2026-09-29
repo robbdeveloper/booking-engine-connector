@@ -17,6 +17,16 @@ final class KrossUnitSyncFieldDefinitions
 	 */
 	public static function get(): array
 	{
-		return [];
+		return [
+			new UnitSyncFieldDefinition(
+				KrossStopSell::META_KEY,
+				\__('Stop sell date', 'booking-engine-connector'),
+				'string',
+				'kross',
+				static function (array $row): string {
+					return KrossStopSell::extractFromNormalisedRow($row);
+				}
+			),
+		];
 	}
 }

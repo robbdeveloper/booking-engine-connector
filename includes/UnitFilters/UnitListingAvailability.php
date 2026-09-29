@@ -7,6 +7,7 @@ namespace BookingEngineConnector\UnitFilters;
 use BookingEngineConnector\Fallback\FallbackService;
 use BookingEngineConnector\Integrations\MultilingualBridge;
 use BookingEngineConnector\PostTypes\UnitPostType;
+use BookingEngineConnector\Providers\Kross\KrossStopSell;
 use BookingEngineConnector\Search\QuoteService;
 use BookingEngineConnector\Search\SearchContext;
 use BookingEngineConnector\Taxonomies\UnitCategoryTaxonomy;
@@ -169,10 +170,33 @@ final class UnitListingAvailability
 	{
 		$existing = $query->get('post__in');
 		if (\is_array($existing) && $existing !== []) {
-			return self::filterUnitIdsWithExternalId($existing, $query);
+			return self::excludeStopSellHiddenIds(self::filterUnitIdsWithExternalId($existing, $query));
 		}
 
-		return self::discoverCandidateIdsViaSubquery($query);
+		return self::excludeStopSellHiddenIds(self::discoverCandidateIdsViaSubquery($query));
+	}
+
+	/**
+	 * @param list<int> $ids
+	 * @return list<int>
+	 */
+	private static function excludeStopSellHiddenIds(array $ids): array
+	{
+		$hidden = KrossStopSell::getPostIdsHiddenFromListings();
+		if ($hidden === []) {
+			return $ids;
+		}
+
+		$hiddenMap = \array_fill_keys($hidden, true);
+		$out       = [];
+		foreach ($ids as $id) {
+			$id = (int) $id;
+			if ($id > 0 && ! isset($hiddenMap[ $id ])) {
+				$out[] = $id;
+			}
+		}
+
+		return $out;
 	}
 
 	/**
@@ -254,6 +278,7 @@ final class UnitListingAvailability
 			$args['date_query'] = $dateQuery;
 		}
 
+		$args    = KrossStopSell::mergeHiddenIdsIntoQueryArgs($args);
 		$postIds = self::runSuppressedIdQuery($args);
 
 		if (\count($postIds) > $limit) {
@@ -348,6 +373,14 @@ final class UnitListingAvailability
 	{
 		$available = [];
 		foreach ($candidateIds as $postId) {
+			if (KrossStopSell::isHiddenFromListings($postId)) {
+				continue;
+			}
+
+			if (KrossStopSell::isStayInvalidForStopSell($postId, $ctx)) {
+				continue;
+			}
+
 			$quote = QuoteService::getQuote($postId, $ctx);
 
 			if ($quote instanceof \WP_Error) {
@@ -499,6 +532,6 @@ final class UnitListingAvailability
 			$vars['lang'] = $lang;
 		}
 
-		return $vars;
+		return KrossStopSell::mergeHiddenIdsIntoQueryArgs($vars);
 	}
 }
