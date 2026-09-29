@@ -1,5 +1,9 @@
 # Changelog
 
+## 0.4.10 — 2026-09-29
+
+- **Kross — stop sell**: Sync room-type **`stop_sell`** from **`/v5/rooms/get-room-types`** into post meta **`bec_kross_stop_sell`**. Units are removed from public listings (archive, category archives, Elementor unit loops, availability counts) when the site date is on or after **`stop_sell`**; single unit URLs and wp-admin are unchanged. Active searches also exclude units whose check-in or check-out is after **`stop_sell`**. On unit-scoped enhanced search forms, the daterangepicker last selectable day is **`stop_sell`** via **`data-bec-stop-sell`** and **`public-search-daterange.js`**; classic search date inputs use **`max`** on check-in/check-out. One-time backfill from stored **`bec_sync_payload`** for existing Kross units; translation posts copy the meta on sync.
+
 ## 0.4.9 — 2026-09-08
 
 - **Unit data quality — CSV export**: Export only units with at least one missing mandatory field. Complete units are no longer included in the completeness CSV download.
