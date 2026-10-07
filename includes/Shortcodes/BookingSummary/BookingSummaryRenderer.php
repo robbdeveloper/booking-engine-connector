@@ -693,7 +693,35 @@ final class BookingSummaryRenderer
 		);
 
 		echo '</div>'; // drawer
+		self::printMobileDrawerReopenScript( $instanceId );
 		echo '</div>'; // mobile
+	}
+
+	/**
+	 * Open the mobile drawer before the footer booking-summary script runs, when this
+	 * summary just submitted Check availability. sessionStorage is cleared here so a
+	 * later visit does not reopen.
+	 */
+	private static function printMobileDrawerReopenScript( string $instanceId ): void {
+		$json = (string) \wp_json_encode(
+			[
+				'key'        => 'bec-bsummary-reopen',
+				'rootId'     => $instanceId . '-root',
+				'panelId'    => $instanceId . '-panel',
+				'backdropId' => $instanceId . '-backdrop',
+				'mq'         => '(max-width: 639px)',
+			],
+			JsonExtensionFlags::hexTag()
+				| JsonExtensionFlags::hexAmp()
+				| JsonExtensionFlags::hexApos()
+				| JsonExtensionFlags::hexQuote()
+		);
+		if ( $json === '' || $json === 'false' ) {
+			return;
+		}
+
+		// phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- JSON flags escape tags and quotes.
+		echo '<script>(function(){var c=' . $json . ';try{if(!window.sessionStorage||sessionStorage.getItem(c.key)!==c.rootId){return;}if(typeof window.matchMedia!=="function"||!window.matchMedia(c.mq).matches){return;}var drawer=document.getElementById(c.panelId);var root=document.getElementById(c.rootId);if(!drawer||!root){return;}var backdrop=document.getElementById(c.backdropId);drawer.classList.add("is-open");drawer.setAttribute("aria-hidden","false");drawer.removeAttribute("inert");drawer.removeAttribute("data-bec-bsummary-closed");if(backdrop){backdrop.hidden=false;backdrop.setAttribute("aria-hidden","false");}if(document.body){document.body.classList.add("bec-booking-summary-body-lock");}root.setAttribute("data-bec-bsummary-reopen","1");sessionStorage.removeItem(c.key);}catch(e){}})();</script>';
 	}
 
 	/**

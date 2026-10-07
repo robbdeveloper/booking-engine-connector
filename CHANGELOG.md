@@ -1,5 +1,10 @@
 # Changelog
 
+## 0.4.11 — 2026-10-07
+
+- **Booking summary — reopen mobile drawer after availability**: On viewports up to 639px, `[bec_booking_summary]` opens the slide-in summary again after **Check availability** reloads the unit page, so the quote (or the unavailable / error message) is visible immediately instead of only the bottom price bar. `assets/public-booking-summary.js` stores a one-time `sessionStorage` flag on mobile search submit; an inline script in `BookingSummaryRenderer::printMobileShell()` applies the open state before first paint, and `initDrawer()` finishes dialog state. Shared links, refreshes, and other visits that already have dates in the URL keep the drawer closed.
+- **i18n**: Regenerated `languages/booking-engine-connector.pot`, merged `booking-engine-connector-it_IT.po`, and recompiled `booking-engine-connector-it_IT.mo`.
+
 ## 0.4.10 — 2026-09-29
 
 - **Kross — stop sell**: Sync room-type **`stop_sell`** from **`/v5/rooms/get-room-types`** into post meta **`bec_kross_stop_sell`**. Units are removed from public listings (archive, category archives, Elementor unit loops, availability counts) when the site date is on or after **`stop_sell`**; single unit URLs and wp-admin are unchanged. Active searches also exclude units whose check-in or check-out is after **`stop_sell`**. On unit-scoped enhanced search forms, the daterangepicker last selectable day is **`stop_sell`** via **`data-bec-stop-sell`** and **`public-search-daterange.js`**; classic search date inputs use **`max`** on check-in/check-out. One-time backfill from stored **`bec_sync_payload`** for existing Kross units; translation posts copy the meta on sync.

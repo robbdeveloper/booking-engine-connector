@@ -4,6 +4,48 @@
 (function () {
 	'use strict';
 
+	var REOPEN_STORAGE_KEY = 'bec-bsummary-reopen';
+	var MOBILE_QUERY = '(max-width: 639px)';
+
+	function isSummaryMobileViewport() {
+		return typeof window.matchMedia === 'function' && window.matchMedia(MOBILE_QUERY).matches;
+	}
+
+	/**
+	 * Remember that this summary submitted search on mobile, so the next page can reopen the drawer.
+	 * @param {Element} root
+	 */
+	function rememberReopenDrawer(root) {
+		if (!root || !root.id || !isSummaryMobileViewport()) {
+			return;
+		}
+		try {
+			sessionStorage.setItem(REOPEN_STORAGE_KEY, root.id);
+		} catch (err) {}
+	}
+
+	/**
+	 * Consume a pending reopen for this root (inline script flag and/or sessionStorage).
+	 * Clears a matching storage key even when the drawer will not open.
+	 * @param {Element} root
+	 * @returns {boolean}
+	 */
+	function takeReopenDrawerRequest(root) {
+		if (!root || !root.id) {
+			return false;
+		}
+		var fromMarkup = root.getAttribute('data-bec-bsummary-reopen') === '1';
+		root.removeAttribute('data-bec-bsummary-reopen');
+		var stored = '';
+		try {
+			stored = sessionStorage.getItem(REOPEN_STORAGE_KEY) || '';
+			if (stored === root.id) {
+				sessionStorage.removeItem(REOPEN_STORAGE_KEY);
+			}
+		} catch (err) {}
+		return fromMarkup || stored === root.id;
+	}
+
 	/**
 	 * First control associated with the form (includes fields with form="…" outside the form node).
 	 * @param {HTMLFormElement} form
@@ -195,6 +237,8 @@
 			return;
 		}
 
+		var shouldReopen = takeReopenDrawerRequest(root);
+
 		portalMobileDrawer(root);
 
 		var openBtns = querySummaryAll(root, '.bec-booking-summary__open-panel');
@@ -270,6 +314,10 @@
 				close();
 			}
 		});
+
+		if (shouldReopen && isSummaryMobileViewport()) {
+			open();
+		}
 	}
 
 	function findRateLinkFromEventTarget(root, target) {
@@ -399,6 +447,8 @@
 			// Use submit(), not requestSubmit(): the footer button is outside the form and
 			// requestSubmit() runs constraint validation (often failing on inputs in hidden
 			// guest popovers), which aborts navigation with no feedback.
+			// form.submit() does not fire a submit event, so the reopen flag is set here too.
+			rememberReopenDrawer(root);
 			form.submit();
 		});
 	}
@@ -645,6 +695,7 @@
 				if (!form.closest('[data-bec-bsummary-search]')) {
 					return;
 				}
+				rememberReopenDrawer(root);
 				setSummaryLoading(root, true);
 			},
 			true

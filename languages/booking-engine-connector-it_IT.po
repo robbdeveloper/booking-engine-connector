@@ -1,9 +1,9 @@
 msgid ""
 msgstr ""
-"Project-Id-Version: Booking Engine Connector 0.4.10\n"
+"Project-Id-Version: Booking Engine Connector 0.4.11\n"
 "Report-Msgid-Bugs-To: https://wordpress.org/support/plugin/booking-engine-"
 "connector\n"
-"POT-Creation-Date: 2026-08-25T07:24:57+00:00\n"
+"POT-Creation-Date: 2026-10-07T13:49:50+00:00\n"
 "PO-Revision-Date: 2026-08-24 21:30+0200\n"
 "Last-Translator: Booking Engine Connector\n"
 "Language-Team: Italian\n"
@@ -276,11 +276,11 @@ msgstr "Report CSV"
 
 #: includes/Admin/AdminMenu.php:309
 msgid ""
-"Download a spreadsheet of units and missing mandatory fields for client "
-"follow-up."
+"Download a spreadsheet of incomplete units and missing mandatory fields for "
+"client follow-up."
 msgstr ""
-"Scarica un foglio di calcolo con le unità e i campi obbligatori mancanti da "
-"inviare al cliente."
+"Scarica un foglio di calcolo delle unità incomplete e dei campi obbligatori "
+"mancanti da inviare al cliente."
 
 #: includes/Admin/AdminMenu.php:311
 #: includes/Admin/Settings/UnitDataQualityPage.php:82
@@ -303,7 +303,7 @@ msgstr "Non impostato"
 
 #: includes/Admin/AdminMenu.php:323
 #: includes/Units/Completeness/UnitCompletenessChecker.php:364
-#: includes/Units/Completeness/UnitCompletenessExport.php:80
+#: includes/Units/Completeness/UnitCompletenessExport.php:79
 msgid "Missing"
 msgstr "Mancante"
 
@@ -1976,8 +1976,8 @@ msgid "No availability for these dates."
 msgstr "Nessuna disponibilità per queste date."
 
 #: includes/Checkout/CheckoutCtaHtml.php:24
-#: includes/Providers/Kross/KrossProvider.php:903
-#: includes/Providers/Kross/KrossProvider.php:908
+#: includes/Providers/Kross/KrossProvider.php:1015
+#: includes/Providers/Kross/KrossProvider.php:1020
 msgid "Book now"
 msgstr "Prenota ora"
 
@@ -2105,31 +2105,31 @@ msgstr "%d ospiti"
 
 #. translators: %d child index (display order starts at 1)
 #. translators: %d: child index (1-based)
-#: includes/Front/PublicAssets.php:208 includes/Search/SearchForm.php:291
-#: includes/Search/SearchForm.php:439
+#: includes/Front/PublicAssets.php:208 includes/Search/SearchForm.php:304
+#: includes/Search/SearchForm.php:454
 #, php-format
 msgid "Child %d age"
 msgstr "Bambino %d età"
 
-#: includes/Front/PublicAssets.php:209 includes/Search/SearchForm.php:447
+#: includes/Front/PublicAssets.php:209 includes/Search/SearchForm.php:462
 msgid "Age"
 msgstr "Età"
 
-#: includes/Front/PublicAssets.php:219 includes/Search/SearchForm.php:463
+#: includes/Front/PublicAssets.php:219 includes/Search/SearchForm.php:478
 msgid "Apply"
 msgstr "Applica"
 
-#: includes/Front/PublicAssets.php:220 includes/Search/SearchForm.php:462
+#: includes/Front/PublicAssets.php:220 includes/Search/SearchForm.php:477
 msgid "Cancel"
 msgstr "Annulla"
 
-#: includes/Front/PublicAssets.php:221 includes/Search/SearchForm.php:106
-#: includes/Search/SearchForm.php:125 includes/Search/SearchForm.php:325
+#: includes/Front/PublicAssets.php:221 includes/Search/SearchForm.php:107
+#: includes/Search/SearchForm.php:126 includes/Search/SearchForm.php:339
 msgid "Check-in"
 msgstr "Check-in"
 
-#: includes/Front/PublicAssets.php:222 includes/Search/SearchForm.php:111
-#: includes/Search/SearchForm.php:130 includes/Search/SearchForm.php:328
+#: includes/Front/PublicAssets.php:222 includes/Search/SearchForm.php:112
+#: includes/Search/SearchForm.php:131 includes/Search/SearchForm.php:342
 msgid "Check-out"
 msgstr "Check-out"
 
@@ -2377,37 +2377,37 @@ msgstr "Richiesta token Kross non riuscita (%d)."
 msgid "Kross token response did not contain data.auth_token."
 msgstr "La risposta del token Kross non conteneva data.auth_token."
 
-#: includes/Providers/Kross/KrossProvider.php:204
+#: includes/Providers/Kross/KrossProvider.php:203
 msgid "Kross get-room-types request was not successful."
 msgstr "La richiesta dei tipi di stanza di Kross non è andata a buon fine."
 
-#: includes/Providers/Kross/KrossProvider.php:251
+#: includes/Providers/Kross/KrossProvider.php:250
 msgid "Kross get-room-types-categories request was not successful."
 msgstr ""
 "La richiesta delle categorie dei tipi di stanza di Kross non è andata a buon "
 "fine."
 
-#: includes/Providers/Kross/KrossProvider.php:398
+#: includes/Providers/Kross/KrossProvider.php:397
 msgid "Kross calendar/get-availability request was not successful."
 msgstr ""
 "La richiesta calendar/get-availability di Kross non è andata a buon fine."
 
-#: includes/Providers/Kross/KrossProvider.php:775
+#: includes/Providers/Kross/KrossProvider.php:887
 msgid "Search context must include check-in and check-out dates."
 msgstr "Il contesto di ricerca deve includere le date di check-in e check-out."
 
-#: includes/Providers/Kross/KrossProvider.php:823
+#: includes/Providers/Kross/KrossProvider.php:935
 msgid "Kross calendar/book request was not successful."
 msgstr "La richiesta di calendario/libro di Kross non è andata a buon fine."
 
 #. translators: %d HTTP status
-#: includes/Providers/Kross/KrossProvider.php:995
+#: includes/Providers/Kross/KrossProvider.php:1107
 #, php-format
 msgid "Kross API request failed (%d)."
 msgstr "Richiesta API Kross non riuscita (%d)."
 
 #. translators: %d Kross API error_code
-#: includes/Providers/Kross/KrossProvider.php:1020
+#: includes/Providers/Kross/KrossProvider.php:1132
 #, php-format
 msgid "(error_code %d)"
 msgstr "(codice_errore %d)"
@@ -2519,6 +2519,10 @@ msgstr "Camera da letto %d"
 msgid "Room %d"
 msgstr "Stanza %d"
 
+#: includes/Providers/Kross/KrossUnitSyncFieldDefinitions.php:23
+msgid "Stop sell date"
+msgstr "Data di stop sell"
+
 #: includes/Routing/UnitPermalinkSettings.php:43
 msgid "/{unit slug}/{unit name}"
 msgstr "/{slug unità}/{nome unità}"
@@ -2591,52 +2595,52 @@ msgstr ""
 "Non siamo riusciti a recuperare un prezzo dal fornitore della prenotazione. "
 "Per favore riprova."
 
-#: includes/Search/SearchForm.php:116 includes/Search/SearchForm.php:337
-#: includes/Search/SearchForm.php:361 includes/Search/SearchForm.php:400
+#: includes/Search/SearchForm.php:117 includes/Search/SearchForm.php:351
+#: includes/Search/SearchForm.php:375 includes/Search/SearchForm.php:415
 msgid "Guests"
 msgstr "Ospiti"
 
-#: includes/Search/SearchForm.php:135 includes/Search/SearchForm.php:331
+#: includes/Search/SearchForm.php:136 includes/Search/SearchForm.php:345
 msgid "Adults"
 msgstr "Adulti"
 
-#: includes/Search/SearchForm.php:141 includes/Search/SearchForm.php:334
+#: includes/Search/SearchForm.php:142 includes/Search/SearchForm.php:348
 msgid "Children"
 msgstr "Bambini"
 
-#: includes/Search/SearchForm.php:272 includes/Search/SearchForm.php:470
+#: includes/Search/SearchForm.php:285 includes/Search/SearchForm.php:485
 msgid "Search availability"
 msgstr "Cerca disponibilità"
 
-#: includes/Search/SearchForm.php:372
+#: includes/Search/SearchForm.php:387
 msgid "Search stays"
 msgstr "La ricerca resta"
 
-#: includes/Search/SearchForm.php:374
+#: includes/Search/SearchForm.php:389
 msgid "Select dates"
 msgstr "Seleziona le date"
 
-#: includes/Search/SearchForm.php:410
+#: includes/Search/SearchForm.php:425
 msgid "Decrease guests"
 msgstr "Diminuire gli ospiti"
 
-#: includes/Search/SearchForm.php:412
+#: includes/Search/SearchForm.php:427
 msgid "Increase guests"
 msgstr "Aumenta gli ospiti"
 
-#: includes/Search/SearchForm.php:418
+#: includes/Search/SearchForm.php:433
 msgid "Decrease adults"
 msgstr "Diminuire gli adulti"
 
-#: includes/Search/SearchForm.php:420
+#: includes/Search/SearchForm.php:435
 msgid "Increase adults"
 msgstr "Aumentano gli adulti"
 
-#: includes/Search/SearchForm.php:426
+#: includes/Search/SearchForm.php:441
 msgid "Decrease children"
 msgstr "Diminuire i bambini"
 
-#: includes/Search/SearchForm.php:428
+#: includes/Search/SearchForm.php:443
 msgid "Increase children"
 msgstr "Aumentare i bambini"
 
@@ -2749,31 +2753,31 @@ msgstr "Totale attuale"
 msgid "Back"
 msgstr "Indietro"
 
-#: includes/Shortcodes/BookingSummary/BookingSummaryRenderer.php:791
+#: includes/Shortcodes/BookingSummary/BookingSummaryRenderer.php:819
 msgid "Per night"
 msgstr "A notte"
 
-#: includes/Shortcodes/BookingSummary/BookingSummaryRenderer.php:841
-#: includes/Shortcodes/BookingSummary/BookingSummaryRenderer.php:910
+#: includes/Shortcodes/BookingSummary/BookingSummaryRenderer.php:869
+#: includes/Shortcodes/BookingSummary/BookingSummaryRenderer.php:938
 msgid "Total"
 msgstr "Totale"
 
-#: includes/Shortcodes/BookingSummary/BookingSummaryRenderer.php:849
+#: includes/Shortcodes/BookingSummary/BookingSummaryRenderer.php:877
 #: includes/Shortcodes/BookingSummary/BookingSummaryViewModelBuilder.php:111
 msgid "Prepayment needed"
 msgstr "Pagamento anticipato"
 
-#: includes/Shortcodes/BookingSummary/BookingSummaryRenderer.php:858
+#: includes/Shortcodes/BookingSummary/BookingSummaryRenderer.php:886
 #: includes/Shortcodes/BookingSummary/BookingSummaryViewModelBuilder.php:119
 msgid "Damage deposit"
 msgstr "Deposito cauzionale"
 
-#: includes/Shortcodes/BookingSummary/BookingSummaryRenderer.php:881
+#: includes/Shortcodes/BookingSummary/BookingSummaryRenderer.php:909
 #: includes/Shortcodes/BookingSummary/BookingSummaryViewModelBuilder.php:78
 msgid "This rate includes"
 msgstr "Questa tariffa include"
 
-#: includes/Shortcodes/BookingSummary/BookingSummaryRenderer.php:882
+#: includes/Shortcodes/BookingSummary/BookingSummaryRenderer.php:910
 #: includes/Shortcodes/BookingSummary/BookingSummaryViewModelBuilder.php:85
 msgid "Cancellation and payments"
 msgstr "Cancellazione e pagamenti"
