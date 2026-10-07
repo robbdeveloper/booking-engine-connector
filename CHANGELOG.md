@@ -1,5 +1,9 @@
 # Changelog
 
+## 0.4.12 — 2026-10-07
+
+- **Kross — hide from booking engine**: Sync room-type **`hide_be`** from **`/v5/rooms/get-room-types`**. Units with **`hide_be`** true are stored as **draft** `bec_unit` posts, and linked translations follow that status; clearing the flag publishes the same post on the next sync. Title, content, gallery, and meta still update while the unit is hidden. Public listings and single unit URLs only load published posts, so a hidden unit drops off the booking engine and stays visible under Drafts in wp-admin. Units excluded by the booking-engine checklist, and units with sync disabled, are unchanged. Test mode marks **Demo Loft Studio** (`9105`) with **`hide_be`** true.
+
 ## 0.4.11 — 2026-10-07
 
 - **Booking summary — reopen mobile drawer after availability**: On viewports up to 639px, `[bec_booking_summary]` opens the slide-in summary again after **Check availability** reloads the unit page, so the quote (or the unavailable / error message) is visible immediately instead of only the bottom price bar. `assets/public-booking-summary.js` stores a one-time `sessionStorage` flag on mobile search submit; an inline script in `BookingSummaryRenderer::printMobileShell()` applies the open state before first paint, and `initDrawer()` finishes dialog state. Shared links, refreshes, and other visits that already have dates in the URL keep the drawer closed.

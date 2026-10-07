@@ -227,7 +227,8 @@ final class KrossTestData
 				self::amenitiesWifiKitchen(),
 				self::imagesStudio(),
 				1,
-				1
+				1,
+				true
 			),
 			self::roomType(
 				9106,
@@ -290,7 +291,8 @@ final class KrossTestData
 		array $amenities,
 		array $images,
 		int $imageCount,
-		int $mandatoryServiceCount
+		int $mandatoryServiceCount,
+		bool $hideBe = false
 	): array {
 		$bedroomDetails = [];
 		for ($i = 0; $i < $bedrooms; ++$i) {
@@ -352,7 +354,7 @@ final class KrossTestData
 			'homepage'              => false,
 			'starting_from_price'   => $startingPrice,
 			'be_only_request'       => false,
-			'hide_be'               => false,
+			'hide_be'               => $hideBe,
 			'be_enabled'            => [ 'demo-site' ],
 			'number_of_bedrooms'    => $bedrooms,
 			'number_of_bathrooms'   => $bathrooms,
